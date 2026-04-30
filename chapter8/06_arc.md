@@ -7,11 +7,11 @@
 
 ### 問題回顧
 
-前面說了 Rc 不能跨執行緒，因為引用計數不是 atomic。但我們確實需要在多個執行緒之間共享資料——怎麼辦？
+前面說了 Rc 不能跨執行緒，因為參考計數不是 atomic。但我們確實需要在多個執行緒之間共享資料——怎麼辦？
 
 ### Arc：Atomic Reference Counting
 
-`Arc<T>` 就是把 Rc 的引用計數換成 **atomic 操作**的版本。Atomic 操作保證即使多個執行緒同時修改計數器，也不會互相干擾。
+`Arc<T>` 就是把 Rc 的參考計數換成 **atomic 操作**的版本。Atomic 操作保證即使多個執行緒同時修改計數器，也不會互相干擾。
 
 用法跟 Rc 幾乎一樣：
 
@@ -79,7 +79,7 @@ fn main() {
 ```
 
 ## 重點整理
-- `Arc<T>` 是 Rc 的多執行緒版本，引用計數用 atomic 操作
+- `Arc<T>` 是 Rc 的多執行緒版本，參考計數用 atomic 操作
 - 用法跟 Rc 幾乎一樣：`Arc::new()`、`Arc::clone()`
 - `Arc::clone` 後把 clone move 到其他執行緒，就能共享資料
 - `T` 必須是 `Send + Sync`：Sync 因為多執行緒同時存取，Send 因為 drop 可能發生在任何執行緒

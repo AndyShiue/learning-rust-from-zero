@@ -129,13 +129,13 @@ println!("{}", rc.len()); // 自動解參考，呼叫 Vec 的 len()
 
 Rust 從外往內找方法：外層智慧指標自身的方法優先於內層型別的方法。
 
-一個常見的例子是 `clone`。`Rc` 本身有 `clone` 方法（增加引用計數），`T` 可能也有 `clone` 方法（深度複製資料）。直接呼叫 `.clone()` 會拿到 Rc 的 clone：
+一個常見的例子是 `clone`。`Rc` 本身有 `clone` 方法（增加參考計數），`T` 可能也有 `clone` 方法（深度複製資料）。直接呼叫 `.clone()` 會拿到 Rc 的 clone：
 
 ```rust
 use std::rc::Rc;
 
 let a = Rc::new(String::from("hello"));
-let b = a.clone(); // Rc 的 clone，增加引用計數，不複製 String
+let b = a.clone(); // Rc 的 clone，增加參考計數，不複製 String
 ```
 
 如果你想呼叫內層 String 的 clone，可以明確寫出來：
