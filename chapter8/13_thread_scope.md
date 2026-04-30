@@ -1,4 +1,4 @@
-# 第八章第 12 集：thread::scope 簡介
+# 第八章第 13 集：thread::scope 簡介
 
 ## 本集目標
 學會用 `thread::scope` 建立有限生命週期的執行緒，不需要 move 或 Arc 就能借用外部資料。

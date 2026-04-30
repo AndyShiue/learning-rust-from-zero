@@ -1,4 +1,4 @@
-# 第八章第 9 集：poisoning
+# 第八章第 10 集：poisoning
 
 ## 本集目標
 理解什麼是鎖的中毒（poisoning），以及該怎麼處理它。

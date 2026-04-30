@@ -30,8 +30,8 @@ Cargo 專案管理、use/mod、可見性、cargo test、發布 crate。
 ### 附錄一（11 集）
 數字字面值、格式化字串、break 回傳值、raw string、struct 放 main 裡、struct update syntax、ref/match ergonomics、panic!/todo!/unreachable!、Rc 迴圈與 Weak、fully qualified syntax、DST 簡介。
 
-### 第八章：多執行緒（12 集）
-指標與記憶體位址、thread::spawn、Send/Sync、RefCell 與 Rc 在多執行緒下的限制、Arc、Mutex、RwLock、poisoning、mpsc channel、死鎖、thread::scope。
+### 第八章：多執行緒（13 集）
+指標與記憶體位址、thread::spawn、Send/Sync、RefCell 與 Rc 在多執行緒下的限制、Arc、Atomic 型別、Mutex、RwLock、poisoning、mpsc channel、死鎖、thread::scope。
 
 ### 第九章：進階語言功能（19 集）
 dyn Trait、dyn compatibility、const fn、associated const、const generics、預設參數、運算子重載、型別轉換 as、enum discriminant、attribute 總覽、cfg! macro、macro_rules!、proc macro、unsafe、static 變數、LazyLock、extern blocks、union、never type。

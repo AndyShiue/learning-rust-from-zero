@@ -458,12 +458,13 @@
 <li><a href="#ch8_refcell_multithread">第八章第 4 集：RefCell 在多執行緒</a></li>
 <li><a href="#ch8_rc_multithread">第八章第 5 集：Rc 在多執行緒</a></li>
 <li><a href="#ch8_arc">第八章第 6 集：Arc&lt;T&gt;</a></li>
-<li><a href="#ch8_mutex">第八章第 7 集：Mutex&lt;T&gt;</a></li>
-<li><a href="#ch8_rwlock">第八章第 8 集：RwLock&lt;T&gt;</a></li>
-<li><a href="#ch8_poisoning">第八章第 9 集：poisoning</a></li>
-<li><a href="#ch8_mpsc">第八章第 10 集：mpsc</a></li>
-<li><a href="#ch8_deadlock">第八章第 11 集：死鎖</a></li>
-<li><a href="#ch8_thread_scope">第八章第 12 集：thread::scope 簡介</a></li>
+<li><a href="#ch8_atomic">第八章第 7 集：atomic 型別</a></li>
+<li><a href="#ch8_mutex">第八章第 8 集：Mutex&lt;T&gt;</a></li>
+<li><a href="#ch8_rwlock">第八章第 9 集：RwLock&lt;T&gt;</a></li>
+<li><a href="#ch8_poisoning">第八章第 10 集：poisoning</a></li>
+<li><a href="#ch8_mpsc">第八章第 11 集：mpsc</a></li>
+<li><a href="#ch8_deadlock">第八章第 12 集：死鎖</a></li>
+<li><a href="#ch8_thread_scope">第八章第 13 集：thread::scope 簡介</a></li>
 </ul>
 </li>
 <li><a href="#ch9">第九章：進階語言功能</a><ul>
@@ -15706,12 +15707,143 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <li><code>T</code> 必須是 <code>Send + Sync</code>：Sync 因為多執行緒同時存取，Send 因為 drop 可能發生在任何執行緒</li>
 </ul>
 <hr />
-<h2 id="ch8_mutex">第八章第 7 集：Mutex&lt;T&gt;</h2>
+<h2 id="ch8_atomic">第八章第 7 集：atomic 型別</h2>
 <h3 id="_863">本集目標</h3>
-<p>學會用 <code>Mutex&lt;T&gt;</code> 讓多個執行緒安全地修改共享資料。</p>
+<p>學會用 atomic 型別在多個執行緒之間安全地讀寫簡單的值。</p>
 <h3 id="_864">概念說明</h3>
-<h4 id="arc">Arc 只能讀，想改怎麼辦？</h4>
-<p>Arc 讓多個執行緒共享資料，但只能讀。如果你想讓多個執行緒<strong>修改</strong>同一份資料呢？</p>
+<h4 id="atomic">什麼是 atomic 操作</h4>
+<p>上一集學了 Arc，它的引用計數用的是 atomic 操作。到底什麼是 atomic？</p>
+<p>假設兩個執行緒同時對一個變數做 <code>count += 1</code>。這看起來是一步，但實際上分成三步：讀出目前的值、加 1、寫回去。如果兩個執行緒同時做這三步，可能會發生這樣的事：</p>
+<ol>
+<li>執行緒 A 讀出 count = 0</li>
+<li>執行緒 B 讀出 count = 0</li>
+<li>執行緒 A 寫入 count = 1</li>
+<li>執行緒 B 寫入 count = 1</li>
+</ol>
+<p>兩邊各加了一次，結果卻是 1 而不是 2。</p>
+<p><strong>atomic 操作</strong>把讀、改、寫合成一個不可分割的動作——其他執行緒不可能看到做到一半的狀態。用 atomic 操作做 <code>count += 1</code>，兩個執行緒同時跑，結果一定是 2。</p>
+<h4 id="atomici32-atomicbool">AtomicI32 和 AtomicBool</h4>
+<p>標準庫在 <code>std::sync::atomic</code> 提供了幾種 atomic 型別，最常用的是整數和布林：</p>
+<div class="highlight"><pre><span></span><code><span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">sync</span><span class="p">::</span><span class="n">atomic</span><span class="p">::{</span><span class="n">AtomicI32</span><span class="p">,</span><span class="w"> </span><span class="n">AtomicBool</span><span class="p">,</span><span class="w"> </span><span class="n">Ordering</span><span class="p">};</span>
+
+<span class="kd">let</span><span class="w"> </span><span class="n">counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AtomicI32</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<span class="kd">let</span><span class="w"> </span><span class="n">flag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AtomicBool</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
+</code></pre></div>
+
+<h4 id="_865">基本操作</h4>
+<div class="highlight"><pre><span></span><code><span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">sync</span><span class="p">::</span><span class="n">atomic</span><span class="p">::{</span><span class="n">AtomicI32</span><span class="p">,</span><span class="w"> </span><span class="n">Ordering</span><span class="p">};</span>
+
+<span class="kd">let</span><span class="w"> </span><span class="n">counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AtomicI32</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+
+<span class="n">counter</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="n">Ordering</span><span class="p">::</span><span class="n">Relaxed</span><span class="p">);</span><span class="w">             </span><span class="c1">// 寫入</span>
+<span class="kd">let</span><span class="w"> </span><span class="n">val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">counter</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">Ordering</span><span class="p">::</span><span class="n">Relaxed</span><span class="p">);</span><span class="w">        </span><span class="c1">// 讀取：10</span>
+<span class="kd">let</span><span class="w"> </span><span class="n">old</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">counter</span><span class="p">.</span><span class="n">fetch_add</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="n">Ordering</span><span class="p">::</span><span class="n">Relaxed</span><span class="p">);</span><span class="w"> </span><span class="c1">// 加 5，回傳舊值 10</span>
+<span class="c1">// 現在 counter 是 15</span>
+</code></pre></div>
+
+<p>每個操作都要傳一個 <code>Ordering</code> 參數。為什麼需要這個？</p>
+<p>現代處理器為了效能，可能會<strong>重新排列指令的執行順序</strong>。在單執行緒下這不會造成問題——處理器保證結果跟按順序執行一樣。但在多執行緒下，一個執行緒裡的指令重排，可能讓另一個執行緒看到不一致的狀態。</p>
+<p><code>Ordering</code> 就是告訴處理器「這個操作前後的指令不能隨便重排」，一般來說，限制越嚴格，效能代價越高。</p>
+<p>舉個例子：假設執行緒 A 把資料寫進一個 Vec，然後把一個 atomic 旗標設成 <code>true</code>；執行緒 B 看到旗標是 <code>true</code> 就去讀那個 Vec：</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// 執行緒 A</span>
+<span class="n">data</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span><span class="w">                          </span><span class="c1">// 第 1 步：寫入資料</span>
+<span class="n">ready</span><span class="p">.</span><span class="n">store</span><span class="p">(</span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="n">Ordering</span><span class="p">::</span><span class="n">Relaxed</span><span class="p">);</span><span class="w">   </span><span class="c1">// 第 2 步：設旗標</span>
+
+<span class="c1">// 執行緒 B</span>
+<span class="k">if</span><span class="w"> </span><span class="n">ready</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">Ordering</span><span class="p">::</span><span class="n">Relaxed</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">      </span><span class="c1">// 看到 true</span>
+<span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&quot;{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span><span class="w">            </span><span class="c1">// 但資料可能還沒寫進去！</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>用 <code>Relaxed</code> 的話，處理器可能把執行緒 A 的第 1 步和第 2 步重排——執行緒 B 看到旗標已經是 <code>true</code>，但資料還沒寫進去。處理器之所以敢重排，是因為從執行緒 A 自己的角度來看，先設旗標再寫資料和先寫資料再設旗標結果完全一樣——它不知道還有另一個執行緒在看。用 <code>SeqCst</code> 就不會有這個問題，它保證所有執行緒看到的操作順序一致。</p>
+<p>細節很複雜，初學的話可以先記住兩個：</p>
+<ul>
+<li><code>Ordering::Relaxed</code>：只保證這個 atomic 操作本身是正確的，不限制其他指令的順序。適合單純的計數器</li>
+<li><code>Ordering::SeqCst</code>：最嚴格，所有執行緒看到的操作順序都一致</li>
+</ul>
+<p>不確定的時候用 <code>SeqCst</code> 最安全。</p>
+<h4 id="interior-mutability_1">Interior mutability</h4>
+<p>注意看上面的程式碼——<code>store</code> 和 <code>fetch_add</code> 明明在修改值，卻不需要 <code>&amp;mut self</code>，只要 <code>&amp;self</code> 就行。這跟第五章學的 Cell 一樣，是 interior mutability。</p>
+<p>為什麼一定要這樣設計？因為如果要 <code>&amp;mut self</code> 才能修改，那就只有一個執行緒能拿到 <code>&amp;mut</code>，其他執行緒根本碰不到這個值——那還跨什麼執行緒？Atomic 的重點就是讓多個執行緒透過 <code>&amp;</code> 同時存取同一個值，所以必須是 interior mutability。</p>
+<p>Cell 也是 interior mutability，但 Cell 不是 Sync（不能跨執行緒共享）。Atomic 是 Sync——因為底層硬體保證了操作的原子性，多個執行緒同時透過 <code>&amp;</code> 修改也不會出問題。</p>
+<h4 id="arc">搭配 Arc 使用</h4>
+<p>Atomic 最常見的用法就是搭配 Arc，讓多個執行緒共同修改一個計數器：</p>
+<div class="highlight"><pre><span></span><code><span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">sync</span><span class="p">::</span><span class="n">Arc</span><span class="p">;</span>
+<span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">sync</span><span class="p">::</span><span class="n">atomic</span><span class="p">::{</span><span class="n">AtomicI32</span><span class="p">,</span><span class="w"> </span><span class="n">Ordering</span><span class="p">};</span>
+<span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">thread</span><span class="p">;</span>
+
+<span class="kd">let</span><span class="w"> </span><span class="n">counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Arc</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="n">AtomicI32</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
+
+<span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">handles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="fm">vec!</span><span class="p">[];</span>
+
+<span class="k">for</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="mi">0</span><span class="o">..</span><span class="mi">10</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">counter_clone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Arc</span><span class="p">::</span><span class="n">clone</span><span class="p">(</span><span class="o">&amp;</span><span class="n">counter</span><span class="p">);</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">thread</span><span class="p">::</span><span class="n">spawn</span><span class="p">(</span><span class="k">move</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="mi">0</span><span class="o">..</span><span class="mi">1000</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">counter_clone</span><span class="p">.</span><span class="n">fetch_add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">Ordering</span><span class="p">::</span><span class="n">Relaxed</span><span class="p">);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="w">    </span><span class="n">handles</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">for</span><span class="w"> </span><span class="n">handle</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">handles</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">handle</span><span class="p">.</span><span class="n">join</span><span class="p">().</span><span class="n">expect</span><span class="p">(</span><span class="s">&quot;執行緒發生錯誤&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="fm">println!</span><span class="p">(</span><span class="s">&quot;最終結果：{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">counter</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">Ordering</span><span class="p">::</span><span class="n">Relaxed</span><span class="p">));</span><span class="w"> </span><span class="c1">// 一定是 10000</span>
+</code></pre></div>
+
+<p>10 個執行緒各加 1000 次，結果一定是 10000——不會少算。</p>
+<h4 id="atomic-vs">atomic 型別 vs 鎖</h4>
+<p>atomic 操作只能用在簡單的型別——例如整數（<code>AtomicI32</code>、<code>AtomicU64</code>、<code>AtomicUsize</code> 等）和布林（<code>AtomicBool</code>）。如果你要保護一個 <code>Vec</code>、<code>String</code> 或任何複雜的資料結構，atomic 型別做不到，需要用下一集教的鎖。</p>
+<p>但對於簡單的計數器或旗標，atomic 操作比鎖快——每個執行緒都能直接操作，不需要排隊等別人用完。</p>
+<h3 id="_866">範例程式碼</h3>
+<div class="highlight"><pre><span></span><code><span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">sync</span><span class="p">::</span><span class="n">Arc</span><span class="p">;</span>
+<span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">sync</span><span class="p">::</span><span class="n">atomic</span><span class="p">::{</span><span class="n">AtomicI32</span><span class="p">,</span><span class="w"> </span><span class="n">Ordering</span><span class="p">};</span>
+<span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">thread</span><span class="p">;</span>
+
+<span class="k">fn</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Arc</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="n">AtomicI32</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="mi">0</span><span class="p">));</span>
+
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">handles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="fm">vec!</span><span class="p">[];</span>
+
+<span class="w">    </span><span class="c1">// 三個執行緒，每個加到不同的上限</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">limit</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="p">[</span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span><span class="w"> </span><span class="mi">300</span><span class="p">]</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">counter_clone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Arc</span><span class="p">::</span><span class="n">clone</span><span class="p">(</span><span class="o">&amp;</span><span class="n">counter</span><span class="p">);</span>
+<span class="w">        </span><span class="kd">let</span><span class="w"> </span><span class="n">handle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">thread</span><span class="p">::</span><span class="n">spawn</span><span class="p">(</span><span class="k">move</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="mi">0</span><span class="o">..</span><span class="n">limit</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="n">counter_clone</span><span class="p">.</span><span class="n">fetch_add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">Ordering</span><span class="p">::</span><span class="n">Relaxed</span><span class="p">);</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="fm">println!</span><span class="p">(</span><span class="s">&quot;加了 {} 次，目前值：{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">limit</span><span class="p">,</span><span class="w"> </span><span class="n">counter_clone</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">Ordering</span><span class="p">::</span><span class="n">Relaxed</span><span class="p">));</span>
+<span class="w">        </span><span class="p">});</span>
+<span class="w">        </span><span class="n">handles</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">handle</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">handles</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">handle</span><span class="p">.</span><span class="n">join</span><span class="p">().</span><span class="n">expect</span><span class="p">(</span><span class="s">&quot;執行緒發生錯誤&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 100 + 200 + 300 = 600，不管執行順序如何</span>
+<span class="w">    </span><span class="fm">println!</span><span class="p">(</span><span class="s">&quot;最終結果：{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">counter</span><span class="p">.</span><span class="n">load</span><span class="p">(</span><span class="n">Ordering</span><span class="p">::</span><span class="n">Relaxed</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="_867">重點整理</h3>
+<ul>
+<li>atomic 操作把讀、改、寫合成一個不可分割的動作，多個執行緒同時做也不會出錯</li>
+<li>常用型別：<code>AtomicI32</code>、<code>AtomicUsize</code>、<code>AtomicBool</code></li>
+<li>常用方法：<code>load</code>（讀）、<code>store</code>（寫）、<code>fetch_add</code>（加並回傳舊值）</li>
+<li><code>Ordering</code> 控制記憶體排序，不確定就用 <code>SeqCst</code></li>
+<li>Atomic 是 interior mutability——用 <code>&amp;self</code> 就能修改，而且是 Sync（可以跨執行緒共享）</li>
+<li>只能用在簡單型別，複雜資料需要用鎖</li>
+</ul>
+<hr />
+<h2 id="ch8_mutex">第八章第 8 集：Mutex&lt;T&gt;</h2>
+<h3 id="_868">本集目標</h3>
+<p>學會用 <code>Mutex&lt;T&gt;</code> 讓多個執行緒安全地修改共享資料。</p>
+<h3 id="_869">概念說明</h3>
+<h4 id="_870">想修改複雜的共享資料怎麼辦？</h4>
+<p>上一集學了 Atomic，但它只能用在整數和布林等簡單型別。如果你想讓多個執行緒修改一個 Vec、String 或任何複雜的資料結構呢？</p>
 <h4 id="mutex-interior-mutability">Mutex：多執行緒版的 interior mutability</h4>
 <p><code>Mutex&lt;T&gt;</code> 和 RefCell 有些像——都是一種 interior mutability，讓你在不需要 <code>&amp;mut</code> 的情況下修改值。差別在於：</p>
 <ul>
@@ -15776,7 +15908,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <p>第 3 集學了 Send 和 Sync。有些型別是 <code>Send</code> 但不是 <code>Sync</code>——例如第 4 集講的 <code>RefCell&lt;T&gt;</code>，它能安全地 move 到另一個執行緒（Send），但不能讓多個執行緒同時透過 <code>&amp;RefCell&lt;T&gt;</code> 存取（不是 Sync）。</p>
 <p><code>Mutex</code> 能解決這個問題。<code>Mutex&lt;T&gt;</code> 保證同一時間只有一個執行緒能存取 <code>T</code>——即使多個執行緒共享同一個 <code>&amp;Mutex&lt;T&gt;</code>，也只有拿到鎖的那一個能操作裡面的 <code>T</code>。所以 <code>Mutex&lt;T&gt;</code> 只要求 <code>T: Send</code>，就能讓 <code>Mutex&lt;T&gt;</code> 本身成為 <code>Sync</code>。</p>
 <p>換句話說：<code>T</code> 不是 Sync 沒關係，Mutex 的鎖機制已經確保不會有同時存取的問題。<code>T</code> 需要 Send 是因為：當執行緒 A 拿到鎖、操作完 <code>T</code>、放鎖之後，下一個拿到鎖的可能是執行緒 B。從 <code>T</code> 的角度來看，它原本被 A 獨佔使用，現在換成被 B 獨佔使用——效果等同於 <code>T</code> 從 A 被「送」到了 B。所以 <code>T</code> 必須是 Send。</p>
-<h3 id="_865">範例程式碼</h3>
+<h3 id="_871">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">sync</span><span class="p">::{</span><span class="n">Arc</span><span class="p">,</span><span class="w"> </span><span class="n">Mutex</span><span class="p">};</span>
 <span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">thread</span><span class="p">;</span>
 
@@ -15808,7 +15940,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_866">重點整理</h3>
+<h3 id="_872">重點整理</h3>
 <ul>
 <li><code>Mutex&lt;T&gt;</code> 是多執行緒版的 interior mutability，用鎖保護資料</li>
 <li><code>lock().expect(...)</code> 回傳 <code>MutexGuard</code>，透過 Deref 直接當 <code>&amp;mut T</code> 用</li>
@@ -15819,10 +15951,10 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <li><code>Mutex&lt;T&gt;</code> 只要求 <code>T: Send</code> 就能是 <code>Sync</code>——Mutex 的鎖機制讓不是 Sync 的型別也能安全地被多個執行緒共享</li>
 </ul>
 <hr />
-<h2 id="ch8_rwlock">第八章第 8 集：RwLock&lt;T&gt;</h2>
-<h3 id="_867">本集目標</h3>
+<h2 id="ch8_rwlock">第八章第 9 集：RwLock&lt;T&gt;</h2>
+<h3 id="_873">本集目標</h3>
 <p>學會用 <code>RwLock&lt;T&gt;</code> 實現讀寫分離的鎖，以及和 Mutex 的比較。</p>
-<h3 id="_868">概念說明</h3>
+<h3 id="_874">概念說明</h3>
 <h4 id="mutex">Mutex 的限制</h4>
 <p>Mutex 不管你要讀還是要寫，都要鎖住。但很多時候多個執行緒只是要讀資料——讀和讀之間不會衝突，全部鎖住太浪費了。</p>
 <h4 id="rwlock">RwLock：讀寫分離</h4>
@@ -15885,7 +16017,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <li><strong>Mutex</strong>：簡單、開銷小。適合讀寫都頻繁，或鎖持有時間很短的場景。大部分情況下 Mutex 就夠了。</li>
 <li><strong>RwLock</strong>：在讀遠多於寫的時候有優勢，因為多個讀者可以同時進行。但鎖本身的開銷比 Mutex 大，而且有<strong>寫者飢餓</strong>（writer starvation）的風險——如果讀者一直源源不斷，寫者可能永遠拿不到鎖。</li>
 </ul>
-<h3 id="_869">範例程式碼</h3>
+<h3 id="_875">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">sync</span><span class="p">::{</span><span class="n">Arc</span><span class="p">,</span><span class="w"> </span><span class="n">RwLock</span><span class="p">};</span>
 <span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">thread</span><span class="p">;</span>
 
@@ -15924,7 +16056,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_870">重點整理</h3>
+<h3 id="_876">重點整理</h3>
 <ul>
 <li><code>RwLock&lt;T&gt;</code> 區分讀鎖和寫鎖：多個讀者可以同時讀，寫者獨佔</li>
 <li><code>read().expect(...)</code> 取得讀鎖，<code>write().expect(...)</code> 取得寫鎖</li>
@@ -15933,10 +16065,10 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <li>Mutex 簡單、開銷小，大部分情況夠用；RwLock 適合讀遠多於寫的場景，但開銷較大且有寫者飢餓的風險</li>
 </ul>
 <hr />
-<h2 id="ch8_poisoning">第八章第 9 集：poisoning</h2>
-<h3 id="_871">本集目標</h3>
+<h2 id="ch8_poisoning">第八章第 10 集：poisoning</h2>
+<h3 id="_877">本集目標</h3>
 <p>理解什麼是鎖的中毒（poisoning），以及該怎麼處理它。</p>
-<h3 id="_872">概念說明</h3>
+<h3 id="_878">概念說明</h3>
 <h4 id="lock-result">lock() 為什麼回傳 Result</h4>
 <p>前面幾集學 Mutex 和 RwLock 的時候，我們都寫 <code>.lock().expect("取得鎖失敗")</code>。但什麼時候取鎖會「失敗」？答案就是 <strong>poisoning</strong>。</p>
 <h4 id="poisoning">什麼是 poisoning</h4>
@@ -15966,7 +16098,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 
 <h4 id="poisoning_1">為什麼要有 poisoning</h4>
 <p>panic 通常代表程式出了預期外的錯誤。如果一個執行緒在修改資料修到一半就 panic 了，資料可能是半成品——比如 Vec push 了一半、或某兩個欄位只更新了一個。poisoning 是一個安全機制：讓你知道出事了，由你決定要不要繼續用。</p>
-<h4 id="_873">三種處理方式</h4>
+<h4 id="_879">三種處理方式</h4>
 <p><strong>1. 直接 panic（最常見）</strong></p>
 <div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">guard</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">lock</span><span class="p">().</span><span class="n">expect</span><span class="p">(</span><span class="s">&quot;取得鎖失敗&quot;</span><span class="p">);</span>
 </code></pre></div>
@@ -15996,7 +16128,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <p>從記憶體的角度來看是沒問題的。不管鎖有沒有中毒，裡面的資料都是合法的記憶體——不會存取到已經不能使用的記憶體、不會把型別搞混、沒有資料競爭。poisoning 保護的是<strong>邏輯一致性</strong>，不是<strong>記憶體安全</strong>。資料可能邏輯上不對，但從記憶體的角度看完全合法。所以可以安全地呼叫 <code>into_inner()</code>。</p>
 <h4 id="rwlock-poisoning">RwLock 的 poisoning</h4>
 <p>RwLock 的 poisoning 只在<strong>寫鎖</strong> panic 的時候觸發。讀鎖 panic 不會中毒——因為讀的時候不會修改資料，不會留下不一致的狀態。但一旦中毒了，<code>read()</code> 和 <code>write()</code> 都會回傳 <code>Err</code>。</p>
-<h3 id="_874">範例程式碼</h3>
+<h3 id="_880">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">sync</span><span class="p">::{</span><span class="n">Arc</span><span class="p">,</span><span class="w"> </span><span class="n">Mutex</span><span class="p">,</span><span class="w"> </span><span class="n">PoisonError</span><span class="p">};</span>
 <span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">thread</span><span class="p">;</span>
 
@@ -16034,7 +16166,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_875">重點整理</h3>
+<h3 id="_881">重點整理</h3>
 <ul>
 <li>持有鎖的執行緒 panic 了 → 鎖中毒（poisoned）</li>
 <li>之後 <code>lock()</code> / <code>read()</code> / <code>write()</code> 都回傳 <code>Err(PoisonError)</code></li>
@@ -16043,11 +16175,11 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <li>三種處理方式：panic（<code>unwrap()</code> 或 <code>.expect()</code>）、忽略（<code>.unwrap_or_else(PoisonError::into_inner)</code>）、修復資料再繼續</li>
 </ul>
 <hr />
-<h2 id="ch8_mpsc">第八章第 10 集：mpsc</h2>
-<h3 id="_876">本集目標</h3>
+<h2 id="ch8_mpsc">第八章第 11 集：mpsc</h2>
+<h3 id="_882">本集目標</h3>
 <p>學會用 channel 讓執行緒之間透過傳訊息溝通，以及和共享記憶體方式的比較。</p>
-<h3 id="_877">概念說明</h3>
-<h4 id="_878">另一種思路</h4>
+<h3 id="_883">概念說明</h3>
+<h4 id="_884">另一種思路</h4>
 <p>前面的 Mutex 和 RwLock 是「共享記憶體」的思路——多個執行緒存取同一份資料，用鎖來避免衝突。</p>
 <p>channel 是完全不同的思路：<strong>執行緒之間用傳訊息的方式溝通</strong>。資料直接送過去，不共享。</p>
 <h4 id="channel">建立 channel</h4>
@@ -16058,7 +16190,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </code></pre></div>
 
 <p><code>mpsc</code> 代表 <strong>multiple producer, single consumer</strong>——可以有多個發送端，但接收端只有一個。</p>
-<h4 id="_879">發送和接收</h4>
+<h4 id="_885">發送和接收</h4>
 <p><code>tx.send(value)</code> 把值送出去（value 會被 move），<code>rx.recv()</code> 在另一端接收（會阻塞直到收到）：</p>
 <div class="highlight"><pre><span></span><code><span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">sync</span><span class="p">::</span><span class="n">mpsc</span><span class="p">;</span>
 <span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">thread</span><span class="p">;</span>
@@ -16073,7 +16205,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="fm">println!</span><span class="p">(</span><span class="s">&quot;收到：{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">received</span><span class="p">);</span>
 </code></pre></div>
 
-<h4 id="_880">多個發送端</h4>
+<h4 id="_886">多個發送端</h4>
 <p>用 <code>tx.clone()</code> 產生新的發送端：</p>
 <div class="highlight"><pre><span></span><code><span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">sync</span><span class="p">::</span><span class="n">mpsc</span><span class="p">;</span>
 <span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">thread</span><span class="p">;</span>
@@ -16094,7 +16226,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h4 id="_881">什麼時候結束</h4>
+<h4 id="_887">什麼時候結束</h4>
 <p>所有 tx 都被 drop 之後，<code>rx.recv()</code> 會先把還沒收的訊息全部收完，收完之後再呼叫 <code>recv()</code> 才會回傳 <code>Err</code>。用 <code>for msg in rx</code> 迴圈也一樣——先把剩餘的訊息全部跑完，然後才結束。這是判斷「沒有人會再發送了，而且所有訊息都已經處理完了」的方式。</p>
 <p>注意上面的例子裡的 <code>drop(tx)</code>——如果你 clone 了 tx 但沒有 drop 原始的 tx，接收端會認為還有發送端存活，永遠不會結束。</p>
 <h4 id="channel-vs">channel vs 共享記憶體</h4>
@@ -16103,7 +16235,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <li><strong>多個執行緒需要反覆讀寫同一份資料</strong>（例如共用的計數器、共用的快取）→ Mutex / RwLock 比較直接</li>
 <li><strong>一邊產生資料、一邊消費資料</strong>的流水線關係 → channel 更自然。資料的所有權直接轉移，不需要鎖，也不存在忘了放鎖的問題</li>
 </ul>
-<h3 id="_882">範例程式碼</h3>
+<h3 id="_888">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">sync</span><span class="p">::</span><span class="n">mpsc</span><span class="p">;</span>
 <span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">thread</span><span class="p">;</span>
 
@@ -16134,7 +16266,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_883">重點整理</h3>
+<h3 id="_889">重點整理</h3>
 <ul>
 <li>channel 讓執行緒之間用傳訊息溝通，資料直接送過去，不共享</li>
 <li><code>mpsc::channel()</code> 建立發送端 tx 和接收端 rx</li>
@@ -16144,14 +16276,14 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <li>流水線關係用 channel，反覆讀寫同一份資料用 Mutex / RwLock</li>
 </ul>
 <hr />
-<h2 id="ch8_deadlock">第八章第 11 集：死鎖</h2>
-<h3 id="_884">本集目標</h3>
+<h2 id="ch8_deadlock">第八章第 12 集：死鎖</h2>
+<h3 id="_890">本集目標</h3>
 <p>理解死鎖是什麼、為什麼 Rust 的編譯器擋不住它、以及如何避免。</p>
-<h3 id="_885">概念說明</h3>
-<h4 id="_886">什麼是死鎖</h4>
+<h3 id="_891">概念說明</h3>
+<h4 id="_892">什麼是死鎖</h4>
 <p>死鎖（deadlock）就是兩個或多個執行緒互相等待對方放鎖，結果誰都動不了，程式永遠卡住。</p>
 <p>最經典的情況：執行緒 A 拿著鎖 1 等鎖 2，執行緒 B 拿著鎖 2 等鎖 1。兩邊永遠等下去。</p>
-<h4 id="_887">程式碼示範</h4>
+<h4 id="_893">程式碼示範</h4>
 <div class="highlight"><pre><span></span><code><span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">sync</span><span class="p">::{</span><span class="n">Arc</span><span class="p">,</span><span class="w"> </span><span class="n">Mutex</span><span class="p">};</span>
 <span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">thread</span><span class="p">;</span>
 
@@ -16184,9 +16316,9 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </code></pre></div>
 
 <p>執行緒 A 先拿到鎖 1，然後想拿鎖 2。但鎖 2 被執行緒 B 拿走了，B 又在等鎖 1——結果誰都走不動。</p>
-<h4 id="_888">編譯器不會擋死鎖</h4>
+<h4 id="_894">編譯器不會擋死鎖</h4>
 <p>Send 和 Sync 保護的是<strong>資料競爭</strong>（data race）——多個執行緒同時存取資料造成的未定義行為。死鎖是<strong>邏輯問題</strong>，程式不會壞掉或出現未定義行為，只是永遠卡住。Rust 的編譯器無法偵測死鎖。</p>
-<h4 id="_889">同一個執行緒也會死鎖</h4>
+<h4 id="_895">同一個執行緒也會死鎖</h4>
 <p>就算只有一個執行緒，對同一個 Mutex lock 兩次也會死鎖——因為第一次 lock 還沒放開，第二次 lock 就永遠等不到：</p>
 <div class="highlight"><pre><span></span><code><span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">sync</span><span class="p">::</span><span class="n">Mutex</span><span class="p">;</span>
 
@@ -16197,13 +16329,13 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h4 id="_890">如何避免</h4>
+<h4 id="_896">如何避免</h4>
 <ul>
 <li><strong>所有執行緒以相同順序取鎖</strong>：如果每個人都先拿鎖 1 再拿鎖 2，就不會互相卡住</li>
 <li><strong>減少同時持有多個鎖</strong>：能用一個鎖解決就不要用兩個</li>
 <li><strong>guard 不要活太久</strong>：用完趕快 drop，縮短持有鎖的時間</li>
 </ul>
-<h3 id="_891">範例程式碼</h3>
+<h3 id="_897">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">sync</span><span class="p">::{</span><span class="n">Arc</span><span class="p">,</span><span class="w"> </span><span class="n">Mutex</span><span class="p">};</span>
 <span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">thread</span><span class="p">;</span>
 
@@ -16235,7 +16367,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_892">重點整理</h3>
+<h3 id="_898">重點整理</h3>
 <ul>
 <li>死鎖：多個執行緒互相等待對方放鎖，程式永遠卡住</li>
 <li>Rust 的編譯器不會擋死鎖——Send/Sync 保護的是資料競爭，死鎖是邏輯問題</li>
@@ -16243,10 +16375,10 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <li>避免方法：統一取鎖順序、減少同時持有多個鎖、guard 用完趕快 drop</li>
 </ul>
 <hr />
-<h2 id="ch8_thread_scope">第八章第 12 集：thread::scope 簡介</h2>
-<h3 id="_893">本集目標</h3>
+<h2 id="ch8_thread_scope">第八章第 13 集：thread::scope 簡介</h2>
+<h3 id="_899">本集目標</h3>
 <p>學會用 <code>thread::scope</code> 建立有限生命週期的執行緒，不需要 move 或 Arc 就能借用外部資料。</p>
-<h3 id="_894">概念說明</h3>
+<h3 id="_900">概念說明</h3>
 <h4 id="threadspawn">thread::spawn 的限制</h4>
 <p>前面用 <code>thread::spawn</code> 的時候，閉包裡要用外面的變數都得 move 進去，或用 Arc 包起來。這是因為 spawn 出來的執行緒可能活得比呼叫它的函數還久——Rust 沒辦法保證資料在執行緒結束前不會被丟掉。</p>
 <h4 id="spawn_2">為什麼 spawn 不能借用</h4>
@@ -16298,7 +16430,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </code></pre></div>
 
 <p>不需要 Arc、不需要 clone、不需要 move、不需要手動 join。</p>
-<h3 id="_895">範例程式碼</h3>
+<h3 id="_901">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">thread</span><span class="p">;</span>
 
 <span class="k">fn</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
@@ -16333,7 +16465,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_896">重點整理</h3>
+<h3 id="_902">重點整理</h3>
 <ul>
 <li><code>thread::spawn</code> 要求 <code>'static</code>，所以閉包不能借用局部變數</li>
 <li><code>thread::scope</code> 保證所有 scoped thread 在 scope 結束前 join，因此可以安全借用外部資料</li>
@@ -16344,10 +16476,10 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <hr />
 <h1 id="ch9">第九章：進階語言功能</h1>
 <h2 id="ch9_dyn_trait">第九章第 1 集：dyn Trait 基礎</h2>
-<h3 id="_897">本集目標</h3>
+<h3 id="_903">本集目標</h3>
 <p>學會用 <code>dyn Trait</code> 在同一個位置存放不同型別的值，理解動態分派的原理。</p>
-<h3 id="_898">概念說明</h3>
-<h4 id="_899">問題：不同型別放在同一個地方</h4>
+<h3 id="_904">概念說明</h3>
+<h4 id="_905">問題：不同型別放在同一個地方</h4>
 <p>第五章學了 <code>impl Trait</code>，可以寫 <code>fn print_it(x: &amp;impl Display)</code> 讓函數接受任何實作 Display 的型別。但如果你想把不同型別的值放在同一個 Vec 裡呢？</p>
 <div class="highlight"><pre><span></span><code><span class="k">trait</span><span class="w"> </span><span class="n">Describe</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">describe</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nb">String</span><span class="p">;</span>
@@ -16510,7 +16642,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </code></pre></div>
 
 <p>Pet 一定是 Animal，所以 <code>dyn Pet</code> 當然可以當 <code>dyn Animal</code> 用。</p>
-<h3 id="_900">範例程式碼</h3>
+<h3 id="_906">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="k">trait</span><span class="w"> </span><span class="n">Describe</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">describe</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nb">String</span><span class="p">;</span>
 <span class="p">}</span>
@@ -16557,7 +16689,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_901">重點整理</h3>
+<h3 id="_907">重點整理</h3>
 <ul>
 <li><code>dyn Trait</code> 代表「某個實作了 Trait 的型別，具體是什麼不知道」</li>
 <li><code>dyn Trait</code> 是 DST，必須放在指標後面：<code>&amp;dyn Trait</code>、<code>Box&lt;dyn Trait&gt;</code></li>
@@ -16570,9 +16702,9 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </ul>
 <hr />
 <h2 id="ch9_dyn_compatibility">第九章第 2 集：dyn compatibility</h2>
-<h3 id="_902">本集目標</h3>
+<h3 id="_908">本集目標</h3>
 <p>理解哪些 trait 可以用 <code>dyn</code>、哪些不行，以及背後的原因。</p>
-<h3 id="_903">概念說明</h3>
+<h3 id="_909">概念說明</h3>
 <h4 id="trait-dyn">不是所有 trait 都能用 dyn</h4>
 <p>上一集學了 <code>dyn Trait</code>。但如果你嘗試寫 <code>dyn Clone</code>，會得到編譯錯誤。這是因為 <code>Clone</code> 不是 <strong>dyn compatible</strong> 的。</p>
 <h4 id="impl-trait-for-dyn-trait">核心概念：impl Trait for dyn Trait</h4>
@@ -16610,7 +16742,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <p><code>compare</code> 的第二個參數是 <code>&amp;Self</code>。當你用 <code>dyn Compare</code> 的時候，具體型別已經被抹掉了——你不知道裡面是 Cat 還是 Dog。但 <code>Cat::compare</code> 期望的是 <code>&amp;Cat</code>，<code>Dog::compare</code> 期望的是 <code>&amp;Dog</code>。</p>
 <p>如果有人傳了一個 Dog 進來，但 vtable 找到的函數是 <code>Cat::compare</code>，函數就會把 Dog 的資料當成 Cat 來用——型別搞混了。</p>
 <p>要確保不搞混，編譯器就需要在執行期檢查「傳進來的 <code>y</code> 的具體型別跟 <code>x</code> 的具體型別一樣」。但 dyn 的重點就是把具體型別抹掉了，編譯器已經不知道原本是什麼型別，沒辦法做這個檢查。所以 Rust 直接禁止 <code>Self</code> 出現在 <code>self</code> 以外的參數。</p>
-<h4 id="_904">限制三：方法不能有泛型參數</h4>
+<h4 id="_910">限制三：方法不能有泛型參數</h4>
 <div class="highlight"><pre><span></span><code><span class="k">trait</span><span class="w"> </span><span class="n">Converter</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">convert</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">U</span><span class="p">;</span>
 <span class="p">}</span>
@@ -16641,7 +16773,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </code></pre></div>
 
 <p>dyn compatibility 的完整規則其實比這集講的更複雜一些，但八九不離十就是這些了。</p>
-<h3 id="_905">範例程式碼</h3>
+<h3 id="_911">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="c1">// dyn compatible 的 trait</span>
 <span class="k">trait</span><span class="w"> </span><span class="n">Greet</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">greet</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nb">String</span><span class="p">;</span>
@@ -16704,7 +16836,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_906">重點整理</h3>
+<h3 id="_912">重點整理</h3>
 <ul>
 <li>不是所有 trait 都能用 <code>dyn</code>——必須是 dyn compatible 的</li>
 <li>核心概念：編譯器自動生成 <code>impl Trait for dyn Trait</code>，<code>Self</code> = <code>dyn Trait</code>（DST）</li>
@@ -16716,9 +16848,9 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </ul>
 <hr />
 <h2 id="ch9_const_fn">第九章第 3 集：const fn</h2>
-<h3 id="_907">本集目標</h3>
+<h3 id="_913">本集目標</h3>
 <p>學會用 <code>const fn</code> 定義編譯期也能執行的函數，以及 <code>const { }</code> 區塊。</p>
-<h3 id="_908">概念說明</h3>
+<h3 id="_914">概念說明</h3>
 <h4 id="const_3">問題：const 的值想用函數算</h4>
 <p>第二章學了 <code>const</code>——編譯期常數。但 const 的值只能用簡單的表達式：</p>
 <div class="highlight"><pre><span></span><code><span class="k">const</span><span class="w"> </span><span class="n">MAX</span><span class="p">:</span><span class="w"> </span><span class="kt">i32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span><span class="w">         </span><span class="c1">// OK</span>
@@ -16750,7 +16882,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h4 id="_909">限制</h4>
+<h4 id="_915">限制</h4>
 <p>const fn 裡面不能做所有事情。基本原則是：<strong>編譯器必須能在自己內部模擬執行這段程式碼</strong>。</p>
 <p>能做的：</p>
 <ul>
@@ -16778,7 +16910,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </code></pre></div>
 
 <p>這在需要「就地」做編譯期運算的時候很方便，不用另外定義一個 const。</p>
-<h3 id="_910">範例程式碼</h3>
+<h3 id="_916">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="k">const</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">factorial</span><span class="p">(</span><span class="n">n</span><span class="p">:</span><span class="w"> </span><span class="kt">u64</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">u64</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="mi">1</span>
@@ -16814,7 +16946,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_911">重點整理</h3>
+<h3 id="_917">重點整理</h3>
 <ul>
 <li><code>const fn</code> 可以在編譯期執行，也可以在執行期執行</li>
 <li>主要用來初始化 <code>const</code> 的值</li>
@@ -16823,9 +16955,9 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </ul>
 <hr />
 <h2 id="ch9_associated_const">第九章第 4 集：associated const</h2>
-<h3 id="_912">本集目標</h3>
+<h3 id="_918">本集目標</h3>
 <p>學會在 trait 和 impl 裡定義常數。</p>
-<h3 id="_913">概念說明</h3>
+<h3 id="_919">概念說明</h3>
 <h4 id="trait-associated-const">trait 裡的 associated const</h4>
 <p>除了方法和 associated type，trait 裡也能定義常數：</p>
 <div class="highlight"><pre><span></span><code><span class="k">trait</span><span class="w"> </span><span class="n">HasLimit</span><span class="w"> </span><span class="p">{</span>
@@ -16874,7 +17006,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </code></pre></div>
 
 <p>這就像 associated function 一樣，用 <code>::</code> 存取。</p>
-<h3 id="_914">範例程式碼</h3>
+<h3 id="_920">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="k">trait</span><span class="w"> </span><span class="n">Bounded</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">LOWER</span><span class="p">:</span><span class="w"> </span><span class="kt">i32</span><span class="p">;</span>
 <span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">UPPER</span><span class="p">:</span><span class="w"> </span><span class="kt">i32</span><span class="p">;</span>
@@ -16918,7 +17050,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_915">重點整理</h3>
+<h3 id="_921">重點整理</h3>
 <ul>
 <li>trait 裡可以定義 <code>const NAME: Type;</code>，impl 時指定值</li>
 <li>associated const 可以有預設值，impl 時可以覆蓋</li>
@@ -16926,10 +17058,10 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </ul>
 <hr />
 <h2 id="ch9_const_generics">第九章第 5 集：const generics</h2>
-<h3 id="_916">本集目標</h3>
+<h3 id="_922">本集目標</h3>
 <p>學會用常數值作為泛型參數，處理任意長度的陣列。</p>
-<h3 id="_917">概念說明</h3>
-<h4 id="_918">問題：想寫處理任意長度陣列的函數</h4>
+<h3 id="_923">概念說明</h3>
+<h4 id="_924">問題：想寫處理任意長度陣列的函數</h4>
 <p><code>[i32; 3]</code> 和 <code>[i32; 5]</code> 是不同型別——長度是型別的一部分。如果你想寫一個函數印出任意長度的陣列，難道每個長度都要寫一個？</p>
 <h4 id="const-generics">const generics</h4>
 <p>泛型參數不只能是型別，也能是<strong>常數值</strong>：</p>
@@ -16975,7 +17107,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h4 id="_919">表達式語法</h4>
+<h4 id="_925">表達式語法</h4>
 <p>如果 const generic 的位置不是簡單的字面值或路徑，要用 <code>{}</code> 包起來：</p>
 <div class="highlight"><pre><span></span><code><span class="k">fn</span><span class="w"> </span><span class="nf">example</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">N</span><span class="p">:</span><span class="w"> </span><span class="kt">usize</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="kt">i32</span><span class="p">;</span><span class="w"> </span><span class="n">N</span><span class="p">]</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">N</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
 
@@ -17009,7 +17141,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="kd">let</span><span class="w"> </span><span class="n">buf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_buffer</span><span class="p">::</span><span class="o">&lt;</span><span class="n">Small</span><span class="o">&gt;</span><span class="p">();</span><span class="w"> </span><span class="c1">// [u8; 4]</span>
 </code></pre></div>
 
-<h3 id="_920">範例程式碼</h3>
+<h3 id="_926">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="k">fn</span><span class="w"> </span><span class="nf">sum</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">N</span><span class="p">:</span><span class="w"> </span><span class="kt">usize</span><span class="o">&gt;</span><span class="p">(</span><span class="n">arr</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="kt">i32</span><span class="p">;</span><span class="w"> </span><span class="n">N</span><span class="p">])</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">i32</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
@@ -17040,7 +17172,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_921">重點整理</h3>
+<h3 id="_927">重點整理</h3>
 <ul>
 <li>泛型參數可以是常數值：<code>&lt;const N: usize&gt;</code></li>
 <li>最常見的用途：處理任意長度的陣列 <code>[T; N]</code></li>
@@ -17050,10 +17182,10 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </ul>
 <hr />
 <h2 id="ch9_default_params">第九章第 6 集：預設參數</h2>
-<h3 id="_922">本集目標</h3>
+<h3 id="_928">本集目標</h3>
 <p>學會為泛型參數和 const generics 設定預設值。</p>
-<h3 id="_923">概念說明</h3>
-<h4 id="_924">泛型的預設型別參數</h4>
+<h3 id="_929">概念說明</h3>
+<h4 id="_930">泛型的預設型別參數</h4>
 <p>有時候某個泛型參數「大部分情況都是同一個值」。Rust 允許你給預設值——不指定就自動套用。</p>
 <p>以標準庫的 <code>PartialEq</code> 為例：</p>
 <div class="highlight"><pre><span></span><code><span class="k">trait</span><span class="w"> </span><span class="nb">PartialEq</span><span class="o">&lt;</span><span class="n">Rhs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">Self</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
@@ -17070,7 +17202,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h4 id="_925">自己定義</h4>
+<h4 id="_931">自己定義</h4>
 <p>用 <code>=</code> 在泛型定義裡給預設值：</p>
 <div class="highlight"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">Container</span><span class="o">&lt;</span><span class="n">T</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">String</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">value</span><span class="p">:</span><span class="w"> </span><span class="nc">T</span><span class="p">,</span>
@@ -17089,14 +17221,14 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="kd">let</span><span class="w"> </span><span class="n">small</span><span class="p">:</span><span class="w"> </span><span class="nc">Buffer</span><span class="o">&lt;</span><span class="mi">64</span><span class="o">&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Buffer</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">data</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="mi">64</span><span class="p">]</span><span class="w"> </span><span class="p">};</span><span class="w">   </span><span class="c1">// 手動指定</span>
 </code></pre></div>
 
-<h4 id="_926">有預設值的參數必須放後面</h4>
+<h4 id="_932">有預設值的參數必須放後面</h4>
 <div class="highlight"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">Pair</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">U</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">T</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">   </span><span class="c1">// OK：U 有預設值，放在 T 後面</span>
 <span class="w">    </span><span class="n">first</span><span class="p">:</span><span class="w"> </span><span class="nc">T</span><span class="p">,</span>
 <span class="w">    </span><span class="n">second</span><span class="p">:</span><span class="w"> </span><span class="nc">U</span><span class="p">,</span>
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_927">範例程式碼</h3>
+<h3 id="_933">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">Pair</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">U</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">T</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">first</span><span class="p">:</span><span class="w"> </span><span class="nc">T</span><span class="p">,</span>
 <span class="w">    </span><span class="n">second</span><span class="p">:</span><span class="w"> </span><span class="nc">U</span><span class="p">,</span>
@@ -17119,7 +17251,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_928">重點整理</h3>
+<h3 id="_934">重點整理</h3>
 <ul>
 <li>泛型參數可以有預設值：<code>&lt;T = String&gt;</code>、<code>&lt;Rhs = Self&gt;</code></li>
 <li>const generics 也可以：<code>&lt;const N: usize = 1024&gt;</code></li>
@@ -17129,9 +17261,9 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </ul>
 <hr />
 <h2 id="ch9_operator_overload">第九章第 7 集：運算子重載</h2>
-<h3 id="_929">本集目標</h3>
+<h3 id="_935">本集目標</h3>
 <p>學會幫自己的型別實作 <code>+</code>、<code>-</code> 等運算子。</p>
-<h3 id="_930">概念說明</h3>
+<h3 id="_936">概念說明</h3>
 <h4 id="trait_14">運算子就是 trait 方法</h4>
 <p>Rust 裡 <code>a + b</code> 其實是 <code>a.add(b)</code> 的簡寫——<code>+</code> 對應 <code>std::ops::Add</code> trait。幫你的型別實作 <code>Add</code>，就能用 <code>+</code>。</p>
 <h4 id="add-trait">Add trait 的定義</h4>
@@ -17164,7 +17296,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h4 id="_931">常用運算子</h4>
+<h4 id="_937">常用運算子</h4>
 <p><code>std::ops</code> 裡常用的 trait：</p>
 <table>
 <thead>
@@ -17239,7 +17371,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h4 id="_932">不同型別相加</h4>
+<h4 id="_938">不同型別相加</h4>
 <p>覆蓋 <code>Rhs</code> 的預設值：</p>
 <div class="highlight"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">Meters</span><span class="p">(</span><span class="kt">f64</span><span class="p">);</span>
 <span class="k">struct</span><span class="w"> </span><span class="nc">Centimeters</span><span class="p">(</span><span class="kt">f64</span><span class="p">);</span>
@@ -17252,7 +17384,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_933">範例程式碼</h3>
+<h3 id="_939">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">ops</span><span class="p">::{</span><span class="n">Add</span><span class="p">,</span><span class="w"> </span><span class="n">Neg</span><span class="p">};</span>
 
 <span class="cp">#[derive(Debug, Clone, Copy)]</span>
@@ -17281,7 +17413,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_934">重點整理</h3>
+<h3 id="_940">重點整理</h3>
 <ul>
 <li><code>a + b</code> 是 <code>Add::add(a, b)</code> 的簡寫，其他運算子同理</li>
 <li><code>Add</code> 的簽名用了預設參數（<code>Rhs = Self</code>）和 associated type（<code>Output</code>）</li>
@@ -17291,10 +17423,10 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </ul>
 <hr />
 <h2 id="ch9_as">第九章第 8 集：型別轉換 as</h2>
-<h3 id="_935">本集目標</h3>
+<h3 id="_941">本集目標</h3>
 <p>學會用 <code>as</code> 做數字型別轉換，以及更安全的替代方案。</p>
-<h3 id="_936">概念說明</h3>
-<h4 id="_937">基本用法</h4>
+<h3 id="_942">概念說明</h3>
+<h4 id="_943">基本用法</h4>
 <p>第一章學過 Rust 不會自動轉型。需要轉換時用 <code>as</code>：</p>
 <div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">x</span><span class="p">:</span><span class="w"> </span><span class="kt">i32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span>
 <span class="kd">let</span><span class="w"> </span><span class="n">y</span><span class="p">:</span><span class="w"> </span><span class="kt">f64</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="kt">f64</span><span class="p">;</span>
@@ -17303,7 +17435,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="kd">let</span><span class="w"> </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="kt">i32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="kt">i32</span><span class="p">;</span><span class="w">   </span><span class="c1">// 3，截斷小數，不是四捨五入</span>
 </code></pre></div>
 
-<h4 id="_938">整數之間</h4>
+<h4 id="_944">整數之間</h4>
 <p>小轉大——值不會變：</p>
 <div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">x</span><span class="p">:</span><span class="w"> </span><span class="kt">u8</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">200</span><span class="p">;</span>
 <span class="kd">let</span><span class="w"> </span><span class="n">y</span><span class="p">:</span><span class="w"> </span><span class="kt">u32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="kt">u32</span><span class="p">;</span><span class="w">  </span><span class="c1">// 200</span>
@@ -17336,13 +17468,13 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="kd">let</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">u8</span><span class="p">::</span><span class="n">try_from</span><span class="p">(</span><span class="n">y</span><span class="p">);</span><span class="w">  </span><span class="c1">// Ok(42)</span>
 </code></pre></div>
 
-<h4 id="_939">什麼時候用哪個</h4>
+<h4 id="_945">什麼時候用哪個</h4>
 <ul>
 <li>能用 <code>From</code> / <code>Into</code> 就用——編譯期保證安全</li>
 <li>可能失敗用 <code>TryFrom</code> / <code>TryInto</code>——回傳 Result</li>
 <li><code>as</code> 只在你確實知道自己在做什麼的時候用</li>
 </ul>
-<h3 id="_940">範例程式碼</h3>
+<h3 id="_946">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">convert</span><span class="p">::</span><span class="n">TryFrom</span><span class="p">;</span>
 
 <span class="k">fn</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
@@ -17377,7 +17509,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_941">重點整理</h3>
+<h3 id="_947">重點整理</h3>
 <ul>
 <li><code>as</code> 做數字型別轉換：浮點轉整數截斷小數，大整數轉小整數靜默截斷</li>
 <li><code>From</code> / <code>Into</code>：只存在於保證安全的轉換</li>
@@ -17386,9 +17518,9 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </ul>
 <hr />
 <h2 id="ch9_enum_discriminant">第九章第 9 集：enum discriminant</h2>
-<h3 id="_942">本集目標</h3>
+<h3 id="_948">本集目標</h3>
 <p>了解 enum variant 背後的整數值，以及如何自訂它。</p>
-<h3 id="_943">概念說明</h3>
+<h3 id="_949">概念說明</h3>
 <h4 id="variant">每個 variant 都有一個整數值</h4>
 <p>第三章學了 C-style enum。每個 variant 背後都有一個整數，叫做 <strong>discriminant</strong>。Rust 用它來區分目前是哪個 variant。</p>
 <div class="highlight"><pre><span></span><code><span class="k">enum</span><span class="w"> </span><span class="nc">Color</span><span class="w"> </span><span class="p">{</span>
@@ -17449,7 +17581,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="c1">// Shape::Circle(3.0) as i32  ← 編譯錯誤！</span>
 </code></pre></div>
 
-<h3 id="_944">範例程式碼</h3>
+<h3 id="_950">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="cp">#[repr(u8)]</span>
 <span class="k">enum</span><span class="w"> </span><span class="nc">Command</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">Quit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
@@ -17483,7 +17615,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_945">重點整理</h3>
+<h3 id="_951">重點整理</h3>
 <ul>
 <li>每個 enum variant 都有一個整數 discriminant，預設從 0 遞增</li>
 <li>C-style enum 可以用 <code>as</code> 轉成整數看到 discriminant</li>
@@ -17493,9 +17625,9 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </ul>
 <hr />
 <h2 id="ch9_attributes">第九章第 10 集：attribute 總覽</h2>
-<h3 id="_946">本集目標</h3>
+<h3 id="_952">本集目標</h3>
 <p>整理 Rust 常見的 attribute，理解 outer 和 inner 的差別。</p>
-<h3 id="_947">概念說明</h3>
+<h3 id="_953">概念說明</h3>
 <h4 id="outer-vs-inner">outer vs inner</h4>
 <ul>
 <li><strong>outer attribute</strong> <code>#[...]</code>：放在項目的上面，修飾那個項目</li>
@@ -17513,14 +17645,14 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="k">struct</span><span class="w"> </span><span class="nc">Color</span><span class="p">(</span><span class="kt">u8</span><span class="p">,</span><span class="w"> </span><span class="kt">u8</span><span class="p">,</span><span class="w"> </span><span class="kt">u8</span><span class="p">);</span>
 </code></pre></div>
 
-<h4 id="_948">警告控制</h4>
+<h4 id="_954">警告控制</h4>
 <div class="highlight"><pre><span></span><code><span class="cp">#[allow(dead_code)]</span><span class="w">       </span><span class="c1">// 不警告未使用的程式碼</span>
 <span class="cp">#[allow(unused_variables)]</span><span class="w"> </span><span class="c1">// 不警告未使用的變數</span>
 <span class="cp">#[warn(missing_docs)]</span><span class="w">     </span><span class="c1">// 開啟「缺少文件」的警告</span>
 <span class="cp">#[deny(unsafe_code)]</span><span class="w">      </span><span class="c1">// 把「使用 unsafe」升級成錯誤</span>
 </code></pre></div>
 
-<h4 id="_949">條件編譯</h4>
+<h4 id="_955">條件編譯</h4>
 <div class="highlight"><pre><span></span><code><span class="cp">#[cfg(target_os = </span><span class="s">&quot;windows&quot;</span><span class="cp">)]</span>
 <span class="k">fn</span><span class="w"> </span><span class="nf">windows_only</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
 
@@ -17528,7 +17660,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="k">mod</span><span class="w"> </span><span class="nn">tests</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 
-<h4 id="_950">測試</h4>
+<h4 id="_956">測試</h4>
 <div class="highlight"><pre><span></span><code><span class="cp">#[test]</span>
 <span class="k">fn</span><span class="w"> </span><span class="nf">test_add</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="fm">assert_eq!</span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
 
@@ -17541,7 +17673,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="k">fn</span><span class="w"> </span><span class="nf">slow_test</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* 暫時跳過 */</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>
 
-<h4 id="_951">效能提示</h4>
+<h4 id="_957">效能提示</h4>
 <p>呼叫函數的時候，程式需要跳到函數的位置去執行，跑完再跳回來。<strong>inline</strong> 是一種最佳化：編譯器把函數的程式碼直接「貼」到呼叫的地方，省掉跳來跳去的開銷。</p>
 <div class="highlight"><pre><span></span><code><span class="cp">#[inline]</span><span class="w">          </span><span class="c1">// 建議編譯器 inline 這個函數</span>
 <span class="cp">#[inline(always)]</span><span class="w">  </span><span class="c1">// 強制 inline</span>
@@ -17549,13 +17681,13 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </code></pre></div>
 
 <p>大部分時候不需要手動寫——編譯器會自己判斷。只有在跨 crate 呼叫的小函數、或效能很關鍵的地方才需要。</p>
-<h4 id="_952">記憶體佈局</h4>
+<h4 id="_958">記憶體佈局</h4>
 <p>Rust 的編譯器會自由調整 struct 欄位在記憶體裡的排列順序和對齊方式來節省空間。但如果你要跟 C 語言互動，C 的 struct 有固定的排列規則，<code>#[repr(C)]</code> 就是告訴 Rust「用 C 的規則排列」：</p>
 <div class="highlight"><pre><span></span><code><span class="cp">#[repr(C)]</span><span class="w">    </span><span class="c1">// 用 C 語言的記憶體佈局</span>
 <span class="cp">#[repr(u8)]</span><span class="w">   </span><span class="c1">// enum 底層型別（上一集學過）</span>
 </code></pre></div>
 
-<h4 id="_953">其他常用</h4>
+<h4 id="_959">其他常用</h4>
 <p><code>#[must_use]</code> 標記在函數或型別上，如果呼叫者拿到回傳值卻沒有使用，編譯器會警告。<code>Result</code> 就有 <code>#[must_use]</code>——這就是為什麼你不處理 <code>Result</code> 的時候會看到警告。</p>
 <div class="highlight"><pre><span></span><code><span class="cp">#[must_use]</span>
 <span class="k">fn</span><span class="w"> </span><span class="nf">compute</span><span class="p">()</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">i32</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="mi">42</span><span class="w"> </span><span class="p">}</span>
@@ -17581,7 +17713,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </code></pre></div>
 
 <p><code>///</code> 只是 <code>#[doc = "..."]</code> 的簡寫。同理，<code>//!</code> 是 <code>#![doc = "..."]</code> 的簡寫——用在檔案開頭，為整個 mod 或 crate 寫說明文件。</p>
-<h3 id="_954">範例程式碼</h3>
+<h3 id="_960">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="cp">#![allow(dead_code)]</span>
 
 <span class="cp">#[derive(Debug, Clone, PartialEq)]</span>
@@ -17611,7 +17743,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_955">重點整理</h3>
+<h3 id="_961">重點整理</h3>
 <ul>
 <li><code>#[...]</code>（outer）修飾下面的項目，<code>#![...]</code>（inner）修飾包含它的項目</li>
 <li><code>#[derive(...)]</code>：自動實作 trait</li>
@@ -17624,9 +17756,9 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </ul>
 <hr />
 <h2 id="ch9_cfg_macro">第九章第 11 集：cfg! macro</h2>
-<h3 id="_956">本集目標</h3>
+<h3 id="_962">本集目標</h3>
 <p>學會用 <code>cfg!</code> 在執行期根據條件選擇邏輯，以及跟 <code>#[cfg]</code> 的差別。</p>
-<h3 id="_957">概念說明</h3>
+<h3 id="_963">概念說明</h3>
 <h4 id="cfg-bool">cfg! 回傳 bool</h4>
 <p>上一集學了 <code>#[cfg(...)]</code>——條件編譯，不符合條件的程式碼整塊被移除。但有時候你只是想根據條件走不同分支，不想移除整塊程式碼。<code>cfg!</code> 就是做這件事的：</p>
 <div class="highlight"><pre><span></span><code><span class="k">if</span><span class="w"> </span><span class="fm">cfg!</span><span class="p">(</span><span class="n">target_os</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;windows&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
@@ -17669,7 +17801,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h4 id="_958">常見條件</h4>
+<h4 id="_964">常見條件</h4>
 <p><code>#[cfg]</code> 和 <code>cfg!</code> 能用的條件一樣：</p>
 <ul>
 <li><code>target_os = "windows"</code> / <code>"linux"</code> / <code>"macos"</code></li>
@@ -17678,7 +17810,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <li><code>feature = "my_feature"</code> — Cargo feature</li>
 <li><code>test</code> — 在 <code>cargo test</code> 時為 true</li>
 </ul>
-<h3 id="_959">範例程式碼</h3>
+<h3 id="_965">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="k">fn</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="fm">cfg!</span><span class="p">(</span><span class="n">debug_assertions</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="fm">println!</span><span class="p">(</span><span class="s">&quot;debug 模式&quot;</span><span class="p">);</span>
@@ -17699,7 +17831,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_960">重點整理</h3>
+<h3 id="_966">重點整理</h3>
 <ul>
 <li><code>cfg!(...)</code> 回傳 <code>bool</code>，兩邊程式碼都會被編譯，執行時選擇</li>
 <li><code>#[cfg(...)]</code> 是條件編譯，不符合的程式碼整塊移除</li>
@@ -17707,14 +17839,14 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </ul>
 <hr />
 <h2 id="ch9_macro_rules">第九章第 12 集：macro_rules!</h2>
-<h3 id="_961">本集目標</h3>
+<h3 id="_967">本集目標</h3>
 <p>學會用 <code>macro_rules!</code> 定義自己的宣告式巨集。</p>
-<h3 id="_962">概念說明</h3>
+<h3 id="_968">概念說明</h3>
 <h4 id="vs_5">巨集 vs 函數</h4>
 <p>我們從第一章就一直在用巨集——<code>println!</code>、<code>vec!</code>、<code>format!</code>、<code>assert_eq!</code>。呼叫時有個驚嘆號 <code>!</code>，這就是巨集和函數的區別。</p>
 <p>巨集和函數最根本的差異：巨集在<strong>編譯期展開成程式碼</strong>。你寫的巨集呼叫會在編譯的時候被替換成展開後的程式碼，然後編譯器再去編譯那段展開後的結果。巨集能產生任意的程式碼——定義新的函數、struct、甚至其他巨集呼叫。它也能接受型別名稱、模式等不是值的東西當參數。</p>
 <p>但巨集也更難寫、更難讀、錯誤訊息比較差。能用函數就不要用巨集。</p>
-<h4 id="_963">基本語法</h4>
+<h4 id="_969">基本語法</h4>
 <div class="highlight"><pre><span></span><code><span class="fm">macro_rules!</span><span class="w"> </span><span class="n">say_hello</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="p">()</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="fm">println!</span><span class="p">(</span><span class="s">&quot;Hello!&quot;</span><span class="p">);</span>
@@ -17725,7 +17857,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </code></pre></div>
 
 <p>結構是 <code>(pattern) =&gt; { expansion }</code>——左邊匹配，右邊展開。</p>
-<h4 id="_964">帶參數</h4>
+<h4 id="_970">帶參數</h4>
 <p>用 <code>$name:kind</code> 捕獲參數：</p>
 <div class="highlight"><pre><span></span><code><span class="fm">macro_rules!</span><span class="w"> </span><span class="n">say</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="p">(</span><span class="cp">$msg</span><span class="p">:</span><span class="nc">expr</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span>
@@ -17744,7 +17876,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <li><code>ident</code>：識別符（如變數名稱）</li>
 <li><code>tt</code>：token tree（最靈活）</li>
 </ul>
-<h4 id="_965">多個分支</h4>
+<h4 id="_971">多個分支</h4>
 <div class="highlight"><pre><span></span><code><span class="fm">macro_rules!</span><span class="w"> </span><span class="n">log</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="p">(</span><span class="cp">$val</span><span class="p">:</span><span class="nc">expr</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="fm">println!</span><span class="p">(</span><span class="s">&quot;值：{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="cp">$val</span><span class="p">);</span>
@@ -17758,7 +17890,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="n">log</span><span class="o">!</span><span class="p">(</span><span class="s">&quot;score&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">);</span><span class="w"> </span><span class="c1">// score = 100</span>
 </code></pre></div>
 
-<h4 id="_966">重複匹配</h4>
+<h4 id="_972">重複匹配</h4>
 <p><code>$( ... ),*</code> 的語法可以匹配重複的項目。拆開來看：</p>
 <ul>
 <li><code>$( ... )</code> 裡面放要重複的模式</li>
@@ -17784,7 +17916,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="n">v</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
 </code></pre></div>
 
-<h4 id="_967">三種括號</h4>
+<h4 id="_973">三種括號</h4>
 <p>巨集可以用三種括號呼叫，效果完全一樣：</p>
 <ul>
 <li><code>macro!(...)</code> — 小括號，像函數呼叫</li>
@@ -17792,7 +17924,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <li><code>macro!{...}</code> — 大括號，像程式碼區塊</li>
 </ul>
 <p>差別只是慣例。</p>
-<h4 id="_968">巨集的作用域</h4>
+<h4 id="_974">巨集的作用域</h4>
 <p><code>macro_rules!</code> 定義的巨集在定義之後才能用（跟函數不同——函數不受定義順序限制）。</p>
 <p>如果想讓巨集可以被其他 crate 使用，在前面加 <code>#[macro_export]</code>。在巨集內部引用定義巨集的 crate 的東西時，用 <code>$crate</code> 路徑——這樣不管使用者的 crate 怎麼命名你的 crate，路徑都能正確指向：</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// 在 my_lib crate 裡</span>
@@ -17810,7 +17942,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </code></pre></div>
 
 <p>別的 crate 只要引入 <code>my_lib</code>，就能直接用 <code>log_msg!("hello")</code>。<code>$crate</code> 會自動替換成正確的 crate 路徑。</p>
-<h3 id="_969">範例程式碼</h3>
+<h3 id="_975">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="fm">macro_rules!</span><span class="w"> </span><span class="n">max</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="p">(</span><span class="cp">$a</span><span class="p">:</span><span class="nc">expr</span><span class="p">,</span><span class="w"> </span><span class="cp">$b</span><span class="p">:</span><span class="nc">expr</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="cp">$a</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="cp">$b</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cp">$a</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cp">$b</span><span class="w"> </span><span class="p">}</span>
@@ -17848,7 +17980,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_970">重點整理</h3>
+<h3 id="_976">重點整理</h3>
 <ul>
 <li>能用函數就不要用巨集</li>
 <li><code>macro_rules!</code> 定義宣告式巨集：<code>(pattern) =&gt; { expansion }</code></li>
@@ -17860,9 +17992,9 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </ul>
 <hr />
 <h2 id="ch9_proc_macro">第九章第 13 集：proc macro</h2>
-<h3 id="_971">本集目標</h3>
+<h3 id="_977">本集目標</h3>
 <p>認識三種 proc macro，理解它們的運作原理。</p>
-<h3 id="_972">概念說明</h3>
+<h3 id="_978">概念說明</h3>
 <h4 id="proc-macro">什麼是 proc macro</h4>
 <p>上一集的 <code>macro_rules!</code> 用模式匹配展開程式碼。但有些事情它做不到——例如讀取 struct 的欄位名稱來自動產生程式碼。<code>#[derive(Debug)]</code> 是怎麼知道你的 struct 有哪些欄位的？答案就是 <strong>proc macro</strong>（procedural macro）。</p>
 <p>proc macro 拿到你的程式碼作為輸入（一串 token），然後產生新的程式碼（也是一串 token）。</p>
@@ -17903,7 +18035,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </code></pre></div>
 
 <p>使用：<code>my_macro!(任何 token);</code></p>
-<h4 id="_973">三者的差別</h4>
+<h4 id="_979">三者的差別</h4>
 <ul>
 <li><strong>derive</strong>：<strong>附加</strong>新程式碼，不取代原本的 struct/enum</li>
 <li><strong>attribute</strong>：<strong>取代</strong>被標記的項目</li>
@@ -17922,7 +18054,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <li><strong><code>quote</code></strong>：方便地從結構化資料生成 TokenStream</li>
 </ul>
 <p>沒有它們你就得自己一個一個 token 處理，非常痛苦。</p>
-<h3 id="_974">範例程式碼</h3>
+<h3 id="_980">範例程式碼</h3>
 <p>以下是三種 proc macro 的最小骨架（需要在獨立的 proc-macro crate 裡）：</p>
 <div class="highlight"><pre><span></span><code><span class="k">use</span><span class="w"> </span><span class="n">proc_macro</span><span class="p">::</span><span class="n">TokenStream</span><span class="p">;</span>
 
@@ -17964,7 +18096,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_975">重點整理</h3>
+<h3 id="_981">重點整理</h3>
 <ul>
 <li>proc macro 分三種：derive、attribute、function-like</li>
 <li>本質是接收 <code>TokenStream</code>、回傳 <code>TokenStream</code> 的編譯期函數</li>
@@ -17974,9 +18106,9 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </ul>
 <hr />
 <h2 id="ch9_unsafe">第九章第 14 集：unsafe</h2>
-<h3 id="_976">本集目標</h3>
+<h3 id="_982">本集目標</h3>
 <p>理解 unsafe 的意義、能做什麼、以及寫 unsafe 程式碼時該注意什麼。</p>
-<h3 id="_977">概念說明</h3>
+<h3 id="_983">概念說明</h3>
 <h4 id="unsafe">為什麼需要 unsafe</h4>
 <p>Rust 的安全保證建立在一些<strong>假設</strong>上——例如 <code>&amp;mut T</code> 一定是獨佔的、<code>&amp;T</code> 指向的值不會被同時修改（除非 interior mutability）。編譯器會幫你檢查這些假設是否成立。</p>
 <p>但有些操作是編譯器無法驗證的。Rust 不是不讓你做這些事，而是要你明確說「這段我自己負責」——這就是 <code>unsafe</code>。</p>
@@ -18001,7 +18133,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <li><strong>存取 <code>static mut</code> 變數</strong></li>
 <li><strong>存取 union 的欄位</strong></li>
 </ol>
-<h4 id="_978">原始指標</h4>
+<h4 id="_984">原始指標</h4>
 <p>原始指標是沒有借用規則保護的指標。<strong>建立</strong>不需要 unsafe，<strong>使用</strong>（解參考）才需要：</p>
 <div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span>
 <span class="kd">let</span><span class="w"> </span><span class="n">ptr</span><span class="p">:</span><span class="w"> </span><span class="o">*</span><span class="k">const</span><span class="w"> </span><span class="kt">i32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">raw</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">x</span><span class="p">;</span><span class="w"> </span><span class="c1">// 建立：不需要 unsafe</span>
@@ -18053,13 +18185,13 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <li><strong>考慮 panic safety</strong>——如果 unsafe 區塊裡有可能 panic 的操作，確保 panic 後資料結構仍然合法</li>
 <li><strong>用 Miri 測試</strong>——<code>cargo +nightly miri test</code> 可以偵測很多 unsafe 的問題</li>
 </ul>
-<h4 id="_979">常見用途</h4>
+<h4 id="_985">常見用途</h4>
 <ul>
 <li>實作資料結構（連結串列、Vec 的內部）</li>
 <li>跟 C 語言互動</li>
 <li>效能關鍵部分</li>
 </ul>
-<h3 id="_980">範例程式碼</h3>
+<h3 id="_986">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="k">fn</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="c1">// 原始指標</span>
 <span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span>
@@ -18084,7 +18216,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_981">重點整理</h3>
+<h3 id="_987">重點整理</h3>
 <ul>
 <li>unsafe 讓你做編譯器無法驗證的操作，但不是關掉所有檢查</li>
 <li>五種 unsafe 操作：解參考原始指標、呼叫 unsafe fn、impl unsafe trait、存取 static mut、存取 union 欄位</li>
@@ -18096,9 +18228,9 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </ul>
 <hr />
 <h2 id="ch9_static">第九章第 15 集：static 變數</h2>
-<h3 id="_982">本集目標</h3>
+<h3 id="_988">本集目標</h3>
 <p>了解 <code>static</code> 和 <code>const</code> 的差別，以及為什麼 <code>static mut</code> 幾乎不該用。</p>
-<h3 id="_983">概念說明</h3>
+<h3 id="_989">概念說明</h3>
 <h4 id="static-vs-const">static vs const</h4>
 <p>第二章學了 <code>const</code>——編譯期常數，值被直接嵌進使用它的地方。<code>static</code> 看起來很像，但有一個根本差異：<strong>static 變數有固定的記憶體位址</strong>。</p>
 <div class="highlight"><pre><span></span><code><span class="k">static</span><span class="w"> </span><span class="n">GREETING</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="kt">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Hello, world!&quot;</span><span class="p">;</span>
@@ -18143,7 +18275,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <li>複雜的可變全域狀態 → <code>Mutex&lt;T&gt;</code>（搭配 static）</li>
 <li>延遲初始化 → <code>LazyLock</code>（下一集教）</li>
 </ul>
-<h3 id="_984">範例程式碼</h3>
+<h3 id="_990">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">sync</span><span class="p">::</span><span class="n">atomic</span><span class="p">::{</span><span class="n">AtomicI32</span><span class="p">,</span><span class="w"> </span><span class="n">Ordering</span><span class="p">};</span>
 
 <span class="c1">// const：值嵌進使用的地方</span>
@@ -18170,7 +18302,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_985">重點整理</h3>
+<h3 id="_991">重點整理</h3>
 <ul>
 <li><code>static</code> 有固定記憶體位址，整個程式共用一份</li>
 <li><code>const</code> 沒有固定位址，值被嵌入使用的地方；大部分情況用 <code>const</code> 就好</li>
@@ -18179,9 +18311,9 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </ul>
 <hr />
 <h2 id="ch9_lazy_lock">第九章第 16 集：LazyLock</h2>
-<h3 id="_986">本集目標</h3>
+<h3 id="_992">本集目標</h3>
 <p>學會用 <code>LazyLock</code> 延遲初始化全域變數。</p>
-<h3 id="_987">概念說明</h3>
+<h3 id="_993">概念說明</h3>
 <p><code>LazyLock</code> 嚴格來說是標準庫提供的工具，不算語言功能。但因為上一集剛學了 <code>static</code>，它們又是搭配 <code>static</code> 最常用的東西，所以一併在這裡介紹。</p>
 <h4 id="static_1">問題：static 的值必須編譯期確定</h4>
 <div class="highlight"><pre><span></span><code><span class="c1">// static NAMES: Vec&lt;String&gt; = Vec::new(); // 編譯錯誤！</span>
@@ -18207,7 +18339,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <li><strong>Lazy</strong>：不到用的時候不初始化</li>
 <li><strong>Lock</strong>：內部有鎖，多個執行緒同時存取時只會初始化一次（thread-safe）</li>
 </ul>
-<h3 id="_988">範例程式碼</h3>
+<h3 id="_994">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">sync</span><span class="p">::</span><span class="n">LazyLock</span><span class="p">;</span>
 
 <span class="k">static</span><span class="w"> </span><span class="n">NAMES</span><span class="p">:</span><span class="w"> </span><span class="nc">LazyLock</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LazyLock</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="o">||</span><span class="w"> </span><span class="p">{</span>
@@ -18227,7 +18359,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_989">重點整理</h3>
+<h3 id="_995">重點整理</h3>
 <ul>
 <li><code>static</code> 的值必須編譯期確定，但 <code>Vec</code>/<code>String</code> 等做不到</li>
 <li><code>LazyLock</code> 延遲到第一次存取才初始化，之後用快取</li>
@@ -18235,9 +18367,9 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </ul>
 <hr />
 <h2 id="ch9_extern">第九章第 17 集：extern blocks</h2>
-<h3 id="_990">本集目標</h3>
+<h3 id="_996">本集目標</h3>
 <p>學會呼叫 C 函數和讓 C 呼叫 Rust 函數。</p>
-<h3 id="_991">概念說明</h3>
+<h3 id="_997">概念說明</h3>
 <h4 id="ffi">FFI 是什麼</h4>
 <p>FFI（Foreign Function Interface）是讓不同程式語言互相呼叫函數的機制。Rust 可以呼叫 C 寫的函數，C 也可以呼叫 Rust 寫的函數。因為幾乎所有語言都能跟 C 互通，所以 Rust 透過 C 這個橋樑，就能跟大部分語言互動。</p>
 <h4 id="c">呼叫 C 函數</h4>
@@ -18284,7 +18416,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_992">範例程式碼</h3>
+<h3 id="_998">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="k">unsafe</span><span class="w"> </span><span class="k">extern</span><span class="w"> </span><span class="s">&quot;C&quot;</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">safe</span><span class="w"> </span><span class="k">fn</span><span class="w"> </span><span class="nf">abs</span><span class="p">(</span><span class="n">x</span><span class="p">:</span><span class="w"> </span><span class="kt">i32</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">i32</span><span class="p">;</span>
 <span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">sqrt</span><span class="p">(</span><span class="n">x</span><span class="p">:</span><span class="w"> </span><span class="kt">f64</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">f64</span><span class="p">;</span>
@@ -18308,7 +18440,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_993">重點整理</h3>
+<h3 id="_999">重點整理</h3>
 <ul>
 <li><code>unsafe extern "C" { ... }</code> 宣告外部 C 函數</li>
 <li>呼叫外部函數需要 unsafe；標記 <code>safe fn</code> 的除外</li>
@@ -18317,9 +18449,9 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </ul>
 <hr />
 <h2 id="ch9_union">第九章第 18 集：union</h2>
-<h3 id="_994">本集目標</h3>
+<h3 id="_1000">本集目標</h3>
 <p>認識 union——所有欄位共享同一塊記憶體。</p>
-<h3 id="_995">概念說明</h3>
+<h3 id="_1001">概念說明</h3>
 <h4 id="union">什麼是 union</h4>
 <p>struct 的每個欄位各佔一塊記憶體。union 不一樣——<strong>所有欄位共享同一塊記憶體</strong>：</p>
 <div class="highlight"><pre><span></span><code><span class="k">union</span><span class="w"> </span><span class="nc">IntOrFloat</span><span class="w"> </span><span class="p">{</span>
@@ -18364,7 +18496,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </table>
 <h4 id="ffi_1">用途：FFI</h4>
 <p>union 在純 Rust 裡幾乎用不到——enum 更安全也更好用。union 存在的主要原因是跟 C 語言互動：C 有 union，你需要 Rust 版的 union 來對應它的記憶體佈局。</p>
-<h3 id="_996">範例程式碼</h3>
+<h3 id="_1002">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="k">union</span><span class="w"> </span><span class="nc">Value</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="n">integer</span><span class="p">:</span><span class="w"> </span><span class="kt">i64</span><span class="p">,</span>
 <span class="w">    </span><span class="n">float</span><span class="p">:</span><span class="w"> </span><span class="kt">f64</span><span class="p">,</span>
@@ -18392,7 +18524,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_997">重點整理</h3>
+<h3 id="_1003">重點整理</h3>
 <ul>
 <li><code>union</code> 的所有欄位共享同一塊記憶體</li>
 <li>寫入不需要 unsafe，讀取需要——因為 Rust 不知道裡面存的是哪個欄位</li>
@@ -18401,10 +18533,10 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </ul>
 <hr />
 <h2 id="ch9_never_type">第九章第 19 集：never type <code>!</code></h2>
-<h3 id="_998">本集目標</h3>
+<h3 id="_1004">本集目標</h3>
 <p>認識 <code>!</code> 型別——代表永遠不會產生值。</p>
-<h3 id="_999">概念說明</h3>
-<h4 id="_1000">永不回傳的函數</h4>
+<h3 id="_1005">概念說明</h3>
+<h4 id="_1006">永不回傳的函數</h4>
 <p>大部分函數執行完會回傳一個值。但有些函數<strong>永遠不會回傳</strong>：</p>
 <div class="highlight"><pre><span></span><code><span class="k">fn</span><span class="w"> </span><span class="nf">forever</span><span class="p">()</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">loop</span><span class="w"> </span><span class="p">{</span>
@@ -18414,7 +18546,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </code></pre></div>
 
 <p><code>-&gt; !</code> 表示這個函數不可能回傳。</p>
-<h4 id="_1001">哪些東西的型別是 !</h4>
+<h4 id="_1007">哪些東西的型別是 !</h4>
 <ul>
 <li><code>panic!("...")</code> — 程式崩潰</li>
 <li><code>std::process::exit(0)</code> — 程式結束</li>
@@ -18422,7 +18554,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <li><code>return</code> 表達式本身</li>
 <li><code>continue</code> 表達式本身</li>
 </ul>
-<h4 id="_1002">! 可以被強制轉換成任何型別</h4>
+<h4 id="_1008">! 可以被強制轉換成任何型別</h4>
 <p>這是 <code>!</code> 最實用的特性。因為一個永遠不會產生值的表達式，放在任何需要值的地方都不會矛盾——反正它不會真的產生值。</p>
 <p>你其實一直在用這個特性：</p>
 <div class="highlight"><pre><span></span><code><span class="kd">let</span><span class="w"> </span><span class="n">x</span><span class="p">:</span><span class="w"> </span><span class="kt">i32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">match</span><span class="w"> </span><span class="n">option</span><span class="w"> </span><span class="p">{</span>
@@ -18448,7 +18580,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_1003">範例程式碼</h3>
+<h3 id="_1009">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="k">fn</span><span class="w"> </span><span class="nf">exit_with_error</span><span class="p">(</span><span class="n">msg</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="kt">str</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="o">!</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="fm">eprintln!</span><span class="p">(</span><span class="s">&quot;錯誤：{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">msg</span><span class="p">);</span>
 <span class="w">    </span><span class="n">std</span><span class="p">::</span><span class="n">process</span><span class="p">::</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
@@ -18469,7 +18601,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="_1004">重點整理</h3>
+<h3 id="_1010">重點整理</h3>
 <ul>
 <li><code>!</code> 是 never type，代表永遠不會產生值</li>
 <li><code>-&gt; !</code> 的函數永遠不會回傳</li>
