@@ -25,6 +25,7 @@ fn forever() -> ! {
 - `std::process::exit(0)` — 程式結束
 - `loop {}`（沒有 break）— 永遠跑下去
 - `return` 表達式本身
+- `break` 表達式本身
 - `continue` 表達式本身
 
 ### ! 可以被強制轉換成任何型別
@@ -87,7 +88,7 @@ fn main() {
 ## 重點整理
 - `!` 是 never type，代表永遠不會產生值
 - `-> !` 的函數永遠不會回傳
-- `panic!`、`return`、`continue`、`process::exit` 的型別都是 `!`
+- `panic!`、`process::exit`、`return`、`break`、`continue` 的型別都是 `!`
 - `!` 可以被強制轉換成任何型別——match 裡一條路線回傳值一條路線 panic 就是靠這個
 
-恭喜你完成了第九章！🎉 這一章涵蓋了 Rust 的進階語言功能——從 dyn Trait、編譯期運算、型別轉換、attribute、巨集系統，到 unsafe、static、FFI、union 和 never type。這些功能大部分在日常開發中不會天天用到，但當你需要的時候，它們就是讓 Rust 成為系統程式語言的關鍵武器。下一章我們將看看標準庫裡的更多實用工具。
+恭喜你完成了第九章！🎉 這一章涵蓋了 Rust 的進階語言功能——從 dyn Trait、編譯期運算、型別轉換、attribute、巨集系統，到 unsafe、static、FFI、union 和 never type。這些功能大部分在日常開發中不會天天用到，但知道它們的存在，需要的時候就能派上用場。下一章我們將看看標準庫裡的更多實用工具。

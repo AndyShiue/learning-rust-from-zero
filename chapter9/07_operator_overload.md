@@ -52,14 +52,26 @@ impl Add for Point {
 | `-` | `Sub` | `sub(self, rhs)` |
 | `*` | `Mul` | `mul(self, rhs)` |
 | `/` | `Div` | `div(self, rhs)` |
+| `%` | `Rem` | `rem(self, rhs)` |
 | `-x` | `Neg` | `neg(self)` |
+| `!x` | `Not` | `not(self)` |
+| `&` | `BitAnd` | `bitand(self, rhs)` |
+| `\|` | `BitOr` | `bitor(self, rhs)` |
+| `^` | `BitXor` | `bitxor(self, rhs)` |
+| `<<` | `Shl` | `shl(self, rhs)` |
+| `>>` | `Shr` | `shr(self, rhs)` |
 | `+=` | `AddAssign` | `add_assign(&mut self, rhs)` |
+| `&=` | `BitAndAssign` | `bitand_assign(&mut self, rhs)` |
 | `[]` | `Index` | `index(&self, idx)` |
 | `[]` 可變 | `IndexMut` | `index_mut(&mut self, idx)` |
 
+位元運算子（`&`、`|`、`^`、`<<`、`>>`、`!`）在系統程式設計中很常用——處理旗標、遮罩、位元欄位等等。如果你還不熟悉位元運算，建議自行查閱相關資料。
+
+上面列的所有二元運算子都有對應的 assign 版本（例如 `&=` 對應 `BitAndAssign`、`<<=` 對應 `ShlAssign`），用法跟前面教過的 `+=` 或 `-=` 類似。
+
 ### AddAssign vs Add
 
-`a += b` 和 `a = a + b` 在 Rust 裡不一樣：
+`a += b` 和 `a = a + b` 在 Rust 裡的實作不一定一樣：
 
 - `Add::add(self, rhs)` 消耗 `a`，產生新值
 - `AddAssign::add_assign(&mut self, rhs)` 就地修改 `a`

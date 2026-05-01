@@ -1,7 +1,7 @@
 # 第九章第 17 集：extern blocks
 
 ## 本集目標
-學會呼叫 C 函數和讓 C 呼叫 Rust 函數。
+學會呼叫 C 函數和讓 C 呼叫 Rust 函數。這集只是大概介紹 FFI 的功能。如果你想要一個完整的 FFI 例子（從建立 C 函式庫到在 Rust 裡呼叫），請自行搜尋相關教學。
 
 ## 概念說明
 
@@ -38,7 +38,7 @@ unsafe extern "C" {
 }
 
 fn main() {
-    let result = abs(-42); // 不需要 unsafe！
+    let result = abs(-42); // 不需要 unsafe 也能呼叫！
 }
 ```
 

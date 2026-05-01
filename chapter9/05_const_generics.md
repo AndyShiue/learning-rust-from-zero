@@ -48,10 +48,8 @@ slice 沒辦法回傳 `[T]`（DST），但 `[T; N]` 可以。
 ```rust
 fn add_arrays<const N: usize>(a: [i32; N], b: [i32; N]) -> [i32; N] {
     let mut result = [0; N];
-    let mut i = 0;
-    while i < N {
+    for i in 0..N {
         result[i] = a[i] + b[i];
-        i += 1;
     }
     result
 }
@@ -114,10 +112,8 @@ let buf = make_buffer::<Small>(); // [u8; 4]
 ```rust
 fn sum<const N: usize>(arr: [i32; N]) -> i32 {
     let mut total = 0;
-    let mut i = 0;
-    while i < N {
+    for i in 0..N {
         total += arr[i];
-        i += 1;
     }
     total
 }

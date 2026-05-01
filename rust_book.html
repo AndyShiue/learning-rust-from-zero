@@ -16540,7 +16540,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <p>當你呼叫 <code>animal.describe()</code> 的時候，Rust 會去 vtable 裡查「describe 是哪個函數」，然後呼叫它。</p>
 <div class="highlight"><pre><span></span><code><span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">mem</span><span class="p">::</span><span class="n">size_of</span><span class="p">;</span>
 
-<span class="fm">println!</span><span class="p">(</span><span class="s">&quot;{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">size_of</span><span class="p">::</span><span class="o">&lt;&amp;</span><span class="kt">i32</span><span class="o">&gt;</span><span class="p">());</span><span class="w">          </span><span class="c1">// 8</span>
+<span class="fm">println!</span><span class="p">(</span><span class="s">&quot;{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">size_of</span><span class="p">::</span><span class="o">&lt;&amp;</span><span class="kt">usize</span><span class="o">&gt;</span><span class="p">());</span><span class="w">        </span><span class="c1">// 8</span>
 <span class="fm">println!</span><span class="p">(</span><span class="s">&quot;{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">size_of</span><span class="p">::</span><span class="o">&lt;&amp;</span><span class="k">dyn</span><span class="w"> </span><span class="n">Describe</span><span class="o">&gt;</span><span class="p">());</span><span class="w"> </span><span class="c1">// 16（位址 + vtable 指標）</span>
 <span class="fm">println!</span><span class="p">(</span><span class="s">&quot;{}&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">size_of</span><span class="p">::</span><span class="o">&lt;&amp;</span><span class="p">[</span><span class="kt">i32</span><span class="p">]</span><span class="o">&gt;</span><span class="p">());</span><span class="w">        </span><span class="c1">// 16（位址 + 長度）</span>
 </code></pre></div>
@@ -16718,14 +16718,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 
 <p>在這個自動生成的 impl 裡，<code>Self</code> = <code>dyn Trait</code>。而 <code>dyn Trait</code> 是 DST——大小不固定、不是 <code>Sized</code>。</p>
 <p>如果 trait 的某些方法在 <code>Self = dyn Trait</code> 的情況下沒辦法運作，這個 trait 就不是 dyn compatible 的。具體來說有以下幾種情況：</p>
-<h4 id="self_2">限制一：方法不能回傳 Self</h4>
-<div class="highlight"><pre><span></span><code><span class="k">trait</span><span class="w"> </span><span class="nb">Clone</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">clone</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">Self</span><span class="p">;</span>
-<span class="p">}</span>
-</code></pre></div>
-
-<p>如果 <code>Self</code> = <code>dyn Clone</code>，那 <code>clone</code> 要回傳 <code>dyn Clone</code>——但 <code>dyn Clone</code> 是 DST，大小不固定，沒辦法直接放在 stack 上當回傳值。所以 <code>Clone</code> 不是 dyn compatible 的。</p>
-<h4 id="self-self">限制二：Self 不能出現在 self 之外的參數</h4>
+<h4 id="self-self">限制一：Self 不能出現在 self 之外的型別中</h4>
 <div class="highlight"><pre><span></span><code><span class="k">trait</span><span class="w"> </span><span class="n">Compare</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">compare</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">other</span><span class="p">:</span><span class="w"> </span><span class="kp">&amp;</span><span class="nc">Self</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">bool</span><span class="p">;</span>
 <span class="p">}</span>
@@ -16741,8 +16734,8 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 
 <p><code>compare</code> 的第二個參數是 <code>&amp;Self</code>。當你用 <code>dyn Compare</code> 的時候，具體型別已經被抹掉了——你不知道裡面是 Cat 還是 Dog。但 <code>Cat::compare</code> 期望的是 <code>&amp;Cat</code>，<code>Dog::compare</code> 期望的是 <code>&amp;Dog</code>。</p>
 <p>如果有人傳了一個 Dog 進來，但 vtable 找到的函數是 <code>Cat::compare</code>，函數就會把 Dog 的資料當成 Cat 來用——型別搞混了。</p>
-<p>要確保不搞混，編譯器就需要在執行期檢查「傳進來的 <code>y</code> 的具體型別跟 <code>x</code> 的具體型別一樣」。但 dyn 的重點就是把具體型別抹掉了，編譯器已經不知道原本是什麼型別，沒辦法做這個檢查。所以 Rust 直接禁止 <code>Self</code> 出現在 <code>self</code> 以外的參數。</p>
-<h4 id="_910">限制三：方法不能有泛型參數</h4>
+<p>要確保不搞混，編譯器就需要在執行期檢查「傳進來的 <code>y</code> 的具體型別跟 <code>x</code> 的具體型別一樣」。但 dyn 的重點就是把具體型別抹掉了，編譯器已經不知道原本是什麼型別，沒辦法做這個檢查。所以 Rust 直接禁止這樣做。</p>
+<h4 id="_910">限制二：方法不能有泛型參數</h4>
 <div class="highlight"><pre><span></span><code><span class="k">trait</span><span class="w"> </span><span class="n">Converter</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">convert</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">U</span><span class="p">;</span>
 <span class="p">}</span>
@@ -16750,7 +16743,8 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 
 <p>vtable 是一張固定大小的函數指標表。但泛型方法對每個不同的 <code>U</code> 都是一個不同的函數——<code>convert::&lt;i32&gt;</code> 和 <code>convert::&lt;String&gt;</code> 是兩個不同的函數指標。vtable 沒辦法塞進無限多個版本。</p>
 <p>主要是 vtable 必須在編譯 impl 的那一方建好——因為只有那邊才知道 <code>Self</code> 的具體型別。但編譯 impl 的時候，你不知道使用者之後會用哪些 <code>U</code>，所以 vtable 不可能提前準備好所有版本。</p>
-<h4 id="trait-self-sized_1">限制四：trait 本身不能要求 Self: Sized</h4>
+<h4 id="trait-self-sized_1">限制三：trait 本身不能要求 Self: Sized</h4>
+<p>回頭看開頭的問題——為什麼 <code>dyn Clone</code> 不行？其實 <code>Clone</code> 有一個 supertrait 就是 <code>Sized</code>：</p>
 <div class="highlight"><pre><span></span><code><span class="k">trait</span><span class="w"> </span><span class="nb">Clone</span><span class="p">:</span><span class="w"> </span><span class="nb">Sized</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">clone</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">Self</span><span class="p">;</span>
 <span class="p">}</span>
@@ -16758,7 +16752,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 
 <p><code>Clone: Sized</code> 代表「實作 Clone 的型別必須是 Sized」。但 <code>dyn Clone</code> 是 DST，不是 Sized。所以 <code>impl Clone for dyn Clone</code> 根本不成立，<code>dyn Clone</code> 無法存在。</p>
 <h4 id="where-self-sized">退出機制：where Self: Sized</h4>
-<p>如果一個 trait 只有一部分的方法是 dyn compatible，其他不是，可以在那些方法上全部加 <code>where Self: Sized</code> 讓它們退出：</p>
+<p>如果一個 trait 只有一部分的方法是 dyn compatible，其他不是，可以在那些其他方法上全部加 <code>where Self: Sized</code> 讓它們退出：</p>
 <div class="highlight"><pre><span></span><code><span class="k">trait</span><span class="w"> </span><span class="n">MyTrait</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">normal</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nb">String</span><span class="p">;</span><span class="w">          </span><span class="c1">// dyn MyTrait 上能呼叫</span>
 <span class="w">    </span><span class="k">fn</span><span class="w"> </span><span class="nf">special</span><span class="p">(</span><span class="o">&amp;</span><span class="bp">self</span><span class="p">)</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="nc">Self</span><span class="w">            </span><span class="c1">// 回傳 Self，不 dyn compatible</span>
@@ -16772,7 +16766,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="c1">// x.special(); // 編譯錯誤：dyn MyTrait 不是 Sized</span>
 </code></pre></div>
 
-<p>dyn compatibility 的完整規則其實比這集講的更複雜一些，但八九不離十就是這些了。</p>
+<p>dyn compatibility 的完整規則其實比這集講的更複雜，但八九不離十就是這些了。</p>
 <h3 id="_911">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="c1">// dyn compatible 的 trait</span>
 <span class="k">trait</span><span class="w"> </span><span class="n">Greet</span><span class="w"> </span><span class="p">{</span>
@@ -16840,8 +16834,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <ul>
 <li>不是所有 trait 都能用 <code>dyn</code>——必須是 dyn compatible 的</li>
 <li>核心概念：編譯器自動生成 <code>impl Trait for dyn Trait</code>，<code>Self</code> = <code>dyn Trait</code>（DST）</li>
-<li>方法不能回傳 <code>Self</code>——不行直接回傳 DST</li>
-<li><code>Self</code> 不能出現在非 receiver 的參數——呼叫者不知道具體型別，vtable 只處理 receiver</li>
+<li><code>Self</code> 不能出現在 <code>self</code> 之外的型別中——具體型別已被抹掉</li>
 <li>方法不能有泛型參數——vtable 固定大小，放不下無限多版本</li>
 <li>trait 不能要求 <code>Self: Sized</code>——<code>dyn Trait</code> 是 DST，不是 Sized</li>
 <li>個別方法加 <code>where Self: Sized</code> 可以讓它退出 dyn，trait 本身仍然 dyn compatible</li>
@@ -17091,10 +17084,8 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <p><strong>在型別層面保證長度：</strong></p>
 <div class="highlight"><pre><span></span><code><span class="k">fn</span><span class="w"> </span><span class="nf">add_arrays</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">N</span><span class="p">:</span><span class="w"> </span><span class="kt">usize</span><span class="o">&gt;</span><span class="p">(</span><span class="n">a</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="kt">i32</span><span class="p">;</span><span class="w"> </span><span class="n">N</span><span class="p">],</span><span class="w"> </span><span class="n">b</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="kt">i32</span><span class="p">;</span><span class="w"> </span><span class="n">N</span><span class="p">])</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="p">[</span><span class="kt">i32</span><span class="p">;</span><span class="w"> </span><span class="n">N</span><span class="p">]</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">N</span><span class="p">];</span>
-<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="mi">0</span><span class="o">..</span><span class="n">N</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
-<span class="w">        </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">    </span><span class="n">result</span>
 <span class="p">}</span>
@@ -17144,10 +17135,8 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <h3 id="_926">範例程式碼</h3>
 <div class="highlight"><pre><span></span><code><span class="k">fn</span><span class="w"> </span><span class="nf">sum</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">N</span><span class="p">:</span><span class="w"> </span><span class="kt">usize</span><span class="o">&gt;</span><span class="p">(</span><span class="n">arr</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="kt">i32</span><span class="p">;</span><span class="w"> </span><span class="n">N</span><span class="p">])</span><span class="w"> </span><span class="p">-&gt;</span><span class="w"> </span><span class="kt">i32</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">total</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="k">mut</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
-<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="mi">0</span><span class="o">..</span><span class="n">N</span><span class="w"> </span><span class="p">{</span>
 <span class="w">        </span><span class="n">total</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
-<span class="w">        </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">    </span><span class="n">total</span>
 <span class="p">}</span>
@@ -17328,14 +17317,54 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <td><code>div(self, rhs)</code></td>
 </tr>
 <tr>
+<td><code>%</code></td>
+<td><code>Rem</code></td>
+<td><code>rem(self, rhs)</code></td>
+</tr>
+<tr>
 <td><code>-x</code></td>
 <td><code>Neg</code></td>
 <td><code>neg(self)</code></td>
 </tr>
 <tr>
+<td><code>!x</code></td>
+<td><code>Not</code></td>
+<td><code>not(self)</code></td>
+</tr>
+<tr>
+<td><code>&amp;</code></td>
+<td><code>BitAnd</code></td>
+<td><code>bitand(self, rhs)</code></td>
+</tr>
+<tr>
+<td><code>\|</code></td>
+<td><code>BitOr</code></td>
+<td><code>bitor(self, rhs)</code></td>
+</tr>
+<tr>
+<td><code>^</code></td>
+<td><code>BitXor</code></td>
+<td><code>bitxor(self, rhs)</code></td>
+</tr>
+<tr>
+<td><code>&lt;&lt;</code></td>
+<td><code>Shl</code></td>
+<td><code>shl(self, rhs)</code></td>
+</tr>
+<tr>
+<td><code>&gt;&gt;</code></td>
+<td><code>Shr</code></td>
+<td><code>shr(self, rhs)</code></td>
+</tr>
+<tr>
 <td><code>+=</code></td>
 <td><code>AddAssign</code></td>
 <td><code>add_assign(&amp;mut self, rhs)</code></td>
+</tr>
+<tr>
+<td><code>&amp;=</code></td>
+<td><code>BitAndAssign</code></td>
+<td><code>bitand_assign(&amp;mut self, rhs)</code></td>
 </tr>
 <tr>
 <td><code>[]</code></td>
@@ -17349,8 +17378,10 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 </tr>
 </tbody>
 </table>
+<p>位元運算子（<code>&amp;</code>、<code>|</code>、<code>^</code>、<code>&lt;&lt;</code>、<code>&gt;&gt;</code>、<code>!</code>）在系統程式設計中很常用——處理旗標、遮罩、位元欄位等等。如果你還不熟悉位元運算，建議自行查閱相關資料。</p>
+<p>上面列的所有二元運算子都有對應的 assign 版本（例如 <code>&amp;=</code> 對應 <code>BitAndAssign</code>、<code>&lt;&lt;=</code> 對應 <code>ShlAssign</code>），用法跟前面教過的 <code>+=</code> 或 <code>-=</code> 類似。</p>
 <h4 id="addassign-vs-add">AddAssign vs Add</h4>
-<p><code>a += b</code> 和 <code>a = a + b</code> 在 Rust 裡不一樣：</p>
+<p><code>a += b</code> 和 <code>a = a + b</code> 在 Rust 裡的實作不一定一樣：</p>
 <ul>
 <li><code>Add::add(self, rhs)</code> 消耗 <code>a</code>，產生新值</li>
 <li><code>AddAssign::add_assign(&amp;mut self, rhs)</code> 就地修改 <code>a</code></li>
@@ -17876,6 +17907,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <li><code>ident</code>：識別符（如變數名稱）</li>
 <li><code>tt</code>：token tree（最靈活）</li>
 </ul>
+<p>還有其他 kind，如果需要用到的話請自行搜尋。</p>
 <h4 id="_971">多個分支</h4>
 <div class="highlight"><pre><span></span><code><span class="fm">macro_rules!</span><span class="w"> </span><span class="n">log</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="p">(</span><span class="cp">$val</span><span class="p">:</span><span class="nc">expr</span><span class="p">)</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="p">{</span>
@@ -17993,7 +18025,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <hr />
 <h2 id="ch9_proc_macro">第九章第 13 集：proc macro</h2>
 <h3 id="_977">本集目標</h3>
-<p>認識三種 proc macro，理解它們的運作原理。</p>
+<p>認識三種 proc macro，理解它們的運作原理。這集只是大概介紹 proc macro 的概念和骨架，不會帶你實際寫一個完整的 proc macro。如果有需要，請自行搜尋相關教學。</p>
 <h3 id="_978">概念說明</h3>
 <h4 id="proc-macro">什麼是 proc macro</h4>
 <p>上一集的 <code>macro_rules!</code> 用模式匹配展開程式碼。但有些事情它做不到——例如讀取 struct 的欄位名稱來自動產生程式碼。<code>#[derive(Debug)]</code> 是怎麼知道你的 struct 有哪些欄位的？答案就是 <strong>proc macro</strong>（procedural macro）。</p>
@@ -18110,7 +18142,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <p>理解 unsafe 的意義、能做什麼、以及寫 unsafe 程式碼時該注意什麼。</p>
 <h3 id="_983">概念說明</h3>
 <h4 id="unsafe">為什麼需要 unsafe</h4>
-<p>Rust 的安全保證建立在一些<strong>假設</strong>上——例如 <code>&amp;mut T</code> 一定是獨佔的、<code>&amp;T</code> 指向的值不會被同時修改（除非 interior mutability）。編譯器會幫你檢查這些假設是否成立。</p>
+<p>Rust 的安全保證建立在一些<strong>假設</strong>上——例如 <code>&amp;mut T</code> 一定是獨佔的、參考一定指向有效的資料。編譯器會幫你檢查這些假設是否成立。</p>
 <p>但有些操作是編譯器無法驗證的。Rust 不是不讓你做這些事，而是要你明確說「這段我自己負責」——這就是 <code>unsafe</code>。</p>
 <h4 id="rust_2">Rust 的安全保證</h4>
 <p>safe Rust 保證以下這些事情<strong>不會發生</strong>，不管你的程式碼怎麼寫：</p>
@@ -18319,9 +18351,9 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <div class="highlight"><pre><span></span><code><span class="c1">// static NAMES: Vec&lt;String&gt; = Vec::new(); // 編譯錯誤！</span>
 </code></pre></div>
 
-<p><code>Vec::new()</code> 需要執行期配置記憶體，沒辦法在編譯期算出來。</p>
+<p><code>Vec::new()</code> 需要執行期配置記憶體，沒辦法在編譯期算出來。那怎麼辦？既然沒辦法在編譯期給值，那就<strong>先不給</strong>——等到程式執行時第一次用到的時候再初始化。這就是延遲初始化。</p>
 <h4 id="lazylock">LazyLock</h4>
-<p><code>std::sync::LazyLock</code> 讓你延遲初始化——第一次存取時才執行閉包，之後用快取的值：</p>
+<p><code>std::sync::LazyLock</code> 就是做這件事的——你給它一個閉包，它會在第一次存取時才執行閉包產生值，之後都用快取的結果：</p>
 <div class="highlight"><pre><span></span><code><span class="k">use</span><span class="w"> </span><span class="n">std</span><span class="p">::</span><span class="n">sync</span><span class="p">::</span><span class="n">LazyLock</span><span class="p">;</span>
 
 <span class="k">static</span><span class="w"> </span><span class="n">NAMES</span><span class="p">:</span><span class="w"> </span><span class="nc">LazyLock</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LazyLock</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="o">||</span><span class="w"> </span><span class="p">{</span>
@@ -18368,7 +18400,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <hr />
 <h2 id="ch9_extern">第九章第 17 集：extern blocks</h2>
 <h3 id="_996">本集目標</h3>
-<p>學會呼叫 C 函數和讓 C 呼叫 Rust 函數。</p>
+<p>學會呼叫 C 函數和讓 C 呼叫 Rust 函數。這集只是大概介紹 FFI 的功能。如果你想要一個完整的 FFI 例子（從建立 C 函式庫到在 Rust 裡呼叫），請自行搜尋相關教學。</p>
 <h3 id="_997">概念說明</h3>
 <h4 id="ffi">FFI 是什麼</h4>
 <p>FFI（Foreign Function Interface）是讓不同程式語言互相呼叫函數的機制。Rust 可以呼叫 C 寫的函數，C 也可以呼叫 Rust 寫的函數。因為幾乎所有語言都能跟 C 互通，所以 Rust 透過 C 這個橋樑，就能跟大部分語言互動。</p>
@@ -18393,7 +18425,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <span class="p">}</span>
 
 <span class="k">fn</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">abs</span><span class="p">(</span><span class="o">-</span><span class="mi">42</span><span class="p">);</span><span class="w"> </span><span class="c1">// 不需要 unsafe！</span>
+<span class="w">    </span><span class="kd">let</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">abs</span><span class="p">(</span><span class="o">-</span><span class="mi">42</span><span class="p">);</span><span class="w"> </span><span class="c1">// 不需要 unsafe 也能呼叫！</span>
 <span class="p">}</span>
 </code></pre></div>
 
@@ -18552,6 +18584,7 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <li><code>std::process::exit(0)</code> — 程式結束</li>
 <li><code>loop {}</code>（沒有 break）— 永遠跑下去</li>
 <li><code>return</code> 表達式本身</li>
+<li><code>break</code> 表達式本身</li>
 <li><code>continue</code> 表達式本身</li>
 </ul>
 <h4 id="_1008">! 可以被強制轉換成任何型別</h4>
@@ -18605,10 +18638,10 @@ cargo<span class="w"> </span>publish<span class="w">        </span><span class="
 <ul>
 <li><code>!</code> 是 never type，代表永遠不會產生值</li>
 <li><code>-&gt; !</code> 的函數永遠不會回傳</li>
-<li><code>panic!</code>、<code>return</code>、<code>continue</code>、<code>process::exit</code> 的型別都是 <code>!</code></li>
+<li><code>panic!</code>、<code>process::exit</code>、<code>return</code>、<code>break</code>、<code>continue</code> 的型別都是 <code>!</code></li>
 <li><code>!</code> 可以被強制轉換成任何型別——match 裡一條路線回傳值一條路線 panic 就是靠這個</li>
 </ul>
-<p>恭喜你完成了第九章！🎉 這一章涵蓋了 Rust 的進階語言功能——從 dyn Trait、編譯期運算、型別轉換、attribute、巨集系統，到 unsafe、static、FFI、union 和 never type。這些功能大部分在日常開發中不會天天用到，但當你需要的時候，它們就是讓 Rust 成為系統程式語言的關鍵武器。下一章我們將看看標準庫裡的更多實用工具。</p>
+<p>恭喜你完成了第九章！🎉 這一章涵蓋了 Rust 的進階語言功能——從 dyn Trait、編譯期運算、型別轉換、attribute、巨集系統，到 unsafe、static、FFI、union 和 never type。這些功能大部分在日常開發中不會天天用到，但知道它們的存在，需要的時候就能派上用場。下一章我們將看看標準庫裡的更多實用工具。</p>
 <hr />
 </main>
 
