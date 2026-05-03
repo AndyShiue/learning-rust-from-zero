@@ -1,5 +1,6 @@
 # Summary
 
+[前言](foreword.md)
 - [基礎](chapter1/README.md)
     - [安裝 Rust](chapter1/01_install_rust.md)
     - [第一個程式](chapter1/02_first_program.md)
