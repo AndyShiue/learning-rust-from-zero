@@ -117,4 +117,4 @@ fn main() {
 - 不需要 move、不需要 Arc、不需要手動 join——程式碼簡潔很多
 - 當你只需要在一個區域內使用多執行緒，`thread::scope` 比 `thread::spawn` 方便
 
-恭喜你完成了第八章！🎉 這一章從指標的底層概念出發，一路學到了執行緒、Send/Sync、Arc、Mutex、RwLock、poisoning、channel 和 thread::scope。多執行緒程式設計在很多語言裡是讓人頭痛的領域，但 Rust 的型別系統在編譯期就幫你擋住了資料競爭——你不需要靠經驗和直覺來避免 bug，編譯器就是你最好的隊友。下一章我們將進入進階語言功能！
+恭喜你完成了多執行緒這一章！🎉 這一章從指標的底層概念出發，一路學到了執行緒、Send/Sync、Arc、Mutex、RwLock、poisoning、channel 和 thread::scope。多執行緒程式設計在很多語言裡是讓人頭痛的領域，但 Rust 的型別系統在編譯期就幫你擋住了資料競爭——你不需要靠經驗和直覺來避免 bug，編譯器就是你最好的隊友。下一章我們將進入進階語言功能！

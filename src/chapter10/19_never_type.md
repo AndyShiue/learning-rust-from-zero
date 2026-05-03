@@ -100,4 +100,4 @@ fn main() {
 - `panic!`、`process::exit`、`return`、`break`、`continue` 的型別都是 `!`
 - `!` 可以被強制轉換成任何型別——match 裡一條路線回傳值一條路線 panic 就是靠這個
 
-恭喜你完成了第九章！🎉 這一章涵蓋了 Rust 的進階語言功能——從 dyn Trait、編譯期運算、型別轉換、attribute、巨集系統，到 unsafe、static、FFI、union 和 never type。這些功能大部分在日常開發中不會天天用到，但知道它們的存在，需要的時候就能派上用場。下一章我們將看看標準庫裡的更多實
+恭喜你完成了進階語言功能這一章！🎉 這一章涵蓋了 Rust 的進階語言功能——從 dyn Trait、編譯期運算、型別轉換、attribute、巨集系統，到 unsafe、static、FFI、union 和 never type。這些功能大部分在日常開發中不會天天用到，但知道它們的存在，需要的時候就能派上用場。下一章我們將看看標準庫裡的更多實用工具。

@@ -104,4 +104,4 @@ fn main() {
 - `panic = "abort"` 設定下 `catch_unwind` 無效
 - 不要用 `catch_unwind` 做一般的錯誤處理——那是 `Result` 的工作
 
-恭喜你完成了這一章！🎉 這一章介紹了標準庫和社群裡的各種實用工具——從 AsRef、排序、集合，到檔案 IO、字串方法、錯誤處理，再到 catch_unwind。
+恭喜你完成了進階標準庫這一章！🎉 這一章介紹了標準庫和社群裡的各種實用工具——從 AsRef、排序、集合，到檔案 IO、字串方法、錯誤處理，再到 catch_unwind。
