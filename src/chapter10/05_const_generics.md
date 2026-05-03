@@ -138,4 +138,4 @@ fn main() {
 - 最常見的用途：處理任意長度的陣列 `[T; N]`
 - 跟 slice 的差別：const generics 能回傳固定長度陣列、在型別層面保證長度
 - 表達式要用 `{}` 包：`Foo::<{ 1 + 2 }>`
-- 可以搭配 const fn 和 associated const 使用
+- 可以搭配 const fn 使用
