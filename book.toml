@@ -8,6 +8,6 @@ edition = "2024"
 
 [output.html]
 default-theme = "light"
-preferred-dark-theme = "navy"
+preferred-dark-theme = "ayu"
 git-repository-url = "https://github.com/AndyShiue/rust-book"
 site-url = "https://andyshiue.github.io/rust-book/"
