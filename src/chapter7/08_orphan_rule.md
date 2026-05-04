@@ -9,7 +9,6 @@
 在第五章我們學過 trait——你可以為自己的型別實作任何 trait。但你有沒有試過這樣：
 
 ```rust,compile_fail
-# #![allow(dead_code)]
 use std::fmt;
 
 impl fmt::Display for Vec<i32> {

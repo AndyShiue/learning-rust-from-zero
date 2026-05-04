@@ -66,7 +66,7 @@ fn main() {
 ```
 
 它會印出檔名、行數和值，超方便：
-```
+```ignore
 [src/main.rs:3] x = 5
 [src/main.rs:4] x + 1 = 6
 ```

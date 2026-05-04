@@ -74,7 +74,6 @@ pub trait Ord: PartialOrd + Eq { ... }
 如果 struct 的每個欄位都有 `Default`，你就可以 derive 它：
 
 ```rust,no_run
-# #![allow(dead_code)]
 #[derive(Debug, Default)]
 struct Config {
     width: i32,

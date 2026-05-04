@@ -53,7 +53,7 @@ fn main() {
 
 ### process::exit
 
-```rust
+```rust,should_panic
 use std::process;
 
 fn main() {
@@ -76,7 +76,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,should_panic
 use std::env;
 use std::process;
 

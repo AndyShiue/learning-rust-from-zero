@@ -51,7 +51,7 @@ use math::add; // 當前 mod 底下的 math 子 mod
 
 在 Cargo.toml 加了外部 crate 後，直接用 crate 名稱作為路徑開頭：
 
-```rust,no_run
+```rust,ignore
 use std::collections::HashMap;
 use rand::Rng;
 #
@@ -62,7 +62,7 @@ use rand::Rng;
 
 如果你想明確強調「這是外部 crate」，可以用 `::` 開頭：
 
-```rust,no_run
+```rust,ignore,mdbook-runnable
 use ::rand::Rng;  // 明確表示 rand 是外部 crate，不是本地 mod
 #
 # fn main() {}

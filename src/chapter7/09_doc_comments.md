@@ -42,7 +42,6 @@ pub fn gcd(mut a: u64, mut b: u64) -> u64 {
 兩個斜線加驚嘆號 `//!` 是為**包含它的項目**寫文件，通常放在檔案最頂端：
 
 ```rust,no_run
-# #![allow(dead_code)]
 //! # Math Library
 //!
 //! 這個 library 提供基本的數學運算函數。

@@ -114,7 +114,7 @@ fn make_animal(is_cat: bool) -> Box<dyn Describe> {
 
 附錄一最後一集學過 `&[T]` 是胖指標（位址 + 長度）。`&dyn Trait` 也是胖指標，但存的東西不同：
 
-```
+```ignore
 &[T]         = [資料位址][長度]
 &dyn Trait   = [資料位址][vtable 指標]
 ```

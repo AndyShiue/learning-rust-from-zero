@@ -61,7 +61,7 @@ cargo run
 
 你應該會看到螢幕上印出：
 
-```
+```ignore
 Hello, world!
 ```
 
@@ -79,7 +79,7 @@ fn main() {
 
 存檔，再回到終端機跑一次 `cargo run`：
 
-```
+```ignore
 Hello, Rust!
 ```
 

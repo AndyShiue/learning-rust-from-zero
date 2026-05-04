@@ -41,7 +41,7 @@ fn double(x: i32) -> i32 {
 
 如果你不小心加了分號：
 
-```rust,no_compile
+```rust,compile_fail
 fn double(x: i32) -> i32 {
     x * 2; // ❌ 加了分號
 }
