@@ -10,7 +10,7 @@
 ```rust
 fn main() {
     let x = 42;
-    println!("{}", x); // 42 ✅
+    println!("{}", x); // ✅ 42
 }
 ```
 
@@ -30,7 +30,7 @@ fn main() {
 ```rust
 fn main() {
     let t = (1, 2, 3);
-    println!("{:?}", t); // (1, 2, 3) ✅
+    println!("{:?}", t); // ✅ (1, 2, 3)
 }
 ```
 
