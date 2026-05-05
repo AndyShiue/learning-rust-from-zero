@@ -1,4 +1,4 @@
-# HashSet
+# `HashSet<T>`
 
 ## 本集目標
 學會用 `HashSet` 處理集合運算。

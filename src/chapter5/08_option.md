@@ -1,4 +1,4 @@
-# Option
+# `Option<T>`
 
 ## 本集目標
 認識 Rust 標準庫最重要的泛型 enum——`Option<T>`，理解它如何取代 null 並防止 runtime 錯誤。

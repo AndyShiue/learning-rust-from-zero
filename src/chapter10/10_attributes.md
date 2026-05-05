@@ -52,7 +52,6 @@ mod tests { /* ... */ }
 ### 測試
 
 ```rust,no_run
-# #![allow(dead_code)]
 #[test]
 fn test_add() { assert_eq!(1 + 1, 2); }
 

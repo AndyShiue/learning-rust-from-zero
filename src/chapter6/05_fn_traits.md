@@ -21,7 +21,7 @@
 
 這三個 trait 有繼承（supertrait）關係：
 
-```
+```ignore
 Fn : FnMut : FnOnce
 ```
 

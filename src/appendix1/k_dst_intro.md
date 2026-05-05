@@ -37,7 +37,7 @@ DST 必須藏在某種指標後面：
 
 這些指標是所謂的**胖指標（fat pointer）**——它們不只存一個位址，還多存了一個長度資訊：
 
-```
+```ignore
 一般指標：[位址]       （8 bytes）
 胖指標：　[位址][長度] （16 bytes）
 ```
@@ -105,7 +105,6 @@ where
 加上 `?Sized` 就能解決：
 
 ```rust,no_run
-# #![allow(dead_code)]
 pub enum Cow<'a, B>
 where
     B: 'a + ToOwned + ?Sized,

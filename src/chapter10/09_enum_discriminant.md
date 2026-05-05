@@ -44,7 +44,6 @@ fn main() {
 手動指定值：
 
 ```rust
-# #![allow(dead_code)]
 enum HttpStatus {
     Ok = 200,
     NotFound = 404,
@@ -90,7 +89,7 @@ enum Direction {
 
 帶資料的 enum 內部也有 discriminant 來區分是哪個 variant，但你**不能用 `as` 取得它**：
 
-```rust
+```rust,compile_fail
 enum Shape {
     Circle(f64),
     Rectangle(f64, f64),

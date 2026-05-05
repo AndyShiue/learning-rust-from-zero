@@ -22,7 +22,7 @@ fn main() {
 
 跑起來的效果：
 
-```
+```ignore
 請輸入你的名字：
 Andy
 你好，Andy！

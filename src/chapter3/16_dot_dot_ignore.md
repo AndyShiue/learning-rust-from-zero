@@ -12,7 +12,6 @@ Rust 提供了 `..`（兩個點），意思是「剩下的我都不要了」。
 ### 在 match struct 時使用
 
 ```rust
-# #![allow(dead_code)]
 struct Player {
     id: i32,
     hp: i32,

@@ -104,7 +104,7 @@ cargo yank --version 0.1.0
 
 一個準備好發布的小 library 的完整結構：
 
-```
+```ignore
 my-math-lib/
 ├── Cargo.toml
 ├── README.md

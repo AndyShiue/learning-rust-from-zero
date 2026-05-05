@@ -90,7 +90,7 @@ serde = { version = "1.0", features = ["derive"] }
 
 用 `rand` 套件產生隨機數：
 
-```rust
+```rust,ignore,mdbook-runnable
 // 先執行：cargo add rand
 use rand::RngExt;
 

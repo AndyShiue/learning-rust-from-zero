@@ -28,7 +28,7 @@ fn main() {
 
 現在試著在大括號外面用 `y`：
 
-```rust
+```rust,compile_fail
 fn main() {
     {
         let y = 10;

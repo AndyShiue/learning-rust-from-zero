@@ -17,6 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: cargo install mdbook
+      - run: mdbook test
       - run: mdbook build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

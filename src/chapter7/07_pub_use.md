@@ -8,7 +8,7 @@
 
 假設你寫了一個 library，內部結構長這樣：
 
-```
+```ignore
 src/
 ├── lib.rs
 ├── math.rs
@@ -54,7 +54,7 @@ use your_crate::power;
 
 `pub use` 不只能匯出自己 mod 的內容，也能匯出**其他 crate** 的東西：
 
-```rust,no_run
+```rust,ignore
 // lib.rs
 pub use rand::Rng; // 使用者 use your_crate::Rng 就好，不用自己加 rand 依賴
 #

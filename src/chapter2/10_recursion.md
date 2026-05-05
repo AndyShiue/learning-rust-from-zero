@@ -62,7 +62,7 @@ n * factorial(n - 1) // 把問題縮小：n 變成 n - 1
 
 讓我們追蹤 `factorial(5)` 的執行過程：
 
-```
+```ignore
 factorial(5)
 = 5 * factorial(4)
 = 5 * (4 * factorial(3))

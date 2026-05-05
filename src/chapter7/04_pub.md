@@ -40,7 +40,7 @@ fn main() {
 
 struct 加 `pub` 只是讓這個**型別**公開，欄位還是私有的！每個欄位要**個別**加 `pub`：
 
-```rust
+```rust,compile_fail
 mod user {
     pub struct Profile {
         pub name: String,  // 外部可讀寫

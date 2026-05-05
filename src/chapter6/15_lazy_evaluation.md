@@ -152,7 +152,7 @@ fn main() {
 
 因為迭代器是惰性的，如果你寫了 `.map()` 但忘記 `.collect()` 或 `for`，什麼事都不會發生。Rust 編譯器會發出警告：
 
-```
+```ignore
 warning: unused `Map` that must be used
 note: iterators are lazy and do nothing unless consumed
 ```

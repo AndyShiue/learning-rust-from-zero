@@ -9,7 +9,7 @@
 
 ### 先看看會怎樣
 
-```rust
+```rust,compile_fail
 fn main() {
     let x = 5;
     x = 10;

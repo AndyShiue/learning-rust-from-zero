@@ -1,4 +1,4 @@
-# HashMap
+# `HashMap<K, V>`
 
 ## 本集目標
 學會用 `HashMap` 儲存和查詢 key-value 資料。

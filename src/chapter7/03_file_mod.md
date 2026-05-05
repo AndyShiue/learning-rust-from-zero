@@ -15,7 +15,7 @@
 1. 在 `main.rs`（或 `lib.rs`）裡寫 `mod math;`（注意是分號，不是大括號）
 2. 建立 `math.rs`，把 mod 的內容放進去
 
-```
+```ignore
 src/
 ├── main.rs
 └── math.rs
@@ -33,7 +33,6 @@ fn main() {
 
 **math.rs：**
 ```rust,ignore
-# #![allow(dead_code)]
 pub fn add(a: i32, b: i32) -> i32 {
     a + b
 }
@@ -51,7 +50,7 @@ pub fn subtract(a: i32, b: i32) -> i32 {
 
 **方式一：用 `mod.rs`（傳統風格）**
 
-```
+```ignore
 src/
 ├── main.rs
 └── math/
@@ -70,7 +69,7 @@ pub mod advanced;
 
 **方式二：同名檔案 + 資料夾（推薦）**
 
-```
+```ignore
 src/
 ├── main.rs
 ├── math.rs          ← math mod 的入口
@@ -96,7 +95,7 @@ pub mod advanced;
 
 一個專案可以**同時**有 `main.rs` 和 `lib.rs`。`main.rs` 是 binary crate 的根，`lib.rs` 是 library crate 的根。
 
-```
+```ignore
 src/
 ├── main.rs    ← binary crate root
 ├── lib.rs     ← library crate root
@@ -123,7 +122,7 @@ fn main() {
 
 由於檔案 mod 涉及多個檔案，無法用單一檔案示範。以下是完整的多檔案範例，建立對應的檔案結構後用 `cargo run` 執行：
 
-```
+```ignore
 src/
 ├── main.rs
 ├── math.rs

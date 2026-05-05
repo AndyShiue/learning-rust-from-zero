@@ -14,7 +14,6 @@
 泛型參數不只能是型別，也能是**常數值**：
 
 ```rust
-# #![allow(dead_code)]
 fn print_array<const N: usize>(arr: [i32; N]) {
     for x in arr {
         println!("{}", x);
@@ -36,7 +35,6 @@ fn main() {
 **回傳固定長度的陣列：**
 
 ```rust,no_run
-# #![allow(dead_code)]
 fn zeros<const N: usize>() -> [i32; N] {
     [0; N]
 }
