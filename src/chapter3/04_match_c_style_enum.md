@@ -21,7 +21,7 @@ match 變數 {
 
 **最重要的規則：match 必須窮舉所有可能的值。** 如果你的 enum 有三個 variant，你就必須處理全部三個。少寫一個，編譯器就會報錯。這是 Rust 幫你抓 bug 的方式——確保你不會忘記處理某種情況。
 
-和 struct 和 enum 一樣，match 的最後一個分支後面也可以加 trailing comma（結尾逗號）。Rust 社群慣例是加上的。
+和 struct 還有 enum 一樣，match 的最後一個分支後面也可以加 trailing comma（結尾逗號）。Rust 社群慣例是加上的。
 
 ## 範例程式碼
 
