@@ -11,7 +11,7 @@ Rust 的 **match guard** 讓你在模式後面加上 `if 條件`：
 
 ```rust
 # fn main() {
-#     let n = 137;
+    let n = 137;
     match n {
         x if x > 0 => println!("{} 是正數", x),
         x if x < 0 => println!("{} 是負數", x),

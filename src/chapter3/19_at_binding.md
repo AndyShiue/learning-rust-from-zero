@@ -9,9 +9,9 @@
 
 `@`（at 符號）可以解決這個問題。它讓你在比對的同時，把實際的值存到一個變數裡：
 
-```rust,no_run
+```rust
 # fn main() {
-#     let age = 50;
+    let age = 50;
     match age {
         n @ 0..=12 => println!("{}歲，是小孩", n),
         n @ 13..=19 => println!("{}歲，是青少年", n),
