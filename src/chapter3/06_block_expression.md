@@ -84,7 +84,7 @@ fn main() {
     let result = {
         let a = 10;
         let b = 20;
-        a + b  // 最後一行不加分號 → 回傳值
+        a + b // 最後一行不加分號 → 回傳值
     };
     println!("result = {}", result);
 
