@@ -52,10 +52,10 @@ struct StackData {
 
 fn main() {
     // 這些都在 stack 上
-    let a = 42;           // i32，4 bytes，stack
-    let b = 3.14;         // f64，8 bytes，stack
-    let c = true;         // bool，1 byte，stack
-    let ch = '🦀';        // char，4 bytes，stack
+    let a = 42;    // i32，4 bytes，stack
+    let b = 3.14;  // f64，8 bytes，stack
+    let c = true;  // bool，1 byte，stack
+    let ch = '🦀'; // char，4 bytes，stack
     println!("整數：{}，浮點：{}，布林：{}，字元：{}", a, b, c, ch);
 
     // struct 裡面全是 stack 資料，所以整個 struct 也在 stack 上
