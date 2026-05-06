@@ -69,7 +69,7 @@ struct Point {
 
 注意：`#[derive(Copy)]` 一定要同時加 `Clone`——如果只寫 `#[derive(Copy)]` 而不寫 `Clone`，編譯器會報錯。
 
-為什麼？因為 Rust 規定：任何可以 Copy 的東西，也必須可以 Clone。Copy 是「自動複製」，Clone 是「手動複製」。如果一個東西連手動複製都不行，那自動複製當然更不行。所以 Copy 要求你先有 Clone。
+為什麼？因為 Rust 規定：任何可以 copy 的東西，也必須可以 clone。Copy 是「自動複製」，Clone 是「手動複製」。如果一個東西連手動複製都不行，那自動複製當然更不行。所以 Copy 要求你先有 Clone。
 
 加上之後，Point 的行為就跟整數一樣了——賦值不會 move：
 
@@ -87,15 +87,15 @@ struct Point {
 # }
 ```
 
-### Copy 和 Clone 的差別
+### copy 和 clone 的差別
 
-| | Copy | Clone |
+| | copy | clone |
 |---|---|---|
 | 觸發方式 | 自動（賦值、傳入函數） | 手動（`.clone()`） |
 | 適用場景 | 小而簡單的資料 | 任何資料 |
 | 使用限制 | 所有欄位都必須是 Copy | 沒有特別限制 |
 
-簡單來說：**Copy 是自動的複製，Clone 是手動的複製。**
+簡單來說：**copy 是自動的複製，clone 是手動的複製。**
 
 ## 範例程式碼
 

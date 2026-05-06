@@ -109,8 +109,8 @@ fn main() {
 
     // Copy 需要 Clone 的示範
     let p = Point { x: 1, y: 2 };
-    let p2 = p; // Copy（自動複製）
-    let p3 = p.clone(); // Clone（手動複製）也可以用
+    let p2 = p; // copy（自動複製）
+    let p3 = p.clone(); // clone（手動複製）也可以用
     println!("{:?} {:?} {:?}", p, p2, p3);
 }
 ```
