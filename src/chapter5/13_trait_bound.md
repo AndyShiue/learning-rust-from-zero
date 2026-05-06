@@ -1,7 +1,7 @@
 # trait bound
 
 ## 本集目標
-學會用 trait bound 限制泛型參數的能力，以及用條件式 impl 為符合條件的型別加方法。
+學會用 trait bound 限制泛型參數的能力，以及用條件式 `impl` 為符合條件的型別加方法。
 
 ## 概念說明
 
@@ -11,6 +11,8 @@
 fn duplicate<T>(x: &T) -> (T, T) {
     (x.clone(), x.clone()) // 編譯錯誤！
 }
+#
+# fn main() {}
 ```
 
 編譯器會報錯：「不是所有 `T` 都有 `clone()` 方法。」
@@ -21,7 +23,7 @@ fn duplicate<T>(x: &T) -> (T, T) {
 
 解法是加上 **trait bound**，告訴 Rust「T 必須實作 Clone」：
 
-```rust,no_run
+```rust
 fn duplicate<T: Clone>(x: &T) -> (T, T) {
     (x.clone(), x.clone())
 }
@@ -144,8 +146,7 @@ fn main() {
 ```
 
 ## 重點整理
-- **trait bound** `T: Clone` 限制 T 必須實作特定 trait
+- trait bound `T: Clone` 限制 T 必須實作特定 trait
 - trait bound 可以加在函數、struct、enum、impl 等各種泛型參數上
 - 沒有 trait bound 的話，泛型函數/方法不能假設 T 有任何能力
-- **條件式 impl**：`impl<T: Clone> Pair<T> { ... }` 只在 T 符合條件時提供方法
-- `Pair<Pair<i32>>` 無法呼叫 `to_tuple()`，因為 `Pair` 沒有 derive Clone
+- 條件式 impl：`impl<T: Clone> Pair<T> { ... }` 只在 T 符合條件時提供方法
