@@ -40,7 +40,7 @@ fn do_stuff() -> Result<i32, String> {
 
 比如 `.parse()` 的錯誤型別是 `std::num::ParseIntError`，但你的函數回傳 `Result<_, String>`。這時候你可以用 match 自己轉換，然後再手動 return：
 
-```rust
+```rust,no_run
 # fn stringify_err() -> Result<i32, String> {
 #     let input = "1";
     let n = match input.parse::<i32>() {
