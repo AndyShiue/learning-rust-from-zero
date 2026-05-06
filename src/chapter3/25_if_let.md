@@ -115,9 +115,42 @@ fn main() {
 }
 ```
 
+## if let guard
+
+`if let` 也可以用在 match 的 guard 位置（第 20 集學的 match guard）。語法是 `模式 if let 模式2 = 表達式 =>`：
+
+```rust
+enum Wrapper {
+    Value(i32),
+    Empty,
+}
+
+fn lookup(key: i32) -> Wrapper {
+    if key > 0 { Wrapper::Value(key * 10) } else { Wrapper::Empty }
+}
+
+fn main() {
+    let items = [1, -2, 3];
+
+    for item in items {
+        match item {
+            x if let Wrapper::Value(v) = lookup(x) => {
+                println!("{} 查到了：{}", x, v);
+            }
+            x => println!("{} 查不到", x),
+        }
+    }
+}
+```
+
+`x if let Wrapper::Value(v) = lookup(x)` 的意思是：先把值綁定到 `x`，然後用 `lookup(x)` 的結果再做一次模式比對——只有結果是 `Wrapper::Value(v)` 的時候這個分支才成立。
+
+這有時候比先 match 再在裡面套 if let 更方便。
+
 ## 重點整理
 - `if let 模式 = 值 { ... }` 是 match 只有一個分支時的簡寫
 - 只在值符合模式時執行大括號裡的程式碼
 - 可以加 `else` 處理不符合的情況
 - 可以在模式裡取出資料，像 `if let Shape::Circle(r) = s`
 - 比起寫 match + `_ => {}`，`if let` 更簡潔
+- `if let` 也能用在 match guard：`模式 if let 模式2 = 表達式 =>`
