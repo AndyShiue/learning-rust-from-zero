@@ -58,7 +58,7 @@ fn main() {
 ```rust
 struct Point {
     x: i32,
-    y: i32,  // ← 這個逗號可加可不加
+    y: i32, // ← 這個逗號可加可不加
 }
 #
 # fn main() {}
