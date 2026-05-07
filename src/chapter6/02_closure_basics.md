@@ -190,7 +190,7 @@ fn main() {
 
     // 捕捉了變數的閉包不能轉成函數指標
     // let offset = 10;
-    // let bad: fn(i32) -> i32 = |x| x + offset;  // 編譯錯誤！
+    // let bad: fn(i32) -> i32 = |x| x + offset; // 編譯錯誤！
 }
 ```
 
