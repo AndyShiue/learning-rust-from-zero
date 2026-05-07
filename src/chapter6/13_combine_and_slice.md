@@ -86,7 +86,7 @@
 # }
 ```
 
-這是因為 `Option` 也實作了 `Iterator`。
+這是因為 `Option` 也實作了 `IntoIterator`。
 
 ## 範例程式碼
 
