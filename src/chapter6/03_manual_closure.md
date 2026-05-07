@@ -226,15 +226,15 @@ fn main() {
     let name1 = String::from("Alice");
     let greet_once = GreetOnce { name: name1 };
     greet_once.call_once();
-    // greet_once.call_once();  // 編譯錯誤！struct 已經被消耗了
+    // greet_once.call_once(); // 編譯錯誤！struct 已經被消耗了
 
     // --- FnMut：可以多次呼叫，每次修改 ---
     let mut name2 = String::from("Bob");
     {
         let mut greet_mut = GreetMut { name: &mut name2 };
-        greet_mut.call_mut();  // Bob!
-        greet_mut.call_mut();  // Bob!!
-        greet_mut.call_mut();  // Bob!!!
+        greet_mut.call_mut(); // Bob!
+        greet_mut.call_mut(); // Bob!!
+        greet_mut.call_mut(); // Bob!!!
     } // greet_mut 離開作用域，借用結束
     println!("name2 現在是：{}", name2);
 
