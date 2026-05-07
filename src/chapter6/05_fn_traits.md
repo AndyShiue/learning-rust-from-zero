@@ -7,7 +7,7 @@
 
 ### 它們是 trait，不是型別
 
-前幾集我們一直說 FnOnce、FnMut、Fn，但還沒正式說明——它們其實是 **trait**。就像第五章學的 `Clone`、`Display` 一樣，Fn / FnMut / FnOnce 是定義在標準庫裡的 trait。每個閉包的匿名 struct 會自動 impl 對應的 trait（上一集講的推斷規則決定 impl 哪些）。
+前幾集我們一直說 FnOnce、FnMut、Fn，但還沒正式說明——它們其實是 **trait**。就像第五章學的 `Clone`、`Display` 一樣，`Fn` / `FnMut` / `FnOnce` 是定義在標準庫裡的 trait。每個閉包的匿名 struct 會自動 impl 對應的 trait（上一集講的推斷規則決定 impl 哪些）。
 
 那這些 trait 到底長什麼樣？
 
