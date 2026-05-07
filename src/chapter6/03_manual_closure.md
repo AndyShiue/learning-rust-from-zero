@@ -53,7 +53,7 @@
 
 ```rust,no_run
 struct GreetOnce {
-    name: String, // 擁有 name（owned）
+    name: String, // 擁有 name
 }
 
 // 建立閉包 = 把捕捉的變數塞進 struct
@@ -84,7 +84,7 @@ impl GreetOnce {
         println!("Hello, {}", name);
     };
     greet();
-    greet();  // 可以多次呼叫
+    greet(); // 可以多次呼叫
 # }
 ```
 
@@ -92,7 +92,7 @@ impl GreetOnce {
 
 ```rust,no_run
 struct GreetMut<'a> {
-    name: &'a mut String,  // 可變借用 name
+    name: &'a mut String, // 可變借用 name
 }
 
 // let mut greet = GreetMut { name: &mut name };
@@ -132,7 +132,7 @@ struct SomeClosure<'a> {
         println!("Hello, {}!", name);
     };
     greet();
-    greet();  // 可以多次呼叫，完全沒問題
+    greet(); // 可以多次呼叫，完全沒問題
 # }
 ```
 
@@ -140,7 +140,7 @@ struct SomeClosure<'a> {
 
 ```rust,no_run
 struct GreetRef<'a> {
-    name: &'a String,  // 唯讀借用 name
+    name: &'a String, // 唯讀借用 name
 }
 
 // let greet = GreetRef { name: &name };
