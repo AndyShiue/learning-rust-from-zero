@@ -59,7 +59,7 @@ trait IntoIterator {
 
 有個很方便的設計：每個 `Iterator` 都自動實作了 `IntoIterator`（`into_iter()` 直接回傳自己）。所以你可以把迭代器直接丟進 for：
 
-```rust,no_run
+```rust
 # fn main() {
     let v = vec![1, 2, 3];
     let iter = v.iter(); // 這是一個 Iterator
@@ -76,19 +76,20 @@ fn main() {
     // 正常的 for 迴圈
     let fruits = vec!["蘋果", "香蕉", "橘子"];
     println!("--- for 迴圈 ---");
-    for fruit in &fruits {
+    for fruit in fruits {
         println!("水果：{}", fruit);
     }
 
     // 手動展開成 while let（完全等價）
+    let fruits = vec!["蘋果", "香蕉", "橘子"];
     println!("\n--- 手動展開 ---");
     let mut iter = fruits.into_iter();
     while let Some(fruit) = iter.next() {
         println!("水果：{}", fruit);
     }
 
-    // 自訂型別實作 IntoIterator
-    println!("\n--- 自訂 IntoIterator ---");
+    // 自訂迭代器（Iterator 自動實作 IntoIterator，所以能用 for）
+    println!("\n--- 自訂 Iterator ---");
     let countdown = Countdown { value: 5 };
     for n in countdown {
         print!("{} ", n);
