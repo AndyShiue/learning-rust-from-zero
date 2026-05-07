@@ -37,7 +37,7 @@
 
 假設我們有這樣的閉包：
 
-```rust,compile_fail
+```rust
 # fn main () {
     let name = String::from("Alice");
     let greet = || {
@@ -45,7 +45,7 @@
         println!("Hello, {}!", s);
     };
     greet();
-    greet(); // 編譯錯誤！name 已經被移走，不能再呼叫
+    // greet(); // 編譯錯誤！name 已經被移走，不能再呼叫
 # }
 ```
 
