@@ -5,7 +5,7 @@
 
 ## 概念說明
 
-### .map() —— 轉換每個元素
+### .map(f) —— 轉換每個元素
 
 `map` 對每個元素套用閉包，產出轉換後的新元素：
 
@@ -18,21 +18,21 @@
 
 注意！`.iter()` 產出 `&T`，所以閉包的參數是 `&i32`。如果不想處理參考，可以搭配 `.copied()`（等等會講）。
 
-### .flat_map() —— map + flatten
+### .flat_map(f) —— map + flatten
 
-`flat_map` 等於先 `map` 再 `flatten`（上一集學的）。每個元素經過閉包轉換成一個迭代器（或 Option/Result），然後全部攤平：
+`flat_map` 等於先 `map` 再 `flatten`（上一集學的）。每個元素經過閉包轉換成一個迭代器，然後全部攤平：
 
 ```rust,no_run
 # fn main() {
-    let words = vec!["hello world", "foo bar"];
+    let words = vec!["abc", "de", "f"];
     let chars: Vec<char> = words.iter().flat_map(|s| s.chars()).collect();
-    // ['h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd', ' ', 'f', 'o', 'o', ' ', 'b', 'a', 'r']
+    // ['a', 'b', 'c', 'd', 'e', 'f']
 # }
 ```
 
 還記得第 7 集 `Option` 和 `Result` 的 `and_then` 嗎？`flat_map` 在迭代器上做的事情本質上一樣——「轉換，但因為轉換結果本身也是容器，就攤平」。
 
-### .filter() —— 過濾元素
+### .filter(pred) —— 過濾元素
 
 `filter` 只保留閉包回傳 `true` 的元素：
 
@@ -47,10 +47,10 @@
 
 ### .copied() 和 .cloned()
 
-當迭代器產出參考（`&T`）但你想要值（`T`）時：
+當迭代器產出參考（`&T`）但你想要值（`T`）時，可以用這兩個方法把每個元素逐個複製出來：
 
-- `.copied()` —— 要求 T: Copy，用 Copy 語意取值
-- `.cloned()` —— 要求 T: Clone，用 Clone 語意取值
+- `.copied()` —— 要求 `T: Copy`，對每個 `&T` 做 copy 得到 `T`
+- `.cloned()` —— 要求 `T: Clone`，對每個 `&T` 呼叫 `.clone()` 得到 `T`
 
 ```rust,no_run
 # fn main() {
@@ -160,9 +160,9 @@ fn main() {
 ```
 
 ## 重點整理
-- `.map()` 轉換每個元素，`.filter()` 過濾不符合條件的元素
-- `.flat_map()` = `.map()` + `.flatten()`，概念上跟 Option/Result 的 `and_then` 類似
-- `.copied()` 把 `&T` 轉成 `T`（需要 T: Copy），`.cloned()` 類似但用 Clone
+- `.map(f)` 轉換每個元素，`.filter(pred)` 過濾不符合條件的元素
+- `.flat_map(f)` = `.map(f)` + `.flatten()`，概念上跟 `Option` / `Result` 的 `and_then` 類似
+- `.copied()` 把 `&T` 逐個轉成 `T`（需要 T: Copy），`.cloned()` 類似但用 Clone
 - `.rev()` 反轉迭代順序，需要 `DoubleEndedIterator`
 - 這些方法可以自由鏈式呼叫，形成清晰的資料處理管道
 - 配合 `.copied()` 可以避免 `filter` 中惱人的 `&&T` 問題

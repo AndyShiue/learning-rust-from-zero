@@ -104,7 +104,7 @@ fn main() {
     println!("\n--- enumerate ---");
     let fruits = vec!["蘋果", "香蕉", "櫻桃"];
     for (i, fruit) in fruits.iter().enumerate() {
-        println!("第 {} 個：{}", i, fruit);
+        println!("第 {} 個：{}", i + 1, fruit);
     }
 
     // .chain() —— 串接兩個 Vec
