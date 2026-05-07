@@ -70,7 +70,7 @@ impl GreetOnce {
 # fn main() {}
 ```
 
-因為方法接收 `self`（by value），呼叫的時候整個 struct 被消耗掉了，所以只能呼叫一次。這就是 FnOnce。
+因為方法接收 `self`，呼叫的時候整個 struct 被消耗掉了，所以只能呼叫一次。這就是 FnOnce。
 
 ### FnMut：struct 存可變借用，方法接 `&mut self`
 
