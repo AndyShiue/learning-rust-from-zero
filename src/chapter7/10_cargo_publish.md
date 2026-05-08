@@ -47,7 +47,7 @@ categories = ["mathematics"]
 - `repository`：原始碼倉庫網址
 - `readme`：README 檔案路徑
 
-另外建議但非必須：
+另外建議但非必需：
 - `keywords`：搜尋用的關鍵字（最多 5 個）
 - `categories`：分類（需符合 crates.io 的分類清單）
 
