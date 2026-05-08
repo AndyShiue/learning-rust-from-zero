@@ -87,7 +87,7 @@ fn main() {
     let win_path = r"C:\Users\Andy\Desktop\project";
     println!("路徑：{}", win_path);
 
-    // 正規表達式之類的場景也很好用
+    // 正則表示式之類的場景也很好用
     let pattern = r"\d+\.\d+";
     println!("正則：{}", pattern);
 
@@ -121,4 +121,4 @@ fn main() {
 - `r"..."` 是 raw string，不處理任何跳脫字元（`\n`、`\\` 等都照原樣保留）
 - `r#"..."#` 讓 raw string 裡可以包含雙引號
 - `#` 的層數可以增加（`r##"..."##`、`r###"..."###`），只要前後一致
-- raw string 特別適合 Windows 路徑、正則表達式、JSON、嵌入程式碼等場景
+- raw string 特別適合 Windows 路徑、正則表示式、JSON、嵌入程式碼等場景
