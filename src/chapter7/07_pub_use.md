@@ -80,11 +80,6 @@ pub use advanced::power;
 
 這樣外部可以用 `your_crate::math::add`，不需要知道 `basic` 這一層。
 
-### re-export 的好處
-
-1. **簡化公開 API**：使用者不需要知道你的內部結構，用更短的路徑存取
-2. **自由重構**：你可以隨意改內部的 mod 結構，只要 `pub use` 保持不變，使用者的程式碼不會壞
-
 ### 實際案例
 
 很多知名的 Rust library 都大量使用 re-export。比如你寫 `use std::io::Read;`，其實 `Read` 可能定義在更深層的地方，只是被 re-export 到 `std::io` 了。
@@ -146,6 +141,5 @@ fn main() {
 ## 重點整理
 
 - `pub use path::Item;` 把內部的東西重新匯出，讓外部用更短的路徑存取
-- 使用者不需要知道你內部的 mod 結構——你可以自由重構而不影響外部
 - 可以匯出自己 mod 的內容，也可以匯出其他 crate 的東西
 - library 的 `lib.rs` 常用 `pub use` 把重要型別提升到 crate 頂層
