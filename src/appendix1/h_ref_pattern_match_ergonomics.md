@@ -17,7 +17,7 @@
 ```rust,no_run
 # fn main() {
     let val = String::from("hello");
-    let ref r = val;  // r 的型別是 &String
+    let ref r = val; // r 的型別是 &String
     // 等同於：let r = &val;
 # }
 ```
@@ -48,8 +48,8 @@
 ```rust
 # fn main() {
     let opt = Some(String::from("hello"));
-    match &opt {          // 注意這裡是 &opt
-        Some(s) => {      // s 自動是 &String，不需要寫 ref
+    match &opt {     // 注意這裡是 &opt
+        Some(s) => { // s 自動是 &String，不需要寫 ref
             println!("{}", s);
         }
         None => println!("nothing"),
@@ -70,7 +70,7 @@
 fn main() {
     // ===== ref 基本用法 =====
     let name = String::from("Rust");
-    let ref r = name;  // r: &String
+    let ref r = name; // r: &String
     println!("ref 綁定：{}", r);
     println!("原本還能用：{}", name);
 
@@ -81,13 +81,13 @@ fn main() {
         Some(ref s) => println!("舊寫法借用：{}", s),
         None => println!("空的"),
     }
-    println!("data 還在：{:?}", data);  // 因為用了 ref，沒有 move
+    println!("data 還在：{:?}", data); // 因為用了 ref，沒有 move
 
     // ===== 新寫法：match ergonomics =====
     let data2 = Some(String::from("新世界"));
 
-    match &data2 {       // match 參考
-        Some(s) => {     // s 自動是 &String
+    match &data2 {   // match 參考
+        Some(s) => { // s 自動是 &String
             println!("新寫法借用：{}", s);
         }
         None => println!("空的"),
