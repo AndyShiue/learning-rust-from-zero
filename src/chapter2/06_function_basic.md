@@ -67,10 +67,10 @@ fn main() {
 
 ```rust
 fn main() {
-    greet();  // ✅ 先呼叫
+    greet(); // ✅ 先呼叫
 }
 
-fn greet() {  // 後定義
+fn greet() { // 後定義
     println!("你好！");
 }
 ```
