@@ -69,14 +69,14 @@ fn main() {
 
 ```rust,ignore
 # fn main() {
-let guard = match data.lock() {
-    Ok(g) => g,
-    Err(poisoned) => {
-        let mut g = poisoned.into_inner();
-        *g = vec![]; // 重設成已知的安全狀態
-        g
-    }
-};
+    let guard = match data.lock() {
+        Ok(g) => g,
+        Err(poisoned) => {
+            let mut g = poisoned.into_inner();
+            *g = vec![]; // 重設成已知的安全狀態
+            g
+        }
+    };
 # }
 ```
 
