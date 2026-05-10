@@ -21,6 +21,8 @@ const DOUBLE: i32 = MAX * 2; // OK
 ```rust,compile_fail
 fn square(x: i32) -> i32 { x * x }
 const VALUE: i32 = square(5); // 編譯錯誤！一般函數不能在編譯期執行
+#
+# fn main() {}
 ```
 
 ### const fn
