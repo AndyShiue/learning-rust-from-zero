@@ -1,4 +1,4 @@
-# 常見的 derive trait
+# 常見的 `derive` `trait`
 
 ## 本集目標
 

@@ -1,4 +1,4 @@
-# match C-style enum
+# `match` C-style `enum`
 
 ## 本集目標
 

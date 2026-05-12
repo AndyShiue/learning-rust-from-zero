@@ -1,4 +1,4 @@
-# enum 攜帶 struct variant
+# `enum` 攜帶 `struct` variant
 
 ## 本集目標
 

@@ -1,4 +1,4 @@
-# match 解構 struct variant
+# `match` 解構 `struct` variant
 
 ## 本集目標
 

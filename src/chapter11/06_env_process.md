@@ -1,4 +1,4 @@
-# std::env / std::process
+# `std::env` / `std::process`
 
 ## 本集目標
 
@@ -20,7 +20,7 @@ fn main() {
 }
 ```
 
-第一個是程式本身的路徑，後面才是你傳的參數。通常會 `collect` 成 Vec 來用：
+第一個是程式本身的路徑，後面才是你傳的參數。通常會 `collect` 成 `Vec` 來用：
 
 ```rust
 use std::env;
@@ -52,7 +52,7 @@ fn main() {
 
 `env::var` 回傳 `Result<String, VarError>`。環境變數不存在就會回傳 `Err`。
 
-### process::exit
+### `process::exit`
 
 ```rust,should_panic
 use std::process;
@@ -64,7 +64,7 @@ fn main() {
 
 回傳 0 通常代表成功，非 0 代表失敗。進階語言功能那章學過 `process::exit` 的回傳型別是 `!`（never type）。
 
-### eprintln!
+### `eprintln!`
 
 ```rust
 # fn main() {
@@ -73,7 +73,7 @@ fn main() {
 # }
 ```
 
-`println!` 輸出到 **stdout**（標準輸出），`eprintln!` 輸出到 **stderr**（標準錯誤）。兩者在終端機上看起來一樣，但可以分開導向不同的地方。錯誤訊息應該用 `eprintln!`。
+`println!` 輸出到 **`stdout`**（標準輸出），`eprintln!` 輸出到 **`stderr`**（標準錯誤）。兩者在終端機上看起來一樣，但可以分開導向不同的地方。錯誤訊息應該用 `eprintln!`。
 
 ## 範例程式碼
 
@@ -108,4 +108,4 @@ fn main() {
 - `env::args()` 回傳命令列參數的迭代器，第一個是程式路徑
 - `env::var("NAME")` 回傳 `Result`
 - `process::exit(code)` 立刻結束程式，回傳型別是 `!`
-- `eprintln!` 輸出到 stderr，錯誤訊息應該用它
+- `eprintln!` 輸出到 `stderr`，錯誤訊息應該用它

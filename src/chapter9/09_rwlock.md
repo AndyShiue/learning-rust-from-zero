@@ -2,15 +2,15 @@
 
 ## 本集目標
 
-學會用 `RwLock<T>` 實現讀寫分離的鎖，以及和 Mutex 的比較。
+學會用 `RwLock<T>` 實現讀寫分離的鎖，以及和 `Mutex` 的比較。
 
 ## 概念說明
 
-### Mutex 的限制
+### `Mutex` 的限制
 
-Mutex 不管你要讀還是要寫，都要鎖住。但很多時候多個執行緒只是要讀資料——讀和讀之間不會衝突，全部鎖住太浪費了。
+`Mutex` 不管你要讀還是要寫，都要鎖住。但很多時候多個執行緒只是要讀資料——讀和讀之間不會衝突，全部鎖住太浪費了。
 
-### RwLock：讀寫分離
+### `RwLock`：讀寫分離
 
 `RwLock<T>` 區分讀鎖和寫鎖：
 
@@ -38,26 +38,26 @@ fn main() {
 }
 ```
 
-### Guard 的行為
+### guard 的行為
 
-讀鎖回傳 `RwLockReadGuard`，寫鎖回傳 `RwLockWriteGuard`。跟 MutexGuard 一樣，它們也是智慧指標——可以直接操作內容，drop 時自動放鎖。
+讀鎖回傳 `RwLockReadGuard`，寫鎖回傳 `RwLockWriteGuard`。跟 `MutexGuard` 一樣，它們也是智慧指標——可以直接操作內容，`drop` 時自動放鎖。
 
 一樣要注意 guard 不要活太久。
 
 ### 和 RefCell 的對照
 
-|  | RefCell | RwLock |
-|--|---------|--------|
+|  | `RefCell` | `RwLock` |
+|--|-----------|----------|
 | 執行緒 | 單執行緒 | 多執行緒 |
 | 規則 | 多個 `borrow()` 或一個 `borrow_mut()` | 多個 `read()` 或一個 `write()` |
 | 檢查方式 | 執行期，違反會 panic | 作業系統的鎖，違反會阻塞等待 |
 
-### Mutex vs RwLock
+### `Mutex` vs `RwLock`
 
 什麼時候用哪個？
 
-- **Mutex**：簡單、開銷小。適合讀寫都頻繁，或鎖持有時間很短的場景。大部分情況下 Mutex 就夠了
-- **RwLock**：在讀遠多於寫的時候有優勢，因為多個讀者可以同時進行。但鎖本身的開銷比 Mutex 大，而且有**寫者飢餓**（writer starvation）的風險——如果讀者一直源源不斷，寫者可能永遠拿不到鎖
+- **`Mutex`**：簡單、開銷小。適合讀寫都頻繁，或鎖持有時間很短的場景。大部分情況下 `Mutex` 就夠了
+- **`RwLock`**：在讀遠多於寫的時候有優勢，因為多個讀者可以同時進行。但鎖本身的開銷比 `Mutex` 大，而且有**寫者飢餓**（writer starvation）的風險——如果讀者一直源源不斷，寫者可能永遠拿不到鎖
 
 ## 範例程式碼
 
@@ -104,6 +104,6 @@ fn main() {
 
 - `RwLock<T>` 區分讀鎖和寫鎖：多個讀者可以同時讀，寫者獨佔
 - `read().expect(...)` 取得讀鎖，`write().expect(...)` 取得寫鎖
-- Guard 透過 Deref 操作內容，drop 時自動放鎖
-- 和 RefCell 的對照：RefCell 是單執行緒版本，RwLock 是多執行緒版本
-- Mutex 簡單、開銷小，大部分情況夠用；RwLock 適合讀遠多於寫的場景，但開銷較大且有寫者飢餓的風險
+- guard 透過 `Deref` 操作內容，`drop` 時自動放鎖
+- 和 `RefCell` 的對照：`RefCell` 是單執行緒版本，`RwLock` 是多執行緒版本
+- `Mutex` 簡單、開銷小，大部分情況夠用；`RwLock` 適合讀遠多於寫的場景，但開銷較大且有寫者飢餓的風險

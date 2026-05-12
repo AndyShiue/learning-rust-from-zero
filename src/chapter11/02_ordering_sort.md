@@ -1,4 +1,4 @@
-# Ordering 與 sort
+# `Ordering` 與排序
 
 ## 本集目標
 
@@ -6,9 +6,9 @@
 
 ## 概念說明
 
-### Ordering
+### `Ordering`
 
-第五章學了 `Ord` trait，知道實作了 `Ord` 的型別可以比大小。`Ord` 的核心方法是 `cmp`，它比較兩個值，回傳 `std::cmp::Ordering`——一個只有三個值的 enum：
+第五章學了 `Ord` `trait`，知道實作了 `Ord` 的型別可以比大小。`Ord` 的核心方法是 `cmp`，它比較兩個值，回傳 `std::cmp::Ordering`——一個只有三個值的 `enum`：
 
 ```rust
 use std::cmp::Ordering;
@@ -22,7 +22,7 @@ fn main() {
 }
 ```
 
-### min / max
+### `min` / `max`
 
 `std::cmp::min(a, b)` 和 `std::cmp::max(a, b)` 回傳兩個值中比較小或大的那個，要求型別實作 `Ord`：
 
@@ -39,7 +39,7 @@ fn main() {
 
 `f64` 沒有實作 `Ord`（第五章提過，因為 `NAN` 和任何值比較都是 `false`），所以不能直接用 `cmp::min`。
 
-`f64` 只有 `PartialOrd`，它的方法是 `partial_cmp`，回傳 `Option<Ordering>` 而不是 `Ordering`——因為碰到 NAN 的時候沒辦法比大小，只能回傳 `None`。
+`f64` 只有 `PartialOrd`，它的方法是 `partial_cmp`，回傳 `Option<Ordering>` 而不是 `Ordering`——因為碰到 `NAN` 的時候沒辦法比大小，只能回傳 `None`。
 
 這時候可以用 `min_by` / `max_by`，自訂比較邏輯：
 
@@ -61,7 +61,7 @@ fn main() {
 
 `min_by` / `max_by` 的閉包回傳 `Ordering`，你自己決定怎麼比。
 
-### min_by_key / max_by_key
+### `min_by_key` / `max_by_key`
 
 根據某個 key 來比較：
 
@@ -97,7 +97,7 @@ fn main() {
 # }
 ```
 
-### Reverse
+### `Reverse`
 
 `std::cmp::Reverse` 可以把排序順序反過來：
 
@@ -169,4 +169,4 @@ fn main() {
 - `f64` 沒有 `Ord`，用 `min_by` / `max_by` 自訂比較
 - `min_by_key` / `max_by_key` 根據 key 比較
 - `sort()` 由小到大、`sort_by()` 自訂比較、`sort_by_key()` 根據 key 排序
-- `Reverse` 是一個 tuple struct，`Ord` 實作把比較反過來，所以排序結果跟著反轉
+- `Reverse` 是一個 tuple `struct`，`Ord` 實作把比較反過來，所以排序結果跟著反轉

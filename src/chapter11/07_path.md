@@ -1,4 +1,4 @@
-# std::path
+# `std::path`
 
 ## 本集目標
 
@@ -10,9 +10,9 @@
 
 寫程式常常要跟檔案打交道——讀設定檔、寫 log、處理使用者指定的路徑。之後會學怎麼讀寫檔案，但在那之前，我們得先知道怎麼表示「檔案在哪裡」。
 
-不同作業系統的路徑格式不一樣——Windows 用 `\`，Linux/macOS 用 `/`。如果你用字串硬拼路徑，跨平台就有可能出問題。`std::path` 幫你處理這些差異。
+不同作業系統的路徑格式不一樣——Windows 用 `\`，Linux / macOS 用 `/`。如果你用字串硬拼路徑，跨平台就有可能出問題。`std::path` 幫你處理這些差異。
 
-### Path 和 PathBuf
+### `Path` 和 `PathBuf`
 
 跟 `str` 和 `String` 的關係一樣：
 
@@ -54,9 +54,9 @@ fn main() {
 
 `file_name`、`extension`、`file_stem` 回傳的是 `Option<&OsStr>`，不是 `Option<&str>`——因為檔案名稱在某些作業系統上不一定是合法的 UTF-8。大部分時候可以用 `.to_str().unwrap()` 轉成 `&str`。
 
-### join
+### `join`
 
-`join` 跟 `push` 類似，但不改變原本的 Path 或 PathBuf，而是回傳新的 PathBuf：
+`join` 跟 `push` 類似，但不改變原本的 `Path` 或 `PathBuf`，而是回傳新的 `PathBuf`：
 
 ```rust
 # use std::path::Path;

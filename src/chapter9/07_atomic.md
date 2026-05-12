@@ -8,20 +8,20 @@
 
 ### 什麼是 atomic 操作
 
-上一集學了 Arc，它的參考計數用的是 atomic 操作。到底什麼是 atomic？
+上一集學了 `Arc`，它的參考計數用的是 atomic 操作。到底什麼是 atomic？
 
 假設兩個執行緒同時對一個變數做 `count += 1`。這看起來是一步，但實際上分成三步：讀出目前的值、加 1、寫回去。如果兩個執行緒同時做這三步，可能會發生這樣的事：
 
-1. 執行緒 A 讀出 count = 0
-2. 執行緒 B 讀出 count = 0
-3. 執行緒 A 寫入 count = 1
-4. 執行緒 B 寫入 count = 1
+1. 執行緒 A 讀出 `count` = 0
+2. 執行緒 B 讀出 `count` = 0
+3. 執行緒 A 寫入 `count` = 1
+4. 執行緒 B 寫入 `count` = 1
 
 兩邊各加了一次，結果卻是 1 而不是 2。
 
 **atomic 操作**把讀、改、寫合成一個不可分割的動作——其他執行緒不可能看到做到一半的狀態。用 atomic 操作做 `count += 1`，兩個執行緒同時跑，結果一定是 2。
 
-### AtomicI32 和 AtomicBool
+### `AtomicI32` 和 `AtomicBool`
 
 標準庫在 `std::sync::atomic` 提供了幾種 atomic 型別，最常用的是整數和布林：
 
@@ -55,7 +55,7 @@ fn main() {
 
 `Ordering` 就是告訴處理器「這個操作前後的指令不能隨便重排」，一般來說，限制越嚴格，效能代價越高。
 
-舉個例子：假設執行緒 A 把資料寫進一個 Vec，然後把一個 atomic 旗標設成 `true`；執行緒 B 看到旗標是 `true` 就去讀那個 Vec：
+舉個例子：假設執行緒 A 把資料寫進一個 `Vec`，然後把一個 atomic 旗標設成 `true`；執行緒 B 看到旗標是 `true` 就去讀那個 `Vec`：
 
 ```rust,ignore
 // 執行緒 A
@@ -77,17 +77,17 @@ if ready.load(Ordering::Relaxed) {    // 看到 true
 
 不確定的時候用 `SeqCst` 最安全。
 
-### Interior mutability
+### interior mutability
 
-注意看上面的程式碼——`store` 和 `fetch_add` 明明在修改值，卻不需要 `&mut self`，只要 `&self` 就行。這跟第五章學的 Cell 一樣，是 interior mutability。
+注意看上面的程式碼——`store` 和 `fetch_add` 明明在修改值，卻不需要 `&mut self`，只要 `&self` 就行。這跟第五章學的 `Cell` 一樣，是 interior mutability。
 
-為什麼一定要這樣設計？因為如果要 `&mut self` 才能修改，那就只有一個執行緒能拿到 `&mut`，其他執行緒根本碰不到這個值——那還跨什麼執行緒？Atomic 的重點就是讓多個執行緒透過 `&` 同時存取同一個值，所以必須有 interior mutability。
+為什麼一定要這樣設計？因為如果要 `&mut self` 才能修改，那就只有一個執行緒能拿到 `&mut`，其他執行緒根本碰不到這個值——那還跨什麼執行緒？atomic 的重點就是讓多個執行緒透過 `&` 同時存取同一個值，所以必須有 interior mutability。
 
-Cell 也有 interior mutability，但 Cell 不是 Sync（不能跨執行緒共享）。Atomic 是 Sync——因為底層硬體保證了操作的原子性，多個執行緒同時透過 `&` 修改也不會出問題。
+`Cell` 也有 interior mutability，但 `Cell` 不是 `Sync`（不能跨執行緒共享）。atomic 是 `Sync`——因為底層硬體保證了操作的原子性，多個執行緒同時透過 `&` 修改也不會出問題。
 
-### 搭配 Arc 使用
+### 搭配 `Arc` 使用
 
-Atomic 最常見的用法就是搭配 Arc，讓多個執行緒共同修改一個計數器：
+atomic 最常見的用法就是搭配 `Arc`，讓多個執行緒共同修改一個計數器：
 
 ```rust
 use std::sync::Arc;
@@ -163,5 +163,5 @@ fn main() {
 - 常用型別：`AtomicI32`、`AtomicUsize`、`AtomicBool`
 - 常用方法：`load`（讀）、`store`（寫）、`fetch_add`（加並回傳舊值）
 - `Ordering` 控制記憶體排序，不確定就用 `SeqCst`
-- Atomic 是 interior mutability——用 `&self` 就能修改，而且是 Sync（可以跨執行緒共享）
+- atomic 型別有 interior mutability——用 `&self` 就能修改，而且是 `Sync`（可以跨執行緒共享）
 - 只能用在簡單型別，複雜資料需要用鎖

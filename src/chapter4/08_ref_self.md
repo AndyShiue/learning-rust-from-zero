@@ -1,4 +1,4 @@
-# self vs &self vs &mut self
+# `self` vs `&self` vs `&mut self`
 
 ## 本集目標
 

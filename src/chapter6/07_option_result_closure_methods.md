@@ -1,4 +1,4 @@
-# Option / Result 的閉包方法
+# `Option` / `Result` 的閉包方法
 
 ## 本集目標
 

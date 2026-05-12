@@ -1,4 +1,4 @@
-# enum 攜帶 tuple variant
+# `enum` 攜帶 tuple variant
 
 ## 本集目標
 

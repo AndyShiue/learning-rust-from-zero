@@ -1,4 +1,4 @@
-# Display trait
+# `Display` `trait`
 
 ## 本集目標
 

@@ -1,4 +1,4 @@
-# let 解構 tuple
+# `let` 解構 tuple
 
 ## 本集目標
 

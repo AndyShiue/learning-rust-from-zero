@@ -1,4 +1,4 @@
-# 多個 trait bound 與 where
+# 多個 `trait` bound 與 `where`
 
 ## 本集目標
 

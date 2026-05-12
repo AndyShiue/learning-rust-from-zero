@@ -1,4 +1,4 @@
-# Error trait
+# `Error` `trait`
 
 ## 本集目標
 
@@ -6,13 +6,13 @@
 
 ## 概念說明
 
-### 回顧：Result 和 ?
+### 回顧：`Result` 和 `?`
 
 第五章學了 `Result<T, E>` 和 `?` 運算子。但當時錯誤型別都很單純——一個函數只會產生一種錯誤。實際的程式常常會碰到多種錯誤：讀檔案可能失敗（`io::Error`），解析數字也可能失敗（`ParseIntError`）。如果函數裡兩種都會發生，回傳的 `Result` 的 `E` 該填什麼？
 
-### Error trait
+### `Error` `trait`
 
-標準庫定義了 `std::error::Error` trait，所有錯誤型別的共同介面：
+標準庫定義了 `std::error::Error` `trait`，所有錯誤型別的共同介面：
 
 ```rust,noplayground
 pub trait Error: std::fmt::Display + std::fmt::Debug {
@@ -22,11 +22,11 @@ pub trait Error: std::fmt::Display + std::fmt::Debug {
 # fn main() {}
 ```
 
-要實作 `Error`，你的型別必須先實作 `Display` 和 `Debug`。`source()` 回傳造成這個錯誤的底層原因，預設是 `None`。
+要實作 `Error`，你的型別必須先實作 `Display` 和 `Debug`。`.source()` 回傳造成這個錯誤的底層原因，預設是 `None`。
 
 ### 自訂錯誤型別
 
-用一個 enum 把所有可能的錯誤包在一起：
+用一個 `enum` 把所有可能的錯誤包在一起：
 
 ```rust,noplayground
 use std::fmt;
@@ -131,7 +131,7 @@ fn read_number(path: &str) -> Result<i32, AppError> {
 
 ### 問題：每次都要寫這麼多？
 
-自訂錯誤型別 + impl Display + impl Error + 每種 From... 很囉嗦。有沒有更簡單的方式？
+自訂錯誤型別 + `impl Display` + `impl Error` + 每種 `From`... 很囉嗦。有沒有更簡單的方式？
 
 ### `Box<dyn Error>`
 
@@ -151,12 +151,12 @@ fn read_number(path: &str) -> Result<i32, Box<dyn Error>> {
 
 任何實作了 `Error` 的型別都能自動轉成 `Box<dyn Error>`，所以 `?` 直接就能用，不需要手動寫 `From`。
 
-缺點是呼叫者沒辦法用 match 精確處理不同的錯誤種類——它只知道「有個錯誤」，但不知道具體是哪種。
+缺點是呼叫者沒辦法用 `match` 精確處理不同的錯誤種類——它只知道「有個錯誤」，但不知道具體是哪種。
 
 ### 什麼時候用哪個
 
-- **快速原型、腳本、main 函數**：`Box<dyn Error>` 最省事
-- **函式庫、需要讓呼叫者精確處理錯誤**：自訂錯誤 enum + impl Error + From
+- **快速原型、腳本、`main` 函數**：`Box<dyn Error>` 最省事
+- **函式庫、需要讓呼叫者精確處理錯誤**：自訂錯誤 `enum` + `impl Error` + `impl From`
 
 下一集會介紹社群 crate 怎麼大幅簡化自訂錯誤型別的寫法。
 
@@ -183,8 +183,8 @@ fn main() {
 
 ## 重點整理
 
-- `Error` trait 要求 `Display + Debug`，是所有錯誤型別的共同介面
-- 自訂錯誤：定義 enum → impl Display → impl Error → 為每種底層錯誤 impl From
-- 有了 From，`?` 就能自動把底層錯誤轉成你的自訂錯誤
-- `Box<dyn Error>`：通用錯誤型別，任何 Error 都能自動轉換，`?` 直接能用
-- `Box<dyn Error>` 適合快速開發；自訂錯誤 enum 適合函式庫
+- `Error` `trait` 要求 `Display + Debug`，是所有錯誤型別的共同介面
+- 自訂錯誤：定義 `enum` → `impl Display` → `impl Error` → 為每種底層錯誤 `impl From`
+- 有了 `From`，`?` 就能自動把底層錯誤轉成你的自訂錯誤
+- `Box<dyn Error>`：通用錯誤型別，任何 `Error` 都能自動轉換，`?` 直接能用
+- `Box<dyn Error>` 適合快速開發；自訂錯誤 `enum` 適合函式庫

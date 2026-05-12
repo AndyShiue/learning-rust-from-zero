@@ -1,4 +1,4 @@
-# enum（C-style）
+# `enum`（C-style）
 
 ## 本集目標
 

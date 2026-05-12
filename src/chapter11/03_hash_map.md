@@ -8,7 +8,7 @@
 
 ### 動機
 
-如果你想用名字查分數、用 ID 查使用者，用 Vec 當然也做得到——存一堆 `(名字, 分數)` 的 tuple，要查的時候從頭走訪找到名字相符的那個。但這樣資料越多就越慢。
+如果你想用名字查分數、用 ID 查使用者，用 `Vec` 當然也做得到——存一堆 `(名字, 分數)` 的 tuple，要查的時候從頭走訪找到名字相符的那個。但這樣資料越多就越慢。
 
 `HashMap<K, V>` 解決了這個問題。它用 hash 函數把 key 對應到記憶體位置，不管裡面有多少資料，查一個 key 的速度幾乎是固定的。
 
@@ -31,7 +31,7 @@ fn main() {
 
 對同一個 key 再 `insert` 會覆蓋舊值。
 
-### 用 collect 從迭代器建立
+### 用 `collect` 從迭代器建立
 
 ```rust,noplayground
 use std::collections::HashMap;
@@ -60,19 +60,19 @@ fn main() {
 
 注意走訪順序是**不固定**的——每次跑可能不一樣。如果你需要固定順序，用 `BTreeMap`（之後會介紹）。
 
-### Hash 是什麼
+### `Hash` 是什麼
 
-HashMap 要根據 key 快速找到對應的值。它的做法是把 key 丟進一個 **hash 函數**，算出一個數字（hash value），用這個數字決定值放在記憶體的哪個位置。之後要查的時候，再對 key 算一次 hash，就能直接跳到那個位置，不用一個一個找。
+`HashMap` 要根據 key 快速找到對應的值。它的做法是把 key 丟進一個 **hash 函數**，算出一個數字（hash value），用這個數字決定值放在記憶體的哪個位置。之後要查的時候，再對 key 算一次 hash，就能直接跳到那個位置，不用一個一個找。
 
-所以 key 的型別必須實作 `Hash` trait——告訴 HashMap 怎麼對這個型別算 hash。
+所以 key 的型別必須實作 `Hash` trait——告訴 `HashMap` 怎麼對這個型別算 hash。
 
-### Key 的要求：Eq + Hash
+### Key 的要求：`Eq + Hash`
 
-Key 除了要 `Hash`，還要 `Eq`。因為不同的 key 可能被分到同一個位置，HashMap 需要用 `==` 來確認找到的確實是你要的 key。
+Key 除了要 `Hash`，還要 `Eq`。因為不同的 key 可能被分到同一個位置，`HashMap` 需要用 `==` 來確認找到的確實是你要的 key。
 
-大部分基本型別（整數、`bool`、`char`、`&str`、`String`）都已經實作了 `Eq + Hash`。`f64` 沒有 `Eq`（因為 NAN），所以不能當 key。
+大部分基本型別（整數、`bool`、`char`、`&str`、`String`）都已經實作了 `Eq + Hash`。`f64` 沒有 `Eq`（因為 `NAN`），所以不能當 key。
 
-### 幫自己的型別實作 Hash
+### 幫自己的型別實作 `Hash`
 
 `Hash` 可以 derive：
 
@@ -93,9 +93,9 @@ fn main() {
 
 注意你同時需要 `PartialEq`、`Eq` 和 `Hash`——因為 `Eq: PartialEq`，三個都要。
 
-一般來說，當你 derive `PartialEq` 和 `Eq` 的時候，建議也一起 derive `Hash`。這不會有額外的代價，但讓你的型別以後需要當 HashMap 的 key 的時候不用再回來改。
+一般來說，當你 `derive` `PartialEq` 和 `Eq` 的時候，建議也一起 `derive` `Hash`。這不會有額外的代價，但讓你的型別以後需要當 `HashMap` 的 key 的時候不用再回來改。
 
-### entry API
+### `entry` API
 
 「有就不動，沒有才插入」是很常見的需求：
 
@@ -130,7 +130,7 @@ fn main() {
 
 ### 其他常用方法
 
-HashMap 還有一些常用的方法：
+`HashMap` 還有一些常用的方法：
 
 - `contains_key(&key)`：檢查 key 是否存在，回傳 `bool`
 - `len()`：回傳有幾組 key-value
@@ -170,7 +170,7 @@ fn main() {
 
 - `HashMap<K, V>` 用 key 查 value，不管資料量多大查詢速度幾乎是固定的
 - `insert` 放入、`get` 查詢（回傳 `Option<&V>`）、`remove` 刪除
-- Key 必須實作 `Eq + Hash`，`Hash` 也可以 derive
+- Key 必須實作 `Eq + Hash`，`Hash` 也可以 `derive`
 - `f64` 不能當 key（沒有 `Eq`）
 - `entry().or_insert()` 是「沒有才插入」的慣用寫法，回傳 `&mut V`
 - 走訪順序不固定

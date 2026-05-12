@@ -1,4 +1,4 @@
-# String vs &str
+# `String` vs `&str`
 
 ## 本集目標
 

@@ -1,4 +1,4 @@
-# cfg! macro
+# `cfg!` macro
 
 ## 本集目標
 
@@ -6,7 +6,7 @@
 
 ## 概念說明
 
-### cfg! 回傳 bool
+### `cfg!` 回傳 `bool`
 
 上一集學了 `#[cfg(...)]`——條件編譯，不符合條件的程式碼整塊被移除。但有時候你只是想根據條件走不同分支，不想移除整塊程式碼。`cfg!` 就是做這件事的：
 
@@ -20,7 +20,7 @@
 # }
 ```
 
-### 跟 #[cfg] 的差別
+### 跟 `#[cfg]` 的差別
 
 | | `#[cfg(...)]` | `cfg!(...)` |
 |--|--|--|
@@ -46,9 +46,9 @@ if cfg!(target_os = "linux") {
 
 - `target_os = "windows"` / `"linux"` / `"macos"`
 - `target_arch = "x86_64"` / `"aarch64"`
-- `debug_assertions` — debug 模式下為 true
+- `debug_assertions` — debug 模式下為 `true`
 - `feature = "my_feature"` — Cargo feature
-- `test` — 在 `cargo test` 時為 true
+- `test` — 在 `cargo test` 時為 `true`
 
 ## 範例程式碼
 

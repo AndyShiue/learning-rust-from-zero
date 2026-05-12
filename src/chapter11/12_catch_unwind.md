@@ -1,4 +1,4 @@
-# catch_unwind
+# `catch_unwind`
 
 ## 本集目標
 
@@ -10,8 +10,8 @@
 
 正常情況下 panic 會讓整個程式（或當前執行緒）直接中止。但有些場景你不希望這樣：
 
-- **FFI 邊界**：如果 Rust 的程式碼是被 C 呼叫的（第九章提過 FFI），panic 不能往上傳到 C 那邊，否則是未定義行為。必須在 Rust 這邊就攔住
-- **多執行緒任務**：如果你的程式 spawn 了很多執行緒各自跑不同的任務，不希望其中一個任務 panic 就讓整個程式掛掉
+- **FFI 邊界**：如果 Rust 的程式碼是被 C 呼叫的（進階語言功能那章提過 FFI），panic 不能往上傳到 C 那邊，否則是未定義行為。必須在 Rust 這邊就攔住
+- **多執行緒任務**：如果你的程式 `spawn` 了很多執行緒各自跑不同的任務，不希望其中一個任務 panic 就讓整個程式掛掉
 
 ### 基本用法
 
@@ -34,13 +34,13 @@ fn main() {
 
 `catch_unwind` 接受一個閉包，如果閉包正常回傳就得到 `Ok(值)`，如果 panic 了就得到 `Err`。
 
-### UnwindSafe
+### `UnwindSafe`
 
 `catch_unwind` 要求閉包是 `UnwindSafe` 的。為什麼？因為 panic 的時候，閉包裡的操作可能做到一半，資料處於不一致的狀態——跟第八章 poisoning 的道理一樣。
 
 `&mut T` 不是 `UnwindSafe`：如果你透過 `&mut` 修改資料修到一半 panic 了，catch 之後那份資料可能是半成品。`&T`、`i32` 等不可變的東西是 `UnwindSafe` 的。
 
-### AssertUnwindSafe
+### `AssertUnwindSafe`
 
 如果你確定沒問題，可以用 `AssertUnwindSafe` 包起來繞過檢查：
 
@@ -55,11 +55,11 @@ fn main() {
 }
 ```
 
-這跟 unsafe 或 poisoning 的精神類似——你自己負責保證正確性。
+這跟 `unsafe` 或 poisoning 的精神類似——你自己負責保證正確性。
 
-### panic = "abort"
+### `panic = "abort"`
 
-`Cargo.toml` 可以設定 `panic = "abort"`，這樣 panic 會直接終止程式，不會執行任何清理工作（包括 drop）。在這個設定下 `catch_unwind` 沒有用——panic 就是直接結束，沒有東西可以 catch。
+`Cargo.toml` 可以設定 `panic = "abort"`，這樣 panic 會直接終止程式，不會執行任何清理工作（包括 `drop`）。在這個設定下 `catch_unwind` 沒有用——panic 就是直接結束，沒有東西可以 catch。
 
 ```toml
 [profile.release]
@@ -101,9 +101,9 @@ fn main() {
 
 - `catch_unwind` 攔截 panic，回傳 `Ok(值)` 或 `Err`
 - 用途：FFI 邊界、多執行緒任務隔離
-- `UnwindSafe`：`&mut T` 不是 UnwindSafe（資料可能是半成品）
-- `AssertUnwindSafe`：手動保證安全，繞過 UnwindSafe 檢查
+- `UnwindSafe`：`&mut T` 不是 `UnwindSafe`（資料可能是半成品）
+- `AssertUnwindSafe`：手動保證安全，繞過 `UnwindSafe` 檢查
 - `panic = "abort"` 設定下 `catch_unwind` 無效
 - 不要用 `catch_unwind` 做一般的錯誤處理——那是 `Result` 的工作
 
-恭喜你完成了進階標準庫這一章！🎉 這一章介紹了標準庫和社群裡的各種實用工具——從 AsRef、排序、集合，到輸入輸出、字串方法、錯誤處理，再到 catch_unwind。
+恭喜你完成了進階標準庫這一章！🎉 這一章介紹了標準庫和社群裡的各種實用工具——從 `AsRef`、排序、集合，到輸入輸出、字串方法、錯誤處理，再到 `catch_unwind`。

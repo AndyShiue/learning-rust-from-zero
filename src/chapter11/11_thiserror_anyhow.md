@@ -1,4 +1,4 @@
-# thiserror / anyhow 簡介
+# `thiserror` / `anyhow` 簡介
 
 ## 本集目標
 
@@ -17,11 +17,11 @@ cargo add anyhow
 
 ### 背景
 
-上一集看到自訂錯誤要寫一堆重複的程式碼（enum + Display + Error + 每種 From）。`thiserror` 和 `anyhow` 幫你解決這個問題。
+上一集看到自訂錯誤要寫一堆重複的程式碼（`enum` + `Display` + `Error` + 每種 `From`）。`thiserror` 和 `anyhow` 幫你解決這個問題。
 
-### thiserror：給函式庫用
+### `thiserror`：給函式庫用
 
-`thiserror` 用 derive macro 自動生成 Display、Error、From：
+`thiserror` 用 `derive` macro 自動生成 `Display`、`Error`、`From`：
 
 ```rust,ignore,mdbook-runnable
 use thiserror::Error;
@@ -67,11 +67,11 @@ fn read_number(path: &str) -> Result<i32, AppError> {
 }
 ```
 
-呼叫端一樣可以 match 精確處理每種錯誤。
+呼叫端一樣可以 `match` 精確處理每種錯誤。
 
-### anyhow：給應用程式用
+### `anyhow`：給應用程式用
 
-如果你不需要讓呼叫者區分錯誤種類（例如 main 函數、CLI 工具），`anyhow` 更簡單：
+如果你不需要讓呼叫者區分錯誤種類（例如 `main` 函數、CLI 工具），`anyhow` 更簡單：
 
 ```rust,ignore,mdbook-runnable
 use anyhow::{Context, Result};
@@ -90,14 +90,14 @@ fn read_number(path: &str) -> Result<i32> {
 - `anyhow::Result<T>` 就是 `Result<T, anyhow::Error>`
 - `anyhow::Error` 類似 `Box<dyn Error>`，但更好用
 - `.context("...")` 幫錯誤加上額外說明，方便除錯
-- 不用定義任何錯誤型別，任何 Error 都能自動轉換
+- 不用定義任何錯誤型別，任何 `Error` 都能自動轉換
 
 ### 兩者的關係
 
-- **thiserror**：幫你定義精確的錯誤型別，省去手寫重複的程式碼。適合函式庫——使用者能 match 你的錯誤
-- **anyhow**：完全不用定義錯誤型別，所有錯誤統一處理。適合應用程式——只需要報告錯誤，不需要讓別人程式化處理
+- **`thiserror`**：幫你定義精確的錯誤型別，省去手寫重複的程式碼。適合函式庫——使用者能 `match` 你的錯誤
+- **`anyhow`**：完全不用定義錯誤型別，所有錯誤統一處理。適合應用程式——只需要報告錯誤，不需要讓別人程式化處理
 
-兩者可以搭配使用：函式庫用 thiserror 定義錯誤，應用程式用 anyhow 統一接收。
+兩者可以搭配使用：函式庫用 `thiserror` 定義錯誤，應用程式用 `anyhow` 統一接收。
 
 ## 範例程式碼
 
@@ -135,8 +135,8 @@ fn main() -> Result<()> {
 
 ## 重點整理
 
-- `thiserror`：用 derive macro 自動生成 Display、Error、From，適合函式庫
-- `#[error("...")]` 生成 Display，`#[from]` 生成 From
-- `anyhow`：通用錯誤型別，不用定義錯誤 enum，適合應用程式
+- `thiserror`：用 `derive` macro 自動生成 `Display`、`Error`、`From`，適合函式庫
+- `#[error("...")]` 生成 `Display`，`#[from]` 生成 `From`
+- `anyhow`：通用錯誤型別，不用定義錯誤 `enum`，適合應用程式
 - `.context("...")` 幫錯誤加上額外說明
-- 函式庫用 thiserror，應用程式用 anyhow，兩者可以搭配
+- 函式庫用 `thiserror`，應用程式用 `anyhow`，兩者可以搭配

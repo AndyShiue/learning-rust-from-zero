@@ -72,7 +72,7 @@ fn fold<B>(self, init: B, f: impl FnMut(B, Self::Item) -> B) -> B;
     // product = fold 從 1 開始，每次乘上元素
     let product = (1..=5).fold(1, |acc, x| acc * x);
 
-    // min/max 的實作留給底下的 reduce 做——用 fold 的話不太自然
+    // min / max 的實作留給底下的 reduce 做——用 fold 的話不太自然
 # }
 ```
 

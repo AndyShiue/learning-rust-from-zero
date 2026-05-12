@@ -1,4 +1,4 @@
-# for + range
+# `for` + range
 
 ## 本集目標
 

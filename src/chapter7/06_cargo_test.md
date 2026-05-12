@@ -1,4 +1,4 @@
-# cargo test
+# `cargo test`
 
 ## 本集目標
 

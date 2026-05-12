@@ -1,4 +1,4 @@
-# trait bound
+# `trait` bound
 
 ## 本集目標
 

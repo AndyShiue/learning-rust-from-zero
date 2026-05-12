@@ -1,4 +1,4 @@
-# Iterator trait
+# `Iterator` `trait`
 
 ## 本集目標
 

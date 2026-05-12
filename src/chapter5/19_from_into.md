@@ -1,4 +1,4 @@
-# From / Into
+# `From<T>` / `Into<T>`
 
 ## 本集目標
 

@@ -1,4 +1,4 @@
-# const generics
+# `const` generics
 
 ## 本集目標
 
@@ -10,7 +10,7 @@
 
 `[i32; 3]` 和 `[i32; 5]` 是不同型別——長度是型別的一部分。如果你想寫一個函數印出任意長度的陣列，難道每個長度都要寫一個？
 
-### const generics
+### `const` generics
 
 泛型參數不只能是型別，也能是**常數值**：
 
@@ -27,11 +27,11 @@ fn main() {
 }
 ```
 
-`<const N: usize>` 宣告一個常數泛型參數 N，型別是 `usize`。跟型別參數 `<T>` 一樣，編譯器會為每個不同的 N 生成一份程式碼。
+`<const N: usize>` 宣告一個常數泛型參數 `N`，型別是 `usize`。跟型別參數 `<T>` 一樣，編譯器會為每個不同的 `N` 生成一份程式碼。
 
 ### 跟 slice 的差別
 
-你可能會想：傳 `&[i32]` 不就好了？確實，如果只是要讀取一串資料，slice 更靈活。但 const generics 能做到 slice 做不到的事：
+你可能會想：傳 `&[i32]` 不就好了？確實，如果只是要讀取一串資料，slice 更靈活。但 `const` generics 能做到 slice 做不到的事：
 
 **回傳固定長度的陣列：**
 
@@ -76,7 +76,7 @@ struct Matrix<const ROWS: usize, const COLS: usize> {
 
 ### 表達式語法
 
-如果 const generic 的位置不是簡單的字面值或路徑，要用 `{}` 包起來：
+如果 `const` generic 的位置不是簡單的字面值或路徑，要用 `{}` 包起來：
 
 ```rust,noplayground
 fn example<const N: usize>() -> [i32; N] { [0; N] }
@@ -87,9 +87,9 @@ fn main() {
 }
 ```
 
-### 搭配 const fn
+### 搭配 `const fn`
 
-前面學的 const fn 也能當 const generic 的值：
+前面學的 `const fn` 也能當 `const` generic 的值：
 
 ```rust,noplayground
 const fn double(n: usize) -> usize { n * 2 }
@@ -136,6 +136,6 @@ fn main() {
 
 - 泛型參數可以是常數值：`<const N: usize>`
 - 最常見的用途：處理任意長度的陣列 `[T; N]`
-- 跟 slice 的差別：const generics 能回傳固定長度陣列、在型別層面保證長度
+- 跟 slice 的差別：`const` generics 能回傳固定長度陣列、在型別層面保證長度
 - 表達式要用 `{}` 包：`Foo::<{ 1 + 2 }>`
-- 可以搭配 const fn 使用
+- 可以搭配 `const fn` 使用

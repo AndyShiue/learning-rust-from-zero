@@ -1,14 +1,14 @@
-# enum discriminant
+# `enum` discriminant
 
 ## 本集目標
 
-了解 enum variant 背後的整數值，以及如何自訂它。
+了解 `enum` variant 背後的整數值，以及如何自訂它。
 
 ## 概念說明
 
 ### 每個 variant 都有一個整數值
 
-第三章學了 C-style enum。每個 variant 背後都有一個整數，叫做 **discriminant**。Rust 用它來區分目前是哪個 variant。
+第三章學了 C-style `enum`。每個 variant 背後都有一個整數，叫做 **discriminant**。Rust 用它來區分目前是哪個 variant。
 
 ```rust,noplayground
 enum Color {
@@ -22,7 +22,7 @@ enum Color {
 
 預設從 0 開始，每個 variant 遞增 1。
 
-### 用 as 取得 discriminant
+### 用 `as` 取得 discriminant
 
 上一集學了 `as`。C-style enum 可以用 `as` 轉成整數看到它的 discriminant：
 
@@ -68,7 +68,7 @@ enum Level {
 }
 ```
 
-### #[repr] 控制底層型別
+### `#[repr]` 控制底層型別
 
 預設的底層型別由編譯器決定。用 `#[repr]` 明確指定：
 
@@ -86,9 +86,9 @@ enum Direction {
 
 常見的選擇有 `u8`、`u16`、`u32`、`i32` 等。
 
-### 帶資料的 enum 也有 discriminant
+### 帶資料的 `enum` 也有 discriminant
 
-帶資料的 enum 內部也有 discriminant 來區分是哪個 variant，但你**不能用 `as` 取得它**：
+帶資料的 `enum` 內部也有 discriminant 來區分是哪個 variant，但你**不能用 `as` 取得它**：
 
 ```rust,compile_fail
 enum Shape {
@@ -130,8 +130,8 @@ fn main() {
 
 ## 重點整理
 
-- 每個 enum variant 都有一個整數 discriminant，預設從 0 遞增
-- C-style enum 可以用 `as` 轉成整數看到 discriminant
+- 每個 `enum` variant 都有一個整數 discriminant，預設從 0 遞增
+- C-style `enum` 可以用 `as` 轉成整數看到 discriminant
 - 手動指定值用 `= 數字`，沒指定的從前一個 +1
 - `#[repr(u8)]` 等控制底層型別
-- 帶資料的 enum 也有 discriminant，但不能用 `as` 取得
+- 帶資料的 `enum` 也有 discriminant，但不能用 `as` 取得

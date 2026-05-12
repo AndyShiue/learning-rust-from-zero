@@ -1,4 +1,4 @@
-# struct update syntax
+# `struct` update syntax
 
 ## 本集目標
 

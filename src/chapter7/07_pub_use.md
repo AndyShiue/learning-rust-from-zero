@@ -1,4 +1,4 @@
-# pub use
+# `pub use`
 
 ## 本集目標
 

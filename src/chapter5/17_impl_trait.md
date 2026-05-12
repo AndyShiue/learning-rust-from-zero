@@ -1,4 +1,4 @@
-# impl Trait 語法
+# `impl Trait` 語法
 
 ## 本集目標
 

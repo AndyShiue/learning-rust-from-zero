@@ -1,4 +1,4 @@
-# tuple struct 與 unit struct
+# tuple `struct` 與 unit `struct`
 
 ## 本集目標
 

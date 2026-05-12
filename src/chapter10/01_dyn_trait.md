@@ -1,4 +1,4 @@
-# dyn Trait 基礎
+# `dyn Trait` 基礎
 
 ## 本集目標
 
@@ -8,7 +8,7 @@
 
 ### 問題：不同型別放在同一個地方
 
-第五章學了 `impl Trait`，可以寫 `fn print_it(x: &impl Display)` 讓函數接受任何實作 Display 的型別。但如果你想把不同型別的值放在同一個 Vec 裡呢？
+第五章學了 `impl Trait`，可以寫 `fn print_it(x: &impl Display)` 讓函數接受任何實作 `Display` 的型別。但如果你想把不同型別的值放在同一個 `Vec` 裡呢？
 
 ```rust,noplayground
 trait Describe {
@@ -33,13 +33,13 @@ impl Describe for Dog {
 # fn main() {}
 ```
 
-Cat 和 Dog 是不同型別——你沒辦法寫 `Vec<impl Describe>` 把它們放在一起。`impl Trait` 在編譯期就決定了具體型別，而 Vec 裡的每個元素必須是同一個型別。
+`Cat` 和 `Dog` 是不同型別——你沒辦法寫 `Vec<impl Describe>` 把它們放在一起。`impl Trait` 在編譯期就決定了具體型別，而 `Vec` 裡的每個元素必須是同一個型別。
 
-### dyn Trait 登場
+### `dyn Trait` 登場
 
-`dyn Describe` 代表「某個實作了 Describe 的型別，但具體是什麼我不知道」。
+`dyn Describe` 代表「某個實作了 `Describe` 的型別，但具體是什麼我不知道」。
 
-但既然不知道具體是什麼，`dyn Describe` 的大小就不固定——Cat 可能佔 1 byte，Dog 可能佔 100 bytes，編譯器在編譯期不知道會是哪個。所以 `dyn Describe` 是 DST（附錄一最後一集學過），必須放在指標後面：
+但既然不知道具體是什麼，`dyn Describe` 的大小就不固定——`Cat` 可能佔 1 byte，`Dog` 可能佔 100 bytes，編譯器在編譯期不知道會是哪個。所以 `dyn Describe` 是 DST（附錄一最後一集學過），必須放在指標後面：
 
 - `&dyn Describe` — 借用
 - `Box<dyn Describe>` — 擁有
@@ -109,7 +109,7 @@ fn make_animal(is_cat: bool) -> Box<dyn Describe> {
 # fn main() {}
 ```
 
-`impl Trait` 做不到這件事——因為 if 的兩個分支回傳不同型別，編譯器在編譯期無法決定是哪一個。
+`impl Trait` 做不到這件事——因為 `if` 的兩個分支回傳不同型別，編譯器在編譯期無法決定是哪一個。
 
 ### 胖指標：位址 + vtable
 
@@ -120,9 +120,9 @@ fn make_animal(is_cat: bool) -> Box<dyn Describe> {
 &dyn Trait   = [資料位址][vtable 指標]
 ```
 
-vtable（虛擬方法表）是一張表，裡面存著這個具體型別對這個 trait 的所有方法的函數指標。Cat 的 vtable 裡有指向 `Cat::describe` 的指標，Dog 的 vtable 裡有指向 `Dog::describe` 的指標。
+vtable（虛擬方法表）是一張表，裡面存著這個具體型別對這個 `trait` 的所有方法的函數指標。`Cat` 的 vtable 裡有指向 `Cat::describe` 的指標，`Dog` 的 vtable 裡有指向 `Dog::describe` 的指標。
 
-當你呼叫 `animal.describe()` 的時候，Rust 會去 vtable 裡查「describe 是哪個函數」，然後呼叫它。
+當你呼叫 `animal.describe()` 的時候，Rust 會去 vtable 裡查「`describe` 是哪個函數」，然後呼叫它。
 
 ```rust
 use std::mem::size_of;
@@ -185,7 +185,7 @@ fn main() {
 
 `Vec<impl Fn()>` 做不到，因為每個閉包是不同的匿名型別。
 
-### dyn Trait 的 lifetime bound
+### `dyn Trait` 的 lifetime bound
 
 `dyn Trait` 後面可以加 lifetime bound，寫成 `dyn Trait + 'a`，讀成 `dyn (Trait + 'a)`——跟泛型裡的 `T: Trait + 'a` 意思一樣，`dyn` 把這個 bound 變成一個型別。
 
@@ -230,9 +230,9 @@ fn make_box<'a>(s: &'a str) -> Box<dyn Describe + 'a> {
 
 `&'a dyn Trait` 則預設是 `&'a (dyn Trait + 'a)`——比較不用特別處理。
 
-### trait upcasting
+### `trait` upcasting
 
-如果 trait B 是 trait A 的 subtrait（`trait B: A`），那 `dyn B` 可以轉成 `dyn A`：
+如果 `trait B` 是 `trait A` 的 subtrait（`trait B: A`），那 `dyn B` 可以轉成 `dyn A`：
 
 ```rust,noplayground
 trait Animal {
@@ -254,7 +254,7 @@ fn example(pet: &dyn Pet) {
 # fn main() {}
 ```
 
-Pet 一定是 Animal，所以 `dyn Pet` 當然可以當 `dyn Animal` 用。
+`Pet` 一定是 `Animal`，所以 `dyn Pet` 當然可以當 `dyn Animal` 用。
 
 ## 範例程式碼
 
@@ -307,11 +307,11 @@ fn main() {
 
 ## 重點整理
 
-- `dyn Trait` 代表「某個實作了 Trait 的型別，具體是什麼不知道」
+- `dyn Trait` 代表「某個實作了 `Trait` 的型別，具體是什麼不知道」
 - `dyn Trait` 是 DST，必須放在指標後面：`&dyn Trait`、`Box<dyn Trait>`
 - `&dyn Trait` 是胖指標：資料位址 + vtable 指標
 - 動態分派（`dyn Trait`）透過 vtable 查找方法；靜態分派（`impl Trait`）編譯期決定
 - 大部分情況用靜態分派，需要混合不同型別時才用 `dyn Trait`
 - `Box<dyn Fn()>` 可以把不同閉包統一成同一個型別
-- `Box<dyn Trait>` 在某些地方預設隱含 `+ 'static`；`dyn Trait + 'a` 讀成 `dyn (Trait + 'a)`，dyn 把 trait bound 變成型別
+- `Box<dyn Trait>` 在某些地方預設隱含 `+ 'static`；`dyn Trait + 'a` 讀成 `dyn (Trait + 'a)`，`dyn` 把 `trait` bound 變成型別
 - `dyn SubTrait` 可以轉成 `dyn SuperTrait`（trait upcasting）

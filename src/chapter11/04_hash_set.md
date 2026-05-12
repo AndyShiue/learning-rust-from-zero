@@ -8,11 +8,11 @@
 
 ### 動機
 
-HashMap 存的是 key-value 對，但有時候你只關心「有沒有」而不關心對應的值——例如追蹤哪些使用者已經上線、哪些單字出現過。這時候用 `HashSet`。
+`HashMap` 存的是 key-value 對，但有時候你只關心「有沒有」而不關心對應的值——例如追蹤哪些使用者已經上線、哪些單字出現過。這時候用 `HashSet`。
 
 ### 本質
 
-HashSet 其實就是只有 key 沒有 value 的 HashMap。所以元素一樣要求 `Eq + Hash`。
+`HashSet` 其實就是只有 key 沒有 value 的 `HashMap`。所以元素一樣要求 `Eq + Hash`。
 
 ### 基本操作
 
@@ -45,7 +45,7 @@ fn main() {
 
 ### 集合運算
 
-這是 HashSet 最有用的地方：
+這是 `HashSet` 最有用的地方：
 
 ```rust,noplayground
 use std::collections::HashSet;
@@ -74,7 +74,7 @@ fn main() {
 
 ### 運算子
 
-進階語言功能那章學了運算子重載——HashSet 就用了這個功能。你可以用 `&` `|` `-` `^` 對兩個 HashSet 的參考做集合運算：
+進階語言功能那章學了運算子重載——`HashSet` 就用了這個功能。你可以用 `&` `|` `-` `^` 對兩個 `HashSet` 的參考做集合運算：
 
 ```rust,noplayground
 # use std::collections::HashSet;
@@ -106,7 +106,7 @@ fn main() {
 
 ### 走訪
 
-跟 HashMap 一樣，走訪順序不固定：
+跟 `HashMap` 一樣，走訪順序不固定：
 
 ```rust,noplayground
 # use std::collections::HashSet;
@@ -152,7 +152,7 @@ fn main() {
 
 ## 重點整理
 
-- `HashSet<T>` 是只有 key 的 HashMap，元素不重複
+- `HashSet<T>` 是只有 key 的 `HashMap`，元素不重複
 - 元素必須實作 `Eq + Hash`
 - `insert` 加入、`contains` 檢查、`remove` 移除
 - 集合運算：`intersection`（交集）、`union`（聯集）、`difference`（差集）、`symmetric_difference`（對稱差集）

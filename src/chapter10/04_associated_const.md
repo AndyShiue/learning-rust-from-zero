@@ -1,14 +1,14 @@
-# associated const
+# associated `const`
 
 ## 本集目標
 
-學會在 trait 和 impl 裡定義常數。
+學會在 `trait` 和 `impl` 裡定義常數。
 
 ## 概念說明
 
-### trait 裡的 associated const
+### `trait` 裡的 associated `const`
 
-除了方法和 associated type，trait 裡也能定義常數：
+除了方法和 associated type，`trait` 裡也能定義常數：
 
 ```rust,noplayground
 trait HasLimit {
@@ -46,9 +46,9 @@ impl HasLimit for i8 {
 # }
 ```
 
-### associated const 可以有預設值
+### associated `const` 可以有預設值
 
-跟 trait 的預設方法一樣，associated const 也能有預設值：
+跟 `trait` 的預設方法一樣，associated `const` 也能有預設值：
 
 ```rust
 trait Config {
@@ -66,9 +66,9 @@ impl Config for MyApp {
 # fn main() {}
 ```
 
-### impl 裡的 associated const
+### `impl` 裡的 associated `const`
 
-associated const 不一定要在 trait 裡——你也可以直接在 impl 區塊裡定義跟型別綁定的常數：
+associated `const` 不一定要在 `trait` 裡——你也可以直接在 `impl` 區塊裡定義跟型別綁定的常數：
 
 ```rust
 struct Circle;
@@ -132,6 +132,6 @@ fn main() {
 
 ## 重點整理
 
-- trait 裡可以定義 `const NAME: Type;`，impl 時指定值
-- associated const 可以有預設值，impl 時可以覆蓋
-- impl 區塊（不在 trait 裡）也能定義 associated const，用 `Type::CONST` 存取
+- `trait` 裡可以定義 `const NAME: Type;`，`impl` 時指定值
+- associated `const` 可以有預設值，`impl` 時可以覆蓋
+- `impl` 區塊（不在 `trait` 裡）也能定義 associated `const`，用 `Type::CONST` 存取

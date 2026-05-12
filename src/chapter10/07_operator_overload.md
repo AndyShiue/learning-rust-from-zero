@@ -6,11 +6,11 @@
 
 ## 概念說明
 
-### 運算子就是 trait 方法
+### 運算子就是 `trait` 方法
 
 Rust 裡 `a + b` 其實是 `a.add(b)` 的簡寫——`+` 對應 `std::ops::Add` trait。幫你的型別實作 `Add`，就能用 `+`。
 
-### Add trait 的定義
+### `Add` `trait` 的定義
 
 ```rust,noplayground
 trait Add<Rhs = Self> {
@@ -25,9 +25,9 @@ trait Add<Rhs = Self> {
 
 - `Rhs = Self`：上一集學的預設參數，加法右邊預設和左邊同型別
 - `type Output`：第五章學的 associated type，加法的結果不一定跟輸入同型別
-- `self` 不是 `&self`：`add` 會消耗左邊的值（Copy 的型別不受影響）
+- `self` 不是 `&self`：`add` 會消耗左邊的值（`Copy` 的型別不受影響）
 
-### 幫 Point 實作 Add
+### 幫 `Point` 實作 `Add`
 
 ```rust,noplayground
 use std::ops::Add;
@@ -50,10 +50,10 @@ impl Add for Point {
 
 ### 常用運算子
 
-`std::ops` 裡常用的 trait：
+`std::ops` 裡常用的 `trait`：
 
-| 運算子 | trait | 方法 |
-|--------|-------|------|
+| 運算子 | `trait` | 方法 |
+|--------|------  -|------|
 | `+` | `Add` | `add(self, rhs)` |
 | `-` | `Sub` | `sub(self, rhs)` |
 | `*` | `Mul` | `mul(self, rhs)` |
@@ -75,18 +75,18 @@ impl Add for Point {
 
 上面列的所有二元運算子都有對應的 assign 版本（例如 `&=` 對應 `BitAndAssign`、`<<=` 對應 `ShlAssign`），用法跟前面教過的 `+=` 或 `-=` 類似。
 
-### AddAssign vs Add
+### `AddAssign` vs `Add`
 
 `a += b` 和 `a = a + b` 在 Rust 裡的實作不一定一樣：
 
 - `Add::add(self, rhs)` 消耗 `a`，產生新值
 - `AddAssign::add_assign(&mut self, rhs)` 就地修改 `a`
 
-對 `i32` 感覺差不多，但對非 Copy 型別（如 `String`），`s1 += &s2` 直接追加內容，`s1 = s1 + &s2` 先消耗 s1 再建新的。效率和語意不同，所以需要分開的 trait。
+對 `i32` 感覺差不多，但對非 `Copy` 型別（如 `String`），`s1 += &s2` 直接追加內容，`s1 = s1 + &s2` 先消耗 `s1` 再建新的。效率和語意不同，所以需要分開的 `trait`。
 
 `Add` 和 `AddAssign` 是完全獨立的——實作了 `Add` 不代表 `+=` 自動能用，反過來也是。沒實作就是編譯錯誤。
 
-### Index / IndexMut
+### `Index` / `IndexMut`
 
 Vec 能用 `v[i]` 就是因為它實作了 `Index`：
 

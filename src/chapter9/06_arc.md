@@ -8,13 +8,13 @@
 
 ### 問題回顧
 
-前面說了 Rc 不能跨執行緒，因為參考計數不是 atomic。但我們確實需要在多個執行緒之間共享資料——怎麼辦？
+前面說了 `Rc` 不能跨執行緒，因為參考計數不是 atomic。但我們確實需要在多個執行緒之間共享資料——怎麼辦？
 
-### Arc：Atomic Reference Counting
+### `Arc`：atomic reference counting
 
-`Arc<T>` 就是把 Rc 的參考計數換成 **atomic 操作**的版本。Atomic 操作保證即使多個執行緒同時修改計數器，也不會互相干擾。
+`Arc<T>` 就是把 `Rc` 的參考計數換成 **atomic 操作**的版本。atomic 操作保證即使多個執行緒同時修改計數器，也不會互相干擾。
 
-用法跟 Rc 幾乎一樣：
+用法跟 `Rc` 幾乎一樣：
 
 ```rust
 use std::sync::Arc;
@@ -47,13 +47,13 @@ fn main() {
 }
 ```
 
-### T 必須是 Send + Sync
+### `T` 必須是 `Send + Sync`
 
 Arc 要求 `T: Send + Sync`。為什麼？
 
-**Sync**：多個執行緒透過各自的 Arc 同時存取同一份 T。第五章學了 Deref——Arc 實作了 Deref，所以你可以透過 Arc 直接存取 T 的內容。這等於多個執行緒同時持有 T 的不可變參考，所以 T 必須是 Sync。
+**`Sync`**：多個執行緒透過各自的 `Arc` 同時存取同一份 `T`。第五章學了 `Deref`——`Arc` 實作了 `Deref`，所以你可以透過 `Arc` 直接存取 `T` 的內容。這等於多個執行緒同時持有 `T` 的不可變參考，所以 `T` 必須是 Sync。
 
-**Send**：最後一個 Arc 被 drop 的時候，T 也會被 drop。而哪個執行緒持有最後一個 Arc 是不確定的，所以 T 的 drop 可能發生在任何執行緒上——T 等於被「送」到那個執行緒去銷毀，所以 T 必須是 Send。
+**`Send`**：最後一個 `Arc` 被 `drop` 的時候，`T` 也會被 `drop`。而哪個執行緒持有最後一個 `Arc` 是不確定的，所以 `T` 的 `drop` 可能發生在任何執行緒上——`T` 等於被「送」到那個執行緒去銷毀，所以 `T` 必須是 `Send`。
 
 ## 範例程式碼
 
@@ -85,7 +85,7 @@ fn main() {
 
 ## 重點整理
 
-- `Arc<T>` 是 Rc 的多執行緒版本，參考計數用 atomic 操作
+- `Arc<T>` 是 `Rc<T>` 的多執行緒版本，參考計數用 atomic 操作
 - 用法跟 Rc 幾乎一樣：`Arc::new()`、`Arc::clone()`
-- `Arc::clone` 後把 clone move 到其他執行緒，就能共享資料
-- `T` 必須是 `Send + Sync`：Sync 因為多執行緒同時存取，Send 因為 drop 可能發生在任何執行緒
+- `Arc::clone` 後把 `clone` move 到其他執行緒，就能共享資料
+- `T` 必須是 `Send + Sync`：`Sync` 因為多執行緒同時存取，`Send` 因為 `drop` 可能發生在任何執行緒

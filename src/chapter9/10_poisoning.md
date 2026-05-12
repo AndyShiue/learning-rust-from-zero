@@ -6,13 +6,13 @@
 
 ## 概念說明
 
-### lock() 為什麼回傳 Result
+### `.lock()` 為什麼回傳 `Result`
 
-前面幾集學 Mutex 和 RwLock 的時候，我們都寫 `.lock().expect("取得鎖失敗")`。但什麼時候取鎖會「失敗」？答案就是 **poisoning**。
+前面幾集學 `Mutex` 和 `RwLock` 的時候，我們都寫 `.lock().expect("取得鎖失敗")`。但什麼時候取鎖會「失敗」？答案就是 **poisoning**。
 
 ### 什麼是 poisoning
 
-如果一個執行緒在持有鎖的期間 panic 了，鎖會被標記為「中毒」（poisoned）。之後任何執行緒再嘗試取鎖，不管是 `lock()`、`read()` 還是 `write()`，都會收到 `Err(PoisonError)`。
+如果一個執行緒在持有鎖的期間 panic 了，鎖會被標記為「中毒」（poisoned）。之後任何執行緒再嘗試取鎖，不管是 `lock`、`read` 還是 `write`，都會收到 `Err(PoisonError)`。
 
 ```rust
 use std::sync::{Arc, Mutex};
@@ -40,7 +40,7 @@ fn main() {
 
 ### 為什麼要有 poisoning
 
-panic 通常代表程式出了預期外的錯誤。如果一個執行緒在修改資料修到一半就 panic 了，資料可能是半成品——比如 Vec push 了一半、或某兩個欄位只更新了一個。poisoning 是一個安全機制：讓你知道出事了，由你決定要不要繼續用。
+panic 通常代表程式出了預期外的錯誤。如果一個執行緒在修改資料修到一半就 panic 了，資料可能是半成品——比如 `Vec` `push` 了一半、或某兩個欄位只更新了一個。poisoning 是一個安全機制：讓你知道出事了，由你決定要不要繼續用。
 
 ### 三種處理方式
 
@@ -90,15 +90,15 @@ fn main() {
 
 拿到 guard 之後把資料修復成合理的值，然後繼續用。
 
-### 為什麼 into_inner() 是安全的
+### 為什麼 `.into_inner()` 是安全的
 
 你可能會好奇：中毒的鎖裡面的資料可能是半成品，存取它真的沒問題嗎？
 
-從記憶體的角度來看是沒問題的。不管鎖有沒有中毒，裡面的資料都是合法的記憶體——不會存取到已經不能使用的記憶體、不會把型別搞混、沒有資料競爭。poisoning 保護的是**邏輯一致性**，不是**記憶體安全**。資料可能邏輯上不對，但從記憶體的角度看完全合法。所以可以安全地呼叫 `into_inner()`。
+從記憶體的角度來看是沒問題的。不管鎖有沒有中毒，裡面的資料都是合法的記憶體——不會存取到已經不能使用的記憶體、不會把型別搞混、沒有資料競爭。poisoning 保護的是**邏輯一致性**，不是**記憶體安全**。資料可能邏輯上不對，但從記憶體的角度看完全合法。所以可以安全地呼叫 `.into_inner()`。
 
 ### RwLock 的 poisoning
 
-RwLock 的 poisoning 只在**寫鎖** panic 的時候觸發。讀鎖 panic 不會中毒——因為讀的時候不會修改資料，不會留下不一致的狀態。但一旦中毒了，`read()` 和 `write()` 都會回傳 `Err`。
+`RwLock` 的 poisoning 只在**寫鎖** panic 的時候觸發。讀鎖 panic 不會中毒——因為讀的時候不會修改資料，不會留下不一致的狀態。但一旦中毒了，`read` 和 `write` 都會回傳 `Err`。
 
 ## 範例程式碼
 
@@ -143,7 +143,7 @@ fn main() {
 ## 重點整理
 
 - 持有鎖的執行緒 panic 了 → 鎖中毒（poisoned）
-- 之後 `lock()` / `read()` / `write()` 都回傳 `Err(PoisonError)`
-- RwLock 只有寫鎖 panic 才會中毒，讀鎖 panic 不會
+- 之後 `lock` / `read` / `write` 都回傳 `Err(PoisonError)`
+- `RwLock` 只有寫鎖 panic 才會中毒，讀鎖 panic 不會
 - `PoisonError::into_inner` 可以拿回 guard——記憶體安全沒問題，只是邏輯一致性的問題
 - 三種處理方式：panic（`.unwrap()` 或 `.expect()`）、忽略（`.unwrap_or_else(PoisonError::into_inner)`）、修復資料再繼續

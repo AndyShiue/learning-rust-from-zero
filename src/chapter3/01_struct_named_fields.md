@@ -1,4 +1,4 @@
-# struct（named fields）
+# `struct`（named fields）
 
 ## 本集目標
 

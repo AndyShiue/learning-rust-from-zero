@@ -1,4 +1,4 @@
-# AsRef / AsMut
+# `AsRef<T>` / `AsMut<T>`
 
 ## 本集目標
 
@@ -18,11 +18,11 @@ fn print_length(s: &str) {
 # fn main() {}
 ```
 
-呼叫者手上有 `String`，因為 Deref 的關係，`&String` 會自動轉成 `&str`，所以沒問題。但如果你想寫一個函數，讓它同時接受 `String`、`&str`、甚至其他型別呢？
+呼叫者手上有 `String`，因為 `Deref` 的關係，`&String` 會自動轉成 `&str`，所以沒問題。但如果你想寫一個函數，讓它同時接受 `String`、`&str`、甚至其他型別呢？
 
-### AsRef
+### `AsRef`
 
-`AsRef<T>` trait 表示「我能便宜地借用成 `&T`」：
+`AsRef<T>` `trait` 表示「我能便宜地借用成 `&T`」：
 
 ```rust
 fn print_length(s: impl AsRef<str>) {
@@ -41,7 +41,7 @@ fn main() {
 - `String: AsRef<[u8]>`
 - `Vec<T>: AsRef<[T]>`
 
-### AsMut
+### `AsMut`
 
 `AsMut<T>` 是可變版本，借用成 `&mut T`：
 
@@ -77,11 +77,11 @@ where
 
 意思是：如果 `T` 實作了 `AsMut<U>`，那 `&mut T` 也自動實作 `AsMut<U>`。所以 `&mut Vec<u8>` 能直接當 `AsMut<[u8]>` 用。
 
-### 跟 Deref 的差別
+### 跟 `Deref` 的差別
 
-Deref 是自動的——編譯器幫你加 `*`，你不用寫任何東西。AsRef 是手動呼叫 `.as_ref()`。
+`Deref` 是自動的——編譯器幫你加 `*`，你不用寫任何東西。`AsRef` 是手動呼叫 `.as_ref()`。
 
-更重要的差別：每個型別只能有一個 Deref 目標（`String` deref 成 `str`），但可以實作多個 AsRef（`String` 同時是 `AsRef<str>` 和 `AsRef<[u8]>`）。AsMut 同理。
+更重要的差別：每個型別只能有一個 `Deref` 目標（`String` `deref` 成 `str`），但可以實作多個 `AsRef`（`String` 同時是 `AsRef<str>` 和 `AsRef<[u8]>`）。`AsMut` 同理。
 
 ### 什麼時候用
 

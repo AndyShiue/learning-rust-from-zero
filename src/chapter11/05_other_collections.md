@@ -2,15 +2,15 @@
 
 ## 本集目標
 
-認識 BTreeMap、BTreeSet 和 VecDeque。
+認識 `BTreeMap`、`BTreeSet` 和 `VecDeque`。
 
 ## 概念說明
 
-HashMap 和 HashSet 是最常用的集合，但標準庫還有其他選擇。
+`HashMap` 和 `HashSet` 是最常用的集合，但標準庫還有其他選擇。
 
 ### BTreeMap
 
-跟 HashMap 的差別：key 是**有序**的。走訪的時候會按照 key 的排序順序，不是隨機順序：
+跟 `HashMap` 的差別：key 是**有序**的。走訪的時候會按照 key 的排序順序，不是隨機順序：
 
 ```rust
 use std::collections::BTreeMap;
@@ -28,11 +28,11 @@ fn main() {
 }
 ```
 
-代價是 key 必須實作 `Ord`（而不是 `Hash + Eq`）。查詢速度方面，HashMap 不管資料量多大幾乎是固定的，BTreeMap 資料越多會稍微慢一點，但還是很快。
+代價是 key 必須實作 `Ord`（而不是 `Hash + Eq`）。查詢速度方面，`HashMap` 不管資料量多大幾乎是固定的，`BTreeMap` 資料越多會稍微慢一點，但還是很快。
 
 ### BTreeSet
 
-BTreeSet 就是只有 key 的 BTreeMap，跟 HashSet 對 HashMap 的關係一樣。元素有序，走訪時按順序輸出：
+`BTreeSet` 就是只有 key 的 `BTreeMap`，跟 `HashSet` 對 `HashMap` 的關係一樣。元素有序，走訪時按順序輸出：
 
 ```rust
 use std::collections::BTreeSet;
@@ -50,16 +50,16 @@ fn main() {
 }
 ```
 
-HashSet 的集合運算（交集、聯集等）BTreeSet 也都有。
+`HashSet` 的集合運算（交集、聯集等）`BTreeSet` 也都有。
 
 ### 什麼時候用哪個
 
-- 不在乎順序 → HashMap / HashSet（比較快）
-- 需要按某種順序走訪、或需要找最小/最大的 key → BTreeMap / BTreeSet
+- 不在乎順序 → `HashMap` / `HashSet`（比較快）
+- 需要按某種順序走訪、或需要找最小/最大的 key → `BTreeMap` / `BTreeSet`
 
-### VecDeque
+### `VecDeque`
 
-Vec 只能在尾巴高效地 push/pop。如果在頭 insert 或 remove，要把後面所有元素往後搬一格，資料越多越慢。
+`Vec` 只能在尾巴高效地 `push` / `pop`。如果在頭 `insert` 或 `remove`，要把後面所有元素往後搬一格，資料越多越慢。
 
 `VecDeque`（雙端佇列）在頭和尾都能高效操作，不管資料量多大速度都是固定的：
 
@@ -80,9 +80,9 @@ fn main() {
 }
 ```
 
-### 什麼時候用 VecDeque
+### 什麼時候用 `VecDeque`
 
-需要先進先出（FIFO）的佇列，或需要頻繁在頭尾操作的時候。如果只在尾巴操作，Vec 就夠了。
+需要先進先出（FIFO）的佇列，或需要頻繁在頭尾操作的時候。如果只在尾巴操作，`Vec` 就夠了。
 
 ## 範例程式碼
 
@@ -117,8 +117,8 @@ fn main() {
 
 ## 重點整理
 
-- `BTreeMap`：有序的 HashMap，key 必須實作 `Ord`
-- `BTreeSet`：有序的 HashSet，元素必須實作 `Ord`
-- 需要排序走訪用 BTree 系列，不需要就用 Hash 系列（比較快）
+- `BTreeMap`：有序的 `HashMap`，key 必須實作 `Ord`
+- `BTreeSet`：有序的 `HashSet`，元素必須實作 `Ord`
+- 需要排序走訪用 `BTree` 系列，不需要就用 `Hash` 系列（比較快）
 - `VecDeque`：雙端佇列，頭尾操作都很快
-- Vec 只在尾巴操作快，頭部操作慢（要搬移所有元素）
+- `Vec` 只在尾巴操作快，頭部操作慢（要搬移所有元素）

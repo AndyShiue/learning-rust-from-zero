@@ -1,4 +1,4 @@
-# panic! / todo! / unimplemented! / unreachable!
+# `panic!` / `todo!` / `unimplemented!` / `unreachable!`
 
 ## 本集目標
 

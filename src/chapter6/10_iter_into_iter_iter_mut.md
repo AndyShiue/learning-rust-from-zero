@@ -1,4 +1,4 @@
-# iter / into_iter / iter_mut
+# `iter` / `into_iter` / `iter_mut`
 
 ## 本集目標
 

@@ -1,4 +1,4 @@
-# let 解構 struct
+# `let` 解構 `struct`
 
 ## 本集目標
 

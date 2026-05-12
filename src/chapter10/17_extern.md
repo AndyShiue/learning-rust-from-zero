@@ -1,4 +1,4 @@
-# extern blocks
+# `extern` blocks
 
 ## 本集目標
 
@@ -29,7 +29,7 @@ fn main() {
 
 在 Rust 2024 edition 後，`extern` 區塊本身也需要 `unsafe`——因為你在宣告裡寫的函數簽名（參數型別、回傳型別等）是否正確，Rust 沒辦法驗證。如果簽名跟 C 那邊實際的不一樣，就會導致未定義行為。
 
-### safe fn
+### `safe fn`
 
 如果你確定某個外部函數是安全的，可以標記 `safe`：
 
@@ -44,7 +44,7 @@ fn main() {
 }
 ```
 
-### "C" 是什麼
+### `"C"` 是什麼
 
 `extern "C"` 的 `"C"` 指的是 **ABI**（Application Binary Interface）——函數在二進位層面的呼叫方式。`"C"` 是最常用的 ABI，幾乎所有語言都能跟 C ABI 互通。
 
@@ -60,9 +60,9 @@ pub extern "C" fn add(a: i32, b: i32) -> i32 {
 ```
 
 - `extern "C"`：用 C ABI
-- `#[unsafe(no_mangle)]`：不要混淆函數名稱，讓 C 能用 `add` 找到它。在 2024 edition 中，`no_mangle` 是 unsafe attribute，因為它改變了函數的連結方式，可能影響安全性
+- `#[unsafe(no_mangle)]`：不要混淆函數名稱，讓 C 能用 `add` 找到它。在 2024 edition 中，`no_mangle` 是 `unsafe` attribute，因為它改變了函數的連結方式，可能影響安全性
 
-### extern 區塊裡也能宣告 static 變數
+### `extern` 區塊裡也能宣告 `static` 變數
 
 ```rust,noplayground
 unsafe extern "C" {
@@ -101,6 +101,6 @@ fn main() {
 ## 重點整理
 
 - `unsafe extern "C" { ... }` 宣告外部 C 函數
-- 呼叫外部函數需要 unsafe；標記 `safe fn` 的除外
+- 呼叫外部函數需要 `unsafe`；標記 `safe fn` 的除外
 - `"C"` 是 ABI，指定函數在二進位層面的呼叫方式
 - `#[unsafe(no_mangle)] pub extern "C" fn` 讓 C 可以呼叫 Rust

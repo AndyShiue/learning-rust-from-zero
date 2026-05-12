@@ -1,4 +1,4 @@
-# cargo publish
+# `cargo publish`
 
 ## 本集目標
 
