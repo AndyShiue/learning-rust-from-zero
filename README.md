@@ -7,7 +7,7 @@
 
 [https://andyshiue.github.io/rust-book/](https://andyshiue.github.io/rust-book/)
 
-## （規劃中）搭配 AI 一起學
+## （規劃中，未完成）搭配 AI 一起學
 
 如果你在讀書的過程中遇到看不懂的段落、想要練習題，或寫的程式跑不起來，可以下載 [**`rust-book-src.zip`**](https://andyshiue.github.io/rust-book/rust-book-src.zip)，整包丟給能讀檔的 AI。記得告訴 AI 兩件事：
 
