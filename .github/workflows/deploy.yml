@@ -21,11 +21,7 @@ jobs:
       - run: mdbook test
       - run: mdbook build
       - name: Bundle src/ as rust-book-src.zip for AI consumption
-        run: |
-          mkdir _stage
-          cp -r src _stage/rust-book
-          (cd _stage && zip -r ../book/rust-book-src.zip rust-book)
-          rm -rf _stage
+        run: (cd src && zip -r ../book/rust-book-src.zip .)
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:
