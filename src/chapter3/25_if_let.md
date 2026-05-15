@@ -19,7 +19,7 @@
 #     let c = Color::Blue;
     match c {
         Color::Red => println!("是紅色！"),
-        _ => {}  // 其他情況什麼都不做
+        _ => {} // 其他情況什麼都不做
     }
 # }
 ```
