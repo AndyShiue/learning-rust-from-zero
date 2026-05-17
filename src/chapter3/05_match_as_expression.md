@@ -49,10 +49,9 @@ enum Season {
 }
 
 fn main() {
-    let s = Season::Autumn;
-
     // match 當表達式，回傳 &str
-    let name = match s {
+    let season = Season::Autumn;
+    let name = match season {
         Season::Spring => "春天",
         Season::Summer => "夏天",
         Season::Autumn => "秋天",
@@ -60,8 +59,9 @@ fn main() {
     };
     println!("現在是{}", name);
 
-    // match 當表達式，回傳 i32
-    let temp = match s {
+    // 另一個例子：match 回傳 i32
+    let weather = Season::Summer;
+    let temp = match weather {
         Season::Spring => 22,
         Season::Summer => 35,
         Season::Autumn => 18,
