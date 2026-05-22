@@ -1,4 +1,4 @@
-# Rust 教學
+# 從零開始學 Rust
 
 [![CC BY-NC-ND 4.0](https://img.shields.io/badge/license-CC%20BY--NC--ND%204.0-blue)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
 [![Deploy mdBook](https://github.com/AndyShiue/rust-book/actions/workflows/deploy.yml/badge.svg)](https://github.com/AndyShiue/rust-book/actions/workflows/deploy.yml)
