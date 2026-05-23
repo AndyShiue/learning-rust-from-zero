@@ -10,4 +10,8 @@ edition = "2024"
 default-theme = "light"
 preferred-dark-theme = "ayu"
 git-repository-url = "https://github.com/AndyShiue/rust-book"
+edit-url-template = "https://github.com/AndyShiue/rust-book/edit/main/{path}"
 site-url = "https://andyshiue.github.io/rust-book/"
+
+[output.html.print]
+page-break = false
