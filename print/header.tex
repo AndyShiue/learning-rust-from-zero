@@ -15,6 +15,7 @@
   }
 \newcommand{\Emoji}[1]{{\EmojiFont #1}}
 \newcommand{\CodeEmoji}[1]{\makebox[1em][c]{\Emoji{#1}}}
+\newcommand{\PrintCodeBlockSetup}{\xeCJKsetup{CJKecglue={}}}
 
 \definecolor{shadecolor}{RGB}{247,247,247}
 \linespread{1.18}
@@ -27,6 +28,13 @@
 \fancyhead[RE]{\nouppercase{\leftmark}}
 \fancyhead[LO]{\nouppercase{\rightmark}}
 \renewcommand{\headrulewidth}{0.4pt}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyhead[LE,RO]{\thepage}%
+  \fancyhead[RE]{\nouppercase{\leftmark}}%
+  \fancyhead[LO]{\nouppercase{\rightmark}}%
+  \renewcommand{\headrulewidth}{0.4pt}%
+}
 
 \setlength{\cftpartnumwidth}{3.2em}
 \setlength{\cftchapnumwidth}{2.8em}
@@ -67,5 +75,5 @@
 \titlespacing*{\subsubsection}{0pt}{0.9em}{0.3em}
 
 \AtBeginDocument{%
-  \RecustomVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\},fontsize=\footnotesize,breaklines=false,breakanywhere=false,tabsize=4}%
+  \RecustomVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\},fontsize=\footnotesize,breaklines=false,breakanywhere=false,tabsize=4,formatcom=\PrintCodeBlockSetup}%
 }
