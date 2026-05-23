@@ -21,6 +21,7 @@ RUST_CODE_CLASSES = {
 }
 
 EMOJI_RANGES = (
+    (0x2190, 0x21FF),
     (0x2600, 0x27BF),
     (0x1F000, 0x1FAFF),
 )

@@ -2,6 +2,7 @@
 \usepackage{fontspec}
 \usepackage{fvextra}
 \usepackage{fancyhdr}
+\usepackage{tocloft}
 \usepackage{titlesec}
 \usepackage{xcolor}
 
@@ -13,6 +14,7 @@
       {\newfontfamily\EmojiFont{Noto Color Emoji}[Scale=MatchUppercase]}%
   }
 \newcommand{\Emoji}[1]{{\EmojiFont #1}}
+\newcommand{\CodeEmoji}[1]{\makebox[1em][c]{\Emoji{#1}}}
 
 \definecolor{shadecolor}{RGB}{247,247,247}
 \linespread{1.18}
@@ -26,6 +28,16 @@
 \fancyhead[LO]{\nouppercase{\rightmark}}
 \renewcommand{\headrulewidth}{0.4pt}
 
+\setlength{\cftpartnumwidth}{3.2em}
+\setlength{\cftchapnumwidth}{2.8em}
+\setlength{\cftsecindent}{1.8em}
+\setlength{\cftsecnumwidth}{4.1em}
+\setlength{\cftsubsecindent}{5.9em}
+\setlength{\cftsubsecnumwidth}{4.8em}
+\setlength{\cftbeforepartskip}{0.7em}
+\setlength{\cftbeforechapskip}{0.45em}
+\setlength{\cftbeforesecskip}{0.08em}
+
 \titleformat{\chapter}[display]
   {\normalfont\huge\bfseries}
   {第\thechapter 章}
@@ -38,8 +50,29 @@
   {\thesection}
   {0.65em}
   {}
-\titlespacing*{\section}{0pt}{1.6em}{0.65em}
+\titlespacing*{\section}{0pt}{1.8em}{1.0em}
+
+\titleformat{\subsection}
+  {\normalfont\large\bfseries}
+  {\thesubsection}
+  {0.75em}
+  {}
+\titlespacing*{\subsection}{0pt}{1.35em}{0.45em}
 
 \AtBeginDocument{%
-  \RecustomVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\},fontsize=\footnotesize,breaklines=false,breakanywhere=false,tabsize=4}%
+  \RecustomVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\},fontsize=\footnotesize,breaklines=false,breakanywhere=false,tabsize=4,codes={%
+    \catcode`✅=\active \def✅{\CodeEmoji{✅}}%
+    \catcode`❌=\active \def❌{\CodeEmoji{❌}}%
+    \catcode`⚠=\active \def⚠{\CodeEmoji{⚠}}%
+    \catcode`✓=\active \def✓{\CodeEmoji{✓}}%
+    \catcode`✗=\active \def✗{\CodeEmoji{✗}}%
+    \catcode`←=\active \def←{\CodeEmoji{←}}%
+    \catcode`→=\active \def→{\CodeEmoji{→}}%
+    \catcode`⇒=\active \def⇒{\CodeEmoji{⇒}}%
+    \catcode`🎉=\active \def🎉{\CodeEmoji{🎉}}%
+    \catcode`🚀=\active \def🚀{\CodeEmoji{🚀}}%
+    \catcode`🦀=\active \def🦀{\CodeEmoji{🦀}}%
+    \catcode`😊=\active \def😊{\CodeEmoji{😊}}%
+    \catcode`🐟=\active \def🐟{\CodeEmoji{🐟}}%
+  }}%
 }
