@@ -42,20 +42,11 @@ pandoc "$MANUSCRIPT" \
   --resource-path=.:src \
   --output "$TEX"
 
-pandoc "$MANUSCRIPT" \
-  --standalone \
-  --from markdown+fenced_code_attributes+raw_tex+smart \
-  --pdf-engine=xelatex \
-  --pdf-engine-opt=-interaction=nonstopmode \
-  --top-level-division=chapter \
-  --toc \
-  --toc-depth=2 \
-  --number-sections \
-  --metadata-file=print/metadata.yaml \
-  --include-in-header=print/header.tex \
-  --highlight-style=tango \
-  --resource-path=.:src \
-  --output "$PDF"
+python3 scripts/postprocess_print_tex.py "$TEX"
+
+xelatex -interaction=nonstopmode -halt-on-error -output-directory build/print "$TEX"
+xelatex -interaction=nonstopmode -halt-on-error -output-directory build/print "$TEX"
+cp build/print/rust-book-a4.pdf "$PDF"
 
 echo "PDF: $PDF"
 echo "TeX: $TEX"
