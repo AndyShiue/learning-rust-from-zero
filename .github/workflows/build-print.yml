@@ -1,0 +1,51 @@
+name: Build print PDF
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-print:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install print dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            pandoc \
+            poppler-utils \
+            texlive-xetex \
+            texlive-latex-extra \
+            texlive-lang-chinese \
+            texlive-fonts-recommended \
+            fonts-noto \
+            fonts-noto-cjk
+
+      - name: Build A4 print PDF
+        run: ./print/build.sh
+
+      - name: Show code line report
+        run: cat build/print/code-lines.txt
+
+      - name: Fail on too-wide code lines
+        run: grep -q '^No code lines wider than' build/print/code-lines.txt
+
+      - name: Check PDF metadata
+        run: pdfinfo book/rust-book-a4.pdf
+
+      - name: Upload A4 print PDF
+        uses: actions/upload-artifact@v4
+        with:
+          name: rust-book-a4-pdf
+          path: |
+            book/rust-book-a4.pdf
+            build/print/code-lines.txt
+            build/print/rust-book-a4.tex
+          if-no-files-found: error

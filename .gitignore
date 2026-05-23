@@ -1,3 +1,5 @@
 outline.md
 book/
+build/
+__pycache__/
 .claude/
