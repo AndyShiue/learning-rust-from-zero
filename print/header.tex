@@ -6,6 +6,24 @@
 \usepackage{titlesec}
 \usepackage{xcolor}
 
+\makeatletter
+\renewcommand{\cleardoublepage}{%
+  \clearpage
+  \if@twoside
+    \ifodd\c@page
+    \else
+      \hbox{}%
+      \thispagestyle{empty}%
+      \newpage
+      \if@twocolumn
+        \hbox{}%
+        \newpage
+      \fi
+    \fi
+  \fi
+}
+\makeatother
+
 \IfFontExistsTF{Noto Emoji}
   {\newfontfamily\EmojiFont{Noto Emoji}[Scale=MatchUppercase]}
   {%
@@ -16,6 +34,12 @@
 \newcommand{\Emoji}[1]{{\EmojiFont #1}}
 \newcommand{\CodeEmoji}[1]{\makebox[1em][c]{\Emoji{#1}}}
 \newcommand{\PrintCodeBlockSetup}{\xeCJKsetup{CJKecglue={}}}
+
+\ifXeTeX
+  \setCJKmainfont[Language=Chinese Traditional]{Noto Sans CJK TC}
+  \setCJKsansfont[Language=Chinese Traditional]{Noto Sans CJK TC}
+  \setCJKmonofont[Language=Chinese Traditional]{Noto Sans Mono CJK TC}
+\fi
 
 \definecolor{shadecolor}{RGB}{247,247,247}
 \linespread{1.18}
