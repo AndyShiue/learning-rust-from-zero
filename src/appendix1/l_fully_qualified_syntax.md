@@ -221,7 +221,7 @@ fn main() {
 
 ## 重點整理
 
-- 方法呼叫有三種層級：`obj.method()` → `Trait::method(&obj)` → `<Type as Trait>::method(&obj)`
+- 方法呼叫有三種層級：`object.method()` → `Trait::method(&object)` → `<Type as Trait>::method(&object)`
 - 通常用最簡單的就好，有衝突時才升級
 - 當多個 `trait` 定義同名方法時，需要指定要呼叫哪個 `trait` 的版本
 - 型別本身的方法優先於 `trait` 方法
