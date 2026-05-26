@@ -48,7 +48,7 @@ use std::cmp;
 
 fn main() {
     let smaller = cmp::min_by(3.0_f64, 2.5, |a, b| {
-        a.partial_cmp(b).unwrap() // 如果確定不會碰到 NaN，用 unwrap 取出 Ordering
+        a.partial_cmp(b).unwrap() // 如果確定不會碰到 NAN，用 unwrap 取出 Ordering
     });
     println!("{}", smaller); // 2.5
 
