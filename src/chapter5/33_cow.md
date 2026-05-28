@@ -52,7 +52,7 @@ where
 
 這是使用 `Cow` 時最關鍵的一點：`Cow<'a, B>` 實作了 `Deref<Target = B>`。也就是說，不管裡面是 `Borrowed(&str)` 還是 `Owned(String)`，你都可以直接把 `Cow<'_, str>` 當成 `&str` 來用——呼叫 `&str` 的所有方法、傳給接受 `&str` 的函數，完全不用管它實際上是借用還是擁有。
 
-```rust
+```rust,editable
 # use std::borrow::Cow;
 #
 # fn main() {
@@ -72,7 +72,7 @@ where
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::borrow::Cow;
 
 // 如果字串已經是「你好」開頭，直接借用回傳

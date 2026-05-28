@@ -42,7 +42,7 @@
 
 **`unwrap_or_else` —— 給一個計算預設值的閉包**
 
-```rust
+```rust,editable
 # fn main() {
     // Option<T> 上的方法：
     // fn unwrap_or_else(self, f: impl FnOnce() -> T) -> T
@@ -117,7 +117,7 @@
 
 **`unwrap_or_else` —— 從 `Err` 計算預設值**
 
-```rust
+```rust,editable
 # fn main() {
     // Result<T, E> 上的方法：
     // fn unwrap_or_else(self, f: impl FnOnce(E) -> T) -> T
@@ -154,7 +154,7 @@
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn parse_and_double(input: &str) -> Result<i32, String> {
     input
         .parse::<i32>()

@@ -10,7 +10,7 @@
 
 ### 基本用法
 
-```rust
+```rust,editable
 fn main() {
     let x = 2;
     if x > 5 {
@@ -27,7 +27,7 @@ fn main() {
 
 把 `x` 改成 8：
 
-```rust
+```rust,editable
 fn main() {
     let x = 8;
     if x > 5 {

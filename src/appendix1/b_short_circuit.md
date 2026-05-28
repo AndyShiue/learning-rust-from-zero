@@ -14,7 +14,7 @@
 
 `&&` 的左邊如果是 `false`，右邊就不會被執行——因為不管右邊是什麼，整個結果一定是 `false`：
 
-```rust
+```rust,editable
 fn main() {
     let x = 0;
     // 左邊 x != 0 是 false，所以右邊 10 / x 不會被執行
@@ -29,7 +29,7 @@ fn main() {
 
 `||` 的左邊如果是 `true`，右邊就不會被執行——因為不管右邊是什麼，整個結果一定是 `true`：
 
-```rust
+```rust,editable
 fn check() -> bool {
     println!("check 被呼叫了");
     true
@@ -50,7 +50,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn is_even(n: i32) -> bool {
     println!("  檢查 {} 是不是偶數", n);
     n % 2 == 0

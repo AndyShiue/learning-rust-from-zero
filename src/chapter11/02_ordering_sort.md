@@ -10,7 +10,7 @@
 
 第 5 章學了 `Ord` `trait`，知道實作了 `Ord` 的型別可以比大小。`Ord` 的核心方法是 `cmp`，它比較兩個值，回傳 `std::cmp::Ordering`——一個只有三個值的 `enum`：
 
-```rust
+```rust,editable
 use std::cmp::Ordering;
 
 fn main() {
@@ -26,7 +26,7 @@ fn main() {
 
 `std::cmp::min(a, b)` 和 `std::cmp::max(a, b)` 回傳兩個值中比較小或大的那個，要求型別實作 `Ord`：
 
-```rust
+```rust,editable
 use std::cmp;
 
 fn main() {
@@ -43,7 +43,7 @@ fn main() {
 
 這時候可以用 `min_by` / `max_by`，自訂比較邏輯：
 
-```rust
+```rust,editable
 use std::cmp;
 
 fn main() {
@@ -65,7 +65,7 @@ fn main() {
 
 根據某個 key 來比較：
 
-```rust
+```rust,editable
 use std::cmp;
 
 fn main() {
@@ -78,7 +78,7 @@ fn main() {
 
 `Vec` 和切片提供了幾種排序方法：
 
-```rust
+```rust,editable
 # fn main() {
     let mut nums = vec![3, 1, 4, 1, 5];
 
@@ -101,7 +101,7 @@ fn main() {
 
 `std::cmp::Reverse` 可以把排序順序反過來：
 
-```rust
+```rust,editable
 use std::cmp::Reverse;
 
 fn main() {
@@ -133,7 +133,7 @@ impl<T: Ord> Ord for Reverse<T> {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::cmp::{self, Reverse};
 
 fn main() {

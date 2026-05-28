@@ -146,7 +146,7 @@ type MyItem = <Vec<i32> as Iterator>::Item; // i32
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 trait Animal {
     fn speak(&self);
     fn category() -> &'static str;

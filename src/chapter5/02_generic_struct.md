@@ -54,7 +54,7 @@ struct MixedPair<T, U> {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 // 兩個欄位必須同型別
 #[derive(Debug)]
 struct Pair<T> {

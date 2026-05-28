@@ -14,7 +14,7 @@
 
 定義 `struct` 的語法是：
 
-```rust
+```rust,editable
 struct Point {
     x: i32,
     y: i32,
@@ -29,7 +29,7 @@ struct Point {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 struct Point {
     x: i32,
     y: i32,
@@ -56,7 +56,7 @@ fn main() {
 
 注意 `struct` 定義裡，最後一個欄位後面也有逗號：
 
-```rust
+```rust,editable
 struct Point {
     x: i32,
     y: i32, // ← 這個逗號可加可不加

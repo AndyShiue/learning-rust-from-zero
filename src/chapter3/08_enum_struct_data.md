@@ -37,7 +37,7 @@ enum Shape {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 enum Shape {
     Circle { radius: f64 },
     Rectangle { width: i32, height: i32 },

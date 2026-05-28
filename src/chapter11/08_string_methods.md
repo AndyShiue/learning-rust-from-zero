@@ -49,7 +49,7 @@
 
 ### 逐字元走訪
 
-```rust
+```rust,editable
 # fn main() {
     for c in "hello".chars() {
         println!("{}", c);
@@ -84,7 +84,7 @@
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn main() {
     let sentence = "  Hello, Rust World!  ";
 

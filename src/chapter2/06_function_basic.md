@@ -10,7 +10,7 @@
 
 ### 定義一個函數
 
-```rust
+```rust,editable
 fn greet() {
     println!("你好！歡迎來到 Rust 的世界！");
 }
@@ -31,7 +31,7 @@ fn main() {
 
 ### 函數可以呼叫好幾次
 
-```rust
+```rust,editable
 fn greet() {
     println!("哈囉！");
 }
@@ -49,7 +49,7 @@ fn main() {
 
 不只是 `main` 裡面可以呼叫函數——函數之間也可以互相呼叫。`main` 只是程式的**進入點**（程式開始執行的地方），但裡面呼叫的函數也能再呼叫其他函數：
 
-```rust
+```rust,editable
 fn say_name() {
     println!("我是 Rust！");
 }
@@ -67,7 +67,7 @@ fn main() {
 
 在某些語言裡，函數必須在使用之前先定義。但 Rust 不用！
 
-```rust
+```rust,editable
 fn main() {
     greet(); // ✅ 先呼叫
 }

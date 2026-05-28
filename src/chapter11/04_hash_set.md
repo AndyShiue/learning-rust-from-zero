@@ -16,7 +16,7 @@
 
 ### 基本操作
 
-```rust
+```rust,editable
 use std::collections::HashSet;
 
 fn main() {
@@ -34,7 +34,7 @@ fn main() {
 
 ### 從迭代器建立
 
-```rust
+```rust,editable
 use std::collections::HashSet;
 
 fn main() {
@@ -91,7 +91,7 @@ fn main() {
 
 ### 其他關係
 
-```rust
+```rust,editable
 # use std::collections::HashSet;
 #
 # fn main() {
@@ -121,7 +121,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::collections::HashSet;
 
 fn main() {

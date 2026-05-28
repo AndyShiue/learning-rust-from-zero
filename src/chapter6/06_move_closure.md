@@ -34,7 +34,7 @@ fn make_greeter(name: String) -> impl Fn() {
 
 加上 `move` 就解決了：
 
-```rust
+```rust,editable
 fn make_greeter(name: String) -> impl Fn() {
     move || println!("Hello, {}!", name)
 }
@@ -70,7 +70,7 @@ fn make_greeter(name: String) -> impl Fn() {
 
 `move` 只影響**怎麼捕捉**，不影響**怎麼使用**：
 
-```rust
+```rust,editable
 # fn main() {
     let name = String::from("Alice");
     let greet = move || println!("Hello, {}!", name);
@@ -89,7 +89,7 @@ fn make_greeter(name: String) -> impl Fn() {
 - 所有捕捉的變數都是 `Clone` → 閉包也是 `Clone`
 - 其他某些 `trait` 也是同理
 
-```rust
+```rust,editable
 # fn main() {
     let x = 42;
     let f = move || x + 1; // x 是 i32（Copy），所以 f 也是 Copy
@@ -101,7 +101,7 @@ fn make_greeter(name: String) -> impl Fn() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 // 回傳閉包時，通常需要 move
 fn make_adder(n: i32) -> impl Fn(i32) -> i32 {
     move |x| x + n

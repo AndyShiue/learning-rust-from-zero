@@ -14,7 +14,7 @@
 
 泛型參數不只能是型別，也能是**常數值**：
 
-```rust
+```rust,editable
 fn print_array<const N: usize>(arr: [i32; N]) {
     for x in arr {
         println!("{}", x);
@@ -103,7 +103,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn sum<const N: usize>(arr: [i32; N]) -> i32 {
     let mut total = 0;
     for i in 0..N {

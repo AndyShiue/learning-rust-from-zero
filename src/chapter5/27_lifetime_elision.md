@@ -54,7 +54,7 @@ impl MyStruct {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 // 規則二：一個 input lifetime，自動推斷
 fn trim_hello(s: &str) -> &str {
     if s.len() >= 5 {

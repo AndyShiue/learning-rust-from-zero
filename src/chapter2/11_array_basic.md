@@ -10,7 +10,7 @@
 
 ### 建立陣列
 
-```rust
+```rust,editable
 fn main() {
     let arr = [1, 2, 3, 4, 5];
     println!("{:?}", arr);
@@ -31,7 +31,7 @@ fn main() {
 
 ### 用索引取值
 
-```rust
+```rust,editable
 fn main() {
     let arr = [1, 2, 3, 4, 5];
     println!("第一個：{}", arr[0]);
@@ -61,7 +61,7 @@ fn main() {
 
 陣列的型別寫法是 `[元素型別; 長度]`：
 
-```rust
+```rust,editable
 fn main() {
     let arr: [i32; 5] = [1, 2, 3, 4, 5];
     println!("{:?}", arr);
@@ -76,7 +76,7 @@ fn main() {
 
 如果你想建立一個「5 個 0」的陣列：
 
-```rust
+```rust,editable
 fn main() {
     let zeros = [0; 5];
     println!("{:?}", zeros);
@@ -87,7 +87,7 @@ fn main() {
 
 再來幾個例子：
 
-```rust
+```rust,editable
 fn main() {
     let ones = [1; 10];    // 10 個 1
     let flags = [true; 3]; // 3 個 true

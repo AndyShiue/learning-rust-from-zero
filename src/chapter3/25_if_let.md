@@ -66,7 +66,7 @@
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 enum Color {
     Red,
     Green,
@@ -120,7 +120,7 @@ fn main() {
 
 `if let` 也可以用在 `match` 的 guard 位置（第 20 集學的 `match` guard）。語法是 `模式 if let 模式2 = 表達式 =>`：
 
-```rust
+```rust,editable
 enum Wrapper {
     Value(i32),
     Empty,

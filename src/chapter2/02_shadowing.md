@@ -8,7 +8,7 @@
 
 Rust 有一個很有趣的功能叫做 **shadowing**（遮蔽）。簡單說就是：你可以用 `let` 再次宣告一個同名的變數，新的會「蓋掉」舊的。
 
-```rust
+```rust,editable
 fn main() {
     let x = 5;
     let x = x + 1;
@@ -20,7 +20,7 @@ fn main() {
 
 你甚至可以連續 shadow 好幾次：
 
-```rust
+```rust,editable
 fn main() {
     let x = 1;
     let x = x + 1; // x = 2
@@ -35,7 +35,7 @@ fn main() {
 
 最大的差別是：**shadowing 可以換型別，mut 不行。**
 
-```rust
+```rust,editable
 fn main() {
     // shadowing：可以從數字變成字串
     let x = 5;
@@ -61,7 +61,7 @@ fn main() {
 
 shadowing 最常見的用途是「轉換型別但保留名字」：
 
-```rust
+```rust,editable
 fn main() {
     let input = "42"; // 這是字串
     let input = input.trim().parse::<i32>().expect("請輸入數字"); // 轉成數字，還是叫 input
@@ -75,7 +75,7 @@ fn main() {
 
 還記得第 1 章第 9 集學的作用域嗎？Shadowing 在大括號 `{}` 裡面也能用，而且出了大括號，遮蔽就會結束，舊的變數會「回來」：
 
-```rust
+```rust,editable
 fn main() {
     let x = 1;
     {
@@ -90,7 +90,7 @@ fn main() {
 
 這跟 `mut` 完全不同。如果用 `mut` 在區塊裡改值，出了區塊值就真的變了：
 
-```rust
+```rust,editable
 fn main() {
     let mut x = 1;
     {

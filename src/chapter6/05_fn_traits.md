@@ -79,7 +79,7 @@ fn call_readonly(f: impl Fn() -> i32) -> i32 {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 // 只需要呼叫一次 → 用 FnOnce（能接受最多種閉包）
 fn consume_and_print(f: impl FnOnce() -> String) {
     let result = f();

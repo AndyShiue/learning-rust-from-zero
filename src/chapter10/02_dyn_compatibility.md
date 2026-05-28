@@ -102,7 +102,7 @@ x.normal(); // OK
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 // dyn compatible 的 trait
 trait Greet {
     fn greet(&self) -> String;

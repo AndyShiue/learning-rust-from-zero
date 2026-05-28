@@ -51,7 +51,7 @@ struct Ref<'a, T: 'a> {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 struct Excerpt<'a> {
     text: &'a str,
 }

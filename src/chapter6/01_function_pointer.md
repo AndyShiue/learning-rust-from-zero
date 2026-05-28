@@ -66,7 +66,7 @@ fn apply(f: fn(i32) -> i32, value: i32) -> i32 {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn add_one(x: i32) -> i32 {
     x + 1
 }

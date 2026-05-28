@@ -147,7 +147,7 @@ use b::hello; // 編譯錯誤！hello 已經被定義了
 
 但如果是**不同作用域**，內層的 `use` 會遮蔽（shadow）外層的——就像 `let` 的 shadowing：
 
-```rust
+```rust,editable
 # mod a {
 #     pub fn hello() -> &'static str { "from a" }
 # }
@@ -204,7 +204,7 @@ fn compare(a: i32, b: i32) {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 mod math {
     pub mod basic {
         pub fn add(a: i32, b: i32) -> i32 {

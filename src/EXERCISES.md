@@ -65,7 +65,7 @@
 3. ...
 
 參考答案：
-```rust
+```rust,editable
 // 若本題需要程式碼，放在這裡。
 ```
 ``````
@@ -112,7 +112,7 @@
 
 參考答案：
 
-```rust
+```rust,editable
 fn main() {
     let name = "小明";
     println!("Hello, {}!", name);
@@ -132,7 +132,7 @@ fn main() {
 
 參考起始程式：
 
-```rust
+```rust,editable
 fn main() {
     println!("Hello, world!");
     println!("Hello, Rust!");
@@ -150,7 +150,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn main() {
     // println!("Hello, world!");
     println!("Hello, Rust!");
@@ -188,7 +188,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn main() {
     let total = 17;
     let group = 5;
@@ -245,7 +245,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn main() {
     let score = 85;
 
@@ -269,7 +269,7 @@ fn main() {
 
 起始程式：
 
-```rust
+```rust,editable
 fn main() {
     {
         let message = "Hello";
@@ -292,7 +292,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn main() {
     let message = "Hello";
 
@@ -331,7 +331,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn main() {
     let temperature = 18;
 
@@ -377,7 +377,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn main() {
     let temperature = 32;
 
@@ -426,7 +426,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn main() {
     let age = 20;
     let has_ticket = true;
@@ -463,7 +463,7 @@ fn main() {
 
 起始程式：
 
-```rust
+```rust,editable
 fn main() {
     let coins = 3;
     coins = 5;
@@ -484,7 +484,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn main() {
     let mut coins = 3;
     coins = 5;
@@ -506,7 +506,7 @@ fn main() {
 
 起始程式：
 
-```rust
+```rust,editable
 fn main() {
     let mut score = 60;
 
@@ -536,7 +536,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn main() {
     let mut score = 60;
 
@@ -580,7 +580,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn main() {
     println!("請輸入你最喜歡的食物：");
 
@@ -624,7 +624,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn main() {
     println!("請輸入一個數字：");
 
@@ -670,7 +670,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn main() {
     println!("請輸入你的分數：");
 
@@ -734,7 +734,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn main() {
     loop {
         println!("請輸入一個正數：");
@@ -795,7 +795,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn main() {
     println!("請輸入目標金額：");
 
@@ -884,7 +884,7 @@ FizzBuzz
 
 參考答案：
 
-```rust
+```rust,editable
 fn main() {
     println!("請輸入最後一個座位號碼：");
 
@@ -899,7 +899,7 @@ fn main() {
 }
 ```
 
-```rust
+```rust,editable
 fn main() {
     println!("請輸入一個正整數：");
 
@@ -981,7 +981,7 @@ a = 3, b = 7
 
 參考答案：
 
-```rust
+```rust,editable
 fn main() {
     println!("請輸入高度：");
 
@@ -1006,7 +1006,7 @@ fn main() {
 }
 ```
 
-```rust
+```rust,editable
 fn main() {
     println!("請輸入層數：");
 
@@ -1024,7 +1024,7 @@ fn main() {
 }
 ```
 
-```rust
+```rust,editable
 fn main() {
     println!("請輸入目標數字：");
 
@@ -1089,7 +1089,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn main() {
     println!("請輸入上限：");
 
@@ -1177,19 +1177,19 @@ C:\Users\Ferris\code
 
 參考答案：
 
-```rust
+```rust,editable
 fn main() {
     println!("第一行\n第二行");
 }
 ```
 
-```rust
+```rust,editable
 fn main() {
     println!("他說：\"Rust 很有趣！\"");
 }
 ```
 
-```rust
+```rust,editable
 fn main() {
     println!("C:\\Users\\Ferris\\code");
 }
@@ -1231,7 +1231,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn main() {
     println!("請輸入年齡：");
 
@@ -1284,7 +1284,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 const PASS_SCORE: i32 = 60;
 
 fn main() {
@@ -1349,7 +1349,7 @@ rust
 
 參考答案：
 
-```rust
+```rust,editable
 fn main() {
     for _ in 0..3 {
         println!("請輸入密碼：");
@@ -1422,7 +1422,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn print_menu() {
     println!("今日菜單");
     println!("1. 拉麵");
@@ -1473,7 +1473,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn print_total(price: i32, count: i32) {
     println!("總價是 {} 元", price * count);
 }
@@ -1545,7 +1545,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn calculate_total(price: i32, count: i32) -> i32 {
     price * count
 }
@@ -1569,7 +1569,7 @@ fn main() {
 }
 ```
 
-```rust
+```rust,editable
 fn buy_ticket(money: i32, price: i32) -> (i32, i32) {
     let count = money / price;
     let change = money % price;
@@ -1632,7 +1632,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn discount_price(price: i32, is_member: bool) -> i32 {
     if price <= 0 {
         return 0;
@@ -1713,7 +1713,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn is_power_of_two(n: i32) -> bool {
     if n == 1 {
         true
@@ -1742,7 +1742,7 @@ fn main() {
 }
 ```
 
-```rust
+```rust,editable
 fn print_collatz(n: i32) {
     println!("{}", n);
 
@@ -1815,7 +1815,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn main() {
     println!("請輸入第一天溫度：");
 
@@ -1905,7 +1905,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn main() {
     let mut expenses = [0; 5];
 
@@ -2000,7 +2000,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn count_goal_days(steps: &[i32]) -> i32 {
     let mut count = 0;
 
@@ -2077,7 +2077,7 @@ fn main() {
 
 參考答案：
 
-```rust
+```rust,editable
 fn print_ticket(name: &str, from: &str, to: &str) {
     println!("乘客：{}", name);
     println!("出發：{}", from);

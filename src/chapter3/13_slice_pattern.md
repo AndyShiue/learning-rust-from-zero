@@ -10,7 +10,7 @@
 
 上一集我們學了如何解構 tuple，其實我們也可以對陣列和切片進行模式匹配！就是用 `[a, b, c]` 這種 slice pattern 來比對陣列的每個元素：
 
-```rust
+```rust,editable
 # fn main() {
     let rgb = [255, 128, 0];
 
@@ -47,7 +47,7 @@ fn describe(numbers: &[i32]) {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn describe(data: &[i32]) {
     match data {
         [] => println!("空的切片"),

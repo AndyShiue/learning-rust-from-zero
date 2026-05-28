@@ -14,7 +14,7 @@
 
 程式執行的時候，每一個變數都會被放在記憶體的某個位置，而每個位置都有一個編號，叫做**位址**。`&x` 拿到的就是 `x` 的位址。用 `{:p}` 格式化可以把它印出來看：
 
-```rust
+```rust,editable
 # fn main() {
     let x: i32 = 42;
     println!("{:p}", &x); // 例如 0x7ffd5e8a3b4c
@@ -31,7 +31,7 @@
 
 在大部分情況下，`&T` 佔 8 bytes，在 64 位元系統上就是一個位址的大小。用 `std::mem::size_of` 來驗證：
 
-```rust
+```rust,editable
 use std::mem::size_of;
 
 fn main() {
@@ -49,7 +49,7 @@ fn main() {
 
 有了位址，我們能做什麼？用 `*` 運算子**解參考**（dereference），透過位址取得對應的內容：
 
-```rust
+```rust,editable
 # fn main() {
     let x = 42;
     let r = &x;
@@ -63,7 +63,7 @@ fn main() {
 
 附錄一最後一集介紹過 DST——`[T]` 和 `str` 是大小不確定的型別，沒辦法直接放在變數裡，通常要透過 `&[T]`、`&str`、`Box<[T]>` 等方式使用。但 DST 的大小不固定，光有位址不夠。想像一下：你拿到一個位址，知道從這裡開始是一段連續的 `i32` 資料——但到哪裡結束？記憶體本身不會告訴你，位址只是一個起點。所以除了位址之外，還得額外記錄長度，才知道這段資料有多長。因此 `&[T]` 和 `&str` 佔 16 bytes：
 
-```rust
+```rust,editable
 use std::mem::size_of;
 
 fn main() {
@@ -75,7 +75,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::mem::size_of;
 
 fn main() {

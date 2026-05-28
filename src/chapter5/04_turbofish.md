@@ -12,7 +12,7 @@
 
 還記得第 1 章學 `parse` 的時候，我們寫過這樣的程式碼嗎？
 
-```rust
+```rust,editable
 # fn main() {
 #     let input = "1";
     let num = input.trim().parse::<i32>().expect("請輸入數字");
@@ -48,7 +48,7 @@ Vec::<i32>::new();
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn first<T>(a: T, _b: T) -> T {
     a
 }

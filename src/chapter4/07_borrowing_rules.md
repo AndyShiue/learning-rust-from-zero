@@ -48,7 +48,7 @@
 
 多個人同時讀，沒有任何問題：
 
-```rust
+```rust,editable
 # fn main() {
     let x = 10;
     let r1 = &x;
@@ -94,7 +94,7 @@ fn bad() -> &i32 {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 #[derive(Debug)]
 struct Point {
     x: i32,

@@ -74,7 +74,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::sync::{Arc, Mutex};
 use std::thread;
 

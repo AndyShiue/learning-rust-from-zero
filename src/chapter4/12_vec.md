@@ -42,7 +42,7 @@ Rust 會在你第一次 `push` 的時候推斷出型別。
 
 `Vec` 的索引跟陣列一樣，用 `[i]`：
 
-```rust
+```rust,editable
 # fn main() {
     let nums = vec![10, 20, 30];
     println!("{}", nums[0]); // 10
@@ -52,7 +52,7 @@ Rust 會在你第一次 `push` 的時候推斷出型別。
 
 走訪也跟陣列一樣，用 `for`：
 
-```rust
+```rust,editable
 # fn main() {
 #     let nums = vec![10, 20, 30];
     for n in &nums {
@@ -65,7 +65,7 @@ Rust 會在你第一次 `push` 的時候推斷出型別。
 
 ### `push`：加入新元素
 
-```rust
+```rust,editable
 # fn main() {
     let mut fruits = Vec::new();
     fruits.push("蘋果");
@@ -79,7 +79,7 @@ Rust 會在你第一次 `push` 的時候推斷出型別。
 
 ### `len`：取得長度
 
-```rust
+```rust,editable
 # fn main() {
     let nums = vec![1, 2, 3];
     println!("長度：{}", nums.len());
@@ -88,7 +88,7 @@ Rust 會在你第一次 `push` 的時候推斷出型別。
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn main() {
     // 用 vec! 建立
     let scores = vec![85, 92, 78, 95, 88];

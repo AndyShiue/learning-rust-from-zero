@@ -14,7 +14,7 @@
 
 放在 `match` 的最後面，表示「其他所有情況都走這裡」：
 
-```rust
+```rust,editable
 # fn main() {
     let score = 95;
     match score {
@@ -28,7 +28,7 @@
 
 在 tuple 或 `enum` 的模式裡，用 `_` 佔住不需要的位置：
 
-```rust
+```rust,editable
 # fn main() {
     let point = (5, 5);
     match point {
@@ -41,7 +41,7 @@
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 enum Direction {
     Up,
     Down,

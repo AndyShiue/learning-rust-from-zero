@@ -10,7 +10,7 @@
 
 上一集學了 `#[cfg(...)]`——條件編譯，不符合條件的程式碼整塊被移除。但有時候你只是想根據條件走不同分支，不想移除整塊程式碼。`cfg!` 就是做這件事的：
 
-```rust
+```rust,editable
 # fn main() {
     if cfg!(target_os = "windows") {
         println!("你在 Windows 上");
@@ -52,7 +52,7 @@ if cfg!(target_os = "linux") {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn main() {
     if cfg!(debug_assertions) {
         println!("debug 模式");

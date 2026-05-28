@@ -18,7 +18,7 @@
 
 `thread::scope` 解決了這個問題。它保證裡面 `spawn` 的所有執行緒在 `scope` 結束前都會被 `join`：
 
-```rust
+```rust,editable
 use std::thread;
 
 fn main() {
@@ -41,7 +41,7 @@ fn main() {
 
 同一件事，用 `thread::spawn` 要這樣寫：
 
-```rust
+```rust,editable
 use std::sync::Arc;
 use std::thread;
 
@@ -59,7 +59,7 @@ fn main() {
 
 用 `thread::scope` 簡潔很多：
 
-```rust
+```rust,editable
 use std::thread;
 
 fn main() {
@@ -77,7 +77,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::thread;
 
 fn main() {

@@ -30,7 +30,7 @@
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 enum Shape {
     Circle { radius: f64 },
     Rectangle { width: i32, height: i32 },
@@ -61,7 +61,7 @@ fn main() {
 
 不只 `enum` 的 `struct` variant，一般的 named-field `struct` 也能用同樣的方式解構：
 
-```rust
+```rust,editable
 struct Point {
     x: i32,
     y: i32,

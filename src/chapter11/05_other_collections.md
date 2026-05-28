@@ -12,7 +12,7 @@
 
 跟 `HashMap` 的差別：key 是**有序**的。走訪的時候會按照 key 的排序順序，不是隨機順序：
 
-```rust
+```rust,editable
 use std::collections::BTreeMap;
 
 fn main() {
@@ -34,7 +34,7 @@ fn main() {
 
 `BTreeSet` 就是只有 key 的 `BTreeMap`，跟 `HashSet` 對 `HashMap` 的關係一樣。元素有序，走訪時按順序輸出：
 
-```rust
+```rust,editable
 use std::collections::BTreeSet;
 
 fn main() {
@@ -63,7 +63,7 @@ fn main() {
 
 `VecDeque`（雙端佇列）在頭和尾都能高效操作，不管資料量多大速度都是固定的：
 
-```rust
+```rust,editable
 use std::collections::VecDeque;
 
 fn main() {
@@ -86,7 +86,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::collections::{BTreeMap, VecDeque};
 
 fn main() {

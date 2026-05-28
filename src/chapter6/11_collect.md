@@ -22,7 +22,7 @@
 
 `.collect()` 不只能收集成 `Vec`。如果迭代器產出的是 `char` 或 `&str`，可以直接收集成 `String`：
 
-```rust
+```rust,editable
 # fn main() {
     let chars = vec!['R', 'u', 's', 't'];
     let word: String = chars.into_iter().collect();
@@ -34,7 +34,7 @@
 
 `.last()` 會消耗整個迭代器，回傳最後一個元素（`Option<T>`）：
 
-```rust
+```rust,editable
 # fn main() {
     let v = vec![10, 20, 30];
     let last = v.iter().last();
@@ -46,7 +46,7 @@
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn main() {
     // 基本 collect —— Range 轉 Vec
     let numbers: Vec<i32> = (1..=10).into_iter().collect();

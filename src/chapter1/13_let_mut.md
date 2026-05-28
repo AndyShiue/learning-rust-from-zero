@@ -30,7 +30,7 @@ fn main() {
 
 如果你確實需要改變值，加上 `mut`（mutable 的縮寫，意思是「可變的」）：
 
-```rust
+```rust,editable
 fn main() {
     let mut x = 5;
     println!("x 原本是 {}", x);
@@ -43,7 +43,7 @@ fn main() {
 
 ### 小整理
 
-```rust
+```rust,editable
 # fn main() {
     let x = 5;     // 不可變，之後不能改
     let mut x = 5; // 可變，之後可以改

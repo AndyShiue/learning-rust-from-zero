@@ -22,7 +22,7 @@ fn print_point((x, y): (i32, i32)) {
 
 呼叫的時候和平常一樣，傳一個 tuple 進去：
 
-```rust
+```rust,editable
 # fn print_point((x, y): (i32, i32)) {
 #     println!("({}, {})", x, y);
 # }
@@ -48,7 +48,7 @@ fn print_point_struct(Point { x, y }: Point) {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 struct Point {
     x: i32,
     y: i32,
@@ -121,7 +121,7 @@ fn main() {
 
 還有什麼 irrefutable pattern 呢？
 
-```rust
+```rust,editable
 # fn main() {
     let arr = [1, 2, 3];
     let [head, ..] = arr;

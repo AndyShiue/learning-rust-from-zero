@@ -107,7 +107,7 @@ mod math {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 mod geometry {
     pub struct Rectangle {
         pub width: f64,

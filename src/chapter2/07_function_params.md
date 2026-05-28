@@ -10,7 +10,7 @@
 
 ### 加上參數
 
-```rust
+```rust,editable
 fn add(a: i32, b: i32) {
     println!("{} + {} = {}", a, b, a + b);
 }
@@ -53,7 +53,7 @@ fn add_v2(a: i32, b: i32) { // ✅ 一定要標
 
 參數可以有不同的型別：
 
-```rust
+```rust,editable
 fn describe(x: i32, is_positive: bool) {
     println!("{} 是正數嗎？{}", x, is_positive);
 }
@@ -66,7 +66,7 @@ fn main() {
 
 ### 一個參數也行
 
-```rust
+```rust,editable
 fn double(x: i32) {
     println!("{} 的兩倍是 {}", x, x * 2);
 }

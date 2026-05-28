@@ -37,7 +37,7 @@
 
 假設我們有這樣的閉包：
 
-```rust
+```rust,editable
 # fn main () {
     let name = String::from("Alice");
     let greet = || {
@@ -76,7 +76,7 @@ impl GreetOnce {
 
 假設閉包修改了捕捉的變數：
 
-```rust
+```rust,editable
 # fn main() {
     let mut name = String::from("Alice");
     let mut greet = || {
@@ -125,7 +125,7 @@ struct SomeClosure<'a> {
 
 如果閉包只是讀取捕捉的變數，完全不修改：
 
-```rust
+```rust,editable
 # fn main() {
     let name = String::from("Alice");
     let greet = || {
@@ -178,7 +178,7 @@ impl<'a> GreetRef<'a> {
 
 以下的完整程式碼把三種閉包都手動模擬出來。每一個 `struct` 對應一種閉包，欄位型別和方法接收者都不同：
 
-```rust
+```rust,editable
 // === FnOnce 模擬 ===
 // struct 擁有值，方法接 self
 struct GreetOnce {

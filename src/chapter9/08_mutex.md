@@ -21,7 +21,7 @@
 
 用 `mutex.lock().expect("取得鎖失敗")` 取得鎖。它會回傳一個 `MutexGuard`：
 
-```rust
+```rust,editable
 use std::sync::Mutex;
 
 fn main() {
@@ -42,7 +42,7 @@ fn main() {
 
 實際上多半是這樣搭配使用——`Arc` 負責讓多個執行緒共享 `Mutex`，`Mutex` 負責保護裡面的資料：
 
-```rust
+```rust,editable
 use std::sync::{Arc, Mutex};
 use std::thread;
 
@@ -96,7 +96,7 @@ let mut guard = mutex.lock().expect("取得鎖失敗");
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::sync::{Arc, Mutex};
 use std::thread;
 

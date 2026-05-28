@@ -46,7 +46,7 @@ impl Cat {
 
 一個很好的例子是 `Clone` `trait`。它定義的簡化版長這樣：
 
-```rust
+```rust,editable
 trait Clone {
     fn clone(&self) -> Self;
 }
@@ -76,7 +76,7 @@ trait Clone {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 #[derive(Debug)]
 struct Counter {
     id: i32,

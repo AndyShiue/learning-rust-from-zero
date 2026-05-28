@@ -81,7 +81,7 @@ fn longer<'a>(a: &'a str, b: &'a str) -> &'a str {
 
 回到剛才的例子：
 
-```rust
+```rust,editable
 # fn longer<'a>(a: &'a str, b: &'a str) -> &'a str {
 #     if a.len() > b.len() {
 #         a
@@ -141,7 +141,7 @@ fn first_char(s: &str) -> &str {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 // 回傳借用時，需要標注生命週期
 fn longer<'a>(a: &'a str, b: &'a str) -> &'a str {
     if a.len() > b.len() {

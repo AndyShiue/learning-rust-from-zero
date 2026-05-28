@@ -50,7 +50,7 @@ type Pair<T> = (T, T);
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 // 簡單的型別別名
 type Name = String;
 

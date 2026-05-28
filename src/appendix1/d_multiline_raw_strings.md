@@ -68,7 +68,7 @@
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn main() {
     // 多行字串
     let haiku = "古池や

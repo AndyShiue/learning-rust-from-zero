@@ -10,7 +10,7 @@
 
 ### 建立 tuple
 
-```rust
+```rust,editable
 fn main() {
     let t = (1, 3.14, true);
     println!("{}", t.0); // 1
@@ -27,7 +27,7 @@ fn main() {
 
 Rust 有一個特殊的 tuple，裡面什麼都沒有：
 
-```rust
+```rust,editable
 fn main() {
     let _u: () = ();
 }
@@ -39,7 +39,7 @@ fn main() {
 
 如果你想明確寫出 tuple 的型別：
 
-```rust
+```rust,editable
 fn main() {
     let t: (i32, f64, bool) = (1, 3.14, true);
     println!("{} {} {}", t.0, t.1, t.2);
@@ -52,7 +52,7 @@ fn main() {
 
 如果你想建立一個只有一個元素的 tuple，要記得加逗號：
 
-```rust
+```rust,editable
 fn main() {
     let not_a_tuple = (5);     // 這只是數字 5，加了括號而已
     let a_tuple = (5,);        // 這才是 tuple！注意逗號
@@ -65,7 +65,7 @@ fn main() {
 
 型別也是一樣的寫法：
 
-```rust
+```rust,editable
 fn main() {
     let t: (i32,) = (5,);
     println!("{}", t.0);
@@ -78,7 +78,7 @@ fn main() {
 
 如果 tuple 用 `let mut` 宣告，就可以修改裡面的值：
 
-```rust
+```rust,editable
 fn main() {
     let mut t = (1, 2, 3, 4);
     println!("修改前：{}", t.1); // 2

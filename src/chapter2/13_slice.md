@@ -10,7 +10,7 @@
 
 ### 基本語法
 
-```rust
+```rust,editable
 fn main() {
     let arr = [1, 2, 3, 4, 5];
     let slice = &arr[1..4];
@@ -31,7 +31,7 @@ fn main() {
 
 ### 範圍的寫法
 
-```rust
+```rust,editable
 fn main() {
     let arr = [1, 2, 3, 4, 5];
 
@@ -59,7 +59,7 @@ fn main() {
 
 這裡有個重要的觀念：切片**不是**把資料複製一份出來，而是「指向原本陣列的某一段」。就像透過窗戶看房間裡的東西——東西還是在房間裡，你只是從窗戶看進去。
 
-```rust
+```rust,editable
 fn main() {
     let arr = [10, 20, 30, 40, 50];
     let slice = &arr[1..4];
@@ -79,7 +79,7 @@ fn main() {
 
 還記得陣列的型別是 `[i32; 5]`（型別包含長度）嗎？切片的型別是 `&[i32]`——**沒有長度**：
 
-```rust
+```rust,editable
 fn main() {
     let arr: [i32; 5] = [1, 2, 3, 4, 5];
     let slice: &[i32] = &arr[1..4];
@@ -93,7 +93,7 @@ fn main() {
 
 切片也可以用 `for` 走訪：
 
-```rust
+```rust,editable
 fn main() {
     let arr = [1, 2, 3, 4, 5];
     let slice = &arr[1..4];
@@ -118,7 +118,7 @@ fn main() {
 
 複合型別裡面的型別不一定要是基本型別，也能是一層複合型別套另一層複合型別：
 
-```rust
+```rust,editable
 fn main() {
     // 陣列裡面裝 tuple
     let pairs: [(i32, bool); 3] = [(1, true), (2, false), (3, true)];

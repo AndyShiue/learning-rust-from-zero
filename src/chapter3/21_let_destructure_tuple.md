@@ -51,7 +51,7 @@
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn main() {
     // 基本的 let 解構
     let (x, y) = (10, 20);

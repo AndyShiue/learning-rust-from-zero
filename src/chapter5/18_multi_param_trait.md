@@ -64,7 +64,7 @@ impl Convert<String> for i32 {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 // 定義一個帶型別參數的 trait
 trait Convert<T> {
     fn convert(self) -> T;

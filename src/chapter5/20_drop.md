@@ -30,7 +30,7 @@ Rust 會在值離開作用域時**自動呼叫** `drop`。你不能手動呼叫 
 
 如果你想提前釋放一個值，用 `drop()`：
 
-```rust
+```rust,editable
 # struct MyType { name: String }
 #
 # impl Drop for MyType {
@@ -76,7 +76,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 struct Resource {
     name: String,
 }

@@ -58,7 +58,7 @@
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn find_even(numbers: &[i32]) -> Option<i32> {
     for n in numbers {
         if *n % 2 == 0 {

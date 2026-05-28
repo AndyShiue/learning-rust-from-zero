@@ -122,7 +122,7 @@ cargo test
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn is_even(n: i32) -> bool {
     n % 2 == 0
 }

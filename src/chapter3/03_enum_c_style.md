@@ -12,7 +12,7 @@
 
 `enum`（enumeration，列舉）就是用來定義這種「多選一」的型別。和 `struct` 一樣，定義一個 `enum` 就是在告訴 Rust：「我要一個新的型別，它的值只能是這幾個選項之一。」最簡單的 `enum` 長這樣：
 
-```rust
+```rust,editable
 enum Color {
     Red,
     Green,
@@ -24,7 +24,7 @@ enum Color {
 
 每一個選項叫做一個 **variant**（變體）。建立 `enum` 值的時候，要用 `型別名::變體名` 的寫法：
 
-```rust
+```rust,editable
 # enum Color {
 #     Red,
 #     Green,
@@ -42,7 +42,7 @@ enum Color {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 enum Direction {
     Up,
     Down,

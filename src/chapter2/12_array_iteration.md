@@ -10,7 +10,7 @@
 
 ### 基本語法
 
-```rust
+```rust,editable
 fn main() {
     let arr = [1, 2, 3, 4, 5];
 
@@ -24,7 +24,7 @@ fn main() {
 
 ### 幫元素做運算
 
-```rust
+```rust,editable
 fn main() {
     let scores = [80, 95, 72, 88, 100];
 
@@ -40,7 +40,7 @@ fn main() {
 
 ### 加總所有元素
 
-```rust
+```rust,editable
 fn main() {
     let arr = [1, 2, 3, 4, 5];
     let mut total = 0;
@@ -59,7 +59,7 @@ fn main() {
 
 第 1 章學的 `for i in 0..5` 是走訪一個**數字範圍**。這集的 `for x in arr` 是走訪一個**陣列**。語法一樣，只是 `in` 後面放的東西不同：
 
-```rust
+```rust,editable
 fn main() {
     let arr = [10, 20, 30];
 

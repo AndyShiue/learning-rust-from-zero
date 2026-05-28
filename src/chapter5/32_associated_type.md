@@ -104,7 +104,7 @@ fn print_first<C: Container<Item = i32>>(c: &C) { ... }
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::fmt::Display;
 
 // 用 associated type 定義容器 trait

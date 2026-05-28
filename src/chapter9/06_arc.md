@@ -16,7 +16,7 @@
 
 用法跟 `Rc` 幾乎一樣：
 
-```rust
+```rust,editable
 use std::sync::Arc;
 
 fn main() {
@@ -30,7 +30,7 @@ fn main() {
 
 把 `Arc::clone` 出來的東西 move 到另一個執行緒：
 
-```rust
+```rust,editable
 use std::sync::Arc;
 use std::thread;
 
@@ -57,7 +57,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::sync::Arc;
 use std::thread;
 

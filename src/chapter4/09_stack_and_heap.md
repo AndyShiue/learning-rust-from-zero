@@ -44,7 +44,7 @@
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 #[derive(Debug, Copy, Clone)]
 struct StackData {
     x: i32,

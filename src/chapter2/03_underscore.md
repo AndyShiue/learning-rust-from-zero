@@ -8,7 +8,7 @@
 
 Rust 的編譯器很貼心（有時候有點煩），如果你宣告了一個變數但沒有使用它，它會給你一個警告：
 
-```rust
+```rust,editable
 fn main() {
     let x = 5;
     // 沒有用到 x
@@ -21,7 +21,7 @@ fn main() {
 
 在變數名前面加一個底線 `_`：
 
-```rust
+```rust,editable
 fn main() {
     let _x = 5;
     // 沒有用到 _x，但編譯器不會警告了
@@ -32,7 +32,7 @@ fn main() {
 
 注意，`_x` 還是一個正常的變數，你想用的話還是可以用：
 
-```rust
+```rust,editable
 fn main() {
     let _x = 5;
     println!("{}", _x);  // 還是可以用
@@ -43,7 +43,7 @@ fn main() {
 
 如果你連名字都不想取，就直接用一個底線：
 
-```rust
+```rust,editable
 fn main() {
     let _ = 42;
 }
@@ -62,7 +62,7 @@ fn main() {
 
 上一章學了 `for i in 0..5`，迴圈變數 `i` 會依序是 0, 1, 2, 3, 4。但如果你只是想重複做某件事五次，根本不在乎現在是第幾次呢？這時候就可以用 `_`：
 
-```rust
+```rust,editable
 fn main() {
     for _ in 0..5 {
         println!("重複五次！");

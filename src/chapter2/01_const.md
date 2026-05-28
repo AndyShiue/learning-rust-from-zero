@@ -12,7 +12,7 @@
 
 來看語法：
 
-```rust
+```rust,editable
 fn main() {
     const MAX_SCORE: i32 = 100;
     println!("最高分是：{}", MAX_SCORE);
@@ -23,7 +23,7 @@ fn main() {
 
 ### 差別一：`const` 一定要標型別
 
-```rust
+```rust,editable
 # fn main() {
     const MAX_SCORE: i32 = 100; // ✅ 一定要寫 : i32
     let max_score = 100;        // ✅ let 可以省略，編譯器會自己推
@@ -34,7 +34,7 @@ fn main() {
 
 ### 差別二：命名慣例是全大寫加底線
 
-```rust
+```rust,editable
 # fn main() {
     const MAX_SCORE: i32 = 100;    // ✅ 全大寫，用底線分隔
     const PI_VALUE: f64 = 3.14159; // ✅ 這樣
@@ -59,7 +59,7 @@ fn main() {
 
 ### 差別四：`const` 可以放在 `fn` 外面
 
-```rust
+```rust,editable
 const MAX_PLAYERS: i32 = 10;
 
 fn main() {

@@ -31,7 +31,7 @@
 
 不只是賦值，把值傳進函數也會發生 move：
 
-```rust
+```rust,editable
 # struct Point {
 #     x: i32,
 #     y: i32,
@@ -68,7 +68,7 @@ struct Point {
 
 然後用 `.clone()` 來複製：
 
-```rust
+```rust,editable
 # #[derive(Debug, Clone)]
 # struct Point {
 #     x: i32,
@@ -89,7 +89,7 @@ struct Point {
 
 你可能會注意到，整數的行為不太一樣：
 
-```rust
+```rust,editable
 # fn main() {
     let a = 42;
     let b = a;
@@ -101,7 +101,7 @@ struct Point {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 #[derive(Debug, Clone)]
 struct Point {
     x: i32,

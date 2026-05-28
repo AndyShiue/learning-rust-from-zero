@@ -60,7 +60,7 @@
 
 這是閉包和函數指標最大的差別：
 
-```rust
+```rust,editable
 # fn main() {
     let offset = 10;
     let add_offset = |x| x + offset; // 捕捉了 offset
@@ -80,7 +80,7 @@
 
 這意味著你可以傳一個**會消耗捕捉到的變數**的閉包給它：
 
-```rust
+```rust,editable
 # fn main() {
     let prefix = String::from("結果是：");
     let result: Result<i32, String> = Ok(42);
@@ -102,7 +102,7 @@
 
 你可以傳一個**會修改捕捉到的變數**的閉包：
 
-```rust
+```rust,editable
 # fn main() {
     let mut numbers = vec![1, 2, 3, 4, 5, 6];
     let mut removed_count = 0;
@@ -156,7 +156,7 @@
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn apply_fn_pointer(f: fn(i32) -> i32, value: i32) -> i32 {
     f(value)
 }

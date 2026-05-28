@@ -47,7 +47,7 @@ Rust 提供了一個簡寫：如果變數名和欄位名一樣，可以只寫一
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 struct Point {
     x: i32,
     y: i32,

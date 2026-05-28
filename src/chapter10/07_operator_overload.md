@@ -127,7 +127,7 @@ impl Add<Centimeters> for Meters {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::ops::{Add, Neg};
 
 #[derive(Debug, Clone, Copy)]

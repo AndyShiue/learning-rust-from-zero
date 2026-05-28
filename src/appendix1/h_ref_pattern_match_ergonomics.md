@@ -28,7 +28,7 @@
 
 以前（Rust 1.26 之前），如果你想在 `match` 裡借用而不是 move，必須手動寫 `ref`：
 
-```rust
+```rust,editable
 # fn main() {
     let opt = Some(String::from("hello"));
     match opt {
@@ -45,7 +45,7 @@
 
 從 Rust 1.26 開始，編譯器變聰明了。當你 `match` 一個**參考**的時候，裡面的綁定會自動變成參考：
 
-```rust
+```rust,editable
 # fn main() {
     let opt = Some(String::from("hello"));
     match &opt {     // 注意這裡是 &opt
@@ -66,7 +66,7 @@
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn main() {
     // ===== ref 基本用法 =====
     let name = String::from("Rust");

@@ -17,7 +17,7 @@
 - **讀鎖**（`read().expect(...)`）：多個執行緒可以**同時**持有讀鎖
 - **寫鎖**（`write().expect(...)`）：寫鎖是獨佔的，持有寫鎖時不能有任何讀鎖或其他寫鎖
 
-```rust
+```rust,editable
 use std::sync::RwLock;
 
 fn main() {
@@ -61,7 +61,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::sync::{Arc, RwLock};
 use std::thread;
 

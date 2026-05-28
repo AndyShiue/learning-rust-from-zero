@@ -98,7 +98,7 @@ impl fmt::Display for MyVec {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::fmt;
 
 // newtype pattern：用自己的 struct 包住外部型別

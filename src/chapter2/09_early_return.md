@@ -10,7 +10,7 @@
 
 ### 基本範例：絕對值
 
-```rust
+```rust,editable
 fn abs(x: i32) -> i32 {
     if x >= 0 {
         return x; // 如果 x 是正數或零，直接回傳
@@ -62,7 +62,7 @@ fn abs_v2(x: i32) -> i32 {
 
 ### 實用場景：提前擋掉不合法的輸入
 
-```rust
+```rust,editable
 fn divide(a: f64, b: f64) -> f64 {
     if b == 0.0 {
         println!("錯誤：不能除以零！");
@@ -86,7 +86,7 @@ fn main() {
 
 如果函數回傳 `()`（例如沒有寫 `-> 型別`），`return` 後面不用寫值：
 
-```rust
+```rust,editable
 fn check_age(age: i32) {
     if age < 0 {
         println!("年齡不能是負數！");

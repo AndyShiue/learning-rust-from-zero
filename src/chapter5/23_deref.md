@@ -10,7 +10,7 @@
 
 到目前為止，我們只對一般的參考（`&T`）用過 `*`。但其實 `*` 也能用在其他型別上：
 
-```rust
+```rust,editable
 # fn main() {
     let b = Box::new(42);
     let val: i32 = *b; // 把值從 Box 裡拿出來
@@ -61,7 +61,7 @@ let b = Box::new(42);
 
 `DerefMut::deref_mut` 回傳 `&mut T`，外面的 `*` 解開後就能寫入值。例如：
 
-```rust
+```rust,editable
 # fn main() {
     let mut b = Box::new(0);
     *b = 42;
@@ -77,7 +77,7 @@ let b = Box::new(42);
 
 例如，一個函數接受 `&i32`，你可以直接傳 `&Box<i32>` 進去，Rust 會自動透過 `Deref` 把 `&Box<i32>` 轉成 `&i32`：
 
-```rust
+```rust,editable
 fn show(val: &i32) {
     println!("{}", val);
 }
@@ -125,7 +125,7 @@ double_boxed.len()
 
 `Rc` 也一樣：
 
-```rust
+```rust,editable
 use std::rc::Rc;
 
 fn main() {
@@ -162,7 +162,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::rc::Rc;
 
 fn show(val: &i32) {

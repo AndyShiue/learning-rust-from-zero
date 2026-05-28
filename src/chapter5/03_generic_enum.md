@@ -38,7 +38,7 @@ enum Either<L, R> {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 // 自己定義的泛型 enum
 #[derive(Debug)]
 enum Maybe<T> {

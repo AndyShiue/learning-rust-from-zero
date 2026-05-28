@@ -62,7 +62,7 @@ where
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::fmt::Display;
 
 // 多個 trait bound：Clone + Display

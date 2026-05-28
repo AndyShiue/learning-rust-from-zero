@@ -10,7 +10,7 @@
 
 ### `\n` —— 換行
 
-```rust
+```rust,editable
 fn main() {
     println!("第一行\n第二行");
 }
@@ -20,7 +20,7 @@ fn main() {
 
 ### `\t` —— tab
 
-```rust
+```rust,editable
 fn main() {
     println!("名字\t分數");
     println!("小明\t85");
@@ -34,7 +34,7 @@ fn main() {
 
 如果你想印出反斜線 `\` 本身呢？因為 `\` 已經被拿來當跳脫字元的開頭了，所以要用兩個反斜線：
 
-```rust
+```rust,editable
 fn main() {
     println!("檔案路徑：C:\\Users\\Andy");
 }
@@ -44,7 +44,7 @@ fn main() {
 
 字串是用 `"` 包起來的，那如果字串裡面要有 `"` 呢？
 
-```rust
+```rust,editable
 fn main() {
     println!("他說：\"你好！\"");
 }
@@ -56,7 +56,7 @@ fn main() {
 
 跳脫字元在 `char` 裡面也能用：
 
-```rust
+```rust,editable
 fn main() {
     let newline: char = '\n';
     let tab: char = '\t';
@@ -70,7 +70,7 @@ fn main() {
 
 在 char 裡面，如果你想表示單引號本身，就要跳脫：
 
-```rust
+```rust,editable
 fn main() {
     let quote: char = '\'';
     println!("{}", quote);
@@ -83,7 +83,7 @@ fn main() {
 
 在字串（`""`）裡面，單引號不需要跳脫，可以直接用：
 
-```rust
+```rust,editable
 fn main() {
     println!("It's a test"); // ' 在字串裡不用跳脫
 }
@@ -91,7 +91,7 @@ fn main() {
 
 同樣地，在 char（`''`）裡面，雙引號也不需要跳脫：
 
-```rust
+```rust,editable
 fn main() {
     let c: char = '"'; // " 在 char 裡不用跳脫
     println!("{}", c);

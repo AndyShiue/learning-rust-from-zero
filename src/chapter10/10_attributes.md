@@ -123,7 +123,7 @@ fn foo() {}
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 #![allow(dead_code)]
 
 #[derive(Debug, Clone, PartialEq)]

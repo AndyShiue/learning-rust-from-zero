@@ -12,7 +12,7 @@
 
 `Cell<T>` 提供一種「繞過借用規則」的方式——它用 `.get()` 取值、`.set(v)` 設值，**不需要可變參考**。
 
-```rust
+```rust,editable
 use std::cell::Cell;
 
 fn main() {
@@ -40,7 +40,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::cell::Cell;
 
 struct Counter {

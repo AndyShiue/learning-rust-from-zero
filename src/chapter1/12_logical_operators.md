@@ -12,7 +12,7 @@
 
 兩個條件**都要成立**，結果才是 `true`：
 
-```rust
+```rust,editable
 fn main() {
     let age = 24;
     let is_student = true;
@@ -31,7 +31,7 @@ fn main() {
 
 只要**其中一個**條件成立，結果就是 `true`：
 
-```rust
+```rust,editable
 fn main() {
     let is_weekend = false;
     let is_holiday = true;
@@ -48,7 +48,7 @@ fn main() {
 
 把 `true` 變成 `false`，把 `false` 變成 `true`：
 
-```rust
+```rust,editable
 fn main() {
     let raining = false;
 
