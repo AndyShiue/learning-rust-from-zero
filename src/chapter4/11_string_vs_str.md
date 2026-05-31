@@ -19,7 +19,7 @@
 
 當你有一個 `String`，想把它的參考傳給接受 `&str` 的函數時，Rust 會自動幫你轉換：
 
-```rust
+```rust,editable
 fn greet(name: &str) {
     println!("你好，{}！", name);
 }
@@ -65,7 +65,7 @@ fn count_chars(s: &str) -> i32 {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 // 參數用 &str：既能接 &str，也能接 &String
 fn greet(name: &str) {
     println!("你好，{}！", name);

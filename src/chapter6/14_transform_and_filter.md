@@ -105,7 +105,7 @@
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn main() {
     let scores = vec![55, 82, 91, 47, 73, 88, 69, 95];
 

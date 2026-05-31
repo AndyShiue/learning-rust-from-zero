@@ -15,7 +15,7 @@
 - `Cell<T>`：用 `get` / `set`，`T` 必須 `Copy`，**零成本**（編譯後和直接存取沒有差別）
 - `RefCell<T>`：用 `.borrow()` 和 `.borrow_mut()` 取得參考，`T` **不需要** `Copy`，但**有執行期成本**（每次借用都要檢查有沒有違反規則）
 
-```rust
+```rust,editable
 use std::cell::RefCell;
 
 fn main() {
@@ -60,7 +60,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::cell::RefCell;
 use std::rc::Rc;
 

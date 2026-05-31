@@ -24,7 +24,7 @@ fn duplicate<T>(x: &T) -> (T, T) {
 
 解法是加上 **`trait` bound**，告訴 Rust「`T` 必須實作 `Clone`」：
 
-```rust
+```rust,editable
 fn duplicate<T: Clone>(x: &T) -> (T, T) {
     (x.clone(), x.clone())
 }
@@ -99,7 +99,7 @@ impl<T: Clone> Pair<T> {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 #[derive(Debug)]
 struct Pair<T> {
     first: T,

@@ -10,7 +10,7 @@
 
 走訪一個裝著 tuple 的陣列：
 
-```rust
+```rust,editable
 # fn main() {
     let pairs = [(1, "one"), (2, "two"), (3, "three")];
 
@@ -24,7 +24,7 @@
 
 走訪 `struct` 也一樣：
 
-```rust
+```rust,editable
 struct Point {
     x: i32,
     y: i32,
@@ -47,7 +47,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 struct Point {
     x: i32,
     y: i32,

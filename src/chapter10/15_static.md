@@ -48,7 +48,7 @@ fn increment() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::sync::atomic::{AtomicI32, Ordering};
 
 // const：值嵌進使用的地方

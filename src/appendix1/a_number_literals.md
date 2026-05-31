@@ -63,7 +63,7 @@
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn main() {
     // 底線分隔
     let population = 23_000_000;

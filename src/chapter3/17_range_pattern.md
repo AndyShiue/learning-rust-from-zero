@@ -10,7 +10,7 @@
 
 Rust 提供了 **range pattern**，讓你在 `match` 裡用範圍來比對：
 
-```rust
+```rust,editable
 # fn main() {
     let score = 12;
     match score {
@@ -24,7 +24,7 @@ Rust 提供了 **range pattern**，讓你在 `match` 裡用範圍來比對：
 
 除了 `..=`（包含結尾），也可以用 `..`（不包含結尾）：
 
-```rust
+```rust,editable
 # fn main() {
     let score = 65;
     match score {
@@ -48,7 +48,7 @@ Rust 編譯器會根據前後文判斷是哪一種，不會搞混。但初學時
 
 range pattern 也支援只寫一邊：
 
-```rust
+```rust,editable
 # fn main() {
     let temperature = 25;
     match temperature {
@@ -63,7 +63,7 @@ range pattern 也支援只寫一邊：
 
 range pattern 不只能用在數字，也能用在 `char`：
 
-```rust
+```rust,editable
 # fn main() {
     let c = '哼';
     match c {
@@ -77,7 +77,7 @@ range pattern 不只能用在數字，也能用在 `char`：
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn main() {
     // 用 range pattern 判斷分數等級
     let score = 78;

@@ -46,7 +46,7 @@ trait Copy: Clone { }
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::fmt::Display;
 use std::fmt::Formatter;
 

@@ -86,7 +86,7 @@ pub use advanced::power;
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 mod shapes {
     pub mod circle {
         pub struct Circle {

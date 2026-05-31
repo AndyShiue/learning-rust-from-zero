@@ -10,7 +10,7 @@
 
 `@`（at 符號）可以解決這個問題。它讓你在比對的同時，把實際的值存到一個變數裡：
 
-```rust
+```rust,editable
 # fn main() {
     let age = 50;
     match age {
@@ -25,7 +25,7 @@
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn main() {
     let age = 15;
 
@@ -63,7 +63,7 @@ fn main() {
 
 `@` 可以搭配任何模式，不只是 range。比如搭配 `|`（多個值）：
 
-```rust
+```rust,editable
 fn main() {
     let day = 6;
 

@@ -51,7 +51,7 @@ union IntOrFloat {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 union Value {
     integer: i64,
     float: f64,

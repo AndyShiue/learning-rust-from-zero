@@ -10,7 +10,7 @@
 
 ### 範例：成績等第
 
-```rust
+```rust,editable
 fn main() {
     let score = 85;
 

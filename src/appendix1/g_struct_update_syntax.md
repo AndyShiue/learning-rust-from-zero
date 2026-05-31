@@ -57,7 +57,7 @@
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 #[derive(Debug)]
 struct Config {
     width: u32,

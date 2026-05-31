@@ -28,7 +28,7 @@ cargo new hello
 
 2. **src/main.rs** — 這就是你的程式碼！打開來看看：
 
-```rust
+```rust,editable
 fn main() {
     println!("Hello, world!");
 }
@@ -72,7 +72,7 @@ Hello, world!
 
 現在回到 VS Code，把 `println!` 裡面的文字改成：
 
-```rust
+```rust,editable
 fn main() {
     println!("Hello, Rust!");
 }

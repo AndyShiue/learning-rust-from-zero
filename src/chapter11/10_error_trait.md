@@ -162,7 +162,7 @@ fn read_number(path: &str) -> Result<i32, Box<dyn Error>> {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::error::Error;
 use std::fs;
 

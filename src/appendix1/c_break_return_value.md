@@ -49,7 +49,7 @@
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn main() {
     // 基本用法：loop 回傳值
     let lucky_number = loop {

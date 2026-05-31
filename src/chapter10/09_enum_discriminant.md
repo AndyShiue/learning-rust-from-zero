@@ -26,7 +26,7 @@ enum Color {
 
 上一集學了 `as`。C-style enum 可以用 `as` 轉成整數看到它的 discriminant：
 
-```rust
+```rust,editable
 # enum Color {
 #     Red,   // 0
 #     Green, // 1
@@ -44,7 +44,7 @@ fn main() {
 
 手動指定值：
 
-```rust
+```rust,editable
 enum HttpStatus {
     Ok = 200,
     NotFound = 404,
@@ -103,7 +103,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 #[repr(u8)]
 enum Command {
     Quit = 0,

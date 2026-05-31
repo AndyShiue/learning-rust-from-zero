@@ -68,7 +68,7 @@ fn greeting() -> impl Display {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::fmt::Display;
 
 // 參數位置的 impl Trait

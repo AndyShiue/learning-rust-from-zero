@@ -68,7 +68,7 @@ struct Point {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 // 定義一個 trait：所有實作者都必須能「打招呼」
 trait Greet {
     fn greet(self);

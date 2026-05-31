@@ -10,7 +10,7 @@
 
 Rust 的 **`match` guard** 讓你在模式後面加上 `if 條件`：
 
-```rust
+```rust,editable
 # fn main() {
     let n = 137;
     match n {
@@ -26,7 +26,7 @@ Rust 的 **`match` guard** 讓你在模式後面加上 `if 條件`：
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn main() {
     let n = 8;
 

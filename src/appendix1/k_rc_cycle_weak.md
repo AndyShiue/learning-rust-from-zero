@@ -38,7 +38,7 @@
 
 因為 `Weak` 指向的資料可能已經被釋放了，你不能直接存取。必須先 `.upgrade()`：
 
-```rust
+```rust,editable
 # use std::rc::{Rc, Weak};
 #
 # fn main() {
@@ -96,7 +96,7 @@ struct Node<T> {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::rc::{Rc, Weak};
 use std::cell::RefCell;
 

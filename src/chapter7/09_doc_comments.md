@@ -87,7 +87,7 @@ cargo doc --open
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 //! # 溫度轉換工具
 //!
 //! 提供攝氏和華氏之間的轉換函數。

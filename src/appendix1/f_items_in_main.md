@@ -10,7 +10,7 @@
 
 你可能習慣了把 `struct` 和 `enum` 定義在 `fn main()` 的外面，但其實把它們放在裡面也完全合法：
 
-```rust
+```rust,editable
 fn main() {
     struct Point {
         x: i32,
@@ -31,7 +31,7 @@ fn main() {
 
 這裡有一個很多人不知道的重點。在 Rust 裡，**項目（items）**——包括 `fn`、`struct`、`enum`、`trait`、`impl` 等——**不受定義順序影響**。你可以先使用，後定義：
 
-```rust
+```rust,editable
 fn main() {
     let p = Point { x: 1, y: 2 }; // 先使用
     println!("{}", p.x);
@@ -51,7 +51,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn main() {
     // 先呼叫，後定義——完全合法
     greet();

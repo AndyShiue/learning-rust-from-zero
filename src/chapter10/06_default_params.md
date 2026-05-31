@@ -80,7 +80,7 @@ struct Pair<T, U = T> { // OK：U 有預設值，放在 T 後面
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 struct Pair<T, U = T> {
     first: T,
     second: U,

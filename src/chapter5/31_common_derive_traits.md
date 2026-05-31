@@ -33,7 +33,7 @@ struct Point { x: i32, y: i32 }
 
 `NAN` 和任何值比較都會回傳 `false`——包括它自己：
 
-```rust
+```rust,editable
 # fn main() {
     let nan = f64::NAN;
     println!("{}", nan < 1.0);  // false
@@ -90,7 +90,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Default)]
 struct Student {
     grade: i32,

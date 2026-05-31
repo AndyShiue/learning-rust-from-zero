@@ -12,7 +12,7 @@
 
 ### `==` 等於
 
-```rust
+```rust,editable
 fn main() {
     println!("{}", 5 == 5);
 }
@@ -24,7 +24,7 @@ fn main() {
 
 ### `!=` 不等於
 
-```rust
+```rust,editable
 fn main() {
     println!("{}", 5 != 3);
 }
@@ -34,7 +34,7 @@ fn main() {
 
 ### `<` 小於
 
-```rust
+```rust,editable
 fn main() {
     println!("{}", 3 < 5);
 }
@@ -44,7 +44,7 @@ fn main() {
 
 ### `>` 大於
 
-```rust
+```rust,editable
 fn main() {
     println!("{}", 10 > 7);
 }
@@ -54,7 +54,7 @@ fn main() {
 
 ### `<=` 小於等於
 
-```rust
+```rust,editable
 fn main() {
     println!("{}", 5 <= 5);
 }
@@ -64,7 +64,7 @@ fn main() {
 
 ### `>=` 大於等於
 
-```rust
+```rust,editable
 fn main() {
     println!("{}", 8 >= 10);
 }

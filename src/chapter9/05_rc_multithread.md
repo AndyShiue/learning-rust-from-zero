@@ -42,7 +42,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::rc::Rc;
 use std::thread;
 

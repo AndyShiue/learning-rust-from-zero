@@ -23,7 +23,7 @@ static NAMES: Vec<String> = vec![String::from("Alice"), String::from("Bob")];
 
 `std::sync::LazyLock` 就是做這件事的——你給它一個閉包，它會在第一次存取時才執行閉包產生值，之後都用快取的結果。`LazyLock` 實作了 `Deref`，所以你可以直接把它當成裡面的值來用，跟 `Box`、`Rc` 等智慧指標一樣：
 
-```rust
+```rust,editable
 use std::sync::LazyLock;
 
 static NAMES: LazyLock<Vec<String>> = LazyLock::new(|| {
@@ -43,7 +43,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::sync::LazyLock;
 
 static NAMES: LazyLock<Vec<String>> = LazyLock::new(|| {

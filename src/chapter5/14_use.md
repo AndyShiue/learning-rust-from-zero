@@ -28,7 +28,7 @@ use std::fmt::Display;
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::mem::size_of;
 
 fn main() {

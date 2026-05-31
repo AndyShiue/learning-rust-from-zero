@@ -8,7 +8,7 @@
 
 到目前為止，我們都用 `{}` 來印東西：
 
-```rust
+```rust,editable
 fn main() {
     let x = 42;
     println!("{}", x); // ✅ 42
@@ -28,7 +28,7 @@ fn main() {
 
 ### 解決方法：用 `{:?}`
 
-```rust
+```rust,editable
 fn main() {
     let t = (1, 2, 3);
     println!("{:?}", t); // ✅ (1, 2, 3)
@@ -47,7 +47,7 @@ fn main() {
 
 如果資料很複雜（比如 tuple 套 tuple），可以用 `{:#?}` 印出「美化過的 `Debug` 格式」：
 
-```rust
+```rust,editable
 fn main() {
     let data = ((1, 2), (3, 4), (5, 6));
     println!("{:#?}", data);

@@ -10,7 +10,7 @@
 
 這可能是整個第 6 章最重要的概念：**迭代器的轉換方法不會立刻執行**。
 
-```rust
+```rust,editable
 # fn main() {
     let v = vec![1, 2, 3, 4, 5];
     let iter = v.iter().map(|x| {
@@ -162,7 +162,7 @@ note: iterators are lazy and do nothing unless consumed
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::iter;
 
 fn main() {

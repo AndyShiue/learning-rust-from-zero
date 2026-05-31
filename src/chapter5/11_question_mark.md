@@ -68,7 +68,7 @@ fn do_stuff() -> Result<i32, String> {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 // 手動轉換錯誤型別的輔助函數
 fn parse_i32(input: &str) -> Result<i32, String> {
     match input.parse::<i32>() {

@@ -54,7 +54,7 @@ impl Point {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 struct Point {
     x: i32,
     y: i32,

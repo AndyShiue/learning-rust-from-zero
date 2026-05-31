@@ -12,7 +12,7 @@
 
 `std::thread::spawn` 接收一個閉包，在新的執行緒上執行它：
 
-```rust
+```rust,editable
 use std::thread;
 
 fn main() {
@@ -26,7 +26,7 @@ fn main() {
 
 有個很重要的事：`main` 函數結束時，整個程式就結束了——不管其他執行緒有沒有跑完。
 
-```rust
+```rust,editable
 use std::thread;
 
 fn main() {
@@ -45,7 +45,7 @@ fn main() {
 
 `thread::spawn` 會回傳一個 `JoinHandle`。呼叫 `.join()` 可以等待那個執行緒跑完：
 
-```rust
+```rust,editable
 use std::thread;
 
 fn main() {
@@ -62,7 +62,7 @@ fn main() {
 
 `.join()` 不只是等待——它還能拿到閉包的回傳值。閉包回傳什麼，`.join().expect("執行緒發生錯誤")` 就得到什麼：
 
-```rust
+```rust,editable
 use std::thread;
 
 fn main() {
@@ -104,7 +104,7 @@ fn main() {
 
 多個執行緒同時跑的時候，它們的輸出會交錯——每次執行結果可能不一樣：
 
-```rust
+```rust,editable
 use std::thread;
 
 fn main() {
@@ -129,7 +129,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::thread;
 
 fn main() {

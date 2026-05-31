@@ -14,7 +14,7 @@ FFI（Foreign Function Interface）是讓不同程式語言互相呼叫函數的
 
 用 `unsafe extern "C"` 區塊宣告外部的 C 函數：
 
-```rust
+```rust,editable
 unsafe extern "C" {
     fn abs(x: i32) -> i32;
 }
@@ -33,7 +33,7 @@ fn main() {
 
 如果你確定某個外部函數是安全的，可以標記 `safe`：
 
-```rust
+```rust,editable
 unsafe extern "C" {
     safe fn abs(x: i32) -> i32; // 你保證 abs 一定安全
 }
@@ -74,7 +74,7 @@ unsafe extern "C" {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 unsafe extern "C" {
     safe fn abs(x: i32) -> i32;
     fn sqrt(x: f64) -> f64;

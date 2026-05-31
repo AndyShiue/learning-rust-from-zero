@@ -24,7 +24,7 @@ fn print_length(s: &str) {
 
 `AsRef<T>` `trait` 表示「我能便宜地借用成 `&T`」：
 
-```rust
+```rust,editable
 fn print_length(s: impl AsRef<str>) {
     println!("長度：{}", s.as_ref().len());
 }
@@ -45,7 +45,7 @@ fn main() {
 
 `AsMut<T>` 是可變版本，借用成 `&mut T`：
 
-```rust
+```rust,editable
 fn fill_zeros(buf: &mut impl AsMut<[u8]>) {
     for byte in buf.as_mut() {
         *byte = 0;
@@ -89,7 +89,7 @@ where
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn describe(s: impl AsRef<str>) {
     let s = s.as_ref();
     println!("「{}」有 {} 個字元", s, s.chars().count());

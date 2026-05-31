@@ -60,7 +60,7 @@ enum Option<T> {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 // 在切片中找到第一個偶數，找不到就回傳 None
 fn find_even(numbers: &[i32]) -> Option<i32> {
     for n in numbers {

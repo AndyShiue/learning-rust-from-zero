@@ -10,7 +10,7 @@
 
 上一集我們發現，`struct` 的值在賦值或傳入函數時會被 move，但整數不會：
 
-```rust
+```rust,editable
 # fn main() {
     let a = 42;
     let b = a;
@@ -38,7 +38,7 @@
 
 另外，**tuple** 和**陣列**如果裡面每個元素都是 `Copy` 的，那它們整體也是 `Copy` 的：
 
-```rust
+```rust,editable
 # fn main() {
     let t = (1, true, 'a');  // (i32, bool, char) → 全部 Copy → tuple 也是 Copy
     let t2 = t;
@@ -74,7 +74,7 @@ struct Point {
 
 加上之後，`Point` 的行為就跟整數一樣了——賦值不會 move：
 
-```rust
+```rust,editable
 # #[derive(Debug, Copy, Clone)]
 # struct Point {
 #     x: i32,
@@ -100,7 +100,7 @@ struct Point {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 #[derive(Debug, Copy, Clone)]
 struct Point {
     x: i32,

@@ -39,7 +39,7 @@ const VALUE: i32 = square(5); // OK！編譯期算出 25
 
 `const fn` 不是「只能在編譯期用」——它在執行期也能正常呼叫，就像普通函數一樣。它只是多了一個能力：**可以在編譯期執行**。
 
-```rust
+```rust,editable
 const fn max(a: i32, b: i32) -> i32 {
     if a > b { a } else { b }
 }
@@ -77,7 +77,7 @@ Rust 每個版本都在放寬限制，能在 `const fn` 裡做的事越來越多
 
 `const { ... }` 可以在任何地方插入一段編譯期運算，不需要定義 `const` 變數或 `const fn`：
 
-```rust
+```rust,editable
 fn main() {
     let x = const { 1 + 2 + 3 };
     println!("{}", x); // 6，在編譯期就算好了
@@ -88,7 +88,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 const fn factorial(n: u64) -> u64 {
     if n <= 1 {
         1

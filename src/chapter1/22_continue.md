@@ -10,7 +10,7 @@
 
 ### 只印奇數
 
-```rust
+```rust,editable
 fn main() {
     for i in 0..10 {
         if i % 2 == 0 {
@@ -42,7 +42,7 @@ fn main() {
 
 跳過 5 不印：
 
-```rust
+```rust,editable
 fn main() {
     for i in 1..=10 {
         if i == 5 {
@@ -59,7 +59,7 @@ fn main() {
 
 上一集學過 `break 'outer` 可以跳出指定層迴圈，`continue` 也可以搭配 label：
 
-```rust
+```rust,editable
 fn main() {
     'outer: for i in 1..=3 {
         for j in 1..=3 {

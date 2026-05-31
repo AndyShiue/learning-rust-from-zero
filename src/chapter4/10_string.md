@@ -36,7 +36,7 @@
 
 `String` 可以修改！用 `push_str` 來接上更多文字：
 
-```rust
+```rust,editable
 # fn main() {
     let mut s = String::from("你好");
     s.push_str("，世界！");
@@ -50,7 +50,7 @@
 
 `format!` 跟 `println!` 的用法一模一樣，只是它不會印出來，而是回傳一個 `String`：
 
-```rust
+```rust,editable
 # fn main() {
     let name = "小明";
     let age = 20;
@@ -74,7 +74,7 @@
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn main() {
     // 建立 String
     let mut greeting = String::from("你好");

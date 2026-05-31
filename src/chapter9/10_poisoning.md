@@ -14,7 +14,7 @@
 
 如果一個執行緒在持有鎖的期間 panic 了，鎖會被標記為「中毒」（poisoned）。之後任何執行緒再嘗試取鎖，不管是 `lock`、`read` 還是 `write`，都會收到 `Err(PoisonError)`。
 
-```rust
+```rust,editable
 use std::sync::{Arc, Mutex};
 use std::thread;
 
@@ -102,7 +102,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::sync::{Arc, Mutex, PoisonError};
 use std::thread;
 

@@ -16,7 +16,7 @@
 
 來挑戰一下，用巢狀迴圈印出九九乘法表：
 
-```rust
+```rust,editable
 fn main() {
     for i in 1..=9 {
         for j in 1..=9 {
@@ -54,7 +54,7 @@ i=9 → [j=1, j=2, j=3, ... j=9] → 換行
 
 在巢狀迴圈裡用 `break`，它只會跳出**最裡面**那一層迴圈，外面那層還會繼續跑：
 
-```rust
+```rust,editable
 fn main() {
     for i in 1..=3 {
         for j in 1..=3 {
@@ -73,7 +73,7 @@ fn main() {
 
 如果你想直接跳出外面那層呢？可以用 **loop label**：
 
-```rust
+```rust,editable
 fn main() {
     'outer: for i in 1..=3 {
         for j in 1..=3 {

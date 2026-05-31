@@ -12,7 +12,7 @@
 
 看這個例子：
 
-```rust
+```rust,editable
 # fn main() {
     let v: Vec<_> = vec![1, 2, 3];
 # }
@@ -36,7 +36,7 @@ turbofish 裡也可以用 `_`：
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn main() {
     // 用 _ 讓 Rust 推斷 Vec 的元素型別
     let v: Vec<_> = vec![1, 2, 3];

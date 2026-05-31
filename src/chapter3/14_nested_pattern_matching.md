@@ -12,7 +12,7 @@ Rust 的 pattern matching 可以一次解構好幾層，就像剝洋蔥一樣，
 
 比如說，你有一個 tuple `(i32, Shape)`，你可以在 `match` 裡同時解構 tuple 和裡面的 `Shape`：
 
-```rust
+```rust,editable
 # enum Shape {
 #     Circle(f64),
 #     Rectangle(i32, i32),
@@ -31,7 +31,7 @@ Rust 的 pattern matching 可以一次解構好幾層，就像剝洋蔥一樣，
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 enum Shape {
     Circle(f64),
     Rectangle(i32, i32),

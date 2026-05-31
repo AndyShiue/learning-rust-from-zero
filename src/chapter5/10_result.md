@@ -53,7 +53,7 @@ enum Result<T, E> {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn divide(a: i32, b: i32) -> Result<i32, String> {
     if b == 0 {
         Err(String::from("除數不能是零"))

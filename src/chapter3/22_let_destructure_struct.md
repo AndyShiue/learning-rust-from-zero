@@ -54,7 +54,7 @@
 
 tuple `struct` 也可以解構，用法跟 tuple pattern 幾乎一樣，只是前面要加上型別名稱：
 
-```rust
+```rust,editable
 struct Pair(i32, i32);
 
 fn main() {
@@ -65,7 +65,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 struct Point {
     x: i32,
     y: i32,

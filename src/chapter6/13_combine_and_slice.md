@@ -91,7 +91,7 @@
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn main() {
     // zip —— 名字和分數配對
     let students = vec!["小明", "小華", "小美"];

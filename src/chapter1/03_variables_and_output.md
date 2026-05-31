@@ -14,7 +14,7 @@
 
 來看看怎麼用：
 
-```rust
+```rust,editable
 fn main() {
     let x = 5;
     println!("{}", x);
@@ -29,7 +29,7 @@ fn main() {
 
 變數不只能放數字，也能放文字：
 
-```rust
+```rust,editable
 fn main() {
     let name = "Rust";
     println!("Hello, {}!", name);
@@ -44,7 +44,7 @@ fn main() {
 
 `let` 宣告變數的時候，不一定要馬上給值。你可以先宣告，之後再賦值：
 
-```rust
+```rust,editable
 fn main() {
     let x;
     x = 5;

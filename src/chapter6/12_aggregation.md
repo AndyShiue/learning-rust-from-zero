@@ -122,7 +122,7 @@ fn fold<B>(self, init: B, f: impl FnMut(B, Self::Item) -> B) -> B;
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn main() {
     let scores = vec![85, 92, 78, 95, 88, 76, 91];
 

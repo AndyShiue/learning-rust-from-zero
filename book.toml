@@ -13,5 +13,8 @@ git-repository-url = "https://github.com/AndyShiue/rust-book"
 edit-url-template = "https://github.com/AndyShiue/rust-book/edit/main/{path}"
 site-url = "https://andyshiue.github.io/rust-book/"
 
+[output.html.playground]
+editable = true
+
 [output.html.print]
 page-break = false

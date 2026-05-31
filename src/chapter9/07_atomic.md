@@ -89,7 +89,7 @@ if ready.load(Ordering::Relaxed) {    // 看到 true
 
 atomic 最常見的用法就是搭配 `Arc`，讓多個執行緒共同修改一個計數器：
 
-```rust
+```rust,editable
 use std::sync::Arc;
 use std::sync::atomic::{AtomicI32, Ordering};
 use std::thread;
@@ -126,7 +126,7 @@ atomic 操作只能用在簡單的型別——例如整數（`AtomicI32`、`Atom
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::sync::Arc;
 use std::sync::atomic::{AtomicI32, Ordering};
 use std::thread;

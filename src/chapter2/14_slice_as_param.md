@@ -34,7 +34,7 @@ fn main() {
 
 ### 解決方案：用切片
 
-```rust
+```rust,editable
 fn sum(nums: &[i32]) -> i32 {
     let mut total = 0;
     for x in nums {
@@ -62,7 +62,7 @@ fn main() {
 
 因為參數是 `&[i32]`，你不只能傳整個陣列，也能傳一段切片：
 
-```rust
+```rust,editable
 fn sum(nums: &[i32]) -> i32 {
     let mut total = 0;
     for x in nums {

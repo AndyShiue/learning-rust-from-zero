@@ -14,7 +14,7 @@
 
 來看這個例子：
 
-```rust
+```rust,editable
 fn main() {
     {
         let y = 10;

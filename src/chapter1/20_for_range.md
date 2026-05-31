@@ -10,7 +10,7 @@
 
 ### `for` + 範圍
 
-```rust
+```rust,editable
 fn main() {
     for i in 0..5 {
         println!("{}", i);
@@ -30,7 +30,7 @@ fn main() {
 
 ### 要包含結尾呢？用 `0..=5`
 
-```rust
+```rust,editable
 fn main() {
     for i in 0..=5 {
         println!("{}", i);
@@ -53,7 +53,7 @@ fn main() {
 
 之前在 `loop` 裡面學過 `break`，其實 `while` 和 `for` 也能用。要注意的是，`break` 只會跳出**迴圈**，不會跳出 `if` 之類的控制結構。所以下面這段程式碼裡，`break` 是跳出 `for` 迴圈，不是跳出 `if`：
 
-```rust
+```rust,editable
 fn main() {
     for i in 0..10 {
         if i == 5 {

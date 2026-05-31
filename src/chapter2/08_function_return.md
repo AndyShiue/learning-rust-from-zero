@@ -10,7 +10,7 @@
 
 ### 基本語法
 
-```rust
+```rust,editable
 fn add(a: i32, b: i32) -> i32 {
     a + b
 }
@@ -78,7 +78,7 @@ fn greet() -> () {
 
 ### 接住回傳值
 
-```rust
+```rust,editable
 fn add(a: i32, b: i32) -> i32 {
     a + b
 }
@@ -96,7 +96,7 @@ fn main() {
 
 函數只能回傳「一個」值，但如果你想回傳多個呢？把它們裝在 tuple 裡就好：
 
-```rust
+```rust,editable
 fn swap(a: i32, b: i32) -> (i32, i32) {
     (b, a)
 }
@@ -111,7 +111,7 @@ fn main() {
 
 再來一個實用的例子：
 
-```rust
+```rust,editable
 fn min_max(a: i32, b: i32) -> (i32, i32) {
     if a < b {
         (a, b)

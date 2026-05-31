@@ -35,7 +35,7 @@
 
 ### 函數參數用 `&` 就不會 move
 
-```rust
+```rust,editable
 # #[derive(Debug)]
 # struct Point {
 #     x: i32,
@@ -87,7 +87,7 @@ fn sum(nums: &[i32]) -> i32 {
 
 `&` 是「借」，反過來 `*` 就是「順著借用找到原本的值」，叫做**解參考（dereference）**：
 
-```rust
+```rust,editable
 # fn main() {
     let x = 42;
     let r = &x;
@@ -101,7 +101,7 @@ fn sum(nums: &[i32]) -> i32 {
 
 上一集學了 Copy——有些型別賦值的時候會自動複製，不會 move。不管 `T` 是什麼，`&T` 都是 Copy 的。畢竟參考只是借用，複製一個參考不會影響原本的資料，只是多了一個人在看而已：
 
-```rust
+```rust,editable
 # fn main() {
     let s = String::from("hello");
     let r1 = &s;
@@ -118,7 +118,7 @@ fn sum(nums: &[i32]) -> i32 {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 #[derive(Debug, Clone)]
 struct Point {
     x: i32,

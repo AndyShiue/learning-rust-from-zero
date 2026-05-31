@@ -18,7 +18,7 @@
 
 ### `.iter()` —— 只是看看
 
-```rust
+```rust,editable
 # fn main() {
     let names = vec![String::from("Alice"), String::from("Bob")];
     for name in names.iter() {
@@ -48,7 +48,7 @@
 
 ### `.iter_mut()` —— 借來改改
 
-```rust
+```rust,editable
 # fn main() {
     let mut scores = vec![60, 70, 80];
     for score in scores.iter_mut() {
@@ -107,7 +107,7 @@ impl<'a, T> IntoIterator for &'a mut Vec<T> {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn main() {
     // .iter() —— 只讀借用
     let animals = vec![

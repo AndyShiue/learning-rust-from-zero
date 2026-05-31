@@ -46,7 +46,7 @@ fn first<T>(a: T, b: T) -> T {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 // 泛型函數：回傳兩個值中的第一個
 fn first<T>(a: T, _b: T) -> T {
     a

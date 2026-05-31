@@ -10,7 +10,7 @@
 
 Rust 用 `|`（直線符號）來表示「或」：
 
-```rust
+```rust,editable
 # fn main() {
     let day = 1;
     match day {
@@ -22,7 +22,7 @@ Rust 用 `|`（直線符號）來表示「或」：
 
 `6 | 7` 的意思是「6 或 7」。你可以用 `|` 串接任意多個值：
 
-```rust
+```rust,editable
 # fn main() {
     let n = 3;
     match n {
@@ -34,7 +34,7 @@ Rust 用 `|`（直線符號）來表示「或」：
 
 也可以搭配 `enum` 使用：
 
-```rust
+```rust,editable
 # enum Color {
 #     Red,
 #     Green,
@@ -52,7 +52,7 @@ Rust 用 `|`（直線符號）來表示「或」：
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 enum Season {
     Spring,
     Summer,

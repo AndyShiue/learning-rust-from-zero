@@ -19,7 +19,7 @@
 - `Path` 對應 `str`——是 DST，不能直接持有，通常用 `&Path`
 - `PathBuf` 對應 `String`——是具所有權的版本，可以修改
 
-```rust
+```rust,editable
 use std::path::{Path, PathBuf};
 
 fn main() {
@@ -36,7 +36,7 @@ fn main() {
 
 ### 常用方法
 
-```rust
+```rust,editable
 # use std::path::Path;
 #
 # fn main() {
@@ -58,7 +58,7 @@ fn main() {
 
 `join` 跟 `push` 類似，但不改變原本的 `Path` 或 `PathBuf`，而是回傳新的 `PathBuf`：
 
-```rust
+```rust,editable
 # use std::path::Path;
 #
 # fn main() {
@@ -87,7 +87,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::path::{Path, PathBuf};
 
 fn show_info(path: &Path) {

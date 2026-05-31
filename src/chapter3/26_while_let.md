@@ -31,7 +31,7 @@ enum Step {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 enum Step {
     Value(i32),
     Done,

@@ -136,7 +136,7 @@ fn into_text<'a>(e: Excerpt<'a>) -> &'a str {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 // struct 裡放參考，需要生命週期標注
 struct Excerpt<'a> {
     text: &'a str,

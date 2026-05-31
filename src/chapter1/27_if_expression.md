@@ -12,7 +12,7 @@
 
 假設你要根據條件給變數不同的值，你可能會這樣寫：
 
-```rust
+```rust,editable
 fn main() {
     let condition = true;
     let x;
@@ -31,7 +31,7 @@ fn main() {
 
 ### if 當表達式
 
-```rust
+```rust,editable
 fn main() {
     let condition = true;
     let x = if condition { 1 } else { 2 };
@@ -48,7 +48,7 @@ fn main() {
 
 ### 注意：大括號裡面不加分號
 
-```rust
+```rust,editable
 # fn main() {
 #     let condition = true;
     let x = if condition { 1 } else { 2 };

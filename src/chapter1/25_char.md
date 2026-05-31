@@ -12,7 +12,7 @@
 
 `char` 就是**一個字元**。注意，是「一個」，不是一串。
 
-```rust
+```rust,editable
 fn main() {
     let c = 'A';
     let c2 = '你';
@@ -31,7 +31,7 @@ fn main() {
 - **單引號 `'`** → `char`，只能放**一個**字元
 - **雙引號 `"`** → 字串，可以放很多字元
 
-```rust
+```rust,editable
 # fn main() {
     let c = 'A';     // char，一個字元
     let s = "Hello"; // 字串，五個字元
@@ -50,7 +50,7 @@ fn main() {
 
 Rust 的 `char` 支援 **Unicode**，所以不只是英文字母，中文、日文、甚至 emoji 都可以：
 
-```rust
+```rust,editable
 fn main() {
     let letter = 'R';
     let chinese = '美';
@@ -67,7 +67,7 @@ fn main() {
 
 如果你想明確標註型別：
 
-```rust
+```rust,editable
 fn main() {
     let c: char = 'Z';
     println!("{}", c);

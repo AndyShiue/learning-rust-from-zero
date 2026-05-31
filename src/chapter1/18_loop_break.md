@@ -28,7 +28,7 @@ fn main() {
 
 ### `break` —— 跳出迴圈
 
-```rust
+```rust,editable
 fn main() {
     let mut count = 5;
     loop {

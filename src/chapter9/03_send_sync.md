@@ -91,7 +91,7 @@ where
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::thread;
 
 // 這個 struct 的所有欄位都是 Send + Sync，

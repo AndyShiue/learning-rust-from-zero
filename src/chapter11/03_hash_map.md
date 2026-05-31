@@ -14,7 +14,7 @@
 
 ### 建立與基本操作
 
-```rust
+```rust,editable
 use std::collections::HashMap;
 
 fn main() {
@@ -45,7 +45,7 @@ fn main() {
 
 ### 走訪
 
-```rust
+```rust,editable
 # use std::collections::HashMap;
 #
 # fn main() {
@@ -140,7 +140,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::collections::HashMap;
 
 fn main() {

@@ -12,7 +12,7 @@
 
 先來看一個很重要的觀念。假設你有一個變數 `x` 是 10，你想讓它加 5：
 
-```rust
+```rust,editable
 fn main() {
     let mut x = 10;
     x = x + 5;
@@ -26,7 +26,7 @@ fn main() {
 
 上面那行其實有個更簡短的寫法：
 
-```rust
+```rust,editable
 fn main() {
     let mut x = 10;
     x += 5;
@@ -40,7 +40,7 @@ fn main() {
 
 減法、乘法、除法、取餘數都有對應的簡寫：
 
-```rust
+```rust,editable
 fn main() {
     let mut a = 20;
     

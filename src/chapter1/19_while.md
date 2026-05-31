@@ -10,7 +10,7 @@
 
 ### 用 `while` 改寫倒數計時
 
-```rust
+```rust,editable
 fn main() {
     let mut count = 5;
     while count > 0 {
@@ -27,7 +27,7 @@ fn main() {
 
 上一集的寫法：
 
-```rust
+```rust,editable
 fn main() {
     let mut count = 5;
     loop {
@@ -43,7 +43,7 @@ fn main() {
 
 `while` 的寫法：
 
-```rust
+```rust,editable
 fn main() {
     let mut count = 5;
     while count > 0 {

@@ -12,7 +12,7 @@
 
 ### `&mut` 就是「借來改」
 
-```rust
+```rust,editable
 # fn main() {
     let mut x = 10;
     let r: &mut i32 = &mut x; // 可變借用
@@ -30,7 +30,7 @@
 
 更常見的用法是在函數裡：
 
-```rust
+```rust,editable
 fn add_ten(n: &mut i32) {
     *n += 10;
 }
@@ -66,7 +66,7 @@ fn move_right(p: &mut Point) {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 #[derive(Debug)]
 struct Point {
     x: i32,

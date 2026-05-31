@@ -41,7 +41,7 @@ safe Rust 保證以下這些事情**不會發生**，不管你的程式碼怎麼
 
 原始指標是沒有借用規則保護的指標。**建立**不需要 `unsafe`，**使用**（解參考）才需要：
 
-```rust
+```rust,editable
 # fn main() {
     let x = 42;
     let ptr: *const i32 = &raw const x; // 建立：不需要 unsafe
@@ -124,7 +124,7 @@ unsafe impl MyGuarantee for i32 {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 fn main() {
     // 原始指標
     let mut x = 42;

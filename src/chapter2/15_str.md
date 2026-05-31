@@ -10,7 +10,7 @@
 
 ### 字串的真面目
 
-```rust
+```rust,editable
 fn main() {
     let s = "hello";
     println!("{}", s);
@@ -21,7 +21,7 @@ fn main() {
 
 答案是：**`&str`**（字串切片）。
 
-```rust
+```rust,editable
 fn main() {
     let s: &str = "hello"; // 明確標出型別
     println!("{}", s);
@@ -42,7 +42,7 @@ fn main() {
 
 ### 字串切片也可以取子字串
 
-```rust
+```rust,editable
 fn main() {
     let s = "hello world";
     let hello = &s[0..5];
@@ -56,7 +56,7 @@ fn main() {
 
 和陣列切片一樣，也可以用 `..=` 來包含結尾：
 
-```rust
+```rust,editable
 fn main() {
     let s = "hello world";
     let hello = &s[0..=4]; // 包含索引 4，等同於 &s[0..5]
@@ -68,7 +68,7 @@ fn main() {
 
 英文字母一個字佔 1 個 byte，但中文字通常佔 **3 個 bytes**。如果你切的位置剛好在一個中文字的「中間」，程式會直接崩潰：
 
-```rust
+```rust,editable
 fn main() {
     let s = "你好";
     let first = &s[0..3]; // ✅ "你"（剛好 3 個 bytes）
@@ -94,7 +94,7 @@ fn main() {
 
 現在你知道字串是 `&str` 了，就可以把它當函數參數：
 
-```rust
+```rust,editable
 fn greet(name: &str) {
     println!("嗨，{}！", name);
 }

@@ -18,7 +18,7 @@
 
 你可以在變數名稱後面加上 `: 型別` 來指定：
 
-```rust
+```rust,editable
 fn main() {
     let x: i32 = 5;
     let negative: i32 = -10;

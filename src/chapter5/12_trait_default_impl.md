@@ -66,7 +66,7 @@ trait Describe {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 trait Describe {
     // 必須實作的方法
     fn name(&self) -> String;

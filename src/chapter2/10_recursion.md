@@ -23,7 +23,7 @@
 
 看到了嗎？每一步都是「自己乘以比自己小一號的階乘」，最後到 1 就停。
 
-```rust
+```rust,editable
 fn factorial(n: u32) -> u32 {
     if n <= 1 {
         1
@@ -80,7 +80,7 @@ factorial(5)
 
 ### 另一個例子：倒數
 
-```rust
+```rust,editable
 fn countdown(n: u32) {
     if n <= 0 {
         println!("發射！🚀");

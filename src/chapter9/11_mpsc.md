@@ -29,7 +29,7 @@ fn main() {
 
 `tx.send(value)` 把值送出去（會 move 值），`rx.recv()` 在另一端接收（會阻塞直到收到）：
 
-```rust
+```rust,editable
 use std::sync::mpsc;
 use std::thread;
 
@@ -49,7 +49,7 @@ fn main() {
 
 用 `tx.clone()` 產生新的發送端：
 
-```rust
+```rust,editable
 use std::sync::mpsc;
 use std::thread;
 
@@ -86,7 +86,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::sync::mpsc;
 use std::thread;
 

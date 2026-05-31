@@ -16,7 +16,7 @@
 
 ### 基本語法
 
-```rust
+```rust,editable
 macro_rules! say_hello {
     () => {
         println!("Hello!");
@@ -34,7 +34,7 @@ fn main() {
 
 用 `$name:kind` 捕獲參數：
 
-```rust
+```rust,editable
 macro_rules! say {
     ($msg:expr) => {
         println!("{}", $msg);
@@ -57,7 +57,7 @@ fn main() {
 
 ### 多個分支
 
-```rust
+```rust,editable
 macro_rules! log {
     ($val:expr) => {
         println!("值：{}", $val);
@@ -141,7 +141,7 @@ macro_rules! log_msg {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 macro_rules! max {
     ($a:expr, $b:expr) => {
         if $a > $b { $a } else { $b }

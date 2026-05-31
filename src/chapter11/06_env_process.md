@@ -10,7 +10,7 @@
 
 程式執行的時候可以帶參數，例如 `cargo run -- hello world`。用 `std::env::args()` 拿到：
 
-```rust
+```rust,editable
 use std::env;
 
 fn main() {
@@ -22,7 +22,7 @@ fn main() {
 
 第一個是程式本身的路徑，後面才是你傳的參數。通常會 `collect` 成 `Vec` 來用：
 
-```rust
+```rust,editable
 use std::env;
 
 fn main() {
@@ -39,7 +39,7 @@ fn main() {
 
 環境變數是作業系統提供的一組 key-value 設定，程式可以讀取它們來取得系統資訊。如果你不熟悉環境變數，請自行搜尋相關資料。
 
-```rust
+```rust,editable
 use std::env;
 
 fn main() {
@@ -66,7 +66,7 @@ fn main() {
 
 ### `eprintln!`
 
-```rust
+```rust,editable
 # fn main() {
     eprintln!("這是錯誤訊息");
     println!("這是正常輸出");

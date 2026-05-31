@@ -8,7 +8,7 @@
 
 還記得第 1 章學過 `if` 可以當表達式嗎？
 
-```rust
+```rust,editable
 # fn main() {
 #     let condition = true;
     let x = if condition { 1 } else { 2 };
@@ -17,7 +17,7 @@
 
 `match` 也可以！你可以把整個 `match` 放在 `let` 的右邊，讓每個分支回傳一個值：
 
-```rust
+```rust,editable
 # enum Color {
 #     Red,
 #     Green,
@@ -40,7 +40,7 @@
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 enum Season {
     Spring,
     Summer,

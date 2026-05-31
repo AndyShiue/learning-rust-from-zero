@@ -30,7 +30,7 @@ trait Iterator {
 
 你可以直接手動呼叫 `.next()` 來逐一取得元素：
 
-```rust
+```rust,editable
 # fn main() {
     let v = vec![10, 20, 30];
     let mut iter = v.iter();
@@ -83,7 +83,7 @@ impl Iterator for Countdown {
 - `std::iter::repeat(value)` —— 無限重複同一個值
 - `std::iter::from_fn(closure)` —— 用閉包來決定每次 `.next()` 回傳什麼
 
-```rust
+```rust,editable
 use std::iter;
 
 fn main() {
@@ -107,7 +107,7 @@ fn main() {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 use std::iter;
 
 // 自訂迭代器：費氏數列（無限！）

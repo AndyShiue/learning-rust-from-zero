@@ -26,7 +26,7 @@ match 變數 {
 
 ## 範例程式碼
 
-```rust
+```rust,editable
 enum Color {
     Red,
     Green,

@@ -95,7 +95,7 @@ fn main() {
 
 `enum` 跟 `struct` 不一樣：只要 `enum` 本身是 `pub`，所有 variants 都**自動公開**。
 
-```rust
+```rust,editable
 mod status {
     pub enum Color {
         Red,
@@ -120,7 +120,7 @@ fn main() {
 
 `trait` 加 `pub` 後，裡面的 `fn` **不用也不能**個別加 `pub`——它們的可見性自動跟著 `trait` 走。如果 `trait` 是公開的，裡面的 `fn` 就是公開的；如果 `trait` 是私有的，裡面的 `fn` 就是私有的。這很合理：`trait` 是一個「契約」，如果你公開了這個契約，契約裡的所有條款當然也要公開，不然別人怎麼實作？
 
-```rust
+```rust,editable
 mod animal {
     pub trait Speak {
         fn speak(&self); // 不用加 pub，跟著 trait 走
