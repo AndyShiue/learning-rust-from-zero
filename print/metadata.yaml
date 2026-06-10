@@ -22,6 +22,11 @@ monofontoptions:
   # (不能用 RawFeature={...}:pandoc 會把 metadata 裡的大括號轉義)
   - Contextuals=AlternateOff
   - Ligatures=CommonOff
+  # 用 Medium 字重,Regular 在紙本上偏細
+  - UprightFont=* Medium
+  - ItalicFont=* Medium Italic
+  - BoldFont=* Bold
+  - BoldItalicFont=* Bold Italic
 geometry:
   - a4paper
   - inner=24mm
