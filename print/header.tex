@@ -3,11 +3,9 @@
 \XeTeXgenerateactualtext=1
 \usepackage{xeCJK}
 \usepackage{fontspec}
-\usepackage{fvextra}
 \usepackage{fancyhdr}
 \usepackage{tocloft}
 \usepackage{titlesec}
-\usepackage{xcolor}
 
 \makeatletter
 \renewcommand{\cleardoublepage}{%
@@ -97,8 +95,7 @@
   \renewcommand{\headrulewidth}{0.4pt}%
 }
 
-% 頁眉與章標題一致,用「第N章」而非英文「Chapter N.」
-\renewcommand{\chaptermark}[1]{\markboth{第\thechapter 章\quad #1}{}}
+% 頁眉小節標記(章標記見 StandardChapterStyle / AppendixChapterStyle)
 \renewcommand{\sectionmark}[1]{\markright{\thesection\quad #1}}
 
 \setlength{\cftpartnumwidth}{3.2em}
@@ -111,11 +108,25 @@
 \setlength{\cftbeforechapskip}{0.45em}
 \setlength{\cftbeforesecskip}{0.08em}
 
-\titleformat{\chapter}[display]
-  {\normalfont\huge\bfseries}
-  {第\thechapter 章}
-  {0.45em}
-  {}
+% 一般章顯示「第N章」;附錄章只顯示章名。
+% 由 mdbook_to_pandoc.py 在附錄前後用 \AppendixChapterStyle / \StandardChapterStyle 切換。
+\newcommand{\StandardChapterStyle}{%
+  \titleformat{\chapter}[display]
+    {\normalfont\huge\bfseries}
+    {第\thechapter 章}
+    {0.45em}
+    {}%
+  \renewcommand{\chaptermark}[1]{\markboth{第\thechapter 章\quad ##1}{}}%
+}
+\newcommand{\AppendixChapterStyle}{%
+  \titleformat{\chapter}[display]
+    {\normalfont\huge\bfseries}
+    {}
+    {0pt}
+    {}%
+  \renewcommand{\chaptermark}[1]{\markboth{##1}{}}%
+}
+\StandardChapterStyle
 \titlespacing*{\chapter}{0pt}{0pt}{2.2em}
 
 \titleformat{\section}
@@ -140,5 +151,5 @@
 \titlespacing*{\subsubsection}{0pt}{0.9em}{0.3em}
 
 \AtBeginDocument{%
-  \RecustomVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\},fontsize=\footnotesize,breaklines=false,breakanywhere=false,tabsize=4,formatcom=\PrintCodeBlockSetup}%
+  \RecustomVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\},fontsize=\footnotesize,tabsize=4,formatcom=\PrintCodeBlockSetup}%
 }

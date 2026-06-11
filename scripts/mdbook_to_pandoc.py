@@ -15,23 +15,12 @@ SUMMARY_HEADING_RE = re.compile(r"^#\s+(.+?)\s*$")
 SUMMARY_LINK_RE = re.compile(r"^(?P<indent>\s*)(?:-\s*)?\[(?P<title>.+?)\]\((?P<path>[^)]+)\)\s*$")
 FENCE_RE = re.compile(r"^(?P<fence>`{3,}|~{3,})(?P<info>.*)$")
 HEADING_RE = re.compile(r"^(?P<marks>#{1,6})(?P<space>\s+)(?P<title>.*)$")
-INLINE_CODE_DELIMITER_RE = re.compile(r"(`+)")
 
 
 RUST_CODE_CLASSES = {
     "rust",
     "rs",
 }
-
-EMOJI_RANGES = (
-    (0x2190, 0x21FF),
-    (0x2600, 0x27BF),
-    (0x1F000, 0x1FAFF),
-)
-EMOJI_SEQUENCE_RANGES = (
-    (0xFE00, 0xFE0F),
-    (0x1F3FB, 0x1F3FF),
-)
 
 
 def parse_args() -> argparse.Namespace:
@@ -56,7 +45,7 @@ def normalize_code_info(info: str) -> tuple[str, bool]:
         return "text", False
     if first == "console":
         return "text", False
-    return first, first in RUST_CODE_CLASSES
+    return first, False
 
 
 def visible_width(line: str) -> int:
@@ -69,62 +58,6 @@ def visible_width(line: str) -> int:
         else:
             width += 1
     return width
-
-
-def is_emoji_like(char: str) -> bool:
-    codepoint = ord(char)
-    return any(start <= codepoint <= end for start, end in EMOJI_RANGES)
-
-
-def is_emoji_sequence_char(char: str) -> bool:
-    codepoint = ord(char)
-    return codepoint == 0x200D or any(
-        start <= codepoint <= end for start, end in EMOJI_SEQUENCE_RANGES
-    )
-
-
-def wrap_emoji_segment(text: str) -> str:
-    rewritten: list[str] = []
-    index = 0
-    while index < len(text):
-        char = text[index]
-        if not is_emoji_like(char):
-            rewritten.append(char)
-            index += 1
-            continue
-
-        sequence = [char]
-        index += 1
-        while index < len(text) and is_emoji_sequence_char(text[index]):
-            sequence.append(text[index])
-            index += 1
-            if sequence[-1] == "\u200d" and index < len(text):
-                sequence.append(text[index])
-                index += 1
-
-        rewritten.append(f"\\Emoji{{{''.join(sequence)}}}")
-
-    return "".join(rewritten)
-
-
-def wrap_emoji_like_chars(text: str) -> str:
-    if not any(is_emoji_like(char) for char in text):
-        return text
-
-    rewritten: list[str] = []
-    in_inline_code = False
-    for part in INLINE_CODE_DELIMITER_RE.split(text):
-        if not part:
-            continue
-        if part.startswith("`"):
-            in_inline_code = not in_inline_code
-            rewritten.append(part)
-            continue
-        if in_inline_code:
-            rewritten.append(part)
-            continue
-        rewritten.append(wrap_emoji_segment(part))
-    return "".join(rewritten)
 
 
 def normalize_table_escaped_pipes(line: str) -> str:
@@ -197,13 +130,11 @@ def rewrite_markdown(
                 attrs = f" {first_heading_attrs}"
             first_heading_seen = True
             rewritten.append(
-                wrap_emoji_like_chars(
-                    f"{'#' * shifted_level}{heading_match.group('space')}{heading_match.group('title')}{attrs}"
-                )
+                f"{'#' * shifted_level}{heading_match.group('space')}{heading_match.group('title')}{attrs}"
             )
             continue
 
-        rewritten.append(wrap_emoji_like_chars(line))
+        rewritten.append(line)
 
     return "\n".join(rewritten).strip() + "\n"
 
@@ -316,6 +247,7 @@ def main() -> None:
     code_report: list[str] = []
     in_mainmatter = False
     toc_inserted = False
+    appendix_active = False
 
     for event_type, value, indent in parse_summary(summary):
         if event_type == "part":
@@ -337,6 +269,15 @@ def main() -> None:
 
         is_foreword = value == "foreword.md"
         is_chapter = indent == 0
+        if is_chapter:
+            # 附錄章不顯示「第N章」,只顯示章名(樣式定義在 print/header.tex)
+            is_appendix = value.startswith("appendix")
+            if is_appendix and not appendix_active:
+                chunks.append("\\clearpage\n\\AppendixChapterStyle")
+                appendix_active = True
+            elif not is_appendix and appendix_active:
+                chunks.append("\\clearpage\n\\StandardChapterStyle")
+                appendix_active = False
         heading_shift = 0 if is_chapter or is_foreword else 1
         first_heading_attrs = "{.unnumbered}" if is_foreword else None
         chunks.append(

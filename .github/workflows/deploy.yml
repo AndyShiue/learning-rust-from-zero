@@ -23,15 +23,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             pandoc \
-            poppler-utils \
             texlive-xetex \
             texlive-latex-extra \
             texlive-lang-chinese \
             texlive-fonts-recommended \
             fonts-jetbrains-mono \
-            fonts-noto \
+            fonts-noto-core \
             fonts-noto-cjk \
-            fonts-noto-color-emoji \
             fonts-symbola
       - name: Install print PDF fonts
         run: |
