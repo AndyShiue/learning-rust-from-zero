@@ -52,7 +52,7 @@ fn main() {
 }
 ```
 
-這跟 `unsafe` 或 poisoning 的精神類似——你自己負責保證正確性。
+這跟 poisoning 或 `unsafe` 的精神類似——你自己負責保證正確性。
 
 ### `panic = "abort"`
 
