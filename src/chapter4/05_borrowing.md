@@ -120,7 +120,7 @@ fn main() {
 }
 ```
 
-注意：`String` 本身不是 `Copy`（賦值會 move），但 `&String` 是 `Copy`。
+注意：`Point` 本身不是 `Copy`（賦值會 move），但 `&Point` 是 `Copy`。
 
 ### `&` 參考是唯讀的
 
