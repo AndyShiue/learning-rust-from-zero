@@ -13,7 +13,7 @@
 | 擁有資料？ | ✅ 擁有 | ❌ 只是借用 |
 | 資料在哪？ | heap 上 | 可能在程式碼裡，也可能借用 `String` 的資料 |
 | 可以修改？ | ✅ 可以（`push_str` 等） | ❌ 不行 |
-| 會 move？ | ✅ 會 | ❌ 不會（它就是個借用） |
+| 會 move？ | ✅ 會 | ❌ 不會（它就是個參考） |
 
 ### `&String` 會自動轉成 `&str`
 
@@ -103,7 +103,7 @@ fn main() {
     // println!("{}", s1); // 編譯錯誤！
     println!("{}", s2);
 
-    // &str 不會 move（它本身就是借用）
+    // &str 不會 move（它本身就是參考）
     let greeting: &str = "哈囉";
     let greeting2 = greeting;  // 這是 Copy！（&str 是 Copy 的）
     println!("{}", greeting);  // OK
@@ -114,7 +114,7 @@ fn main() {
 ## 重點整理
 
 - **`String`** 擁有資料（heap 上），可以修改，會 move
-- **`&str`** 是借用，不擁有資料，不能修改，不會 move
+- **`&str`** 是參考，不擁有資料，不能修改，不會 move
 - `&String` 會自動轉成 `&str`
 - 函數參數偏好用 `&str`——接受範圍更廣（`&str` 和 `&String` 都能傳）
 - 需要擁有或修改字串時才用 `String`

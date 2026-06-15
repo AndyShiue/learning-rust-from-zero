@@ -212,7 +212,7 @@ fn make_box(s: &str) -> Box<dyn Describe> {
 # fn main() {}
 ```
 
-如果需要裝有借用的型別，明確寫出 lifetime，覆蓋掉預設的 `'static`：
+如果需要裝有參考的型別，明確寫出 lifetime，覆蓋掉預設的 `'static`：
 
 ```rust,noplayground
 # trait Describe {

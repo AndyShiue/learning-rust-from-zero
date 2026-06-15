@@ -116,12 +116,12 @@ impl<T> Pair<T> {
         Pair { first, second }
     }
 
-    // method：回傳 first 的借用
+    // method：回傳 first 的參考
     fn first(&self) -> &T {
         &self.first
     }
 
-    // method：回傳 second 的借用
+    // method：回傳 second 的參考
     fn second(&self) -> &T {
         &self.second
     }
