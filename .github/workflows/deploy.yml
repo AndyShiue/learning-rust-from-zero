@@ -52,7 +52,7 @@ jobs:
       - name: Build and publish print PDF (zh-tw)
         working-directory: zh-tw
         run: |
-          ./print/build.sh
+          bash ./print/build.sh
           cp book/rust-book-a4.pdf book/book.pdf
       - name: Bundle zh-tw/src as rust-book-src.zip for AI consumption
         working-directory: zh-tw
