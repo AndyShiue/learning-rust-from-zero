@@ -105,7 +105,7 @@ mod status {
 }
 
 fn main() {
-    let c = status::Color::Red;  // 所有 variant 都可用
+    let c = status::Color::Red; // 所有 variant 都可用
     match c {
         status::Color::Red => println!("紅色"),
         status::Color::Green => println!("綠色"),
