@@ -52,9 +52,9 @@ range pattern 也支援只寫一邊：
 fn main() {
     let temperature = 25;
     match temperature {
-        ..0 => println!("零下"),        // 小於 0
-        0..=30 => println!("普通"),     // 0 到 30
-        31.. => println!("很熱"),       // 31 以上
+        ..0 => println!("零下"),    // 小於 0
+        0..=30 => println!("普通"), // 0 到 30
+        31.. => println!("很熱"),   // 31 以上
     }
 }
 ```

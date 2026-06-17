@@ -67,7 +67,7 @@ fn main() {
     );
     println!("名字：{}", p.name);  // OK，name 是 pub
     println!("年齡：{}", p.age()); // OK，透過方法存取
-    println!("{}", p.age);        // 編譯錯誤！age 欄位是私有的
+    println!("{}", p.age);         // 編譯錯誤！age 欄位是私有的
 }
 ```
 

@@ -109,7 +109,7 @@ fn main() {
 
     // UTF-8
     let chinese = "你好世界";
-    println!("byte 數：{}", chinese.len());         // 12
+    println!("byte 數：{}", chinese.len());          // 12
     println!("字元數：{}", chinese.chars().count()); // 4
 
     for (i, c) in chinese.chars().enumerate() {

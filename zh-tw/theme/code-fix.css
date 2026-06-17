@@ -9,6 +9,81 @@ pre > code,
 }
 
 :root {
-    --mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-        "Noto Sans Mono CJK TC", "Noto Sans Mono", monospace;
+    /* CJK-capable monospace stack so Chinese in code blocks is rendered
+       fixed-width, matching the editable (Ace) editor. */
+    --mono-font: "Noto Sans Mono CJK TC", "Noto Sans Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Source Code Pro", monospace;
 }
+
+/* Apply the same stack to both non-editable code and the Ace editor so the
+   two render identically. */
+code,
+pre > code,
+.ace_editor,
+.ace_editor .ace_line {
+    font-family: var(--mono-font) !important;
+}
+
+/* ------------------------------------------------------------------ *
+ * Make the editable (Ace) blocks use the SAME syntax-highlighting
+ * palette as the non-editable (highlight.js) blocks.
+ *
+ * Theme mapping in this mdBook:
+ *   light / rust  -> highlight.js light   + Ace "dawn"
+ *   ayu           -> highlight.js ayu     + Ace "tomorrow-night"
+ *   coal / navy   -> highlight.js t-night + Ace "tomorrow-night"
+ * (ayu and coal/navy share the Ace class, so they are scoped via html.*)
+ * ------------------------------------------------------------------ */
+
+/* ---- light / rust : match highlight.js light ---- */
+.ace-dawn { background-color: #f6f7f6 !important; color: #000 !important; }
+.ace-dawn .ace_gutter { background: #f6f7f6 !important; color: #999 !important; }
+.ace-dawn .ace_comment { color: #575757 !important; font-style: normal !important; }
+.ace-dawn .ace_keyword { color: #9d00ec !important; font-style: normal !important; }
+.ace-dawn .ace_keyword.ace_operator { color: #000 !important; }
+.ace-dawn .ace_storage { color: #b21e00 !important; font-style: normal !important; }
+.ace-dawn .ace_constant { color: #b21e00 !important; }
+.ace-dawn .ace_support  { color: #b21e00 !important; }
+.ace-dawn .ace_meta     { color: #b21e00 !important; }
+.ace-dawn .ace_string   { color: #008200 !important; }
+.ace-dawn .ace_entity   { color: #0030f2 !important; }
+.ace-dawn .ace_variable { color: #000 !important; }
+
+/* ---- ayu : match highlight.js ayu-highlight ---- */
+html.ayu .ace-tomorrow-night { background-color: #191f26 !important; color: #e6e1cf !important; }
+html.ayu .ace-tomorrow-night .ace_gutter { background: #191f26 !important; color: #5c6773 !important; }
+html.ayu .ace-tomorrow-night .ace_comment { color: #5c6773 !important; font-style: normal !important; }
+html.ayu .ace-tomorrow-night .ace_keyword { color: #ff7733 !important; font-style: normal !important; }
+html.ayu .ace-tomorrow-night .ace_keyword.ace_operator { color: #e6e1cf !important; }
+html.ayu .ace-tomorrow-night .ace_storage  { color: #ffee99 !important; font-style: normal !important; }
+html.ayu .ace-tomorrow-night .ace_constant { color: #ffee99 !important; }
+html.ayu .ace-tomorrow-night .ace_meta     { color: #ffee99 !important; }
+html.ayu .ace-tomorrow-night .ace_support  { color: #ffb454 !important; }
+html.ayu .ace-tomorrow-night .ace_string   { color: #b8cc52 !important; }
+html.ayu .ace-tomorrow-night .ace_entity   { color: #ffb454 !important; }
+html.ayu .ace-tomorrow-night .ace_variable { color: #e6e1cf !important; }
+
+/* ---- coal / navy : match highlight.js tomorrow-night ---- */
+html.coal .ace-tomorrow-night,
+html.navy .ace-tomorrow-night { background-color: #1d1f21 !important; color: #c5c8c6 !important; }
+html.coal .ace-tomorrow-night .ace_gutter,
+html.navy .ace-tomorrow-night .ace_gutter { background: #1d1f21 !important; color: #6a6f75 !important; }
+html.coal .ace-tomorrow-night .ace_comment,
+html.navy .ace-tomorrow-night .ace_comment { color: #969896 !important; font-style: normal !important; }
+html.coal .ace-tomorrow-night .ace_keyword,
+html.navy .ace-tomorrow-night .ace_keyword { color: #b294bb !important; font-style: normal !important; }
+html.coal .ace-tomorrow-night .ace_keyword.ace_operator,
+html.navy .ace-tomorrow-night .ace_keyword.ace_operator { color: #c5c8c6 !important; }
+html.coal .ace-tomorrow-night .ace_storage,
+html.navy .ace-tomorrow-night .ace_storage { color: #c5c8c6 !important; font-style: normal !important; }
+html.coal .ace-tomorrow-night .ace_constant,
+html.navy .ace-tomorrow-night .ace_constant { color: #de935f !important; }
+html.coal .ace-tomorrow-night .ace_meta,
+html.navy .ace-tomorrow-night .ace_meta { color: #de935f !important; }
+html.coal .ace-tomorrow-night .ace_support,
+html.navy .ace-tomorrow-night .ace_support { color: #de935f !important; }
+html.coal .ace-tomorrow-night .ace_string,
+html.navy .ace-tomorrow-night .ace_string { color: #b5bd68 !important; }
+html.coal .ace-tomorrow-night .ace_entity,
+html.navy .ace-tomorrow-night .ace_entity { color: #8abeb7 !important; }
+html.coal .ace-tomorrow-night .ace_variable,
+html.navy .ace-tomorrow-night .ace_variable { color: #c5c8c6 !important; }
