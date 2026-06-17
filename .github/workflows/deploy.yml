@@ -1,4 +1,4 @@
-name: Deploy mdBook
+name: deployment
 on:
   push:
     branches: [main]
