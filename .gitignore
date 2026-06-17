@@ -1,6 +1,6 @@
 outline.md
 book/
 build/
-print/fonts/
+**/print/fonts/
 __pycache__/
 .claude/

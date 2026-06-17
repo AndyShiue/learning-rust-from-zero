@@ -31,7 +31,8 @@ jobs:
             fonts-noto-core \
             fonts-noto-cjk \
             fonts-symbola
-      - name: Install print PDF fonts
+      - name: Install print PDF fonts (zh-tw)
+        working-directory: zh-tw
         run: |
           mkdir -p print/fonts
           curl -L --fail --retry 3 --retry-delay 2 \
@@ -43,17 +44,28 @@ jobs:
           curl -L --fail --retry 3 --retry-delay 2 \
             --output print/fonts/NotoSansMonoCJKtc-Regular.otf \
             https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/Mono/NotoSansMonoCJKtc-Regular.otf
-      - run: mdbook test
-      - run: mdbook build
-      - name: Build and publish print PDF
+      - name: Build zh-tw book
+        working-directory: zh-tw
+        run: |
+          mdbook test
+          mdbook build
+      - name: Build and publish print PDF (zh-tw)
+        working-directory: zh-tw
         run: |
           ./print/build.sh
           cp book/rust-book-a4.pdf book/book.pdf
-      - name: Bundle src/ as rust-book-src.zip for AI consumption
+      - name: Bundle zh-tw/src as rust-book-src.zip for AI consumption
+        working-directory: zh-tw
         run: (cd src && zip -r ../book/rust-book-src.zip .)
+      - name: Assemble multi-language site
+        run: |
+          rm -rf public
+          mkdir -p public
+          cp index.html public/index.html
+          cp -r zh-tw/book public/zh-tw
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:
-          path: ./book
+          path: ./public
       - id: deployment
         uses: actions/deploy-pages@v5

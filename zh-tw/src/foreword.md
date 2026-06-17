@@ -8,17 +8,17 @@
 
 如果讀者在閱讀的過程中遇到看不懂的段落、想要練習題，或寫的程式跑不起來，而想問 AI 怎麼辦，我提供了一個壓縮檔給 AI 閱讀，讓 AI 能更精準回應你的需求。使用的時候只要把整份壓縮檔上傳給 AI，和他說「請先閱讀壓縮檔裡的 `GUIDE.md` 再回答我」，並且告訴 AI 你目前讀到第幾章第幾集再提出你的需求就好了。壓縮檔的下載連結如下：
 
-> `rust-book-src.zip`：[https://andyshiue.github.io/rust-book/rust-book-src.zip](https://andyshiue.github.io/rust-book/rust-book-src.zip)
+> `rust-book-src.zip`：[https://andyshiue.github.io/learning-rust-from-zero/zh-tw/rust-book-src.zip](https://andyshiue.github.io/learning-rust-from-zero/zh-tw/rust-book-src.zip)
 
 強烈建議要用好一點的 AI 模型讀壓縮檔！免費的 AI 甚至可能完全懶得讀壓縮檔內的內容。個人目前建議使用 GPT-5.5 Thinking，自己試過效果還不錯。
 
 另外本教學也有 PDF 版供讀者下載：
 
-> PDF 版：[https://andyshiue.github.io/rust-book/book.pdf](https://andyshiue.github.io/rust-book/book.pdf)
+> PDF 版：[https://andyshiue.github.io/learning-rust-from-zero/zh-tw/book.pdf](https://andyshiue.github.io/learning-rust-from-zero/zh-tw/book.pdf)
 
 但我可能不會長期維護 PDF 版，因此還是比較建議閱讀有互動功能的網頁版教學。如果你現在就正在閱讀 PDF 版的話，以下是網頁版的網址：
 
-> 網頁版：[https://andyshiue.github.io/rust-book/](https://andyshiue.github.io/rust-book/)
+> 網頁版：[https://andyshiue.github.io/learning-rust-from-zero/zh-tw/](https://andyshiue.github.io/learning-rust-from-zero/zh-tw/)
 
 最後提一下上面說的互動功能，不然怕沒人知道：你可以直接在網頁版教學裡面跑程式。文內程式原始碼的右上角有幾個按鈕，按了就知道會發生什麼事了。大概先這樣吧......
 

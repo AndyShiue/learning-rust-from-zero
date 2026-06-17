@@ -2,11 +2,11 @@
 
 [![CC BY-NC-ND 4.0](https://img.shields.io/badge/content-CC%20BY--NC--ND%204.0-blue)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
 [![CC0 1.0](https://img.shields.io/badge/code-CC0%201.0-blue)](https://creativecommons.org/publicdomain/zero/1.0/)
-[![Deploy mdBook](https://github.com/AndyShiue/rust-book/actions/workflows/deploy.yml/badge.svg)](https://github.com/AndyShiue/rust-book/actions/workflows/deploy.yml)
+[![Deploy mdBook](https://github.com/AndyShiue/learning-rust-from-zero/actions/workflows/deploy.yml/badge.svg)](https://github.com/AndyShiue/learning-rust-from-zero/actions/workflows/deploy.yml)
 
 為程式新手準備的 Rust 教學，剩下要說的直接點進連結看吧～
 
-[https://andyshiue.github.io/rust-book/](https://andyshiue.github.io/rust-book/)
+[https://andyshiue.github.io/learning-rust-from-zero/](https://andyshiue.github.io/learning-rust-from-zero/)
 
 ## 貢獻
 

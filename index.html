@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>從零開始學 Rust / Learning Rust from Zero</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      margin: 0; min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans TC", sans-serif;
+      background: #fafafa; color: #1a1a1a;
+      gap: 2rem; padding: 2rem;
+    }
+    @media (prefers-color-scheme: dark) {
+      body { background: #1a1a1a; color: #fafafa; }
+      a.lang { background: #2a2a2a; color: #fafafa; border-color: #444; }
+      a.lang:hover { background: #333; }
+    }
+    h1 { font-size: 1.5rem; font-weight: 600; text-align: center; margin: 0; }
+    .langs { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+    a.lang {
+      display: block; padding: 1rem 2rem; min-width: 8rem; text-align: center;
+      text-decoration: none; border: 1px solid #ddd; border-radius: 12px;
+      background: #fff; color: #1a1a1a; font-size: 1.1rem; transition: background .15s;
+    }
+    a.lang:hover { background: #f0f0f0; }
+    a.lang small { display: block; opacity: .6; font-size: .8rem; margin-top: .25rem; }
+  </style>
+</head>
+<body>
+  <h1>從零開始學 Rust<br>Learning Rust from Zero</h1>
+  <div class="langs">
+    <a class="lang" href="./zh-tw/">繁體中文<small>Traditional Chinese</small></a>
+    <a class="lang" href="./en/">English<small>英文（準備中）</small></a>
+  </div>
+</body>
+</html>
