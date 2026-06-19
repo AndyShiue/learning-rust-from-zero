@@ -23,9 +23,9 @@ cargo add anyhow
 
 `thiserror` 用 `derive` macro 自動生成 `Display`、`Error`、`From`：
 
-```rust,editable
-extern crate thiserror;
-
+```rust
+# extern crate thiserror;
+#
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -39,6 +39,8 @@ enum AppError {
     #[error("自訂錯誤：{0}")]
     Custom(String),
 }
+#
+# fn main() {}
 ```
 
 - `#[error("...")]` 自動生成 `Display` 的實作
@@ -47,28 +49,30 @@ enum AppError {
 
 使用方式跟上一集一樣——`?` 會自動轉換：
 
-```rust,editable
-extern crate thiserror;
-
-use thiserror::Error;
-
-#[derive(Debug, Error)]
-enum AppError {
-    #[error("輸入輸出錯誤：{0}")]
-    Io(#[from] std::io::Error),
-
-    #[error("解析錯誤：{0}")]
-    Parse(#[from] std::num::ParseIntError),
-
-    #[error("自訂錯誤：{0}")]
-    Custom(String),
-}
-
+```rust
+# extern crate thiserror;
+#
+# use thiserror::Error;
+#
+# #[derive(Debug, Error)]
+# enum AppError {
+#     #[error("輸入輸出錯誤：{0}")]
+#     Io(#[from] std::io::Error),
+#
+#     #[error("解析錯誤：{0}")]
+#     Parse(#[from] std::num::ParseIntError),
+#
+#     #[error("自訂錯誤：{0}")]
+#     Custom(String),
+# }
+#
 fn read_number(path: &str) -> Result<i32, AppError> {
     let content = std::fs::read_to_string(path)?;
     let num = content.trim().parse::<i32>()?;
     Ok(num)
 }
+#
+# fn main() {}
 ```
 
 呼叫端一樣可以 `match` 精確處理每種錯誤。
@@ -77,9 +81,9 @@ fn read_number(path: &str) -> Result<i32, AppError> {
 
 如果你不需要讓呼叫者區分錯誤種類（例如 `main` 函數、CLI 工具），`anyhow` 更簡單：
 
-```rust,editable
-extern crate anyhow;
-
+```rust
+# extern crate anyhow;
+#
 use anyhow::{Context, Result};
 
 fn read_number(path: &str) -> Result<i32> {
