@@ -23,7 +23,7 @@ cargo add anyhow
 
 `thiserror` 用 `derive` macro 自動生成 `Display`、`Error`、`From`：
 
-```rust
+```rust,noplayground
 # extern crate thiserror;
 #
 use thiserror::Error;
@@ -49,7 +49,7 @@ enum AppError {
 
 使用方式跟上一集一樣——`?` 會自動轉換：
 
-```rust
+```rust,noplayground
 # extern crate thiserror;
 #
 # use thiserror::Error;
@@ -81,7 +81,7 @@ fn read_number(path: &str) -> Result<i32, AppError> {
 
 如果你不需要讓呼叫者區分錯誤種類（例如 `main` 函數、CLI 工具），`anyhow` 更簡單：
 
-```rust
+```rust,noplayground
 # extern crate anyhow;
 #
 use anyhow::{Context, Result};
