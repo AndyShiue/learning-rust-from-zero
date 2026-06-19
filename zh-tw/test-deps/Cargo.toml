@@ -1,0 +1,16 @@
+# 這個小型 crate 唯一的用途，是讓 `mdbook test` 能連結到書中範例會用到的
+# 外部套件（dependencies）。在這裡列出依賴後執行 `cargo build`，
+# 編好的 .rlib 會放進 target/debug/deps，再用 `mdbook test -L` 指過去即可。
+#
+# 要新增別的套件給範例使用時，加在下面的 [dependencies] 就好。
+[package]
+name = "book-test-deps"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+rand = "0.10"
+thiserror = "2.0.18"
+anyhow = "1.0.102"
+
