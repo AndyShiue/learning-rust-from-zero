@@ -17,6 +17,16 @@
 
 ## 概念說明
 
+### 跟第 11 集比，差在哪
+
+第 11 集已經把排程做好了:`spawn` 一堆 `Output = ()` 的 task、用 ready queue 輪流 poll、`block_on` 跑到全部完成。這一集只在那之上加**三樣東西**,其餘原封不動:
+
+1. **`spawn<T>` 收任意回傳型別**:從只收 `Future<Output = ()>`,變成收 `Future<Output = T>`,並回傳一個 `JoinHandle<T>`。
+2. **`Shared<T>` 與 `JoinHandle<T>`**:task 的結果 `T` 放進共享格子 `Shared<T>`;`JoinHandle<T>` 本身也是 Future,`.await` 它就能把 `T` 領回來。
+3. **`block_on` 開始回傳值**:第 11 集的 `block_on(future)` 回傳 `()`;這一集因為有了 `Shared<T>`,`block_on(future)` 可以回傳那個 future 的值 `T`。
+
+ready queue、`park`/`unpark`、`Task` 結構這些第 11 集的東西完全沒動。一句話:**第 11 集解決「怎麼排 task」,這一集解決「task 做完後,值怎麼交回來」。**
+
 ### executor 內部仍然只存同一種 task
 
 上一集的 `Task` 裡有一個 future：
@@ -177,6 +187,7 @@ impl Executor {
 use std::collections::VecDeque;
 use std::future::Future;
 use std::pin::Pin;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::task::{Context, Poll, Wake, Waker};
 use std::thread;
@@ -227,14 +238,13 @@ struct Task {
     future: Mutex<Pin<Box<dyn Future<Output = ()> + Send>>>,
     queue: Queue,
     executor_thread: Thread,
-    queued: Mutex<bool>,
+    queued: AtomicBool,
 }
 
 impl Task {
     fn schedule(self: &Arc<Self>) {
-        let mut queued = self.queued.lock().unwrap();
-        if !*queued {
-            *queued = true;
+        // swap(true) 一步完成「讀舊值 + 設成 true」：只有讓 false→true 的那次會 push
+        if !self.queued.swap(true, Ordering::SeqCst) {
             self.queue.lock().unwrap().push_back(self.clone());
             self.executor_thread.unpark();
         }
@@ -308,7 +318,7 @@ impl Executor {
             future: Mutex::new(Box::pin(wrapped)),
             queue: self.queue.clone(),
             executor_thread: self.executor_thread.clone(),
-            queued: Mutex::new(false),
+            queued: AtomicBool::new(false),
         });
 
         self.remaining += 1;
@@ -317,12 +327,18 @@ impl Executor {
         JoinHandle { shared }
     }
 
-    fn run(&mut self) {
+    fn block_on<T: Send + 'static>(
+        &mut self,
+        future: impl Future<Output = T> + Send + 'static,
+    ) -> T {
+        // 把這個 future 也 spawn 成 task，但保留它的 JoinHandle，等一下要從裡面取回傳值
+        let handle = self.spawn(future);
+
         while self.remaining > 0 {
             loop {
                 let task = self.queue.lock().unwrap().pop_front();
                 let Some(task) = task else { break };
-                *task.queued.lock().unwrap() = false;
+                task.queued.store(false, Ordering::SeqCst);
 
                 let waker = Waker::from(task.clone());
                 let mut cx = Context::from_waker(&waker);
@@ -337,24 +353,30 @@ impl Executor {
                 thread::park();
             }
         }
+
+        // 所有 task 都完成了，這個 future 的結果一定已經寫進它的 Shared
+        let result = handle.shared.result.lock().unwrap().take().unwrap();
+        result
     }
 }
 
 fn main() {
     let mut executor = Executor::new();
 
+    // 背景 task：回傳 i32，先 spawn，拿到它的 JoinHandle
     let handle = executor.spawn(async {
         delay(1).await;
         42
     });
 
-    executor.spawn(async move {
-        let result = handle.await;
-        println!("task 回傳了 {}", result);
+    // 主 task：裡面 .await 上面那個 JoinHandle，自己再回傳一個值
+    let result = executor.block_on(async move {
+        let from_task = handle.await;
+        println!("task 回傳了 {}", from_task);
+        from_task * 2
     });
 
-    executor.run();
-    println!("executor 結束");
+    println!("block_on 拿到 {}", result);
 }
 ```
 
@@ -362,23 +384,24 @@ fn main() {
 
 ```text
 task 回傳了 42
-executor 結束
+block_on 拿到 84
 ```
 
 ## 一步步看它怎麼跑
 
-假設 A 是回傳 `42` 的 task，B 是等待 `JoinHandle` 的 task。
+假設 A 是回傳 `42` 的背景 task，B 是傳給 `block_on` 的 future（裡面 `.await` A 的 `JoinHandle`，自己再回傳 `84`）。
 
-1. `spawn(A)`：A 被包成 `Output = ()` 的 `wrapped`，放進 ready queue，回傳 `JoinHandle<i32>`。
-2. `spawn(B)`：B 會 `.await handle`，也被放進 ready queue。
-3. executor 先 poll A。A 卡在 `delay(1).await`，回 `Pending`。
-4. executor poll B。B poll `JoinHandle`，發現 `Shared.result` 還是 `None`，於是把 **B 的 Waker** 存進 `Shared.waker`，回 `Pending`。
+1. `spawn(A)`：A 被包成 `Output = ()` 的 `wrapped`，放進 ready queue，回傳 `JoinHandle<i32>`（就是 main 裡的 `handle`）。
+2. `block_on(B)`：傳進來的 future B 也被 `spawn` 成 task、放進 ready queue（block_on 保留 B 的 `JoinHandle`，最後要從裡面取值），然後開始跑迴圈。
+3. block_on 先 poll A。A 卡在 `delay(1).await`，回 `Pending`。
+4. poll B。B poll `handle`（`JoinHandle`），發現 `Shared.result` 還是 `None`，於是把 **B 的 Waker** 存進 `Shared.waker`，回 `Pending`。
 5. queue 空了，executor 用 `thread::park()` 睡著。
 6. 約 1 秒後，A 的計時器叫醒 A。A 被放回 ready queue，executor 被叫醒。
 7. executor poll A，A 拿到 `42`。
 8. A 的 `wrapped` 把 `42` 放進 `Shared.result`，再取出 **B 的 Waker** 並 `wake` 它；這不是直接繼續執行 B，只是把 B 排回 ready queue。
-9. B 的 Waker 把 B 放回 ready queue，executor 下一輪 poll B。
-10. 這次 `handle.await` 從 `Shared.result` 取到 `42`，B 繼續執行並印出結果。
+9. executor 下一輪 poll B。這次 `handle.await` 從 `Shared.result` 取到 `42`，印出，B 接著回傳 `84`。
+10. B 的 `wrapped` 把 `84` 寫進 **B 自己的 `Shared`**；`remaining` 變成 0，迴圈結束。
+11. `block_on` 從這個 future 的 `Shared` 取出 `84` 回傳，main 印出 `block_on 拿到 84`。
 
 這裡有兩種 Waker：
 
@@ -396,3 +419,4 @@ executor 結束
 - 原 task 完成後 wake 等待者；等待者會被放回 ready queue，之後再被 executor poll
 - 這不是 future 直接通知 future，而是透過共享狀態與 Waker 喚醒「正在等待的 task」
 - `spawn` 不開新的 OS thread；它只是把 future 變成 task，交給 executor 之後慢慢 poll
+- `block_on(future)` 這集會回傳傳進來那個 future 的值 `T`（第 11 集只回傳 `()`）：它把這個 future 也 spawn 成 task，跑完後從它的 `Shared` 取出結果——這正是相對第 11 集唯一加的東西帶來的

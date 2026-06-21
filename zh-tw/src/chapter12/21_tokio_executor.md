@@ -27,6 +27,8 @@ fn main() {
 
 `block_on` 做的事,和我們第 6 集那個 `run` 函式一模一樣:**把一個 future 在「目前這條執行緒」上推到完成,回傳結果**。它會卡住目前這條執行緒直到 future 跑完——這也是它名字 block(阻塞)的由來。
 
+> **和我們手寫版的一個差別,要點出來。** 第 11～14 集我們把入口也叫 `block_on`,但那個版本會等到 **ready queue 裡所有 task 都完成**才回傳(它的迴圈條件就是「還有 task 沒做完就繼續跑」)。tokio 的 `block_on` **不是**這樣——它是 **傳給它的那個 future 一完成就回傳**,不會等你另外 `tokio::spawn` 出去的背景 task;那些還沒跑完的 task 會繼續留在 runtime 上,直到 runtime 被 drop 才一起收掉。我們手寫版那樣寫,只是為了單一執行緒下好觀察、好收尾;**「那個 future 一完成就回傳」才是一般 runtime 的標準語意**。換句話說,手寫版的 `block_on` 比較像「跑完整批工作」,tokio 的 `block_on` 是「跑完我指定的這一個」。
+
 那 `#[tokio::main]` 呢?它只是個語法糖。你寫:
 
 ```rust,ignore
@@ -38,7 +40,7 @@ async fn main() {
 
 編譯器大致幫你展開成「建一個 runtime,然後 `block_on` 你的 async main」。所以從第 1 集用到現在的 `#[tokio::main]`,本質就是 `block_on`。
 
-因為 `block_on` 是在「呼叫它的那條執行緒」上跑 root future,它**不要求** future 是 `Send` 或 `'static`——反正不會把這個 future 送到別條執行緒去。
+因為 `block_on` 是在「呼叫它的那條執行緒」上跑那個 future,它**不要求** future 是 `Send` 或 `'static`——反正不會把這個 future 送到別條執行緒去。
 
 ### `tokio::spawn`:把 task 交給 runtime 排程
 
@@ -149,7 +151,8 @@ async fn main() {
 ## 重點整理
 
 - tokio 就是我們手寫那台迷你 runtime 的工業級版本:executor、reactor、Waker、spawn 一應俱全
-- `block_on`(= `#[tokio::main]` 的本質)把 root future 在**目前這條執行緒**跑到完成,所以**不要求** `Send`／`'static`
+- `block_on`(= `#[tokio::main]` 的本質)把傳給它的 future 在**目前這條執行緒**跑到完成,所以**不要求** `Send`／`'static`
+- tokio 的 `block_on` 是「**傳給它的 future 一完成就回傳**」,不等其他 `spawn` 的背景 task;這跟我們第 11～14 集手寫的「等所有 task 都完成才回傳」不同——後者只是教學版好觀察的簡化
 - `tokio::spawn` 把 future 交給排程器在背景跑(不開 OS 執行緒),回傳 `JoinHandle`,`.await` 拿結果
 - 預設 multi-thread runtime 會把 task 在 worker 執行緒間搬動,所以 spawn 的 future 要 **`Send + 'static`**
 - 最常見錯誤:**非 `Send` 的值(如 `Rc`、稍後的 `MutexGuard`)跨越 `.await`** → future 不是 `Send`;解法是別讓它活過 `.await`(用 `{}` 限制範圍)

@@ -1,4 +1,4 @@
-# `Future` trait 與最陽春的 executor
+# `Future` `trait` 與最陽春的 executor
 
 ## 本集目標
 
@@ -137,6 +137,20 @@ fn main() {
 
 它能動，但有個明顯的問題：遇到 `Pending` 時，它**瘋狂空轉**，一遍又一遍地 poll，把 CPU 燒好燒滿。聰明的做法應該是「先睡著，等 future 真的好了再被叫醒」——而「叫醒」這件事，靠的就是我們剛剛跳過的那個 Waker。接下來幾集，我們會一步步把這台引擎變聰明。
 
+### executor 有很多種設計選擇
+
+不過先講清楚一件事：我們寫的只是「最笨」的那一種,但 executor **沒有標準答案**。標準庫只規定了 `Future` / `poll` 這個**介面(契約)**:「給你一個 future,你負責一直 poll 到它 `Ready`」。至於**怎麼做到**,完全留給每個 runtime 自由發揮——而且選擇非常多。光是下面這幾件事,每一件都是一個設計上的取捨:
+
+- **遇到 `Pending` 怎麼辦?** 本集直接空轉再 poll;聰明的做法是睡著、等 `Waker` 把自己叫醒(第 10 集)。
+- **怎麼睡、怎麼被叫醒?** 可以用標準庫的 `thread::park` / `unpark`(第 10、11 集),也可以用作業系統的事件機制。
+- **一次只顧一個 future,還是同時管很多 task?** 我們的 `run` 只推一個 future 到完成;真正的 runtime 要同時養很多 task,於是需要一個 **ready queue** 讓 task 排隊(第 11 集)。
+- **單執行緒還是多執行緒?** 本章手寫的都是單執行緒;Tokio 預設用多條 worker thread,還會在 thread 之間搬移 task(work-stealing)來平衡負載(第 21 集)。
+- **怎麼等 I/O?** 每個等待各開一條 thread 是權宜之計(第 10 集);用一條 **reactor** thread 同時盯住成千上萬個 I/O 來源才是正解(第 14 集)。
+
+正因為這些都是「選擇」而不是「定論」,Rust 標準庫**乾脆不內建 runtime**,只定義 `Future` 這個共通介面,把 executor、reactor、排程策略統統留給社群——這就是為什麼會有 Tokio、smol 等不同 runtime,各自做不同取捨(第 32 集)。
+
+所以接下來幾集,我們就是從這台「最笨」的版本出發,一步步把上面這些選擇補進去,最後長成一個更接近真實 runtime 的樣子。
+
 ### 老實說：到目前為止的 async 都「沒在等東西」
 
 這裡要坦白一件事：從第 3 集到這一集，我們寫的 async 程式——`async { 1 + 2 }`、印一句話的 `say_hello`、`make_coffee`——其實**都沒在等任何東西**。它們一被 poll 就馬上 `Ready`，從來不會 `Pending`。也就是說，這些 async 程式根本沒用到 async 真正的本事（在等待時把執行緒讓出去），它們存在的唯一目的，就是當**最單純的範例**，讓我們看清楚「future 是什麼」「executor 怎麼推進它」這些機制而已，並不是真正的 async 程式。
@@ -156,5 +170,6 @@ fn main() {
 - `poll` 能把 `self` 寫成 `self: Pin<&mut Self>`，是因為 `Pin` 是少數被允許放在 `self` 位置的特殊型別之一（和 `Box`／`Rc`／`Arc` 一樣）；你自己定義的型別不能這樣用
 - 要 poll 一個 future，先用 **`Box::pin`** 得到 `Pin<Box<F>>`（`fn pin(x: T) -> Pin<Box<T>>`），再用 **`Pin::as_mut`** 借出 `Pin<&mut F>`（`fn as_mut(&mut self) -> Pin<&mut F>`）——正是 `poll` 的 `self` 要的型別
 - **executor** 就是「不斷 poll 一個 future 直到 `Ready`」的東西；我們用一個 `loop` 就寫出了最陽春的版本
+- executor 沒有標準答案：標準庫只定義 `Future`／`poll` 這個介面，「遇到 `Pending` 怎麼辦、怎麼睡、單還是多執行緒、怎麼等 I/O」全是設計選擇；本章從最笨版本一步步演進到接近真實 runtime，Rust 也因此不內建 runtime（第 32 集）
 - 這個笨版本遇到 `Pending` 會空轉燒 CPU；後面會用 Waker 讓它學會「睡著、被叫醒」
 - 到此為止（第 3–6 集）寫的 async 都「沒在等東西」、一 poll 就 `Ready`，純粹是示範機制用的；下一集的 `Delay` 才是第一個真的會 `Pending`、更像真正 async 的 future

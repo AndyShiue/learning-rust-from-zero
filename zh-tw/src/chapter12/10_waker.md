@@ -64,6 +64,20 @@ fn run<F: Future>(future: F) -> F::Output {
 
 對比第 6 集：唯一的差別是 `Pending` 那行從「什麼都不做、繼續 loop」變成 `thread::park()`（睡著）。executor 睡著後，CPU 就空下來了，不再空轉。
 
+### `unpark` 可以發生在 `park` 之前
+
+這裡藏著一個容易忽略、卻很關鍵的安全性。看 `poll` 回 `Pending` 到 `thread::park()` 之間，其實有個**空檔**：萬一就在這個空檔，`Delay` 的計時 thread 已經 `wake()` →`unpark()` 了呢？executor 不就變成「先被叫醒、然後才去睡」，結果一睡不醒、永遠卡住嗎？
+
+幸好 `park` / `unpark` 不會這樣。`unpark` 會給目標 thread 留一張 **permit（許可）**：如果 `unpark()` 發生在 `park()` **之前**，那張 permit 會被記住，下一次 `park()` 看到 permit 就**立刻返回**、根本不會真的睡。所以不管 wake 落在 `park` 之前還是之後，executor 都不會漏接：
+
+```text
+poll 回 Pending
+    ⋯ 空檔：這裡若先 unpark()，會留下一張 permit ⋯
+thread::park()   // 有 permit 就立刻返回；沒有才真的睡
+```
+
+（這也是為什麼我們直接用 `park` / `unpark`，而不必自己用旗標加條件變數從頭刻——標準庫已經幫我們處理掉「喚醒比睡覺早到」這個 race。後面第 11 集把它換成 ready queue 版，以及第 14 集的 reactor，靠的都是同一個 permit 特性。）
+
 ### 讓 Delay 負起通知的責任
 
 最後，把第 7 集的 `Delay` 補完整。它回 `Pending` 之前，要安排「時間到的時候 wake」。最直接的做法：另外開一條執行緒去睡到到期，醒來就呼叫 wake。
@@ -137,6 +151,7 @@ fn main() {
 - `Waker` 是 future 留給 executor 的「叫醒卡」，一直放在 `Context` 裡（`cx.waker()`）
 - 自己做 Waker：實作 `std::task::Wake` trait（回答「被 wake 時做什麼」），再把 `Arc<W>` 用 `.into()` 轉成 `Waker`
 - 喚醒模型讓 executor 可以「`Pending` 就睡（`thread::park`）、被 `wake`（`unpark`）才醒來再 poll」，不再空轉燒 CPU
+- `unpark` 可以發生在 `park` 之前：它會留下一張 permit，下一次 `park()` 立刻返回——所以就算 wake 落在「`poll` 回 `Pending`」到「`park()`」的空檔，也不會漏接（不會睡死）
 - future（如 `Delay`）回 `Pending` 前要負責安排：事件好了的時候呼叫 `cx.waker().clone()` 拿到的 Waker 的 `wake()`
 - 用 thread 計時只是這次的手段；真正通用的是「`Pending` 留 Waker、事件源 `wake`」這套機制
 - 但「每個等待的 future 開一條 thread」顯然不理想——thread 很吃記憶體（第 2 集），一萬個連線就一萬條，正是 async 想避免的；所以「怎麼等事件」需要更好的辦法：**reactor**（第 14 集），用少少幾條執行緒盯住成千上萬個事件

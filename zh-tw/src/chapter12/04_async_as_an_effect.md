@@ -1,4 +1,4 @@
-# `.await` 是一種作用（effect）
+# `async` 是一種 effect
 
 ## 本集目標
 
