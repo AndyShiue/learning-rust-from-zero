@@ -21,7 +21,7 @@ cargo add anyhow
 
 ### `thiserror`：給函式庫用
 
-`thiserror` 用 `derive` macro 自動生成 `Display`、`Error`、`From`：
+`thiserror` 用 `derive` 巨集自動生成 `Display`、`Error`、`From`：
 
 ```rust,noplayground
 # extern crate thiserror;
@@ -146,7 +146,7 @@ fn main() -> Result<()> {
 
 ## 重點整理
 
-- `thiserror`：用 `derive` macro 自動生成 `Display`、`Error`、`From`，適合函式庫
+- `thiserror`：用 `derive` 巨集自動生成 `Display`、`Error`、`From`，適合函式庫
 - `#[error("...")]` 生成 `Display`，`#[from]` 生成 `From`
 - `anyhow`：通用錯誤型別，不用定義錯誤 `enum`，適合應用程式
 - `.context("...")` 幫錯誤加上額外說明

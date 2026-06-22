@@ -196,7 +196,7 @@
     - [型別轉換 `as`](chapter10/08_as.md)
     - [`enum` discriminant](chapter10/09_enum_discriminant.md)
     - [attribute 總覽](chapter10/10_attributes.md)
-    - [`cfg!` macro](chapter10/11_cfg_macro.md)
+    - [`cfg!` 巨集](chapter10/11_cfg_macro.md)
     - [`macro_rules!`](chapter10/12_macro_rules.md)
     - [proc macro](chapter10/13_proc_macro.md)
     - [`unsafe`](chapter10/14_unsafe.md)
