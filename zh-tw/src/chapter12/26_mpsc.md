@@ -1,4 +1,4 @@
-# `mpsc` channel：async 的工作佇列
+# `mpsc`
 
 ## 本集目標
 

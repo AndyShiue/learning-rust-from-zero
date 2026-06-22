@@ -1,4 +1,4 @@
-# async closure 與 `AsyncFn`
+# `async` 閉包
 
 ## 本集目標
 

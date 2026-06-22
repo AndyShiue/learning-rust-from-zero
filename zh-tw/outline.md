@@ -29,12 +29,12 @@
 25. **`Semaphore` 與 backpressure** — 介紹 semaphore 是用 permits 表示容量的同步原語，適合限制同時下載數、同時開檔數或同時進入某段流程的 task 數；說明 acquire permit / drop permit 的 RAII 模型，以及 bounded channel、connection pool、worker pool 等 backpressure 都可以用「容量有限，滿了就等待 permit」的角度理解
 26. **`mpsc` channel：async 的工作佇列** — 介紹 multi-producer single-consumer channel 作為 async task 間最常見的工作佇列；從 bounded `mpsc` 的容量限制接續上一集的 backpressure，說明 `send().await` 為什麼會等待、receiver 如何形成 worker loop，以及如何搭配 `select!` 同時等待工作與 shutdown signal
 27. **`oneshot`、`watch` 與 `broadcast`** — 用訊息拓樸區分不同 channel：`oneshot` 適合一次性回傳結果，`watch` 適合只關心最新狀態或 shutdown flag，`broadcast` 適合多個 receiver 都要看到每則訊息；強調選 channel 時先問「訊息有幾個 sender、幾個 receiver、要保留所有訊息還是只要最新狀態」
-28. **async 的 `Mutex`、`RwLock` 與 `Notify`** — 介紹當 message passing 不適合時如何處理共享狀態：`Mutex` / `RwLock` 保護 shared mutable state，lock scope 要短，避免拿著 lock 等 I/O；`Notify` 則是不帶 payload 的喚醒 primitive，適合搭配共享狀態使用，提醒它不是 queue，多次通知可能合併
+28. **`async` 的 `Mutex`、`RwLock` 與 `Notify`** — 介紹當 message passing 不適合時如何處理共享狀態：`Mutex` / `RwLock` 保護 shared mutable state，lock scope 要短，避免拿著 lock 等 I/O；`Notify` 則是不帶 payload 的喚醒 primitive，適合搭配共享狀態使用，提醒它不是 queue，多次通知可能合併
 29. **`Stream`：async 版的 iterator** — 介紹 `Stream` 是 async 版 iterator，`next().await` 代表等待下一個 item；從 channel receiver、line-based input、週期性事件等例子建立「連續產生 async values」的心智模型，並使用 `tokio_stream` / `futures::StreamExt` 展示基本 combinators
 30. **`FuturesUnordered`：大量動態的 Future** — 對比 `join!` 適合固定少量、異質 futures，而 `FuturesUnordered` / `for_each_concurrent` 適合大量、動態產生的 futures；說明它像 completion stream，哪個 future 先完成就先產生結果，適合爬蟲、批次請求與限制 concurrency 的工作流
-31. **測試 async 程式** — 介紹 `#[tokio::test]`：自動幫測試函數套上 runtime，不用自己 `block_on`；並說明 `tokio::time::pause()` / `advance()` 可以手動推進時間，讓牽涉 timeout、延遲的測試變得 deterministic、不必真的空等；呼應前面 `cargo test` 的章節
+31. **測試 `async` 程式** — 介紹 `#[tokio::test]`：自動幫測試函數套上 runtime，不用自己 `block_on`；並說明 `tokio::time::pause()` / `advance()` 可以手動推進時間，讓牽涉 timeout、延遲的測試變得 deterministic、不必真的空等；呼應前面 `cargo test` 的章節
 32. **Tokio 以外的 runtime** — 說明 Rust 標準庫只定義 `Future` 等語言層抽象，並沒有內建 async runtime；runtime 通常包含 executor、reactor、timer、I/O 與 task API。以 Tokio 為主流對照 smol、已停止維護的 async-std、以及 monoio / glommio / Embassy 等特化 runtime，說明不同 runtime 的 API、I/O driver 與 task model 可能不同，寫 library 時應盡量區分 runtime-agnostic 的 Future 組合邏輯與 runtime-specific 的 I/O、timer、spawn
-33. **async closure 與 `AsyncFn`** — 介紹 Rust 的 async closure `async || { ... }`，對比 `|| async { ... }` 的 capture 與 lifetime 差異；說明 `AsyncFn`、`AsyncFnMut`、`AsyncFnOnce` 讓高階函數可以直接表達「接受一個可被 await 的 closure」，並回顧過去常見的 `Fn(...) -> Fut where Fut: Future` 寫法
+33. **`async` 閉包** — 介紹 Rust 的 async closure `async || { ... }`，對比 `|| async { ... }` 的 capture 與 lifetime 差異；說明 `AsyncFn`、`AsyncFnMut`、`AsyncFnOnce` 讓高階函數可以直接表達「接受一個可被 await 的 closure」，並回顧過去常見的 `Fn(...) -> Fut where Fut: Future` 寫法
 
 ---
 

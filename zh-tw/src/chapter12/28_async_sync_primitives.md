@@ -1,4 +1,4 @@
-# async 的 `Mutex`、`RwLock` 與 `Notify`
+# `async` 的 `Mutex`、`RwLock` 與 `Notify`
 
 ## 本集目標
 
