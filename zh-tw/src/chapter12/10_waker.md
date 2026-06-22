@@ -1,4 +1,4 @@
-# 用 thread 與 `Waker` 喚醒 executor
+# 用 `Thread` 與 `Waker` 喚醒 executor
 
 ## 本集目標
 
@@ -122,6 +122,16 @@ impl Future for Delay {
 
 現在整條鏈完整了：executor poll `Delay` → 還沒到期 → `Delay` 派一條計時執行緒、留下 Waker、回 `Pending` → executor `park` 睡著 → 時間到，計時執行緒 `wake` → executor 被 unpark 叫醒 → 再 poll 一次 → 這次到期了，`Ready`。全程不再空轉。
 
+### `poll`／`Waker` 的兩條契約
+
+趁這條鏈剛兜好，把標準庫對 `poll` 的兩條**契約**講清楚——之後自己手寫 future 時很容易踩到。
+
+**1. 每次 poll 只有「最新的」Waker 算數。** 注意 `Delay` 是在**第一次** poll 時存一次 `cx.waker().clone()`（被 `started` 擋著）。但契約其實是：**每次 poll 拿到的 `cx.waker()` 可能不一樣**（同一顆 future 可能被搬到不同的 task／executor），所以你要喚醒的，永遠是**最近一次 poll 給你的那個 Waker**。嚴謹的 future 會在**每次 poll 都重新存一份** `cx.waker()`、覆蓋掉舊的。我們的 `Delay` 能偷懶只存一次，是因為這台 executor 從頭到尾 Waker 都不變；第 12 集的 `JoinHandle` 和第 14 集的 reactor 就會老實地「每次 poll 重存」，正好印證這條。
+
+**2. 回了 `Ready` 之後，就不該再被 poll。** 看 `run`：它一拿到 `Ready` 就 `return`、收手。這也是契約——**一個 future 完成後再被 poll 是未定義的**（標準庫文件明說可能 panic、卡死或出其他問題）。所以 executor 要自己記得「這顆已經做完了」，別再去碰它（第 11 集起我們用計數、把做完的 task 從 queue 拿掉，就是在守這條）。
+
+（這兩條的權威出處，就是標準庫 `std::future::Future::poll` 的文件。）
+
 ### 但「每件事開一條 thread」顯然不是好辦法
 
 先別高興太早。我們的 `Delay` 為了計時，**另外開了一條執行緒**去睡。一個 `Delay` 開一條還好，但回想第 2 集講過的事：**執行緒很吃記憶體**——每條都要分一塊不小的 stack，作業系統還要花力氣在它們之間切換。
@@ -212,5 +222,7 @@ fn main() {
 - 喚醒模型讓 executor 可以「`Pending` 就睡（`thread::park`）、被 `wake`（`unpark`）才醒來再 poll」，不再空轉燒 CPU
 - `unpark` 可以發生在 `park` 之前：它會留下一張 permit，下一次 `park()` 立刻返回——所以就算 wake 落在「`poll` 回 `Pending`」到「`park()`」的空檔，也不會漏接（不會睡死）
 - future（如 `Delay`）回 `Pending` 前要負責安排：事件好了的時候呼叫 `cx.waker().clone()` 拿到的 Waker 的 `wake()`；用 `started` 旗標確保「派計時 thread」只做一次
+- `poll` 契約一：**只有最近一次 poll 給的 Waker 算數**——`cx.waker()` 每次 poll 可能不同，嚴謹的 future 每次 poll 都重存一份（`Delay` 因 waker 不變才偷懶存一次；第 12、14 集會每次重存）
+- `poll` 契約二：**`Ready` 後不可再 poll**（未定義行為，可能 panic／卡死）——executor 要記得把做完的 future 收手別再碰（第 11 集起用計數＋移出 queue 守這條）。兩條的出處是 `std::future::Future::poll` 文件
 - 用 thread 計時只是這次的手段；真正通用的是「`Pending` 留 Waker、事件源 `wake`」這套機制
 - 但「每個等待的 future 開一條 thread」顯然不理想——thread 很吃記憶體（第 2 集），一萬個連線就一萬條，正是 async 想避免的；接下來用 ready queue（第 11 集）與 reactor（第 14 集）解決
