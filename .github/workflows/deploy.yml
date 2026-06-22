@@ -44,10 +44,13 @@ jobs:
           curl -L --fail --retry 3 --retry-delay 2 \
             --output print/fonts/NotoSansMonoCJKtc-Regular.otf \
             https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/Mono/NotoSansMonoCJKtc-Regular.otf
+      - name: Build doctest dependencies
+        working-directory: zh-tw/test-deps
+        run: cargo build
       - name: Build zh-tw book
         working-directory: zh-tw
         run: |
-          mdbook test
+          mdbook test -L test-deps/target/debug/deps
           mdbook build
       - name: Build and publish print PDF (zh-tw)
         working-directory: zh-tw

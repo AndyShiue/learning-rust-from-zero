@@ -1,5 +1,7 @@
 book/
 build/
 **/print/fonts/
+target/
+Cargo.lock
 __pycache__/
 .claude/
