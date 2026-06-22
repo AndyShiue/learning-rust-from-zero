@@ -1,4 +1,4 @@
-# async 遞迴與 `Box::pin`
+# async 遞迴
 
 ## 本集目標
 
