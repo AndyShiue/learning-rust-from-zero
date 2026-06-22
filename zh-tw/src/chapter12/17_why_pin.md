@@ -30,6 +30,44 @@
 
 你能對 `Pin<&mut T>` 做的,是呼叫那些「接受 `Pin<&mut Self>`」的方法——`poll` 就是一個。這些方法被設計成在 pinned 的前提下安全運作。你不能憑空從 `Pin<&mut T>` 拿回一個普通的 `&mut T`(除非 `T` 滿足某個條件,那是下一集的 `Unpin`)。
 
+### `Pin` 能用哪些方法
+
+既然 `Pin` 把普通的 `&mut T` 藏起來了，那手邊還能對它做什麼？整理一下常用的幾個。（其中「拿回可變的 `&mut T`」那一招——`get_mut`——跟 `Unpin` 有關，留到下一集。）
+
+**讀取：`Deref`（永遠可用）。** `Pin<P>` 一定實作 `Deref`，目標就是 `&T`：
+
+```rust,ignore
+impl<P: Deref> Deref for Pin<P> {
+    type Target = P::Target;
+    fn deref(&self) -> &P::Target { /* ... */ }
+}
+```
+
+所以你隨時能透過 `Pin<&mut T>` 拿到一個**唯讀的** `&T`——寫 `&*pin`，或直接呼叫 `T` 上吃 `&self` 的方法。這安全，因為 `&T` 沒辦法把值搬走。上一集 `Counter::poll` 裡印位址的 `&*self` 走的就是這條 `Deref`。
+
+（相對地，可變方向的 `DerefMut`（拿到 `&mut T`）**不是**永遠可用，它只在 `T: Unpin` 時才有——這也是為什麼 `Counter`（`Unpin`）的 `poll` 裡能直接 `self.count += 1`。一般 future 怎麼安全拿到 `&mut T`，是下一集 `Unpin` / `get_mut` 的事。）
+
+**重新借用：`as_mut` / `as_ref`。**
+
+- `Pin::as_mut(&mut self) -> Pin<&mut T>`：從「擁有的 pin」（如 `Pin<Box<F>>`）借出一個「指向的 pin」（`Pin<&mut F>`），借完原本的還在。第 6 集 executor 迴圈反覆 poll 同一個 future，靠的就是它。
+- `Pin::as_ref(&self) -> Pin<&T>`：同樣是重新借用，但借出 shared 版的 `Pin<&T>`。
+
+```rust,ignore
+let mut boxed = Box::pin(fut);     // Pin<Box<F>>
+boxed.as_mut().poll(&mut cx);      // 借出 Pin<&mut F> 來 poll
+boxed.as_mut().poll(&mut cx);      // 還能再借、再 poll
+```
+
+**拿唯讀參考：`get_ref`。** 對一個 `Pin<&T>`（shared 版），`Pin::get_ref(self) -> &T` 直接把裡面的 `&T` 拿出來。也安全（`&T` 搬不動值）。它和 `Deref` 拿到的 `&T` 是同一種東西，只是另一種寫法。
+
+**怎麼「做出」一個 `Pin`。**
+
+- `Pin::new(ptr) -> Pin<P>`：**安全**，但**只在 `T: Unpin` 時可用**。上一集 `Pin::new(&mut counter)` 能用，正是因為 `Counter` 是 `Unpin`；對自我參照 future 它會編譯失敗（就是上一集最後那個例子）。
+- `Pin::new_unchecked(ptr) -> Pin<P>`：**unsafe**，任何型別都能用——但你得**自己保證**之後不會把值搬走，違背了就是 UB。
+- 平常不直接碰這兩個，而是用包好的 `Box::pin`（第 6、20 集）或 `pin!`（第 19 集）——它們內部用 `new_unchecked`，但把「不會搬走」這個保證安全地包起來，直接給你一個現成的 `Pin<...>`。
+
+一句話：**`Pin` 對「唯讀」（`Deref` / `get_ref` / `as_ref`）和「重新借用成另一個 pin」（`as_mut`）很大方，但對「普通可變的 `&mut T`」很小氣——那道門要 `Unpin` 才開（下一集）。**
+
 ### 為什麼是 executor 要面對 Pin
 
 把前面幾集串起來:executor 要 poll 一個 future,而 future 可能是自我參照、不能被 move 的。所以 executor 必須先想辦法把 future「釘」在一個固定位址上,拿到它的 `Pin<&mut F>`,才能呼叫 `poll`。
@@ -56,5 +94,6 @@
 - `&mut self` 權力太大(可用 `mem::replace`／`swap` 搬走值),不能拿來 poll 不可 move 的 future
 - `Pin<&mut T>` 是「包在參考外的一層保證」:能改內容,但**不准把 `T` 搬走**(比喻:鎖在地板上的家具)
 - 強制方式:`Pin` 不再洩漏普通的 `&mut T`,只給你接受 `Pin<&mut Self>` 的方法(如 `poll`)
+- `Pin` 能用的方法：唯讀走 `Deref`（永遠可用，`&*pin`）、`get_ref`、`as_ref`；重新借用成另一個 pin 用 `as_mut`；建立用 `Pin::new`（限 `Unpin`）/ `new_unchecked`（unsafe）/ `Box::pin` / `pin!`。可變的 `&mut T`（`DerefMut` / `get_mut`）要 `Unpin` 才有——下一集講
 - executor 要 poll future,得先用 `pin!` / `Box::pin` 把它釘在固定位址,拿到 `Pin<&mut F>`
 - Pin 是型別層面的約定;`async fn` 的一般使用者幾乎不會直接碰到它,細節主要給寫底層 future／runtime 的人

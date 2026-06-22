@@ -69,6 +69,112 @@ p2 的位址：0x7ffd...a18
 
 **真正會出問題的,是當這個值「裡面存了一個指向自己的位址」的時候。** 一搬家,那個存起來的位址沒人幫它更新,就會繼續指著舊地方——而我們剛剛那個自我參照的 future 狀態機,正好就是這種值。
 
+### 親手 poll、move、再 poll
+
+把「move 會換位址」這件事搬到 future 上。我們手寫一個最小的 future（自己寫 `poll`），然後對它做「**建立 → poll → move → 再 poll**」，親眼看它在兩次 poll 之間被搬到新位址：
+
+```rust
+use std::future::Future;
+use std::pin::Pin;
+use std::task::{Context, Poll, Waker};
+
+// 自己手寫 poll：每次被 poll 就 +1，並印出「自己現在在哪」
+struct Counter {
+    count: u32,
+}
+
+impl Future for Counter {
+    type Output = ();
+    fn poll(mut self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<()> {
+        self.count += 1;
+        println!("poll 第 {} 次，self 在 {:p}", self.count, &*self);
+        if self.count >= 2 {
+            Poll::Ready(())
+        } else {
+            Poll::Pending
+        }
+    }
+}
+
+fn main() {
+    let waker = Waker::noop();
+    let mut cx = Context::from_waker(waker);
+
+    let mut fut = Counter { count: 0 };
+
+    // poll 一次（Counter 沒有自我參照、是 Unpin，所以能用 Pin::new 安全地拿到 Pin<&mut>）
+    let _ = Pin::new(&mut fut).poll(&mut cx);
+
+    // 在兩次 poll 之間，把 future move 到別的變數
+    let mut moved = fut;
+
+    // 再 poll 一次——這次 self 的位址不一樣了
+    let _ = Pin::new(&mut moved).poll(&mut cx);
+}
+```
+
+跑起來會看到兩次 poll 的 `self` 位址**不同**：
+
+```text
+poll 第 1 次，self 在 0x7ffd...a10
+poll 第 2 次，self 在 0x7ffd...a18
+```
+
+也就是說，「poll 一次 → move → 再 poll」是真的做得到、也跑得起來的——而且第二次 poll 時，這個 future 已經在**新位址**了。
+
+這裡之所以安全，是因為 `Counter` 裡**沒有任何指向自己的指標**：搬家只是把 `count` 這個數字挪到新位置，下一次 poll 照常運作。
+
+但請想像 `self` 換成上面那個**自我參照**的狀態機（有個 `r` 指著自己的 `s`）：第一次 poll 把自我參照建立起來（`r` 記下 `s` 的位址），接著我們 move 它、再 poll——`r` 還指著**舊位址**，`s` 卻已經搬走了。同一段「poll → move → poll」就會踩到懸垂指標。
+
+（上面能用 `Pin::new(&mut fut)`，**只因為 `Counter` 是 `Unpin`**。換成自我參照的 future 就不是這樣了——下一段直接示範。）
+
+### 換成「跨 `.await` 的借用」：連編譯都過不了
+
+那如果 `self` 真的是自我參照的 future 呢？把上面那套 poll／move／poll 原封不動套到一個**跨 `.await` 借用**的 `async fn` 上：
+
+```rust,ignore
+use std::future::Future;
+use std::pin::Pin;
+use std::task::{Context, Waker};
+
+async fn other() {}
+
+async fn borrows_across_await() {
+    let s = String::from("hello");
+    let r = &s;          // 借用區域變數
+    other().await;       // 在這裡暫停，r 跨過 .await
+    println!("{}", r);   // 暫停回來還要用 r
+}
+
+fn main() {
+    let waker = Waker::noop();
+    let mut cx = Context::from_waker(waker);
+
+    let mut fut = borrows_across_await();
+    let _ = Pin::new(&mut fut).poll(&mut cx);   // ❌ 編譯不過
+
+    let mut moved = fut;
+    let _ = Pin::new(&mut moved).poll(&mut cx); // ❌ 編譯不過
+}
+```
+
+這次**連編譯都過不了**，錯誤大致是：
+
+```text
+error[E0277]: `{async fn body of borrows_across_await()}` cannot be unpinned
+   |
+   | let _ = Pin::new(&mut fut).poll(&mut cx);
+   |         -------- ^^^^^^^^ the trait `Unpin` is not implemented for ...
+   |
+   = note: consider using the `pin!` macro
+           consider using `Box::pin` ...
+note: required by a bound in `Pin::<Ptr>::new`
+```
+
+關鍵就是那句 **`the trait Unpin is not implemented`**：`Pin::new` 要求型別是 `Unpin`，而 `borrows_across_await` 這種**跨 `.await` 借用**的 future **不是 `Unpin`**。所以你根本拿不到它的 `Pin<&mut>`，也就**無從**對它做「poll → move → poll」——型別系統在你還沒搬之前就先把路擋住了。
+
+對照前一段的 `Counter`（沒有自我參照、是 `Unpin`，可以隨便 `Pin::new`、隨便 move），就看出 Rust 的防線：**只有「搬了也不會壞」的 future 才放行用 `Pin::new` 自由搬；「搬了會壞」的自我參照 future，連門都不給你進。** 這正是 `Pin` / `Unpin` 在做的事（`Unpin` 第 18 集細講）。
+
 ### 為什麼自我參照怕被 move
 
 剛剛示範的「搬家就換位址」,對整數、`String` 這些一般值都沒差(第 4 章),Rust 會把舊變數標記成不能用,一切照常。
@@ -92,7 +198,7 @@ p2 的位址：0x7ffd...a18
 
 ## 範例程式碼
 
-這一集主要講編譯器內部的結構;唯一能直接跑的,是上面那段印位址的小程式——`let p2 = p1` 前後印出的位址不一樣,證實「move 會換位址」。其餘可以記住這個對照:
+這一集主要講編譯器內部的結構;能直接跑的有兩段：`Point` 那段證實「move 會換位址」，`Counter` 那段更進一步示範「poll → move → 再 poll」——兩次 poll 的 `self` 位址不同。其餘可以記住這個對照:
 
 ```text
 async fn 裡的寫法                  狀態機裡變成
@@ -105,6 +211,8 @@ let r = &s;  (跨 .await 還用到)     一個欄位 r,指向同 struct 的 s
 ## 重點整理
 
 - 一般程式也能觀察到:把值 move 到別處(`let p2 = p1`)位址就會變——平常無所謂,但「值裡存了指向自己的位址」時就會出事
+- 手寫一個 future、做「poll → move → 再 poll」會發現兩次 poll 的 `self` 位址不同；對沒有自我參照的 `Counter` 無害
+- 換成「跨 `.await` 借用」的 `async fn`，同一套 poll／move／poll **連編譯都過不了**（`the trait Unpin is not implemented`）：`Pin::new` 只收 `Unpin`，而自我參照 future 不是 `Unpin`——Rust 在你搬它之前就先擋下（`Unpin` 第 18 集）
 - 跨 `.await` 的借用,會讓狀態機裡出現「一個欄位指向自己另一個欄位」的**自我參照**結構
 - move 一個值 = 把 bytes 複製到新位址;自我參照的 struct 被 move 後,內部指標仍指著舊位址 → **懸垂指標**、記憶體不安全
 - 所以這種 future **一旦開始被 poll,就不能再被 move**(開始 poll 之前 move 還是安全的)
