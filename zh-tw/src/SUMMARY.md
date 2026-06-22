@@ -241,7 +241,7 @@
     - [`async` 遞迴](chapter12/20_async_recursion.md)
     - [回到 Tokio](chapter12/21_back_to_tokio.md)
     - [`tokio::join!`](chapter12/22_join.md)
-    - [`tokio::select!` 與取消](chapter12/23_select.md)
+    - [`tokio::select!` 與 cancellation](chapter12/23_select.md)
     - [`AsyncRead` 與 `AsyncWrite`](chapter12/24_async_read_write.md)
     - [`Semaphore` 與 backpressure](chapter12/25_semaphore.md)
     - [`mpsc`](chapter12/26_mpsc.md)

@@ -1,4 +1,4 @@
-# `tokio::select!` 與取消（cancellation）
+# `tokio::select!` 與 cancellation
 
 ## 本集目標
 
