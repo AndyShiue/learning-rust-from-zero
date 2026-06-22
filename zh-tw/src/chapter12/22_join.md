@@ -1,4 +1,4 @@
-# `tokio::join!`：在同一個 task 裡並行
+# `tokio::join!`
 
 ## 本集目標
 

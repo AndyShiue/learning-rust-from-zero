@@ -1,4 +1,4 @@
-# 用 `pin!` 做 stack pinning
+# `pin!`
 
 ## 本集目標
 
