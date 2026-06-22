@@ -239,7 +239,7 @@
     - [`Unpin` 與 `get_mut`](chapter12/18_unpin.md)
     - [用 `pin!` 做 stack pinning](chapter12/19_pin_macro.md)
     - [async 遞迴與 `Box::pin`](chapter12/20_async_recursion.md)
-    - [回到 Tokio：`block_on`、`spawn` 與 `Send + 'static`](chapter12/21_tokio_executor.md)
+    - [回到 Tokio](chapter12/21_back_to_tokio.md)
     - [`tokio::join!`](chapter12/22_join.md)
     - [`tokio::select!` 與取消](chapter12/23_select.md)
     - [`AsyncRead` 與 `AsyncWrite`](chapter12/24_async_read_write.md)

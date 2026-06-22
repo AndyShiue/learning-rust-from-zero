@@ -17,20 +17,20 @@ task 被 wake
 
 ### 先講這一集的新主角：task
 
-到上一集為止,我們的 executor 手上永遠只有**一個 future**:`run` 把它 `Box::pin` 起來,就在迴圈裡反覆 poll 它一個。但真實的 runtime 要同時養**很多個** future,而且每一個都可能在不同時間被各自的事件喚醒、各自需要「再被 poll 一次」。
+到上一集為止，我們的 executor 手上永遠只有**一個 future**：`run` 把它 `Box::pin` 起來，就在迴圈裡反覆 poll 它一個。但真實的 runtime 要同時養**很多個** future，而且每一個都可能在不同時間被各自的事件喚醒、各自需要「再被 poll 一次」。
 
-這就帶出一個問題:當某個 future 的 Waker 喊「我好了」,executor 要怎麼知道是**哪一個** future、又該把它放回哪裡?一個裸的 future 身上沒有這些資訊——它不知道自己屬於哪個 executor、該排回哪條 queue。
+這就帶出一個問題：當某個 future 的 Waker 喊「我好了」，executor 要怎麼知道是**哪一個** future、又該把它放回哪裡？一個裸的 future 身上沒有這些資訊——它不知道自己屬於哪個 executor、該排回哪條 queue。
 
-所以這一集引入一個新觀念:**task**。task 就是「**一個 future,外加把它重新排程所需要的隨身資料**」。具體來說,我們會把每個 future 包成一顆 `Task`,讓它隨身帶著:
+所以這一集引入一個新觀念：**task**。task 就是「**一個 future，外加把它重新排程所需要的隨身資料**」。具體來說，我們會把每個 future 包成一顆 `Task`，讓它隨身帶著：
 
-- 它自己的 future(要被 poll 的本體)
+- 它自己的 future（要被 poll 的本體）
 - 該排回哪條 ready queue
 - 該叫醒哪條 executor thread
-- 一個小旗標,記住自己是不是已經在 queue 裡(避免重複排隊)
+- 一個小旗標，記住自己是不是已經在 queue 裡（避免重複排隊）
 
-從這一集起,**executor 不再直接管 future,而是管 task**。「把一個 future 包成 task、交給 executor 排程」這個動作,等一下就叫 `spawn`;而一顆 task 的 Waker 被呼叫時,做的事也很單純——把自己這顆 task 排回 ready queue。
+從這一集起，**executor 不再直接管 future，而是管 task**。「把一個 future 包成 task、交給 executor 排程」這個動作，等一下就叫 `spawn`；而一顆 task 的 Waker 被呼叫時，做的事也很單純——把自己這顆 task 排回 ready queue。
 
-接下來幾節,就把這件事一塊一塊拆開:Waker 怎麼排、ready queue 是什麼、executor 怎麼睡跟醒。
+接下來幾節，就把這件事一塊一塊拆開：Waker 怎麼排、ready queue 是什麼、executor 怎麼睡跟醒。
 
 ### Waker 只負責把 task 排回去
 
@@ -51,7 +51,7 @@ task 被 wake
     -> executor_thread.unpark()
 ```
 
-`unpark` 只是一個門鈴。它不會告訴 executor 是哪個 task 好了。真正的 task 身分放在 ready queue 裡，因為 queue 裡直接存著 `Arc<Task>`。
+`unpark` 只是一個門鈴。它不會告訴 executor 是哪個 task 好了。真正該 poll 哪個 task 的資訊放在 ready queue 裡，因為 queue 裡直接存著 `Arc<Task>`。
 
 ### ready queue：準備好被 poll 的 task
 
@@ -80,13 +80,13 @@ executor 的工作就是反覆做：
 - `thread::park()`：目前 thread 睡覺。
 - `executor_thread.unpark()`：叫醒那條 executor thread。
 
-而且 `unpark` 有一個方便的特性：如果 `unpark()` 發生在 `park()` 之前，這次喚醒不會直接消失。它會留下一張 permit，下一次 `park()` 會立刻返回。
+而且 `unpark` 有一個關鍵特性：如果 `unpark()` 發生在 `park()` 之前，這次喚醒**不會消失**。它會留下一張 permit，下一次 `park()` 會立刻返回。所以就算「wake 比 park 早一步」（task 被排回 queue、unpark 了，executor 卻還沒睡），也不會漏接、不會睡死（第 10 集詳述過這個 permit 特性）。
 
 但也要記得：`unpark` 不攜帶資料。它只表示「醒來看看」。醒來後到底要 poll 哪些 task，仍然要看 ready queue。
 
 ### Task 與它的 Waker
 
-把前面說的 task 寫成 struct,就是這樣——一個 future,配上「排回哪條 queue、叫醒哪條 thread、是否已排隊」這幾樣隨身資料:
+把前面說的 task 寫成 struct，就是這樣——一個 future，配上「排回哪條 queue、叫醒哪條 thread、是否已排隊」這幾樣隨身資料：
 
 ```rust,ignore
 use std::collections::VecDeque;
@@ -128,27 +128,21 @@ impl Wake for Task {
 1. 把 task 放進 ready queue。
 2. `unpark()` executor thread。
 
+`queued` 這個旗標用 `AtomicBool`（前面章節已教過 atomic）：`schedule` 用 `queued.swap(true, ...)` 一步完成「檢查＋設定」——只有讓 `false → true` 的那一次 `wake` 會真的把 task push 進 queue，避免同一個 task 被重複塞進去很多次。
+
 ### 為什麼 future 這次要加 `Send`
 
-眼尖的你可能發現:`future` 欄位寫的是 `dyn Future<Output = ()> + Send`,多了一個 `+ Send`;第 6～10 集的 executor 並沒有這個要求。為什麼?
+眼尖的你可能發現：`future` 欄位寫的是 `dyn Future<Output = ()> + Send`，多了一個 `+ Send`；第 6～10 集的 executor 並沒有這個要求。為什麼?
 
-因為這一集的 future 會被裝進一個**會跨執行緒的東西**裡。鏈條是這樣:future 收進 `Task` → `Task` 兼任 `Waker`(它 `impl Wake`)→ 這個 Waker 會被 `Delay` `move` 到另一條計時 thread 去呼叫 `wake()`:
+因為這一集的 future 會被裝進一個**會跨執行緒的東西**裡。鏈條是這樣：future 收進 `Task` → `Task` 兼任 `Waker`（它 `impl Wake`）→ 這個 Waker 會被 `Delay` `move` 到另一條計時 thread 去呼叫 `wake()`。
 
-```rust,ignore
-// Delay 裡:把 waker 搬到計時 thread,時間到就在「別條 thread」上 wake
-thread::spawn(move || {
-    thread::sleep(...);
-    waker.wake();
-});
-```
+而「從 `Arc<Task>` 做出 `Waker`」這件事（`Waker::from(task.clone())`），標準庫要求 `Task: Send + Sync + 'static`。一顆 struct 要是 `Send + Sync`，它**每個欄位都得是**——包括 `future`。一個普通的 `dyn Future` 預設不是 `Send`，所以要補上 `+ Send`（外面再包 `Mutex` 補上 `Sync`），整顆 `Task` 才湊得齊 `Send + Sync`。
 
-而「從 `Arc<Task>` 做出 `Waker`」這件事(`Waker::from(task.clone())`),標準庫要求 `Task: Send + Sync + 'static`。一顆 struct 要是 `Send + Sync`,它**每個欄位都得是**——包括 `future`。一個普通的 `dyn Future` 預設不是 `Send`,所以要補上 `+ Send`(外面再包 `Mutex` 補上 `Sync`),整顆 `Task` 才湊得齊 `Send + Sync`,才能拿去做 Waker、才能被丟到計時 thread。
+對照第 6～10 集：那時 future 被 `Box::pin` 釘在呼叫 executor 的那條 thread 上、就地反覆 poll，從不跨執行緒；Waker 也是另一個沒包 future 的小型別（`ThreadWaker`）。所以 future 不必是 `Send`。一句話：**`Send` 不是 future 自己要的，是被「要當 Waker、還要跨 thread 喚醒」的 `Task` 連帶要求的。**
 
-對照第 6～10 集:那時 future 被 `Box::pin` 釘在呼叫 executor 的那條 thread 上、就地反覆 poll,從不跨執行緒;Waker 也是另一個沒包 future 的小型別(`ThreadWaker`)。所以 future 不必是 `Send`。一句話:**`Send` 不是 future 自己要的,是被「要當 Waker、還要跨 thread 喚醒」的 `Task` 連帶要求的。**(旁邊那個 `'static` 同理:future 被 box、存進 queue、送進 thread,活多久不確定,不能借用 stack 上的短命東西。)
+### Executor、`spawn` 與 `block_on`
 
-### Executor：queue + executor thread
-
-executor 只需要一條 queue、目前 executor thread 的 handle，以及還沒完成的 task 數量。
+executor 只需要一條 queue、目前 executor thread 的 handle，以及還沒完成的 task 數量。`spawn` 把一個 future 包成 task、排進 queue；入口則是 `block_on`：它把你給的 future 也 `spawn` 成一顆 task，然後反覆清 ready queue，直到所有 task 都完成。
 
 ```rust,ignore
 struct Executor {
@@ -156,14 +150,16 @@ struct Executor {
     executor_thread: Thread,
     remaining: usize,
 }
-```
 
-這裡完全沒碰 `mio`。第 13 集會先介紹 `mio`，第 14 集再把 `mio::Poll` 放到 reactor thread 裡，專門等真正的 I/O readiness。
-
-### `spawn`：建立 task，排進 ready queue
-
-```rust,ignore
 impl Executor {
+    fn new() -> Executor {
+        Executor {
+            queue: Arc::new(Mutex::new(VecDeque::new())),
+            executor_thread: thread::current(),
+            remaining: 0,
+        }
+    }
+
     fn spawn(&mut self, fut: impl Future<Output = ()> + Send + 'static) {
         let task = Arc::new(Task {
             future: Mutex::new(Box::pin(fut)),
@@ -171,24 +167,10 @@ impl Executor {
             executor_thread: self.executor_thread.clone(),
             queued: AtomicBool::new(false),
         });
-
         self.remaining += 1;
         task.schedule(); // 新 task 需要第一次 poll
     }
-}
-```
 
-剛 spawn 的 task 還沒被 poll 過，所以要先 `schedule()` 一次。這會把它放進 ready queue，並叫醒 executor。
-
-### `block_on`：接住要等的 future，再跑 queue
-
-第 6、10 集的 executor 是 `run(future)`——直接吃**一個** future、把它跑到完成。這一集 executor 背後多了一條 ready queue,可以同時養很多 task,所以我們把入口改叫 `block_on`:它一樣是「卡在這裡,把事情跑完才回來」,只是現在的做法是——先把你給的 future 也 `spawn` 成一顆 task,然後反覆清 ready queue,直到**所有** task(這個 future,加上你另外 spawn 的)都完成。
-
-```rust,ignore
-use std::task::{Context, Waker};
-use std::thread;
-
-impl Executor {
     fn block_on(&mut self, future: impl Future<Output = ()> + Send + 'static) {
         self.spawn(future); // 傳進來的 future 也只是被排進 queue 的一顆 task
 
@@ -215,18 +197,11 @@ impl Executor {
 }
 ```
 
-重點是順序：
-
-1. ready queue 裡有 task，就一直拿出來 poll。
-2. queue 空了，但還有 task 沒完成，才 `park()`。
-3. 之後某個 task 的 Waker 會把 task 放回 queue，並呼叫 `unpark()`。
-4. executor 醒來，再回去清 ready queue。
-
-這就是更接近真實 runtime 的形狀：事件源呼叫 task 的 Waker，Waker 把 task 排回 queue，executor 醒來後只處理 queue 裡的 task。
+`block_on(future)` 取代了第 6、10 集那個直接的 `run`：它一樣是「吃一個 future、跑完才回傳」，只是背後多了一條 ready queue——把 root 也 spawn 成 task，跑到所有 task 都完成才回來。本集還沒有回傳值（future 是 `Output = ()`）；下一集才讓 `block_on` 回傳 `T`。
 
 ## 範例程式碼
 
-這個範例跑兩個 task,各自等不同秒數:一個用 `spawn` 當背景 task,另一個交給 `block_on`。計時器到了,`Delay` 會呼叫當初存下來的 Waker;Waker 會把 task 放回 ready queue,並叫醒 executor。
+這個範例跑兩個 task，各自等不同秒數：一個用 `spawn` 當背景 task，另一個交給 `block_on`。計時器到了，`Delay` 會呼叫當初存下來的 Waker；Waker 會把 task 放回 ready queue，並叫醒 executor。
 
 ```rust,ignore
 use std::collections::VecDeque;
@@ -246,17 +221,14 @@ struct Delay {
 
 impl Future for Delay {
     type Output = ();
-
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {
         if Instant::now() >= self.when {
             return Poll::Ready(());
         }
-
         if !self.started {
             self.started = true;
             let waker = cx.waker().clone();
             let when = self.when;
-
             thread::spawn(move || {
                 let now = Instant::now();
                 if now < when {
@@ -265,7 +237,6 @@ impl Future for Delay {
                 waker.wake();
             });
         }
-
         Poll::Pending
     }
 }
@@ -288,7 +259,6 @@ struct Task {
 
 impl Task {
     fn schedule(self: &Arc<Self>) {
-        // swap(true) 一步完成「讀舊值 + 設成 true」：只有讓 false→true 的那次會 push
         if !self.queued.swap(true, Ordering::SeqCst) {
             self.queue.lock().unwrap().push_back(self.clone());
             self.executor_thread.unpark();
@@ -324,13 +294,12 @@ impl Executor {
             executor_thread: self.executor_thread.clone(),
             queued: AtomicBool::new(false),
         });
-
         self.remaining += 1;
         task.schedule();
     }
 
     fn block_on(&mut self, future: impl Future<Output = ()> + Send + 'static) {
-        self.spawn(future); // 傳進來的 future 也只是被排進 queue 的一顆 task
+        self.spawn(future);
 
         while self.remaining > 0 {
             loop {
@@ -392,10 +361,10 @@ fn main() {
 
 ## 重點整理
 
+- task = 一個 future ＋ 重新排程所需的隨身資料；從這集起 executor 管的是 task，不是裸 future
 - task 的 `wake` = 把 task 放回 ready queue，表示「我準備好再被 poll 一次」
-- `unpark` 是叫醒 executor 的門鈴；它不表示是哪個 task
-- executor 先清 ready queue，queue 空了但還有 task 沒完成時，才用 `thread::park()` 睡覺
-- task 身分放在 ready queue 裡；如果沒有 ready queue，醒來後仍然不知道該 poll 誰
-- `block_on(future)` 取代了直接的 `run`：它把這個 future 也 `spawn` 成一顆 task，再跑到所有 task 都完成才回來——回到第 6、10 集那種「吃一個 future、跑完才回傳」的形狀，只是背後多了 ready queue
-- `Token` 主要留給 reactor/I/O 來源使用；第 13 集會介紹它，第 14 集會用 token 把 socket readiness 對應回 waker
-- 這一集的 `spawn` 先只接受 `Future<Output = ()>`，`block_on` 也還沒有回傳值（傳進來的 future 是 `Output = ()`）；下一集才加上 `JoinHandle<T>`，並讓 `block_on` 回傳它的值 `T`
+- `unpark` 是叫醒 executor 的門鈴；它不表示是哪個 task，真正該 poll 誰看 ready queue
+- `unpark` 早於 `park` 也沒關係（permit 特性，第 10 集）
+- `queued` 旗標用 `AtomicBool` + `swap(true, …)` 做 check-and-set，避免重複入列
+- `future` 欄位這次要 `+ Send`：因為它被收進 `Task`、`Task` 兼任 `Waker`、`Waker::from(Arc<Task>)` 要求 `Task: Send + Sync + 'static`，連帶要求每個欄位都是 `Send`（外包 `Mutex` 補 `Sync`）
+- `block_on(future)` 取代直接的 `run`：把 root 也 spawn 成 task，跑到所有 task 完成；本集還沒回傳值，下一集才回傳 `T`

@@ -1,121 +1,60 @@
-# `async` block：當場做出一個 Future
+# `async` block
 
 ## 本集目標
 
-學會用 `async { ... }` 在函數裡當場做出一個 future，並分清楚它和 `async fn` 的差別。
+認識 `async { ... }`：在函數裡**當場**做出一個 future。並回答一個有意思的問題：為什麼 `?` 不需要專屬語法、`.await` 卻需要一個 `async` 區塊？
 
 ## 概念說明
 
-### 除了 `async fn`，還有 `async` 區塊
+### `async fn` 對 `async` block，像具名函數對閉包
 
-到目前為止，我們的 future 都是從 `async fn` 來的——呼叫一個非同步函數，拿到一個 future。但其實還有另一種更隨手的做法：在程式中間直接寫一個 `async { ... }` 區塊。
+`async fn` 是定義一個**可重複呼叫的 future 工廠**：每呼叫一次，產出一個新的 future。`async { ... }` 則是**當場建立一個匿名的 future**：
 
 ```rust,ignore
-#[tokio::main]
-async fn main() {
-    let fut = async {
-        println!("我是一個 async 區塊");
-        42
-    };
+async fn make() -> i32 {   // future 工廠：呼叫一次生一個
+    1 + 2
+}
 
-    // 跟前面一樣，這時候 fut 只是個 future，裡面那行還沒印出來
-    let value = fut.await; // 推進它，才會印出來、才會拿到 42
-    println!("拿到：{}", value);
+fn main() {
+    let f1 = make();           // 具名工廠生出的 future
+    let f2 = async { 1 + 2 };  // 當場做的匿名 future
 }
 ```
 
-`async { ... }` 整塊就是一個運算式，它的值是一個 **future**。這個 future 被 `.await` 的時候，才會執行區塊裡的內容、算出最後的值。和第 3 集的結論完全一致：建出來什麼都還沒發生，`.await` 才真的跑。
+這個對比你也很熟：**`async fn` ↔ 具名函數，`async` block ↔ 閉包**。一個是定義好、可重複用的；一個是當場捏一個出來用。`async` block 常用來把「一小段需要 `.await` 的工作」就地包成一個 future，丟給 `spawn`、`join` 之類的東西。
 
-你可以把第 3 章學過的 block 運算式（`{ ... }` 本身是運算式）拿來類比：普通的 `{ ... }` 當場算出一個值，`async { ... }` 當場做出一個**還沒算的 future**。
+### 為什麼需要 `async` 這個語法？
 
-### 和 `async fn` 差在哪
+這裡有個值得想一下的對比。回到第 4 集「`?` 和 `.await` 是同一招」——那為什麼 **`?` 不需要任何新語法，`.await` 卻需要一個 `async { }`？**
 
-兩者都會產生 future，差別在「可不可以重複使用」：
-
-- `async fn` 是一個**工廠**。它定義了一份藍圖，你每呼叫一次，就生出一個**新的** future。可以呼叫很多次，生很多個。
-- `async { ... }` 是**當場做出來的那一個**匿名 future。它就是一個值，做出來就是那一個，不是藍圖。
+在 `Result` 世界，如果你想要「當場一段能用 `?` 的區塊」，其實用一個**立刻呼叫的閉包**就能表達，不需要任何新語法：
 
 ```rust,ignore
-async fn make() -> i32 { 1 } // 工廠：可以一直呼叫，每次生一個新 future
-
-#[tokio::main]
-async fn main() {
-    let f1 = make(); // 第一個 future
-    let f2 = make(); // 又一個全新的 future
-
-    let block = async { 1 }; // 當場做出的那一個 future，就這麼一個
-}
-```
-
-一個粗略但好記的對應：`async fn` 之於 `async block`，有點像「具名函數」之於「閉包」。函數可以到處呼叫，閉包是你當場做出來的那一個東西。
-
-### 為什麼非得有 `async { }` 這個語法？用 Result 對照就懂了
-
-承上一集「兩個世界」的對照。你可能會想：既然 `async block` 就像閉包，那是不是根本不需要特別的語法，直接用閉包就好？在 **Result 世界**，這個想法完全成立——你想當場寫一小段「中間可以用 `?`、最後給出一個 `Result`」的計算，根本不用任何新語法，一個**立刻呼叫的閉包**就辦到了：
-
-```rust,ignore
-let result: Result<i32, std::num::ParseIntError> = (|| {
-    let a: i32 = "10".parse()?; // 中間可以寫問號
-    let b: i32 = "20".parse()?;
+let r: Result<i32, _> = (|| {
+    let a = parse(x)?;
+    let b = parse(y)?;
     Ok(a + b)
-})(); // 後面這個 () 是「定義完馬上呼叫」
+})();   // 定義一個閉包，馬上呼叫它
 ```
 
-閉包本身就是一個函數，`?` 在裡面就是「從這個閉包提早 return」，所以這個閉包整個算出來就是一個 `Result`；後面加 `()` 當場呼叫它，`result` 就拿到結果了。在 Result 世界，「一個能用 `?` 的當場區塊」＝「一個立刻呼叫的閉包」，不需要任何新語法。
+那 Future 世界能不能照搬，寫成 `(|| { ... .await })()`？**不行。** 原因在第 4 集講過：`.await` 需要把整段程式**改寫成能暫停、能恢復的狀態機**。而普通閉包只會被編成「一呼叫就從頭跑到尾」的普通函數——它沒有「暫停」這回事，**表達不出那種改寫**。
 
-那 **Future 世界**能不能照搬，寫成 `(|| { ... .await ... })()`？**不行。** 原因就是上一集說的：`.await` 的規矩太重——它要求整段程式被**改寫成一台能暫停、能恢復的狀態機**（第 15 集）。而一個普通閉包，編譯出來就是一個普通函數：呼叫它、它一路跑到完、回傳，**沒有「暫停」這回事**。普通閉包語法根本表達不了那種改寫。
-
-所以 Rust 才給了 async 一個**專屬的區塊語法** `async { ... }`：它等於對編譯器說「請把這一塊改寫成一個 future（狀態機）」。同樣是「當場做一個包起來的計算」，Result 世界用現成的閉包就夠，Future 世界卻非得有自己的語法不可——差別正是 `.await` 背後那層沉重的改寫。
-
-### 什麼時候用 async block
-
-最常見的情境是：你需要一個 future 來傳給別人（例如丟給某個會幫你同時跑很多 future 的工具），但又懶得為它特地定義一個 `async fn`。這時候就地寫一個 `async { ... }` 最方便。本章後面講 `join!`、`spawn` 的時候會大量用到。
-
-它也常和 `move` 一起出現——`async move { ... }`，意思和第 6 章的 `move` 閉包一樣：把用到的外部變數**搬進**這個 future 裡，而不是用借的。當這個 future 之後可能跑得比現在的函數還久時（例如丟給別的執行緒），就需要 `move` 把資料的所有權帶著走。
+所以 async 才需要一個專屬語法 `async { ... }`：它等於是在跟編譯器說「**把這一塊改寫成一個 future（狀態機）**」。`?` 借得到現成的閉包語法，`.await` 借不到，這就是 `async` 區塊存在的理由。
 
 ```rust,ignore
-#[tokio::main]
-async fn main() {
-    let name = String::from("Rust");
+// Result 世界：借用現成的閉包就行
+let r = (|| { parse(x)?; Ok(()) })();
 
-    let greeting = async move {
-        // name 被搬進這個 future 裡
-        format!("你好，{}！", name)
-    };
-
-    println!("{}", greeting.await);
-}
+// Future 世界：借不到，需要專屬語法
+let f = async { something().await; };
+//      ^^^^^ 叫編譯器把這塊改寫成 future
 ```
 
-## 範例程式碼
-
-```rust,ignore
-#[tokio::main]
-async fn main() {
-    let numbers = vec![1, 2, 3];
-
-    // 當場做一個 future，把整個 vec 搬進去處理
-    let sum_future = async move {
-        let mut total = 0;
-        for n in numbers {
-            total += n;
-        }
-        total
-    };
-
-    // 做出來的當下什麼都還沒算
-    println!("future 已建立，但還沒計算");
-
-    let total = sum_future.await; // 現在才真的跑迴圈
-    println!("總和是 {}", total);
-}
-```
+（補充：之後第 33 集會看到 `async || { }`（async 閉包）——它本身也是 async 專屬語法，並不違背這個結論。）
 
 ## 重點整理
 
-- `async { ... }` 是一個運算式，它的值是一個 **future**；被 `.await` 時才執行
-- `async fn` 像**工廠**：每次呼叫生一個新 future；`async block` 是**當場做出的那一個**匿名 future
-- 類比：`async fn` ↔ 具名函數，`async block` ↔ 閉包
-- 對照 Result 世界：那邊「能用 `?` 的當場區塊」用一個立刻呼叫的閉包 `(|| { ...? ; Ok(..) })()` 就行；async 因為 `.await` 要把程式改寫成狀態機，普通閉包表達不了，才需要專屬的 `async { }` 語法
-- 需要一個 future 又懶得定義函數時，就地寫 `async { ... }` 最方便
-- `async move { ... }` 會把用到的外部變數搬進 future 裡（和第 6 章 `move` 閉包同理）
+- `async { ... }` 在函數裡**當場**建立一個匿名 future；對比 `async fn` 是「可重複呼叫的 future 工廠」，就像**閉包對具名函數**
+- `Result` 世界要「當場一段能用 `?` 的區塊」，用立刻呼叫的閉包 `(|| { ...? ; Ok(..) })()` 就行，不需新語法
+- Future 世界不能照搬成 `(|| { ... .await })()`，因為 `.await` 要把整段改寫成狀態機，而普通閉包只會編成「呼叫就跑到完」的普通函數，表達不了「暫停」
+- 所以 `async` 才需要專屬語法——`async { }` 等於叫編譯器「把這塊改寫成一個 future」

@@ -1,4 +1,4 @@
-# 回到 Tokio：`block_on`、`spawn` 與 `Send + 'static`
+# 回到 Tokio
 
 ## 本集目標
 

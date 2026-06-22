@@ -116,6 +116,8 @@ impl Future for Delay {
 }
 ```
 
+`started` 這個旗標很重要：`poll` 可能被呼叫很多次，但「派一條計時執行緒」這件事只能做**一次**。所以第一次 poll 時設 `started = true` 並 spawn 計時 thread，之後再被 poll 就跳過，不會重複生 thread。
+
 （這裡能直接改 `self.started`，是因為 `Delay` 的欄位都能安全搬動，所以它是 `Unpin`——這個詞第 18 集會解釋，現在先放著。）
 
 現在整條鏈完整了：executor poll `Delay` → 還沒到期 → `Delay` 派一條計時執行緒、留下 Waker、回 `Pending` → executor `park` 睡著 → 時間到，計時執行緒 `wake` → executor 被 unpark 叫醒 → 再 poll 一次 → 這次到期了，`Ready`。全程不再空轉。
@@ -128,17 +130,74 @@ impl Future for Delay {
 
 所以「開 thread 來等」只是這一集為了**先把喚醒模型跑通**而用的權宜手段。真正重要、會留下來的，是那套機制本身：**future 回 `Pending` 時留下 Waker，事件源頭好了就 `wake`**——至於事件源是計時器、是網路封包到了、還是別的，都套用同一套。
 
-但「怎麼等事件」這一塊，我們需要一個**更好的辦法**：用少少幾條（甚至一條）執行緒，同時盯著成千上萬個事件，哪個好了就 `wake` 對應的 future。這個更好的辦法叫 **reactor**，正是第 14 集的主題。
+接下來的安排是：先把「被 wake 的 future 要怎麼回到 executor」做成 **ready queue**（第 11 集），再把「怎麼用少少幾條執行緒盯住很多 I/O」交給 **reactor**（第 14 集）。
 
 ## 範例程式碼
 
-把上面的 `ThreadWaker`、`run`、`Delay` 三段拼起來，加上：
+把上面的 `ThreadWaker`、`run`、`Delay` 拼起來：
 
 ```rust,ignore
+use std::future::Future;
+use std::pin::Pin;
+use std::sync::Arc;
+use std::task::{Context, Poll, Wake, Waker};
+use std::thread;
+use std::thread::Thread;
+use std::time::{Duration, Instant};
+
+struct ThreadWaker(Thread);
+impl Wake for ThreadWaker {
+    fn wake(self: Arc<Self>) {
+        self.0.unpark();
+    }
+}
+
+fn run<F: Future>(future: F) -> F::Output {
+    let mut future = Box::pin(future);
+    let waker: Waker = Arc::new(ThreadWaker(thread::current())).into();
+    let mut cx = Context::from_waker(&waker);
+    loop {
+        match future.as_mut().poll(&mut cx) {
+            Poll::Ready(value) => return value,
+            Poll::Pending => thread::park(),
+        }
+    }
+}
+
+struct Delay {
+    when: Instant,
+    started: bool,
+}
+impl Future for Delay {
+    type Output = ();
+    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {
+        if Instant::now() >= self.when {
+            return Poll::Ready(());
+        }
+        if !self.started {
+            self.started = true;
+            let waker = cx.waker().clone();
+            let when = self.when;
+            thread::spawn(move || {
+                let now = Instant::now();
+                if now < when {
+                    thread::sleep(when - now);
+                }
+                waker.wake();
+            });
+        }
+        Poll::Pending
+    }
+}
+
 fn main() {
     println!("開始等 2 秒（這次 executor 是睡著等，不燒 CPU）");
     run(async {
-        Delay { when: Instant::now() + std::time::Duration::from_secs(2), started: false }.await;
+        Delay {
+            when: Instant::now() + Duration::from_secs(2),
+            started: false,
+        }
+        .await;
         println!("時間到！");
     });
 }
@@ -152,6 +211,6 @@ fn main() {
 - 自己做 Waker：實作 `std::task::Wake` trait（回答「被 wake 時做什麼」），再把 `Arc<W>` 用 `.into()` 轉成 `Waker`
 - 喚醒模型讓 executor 可以「`Pending` 就睡（`thread::park`）、被 `wake`（`unpark`）才醒來再 poll」，不再空轉燒 CPU
 - `unpark` 可以發生在 `park` 之前：它會留下一張 permit，下一次 `park()` 立刻返回——所以就算 wake 落在「`poll` 回 `Pending`」到「`park()`」的空檔，也不會漏接（不會睡死）
-- future（如 `Delay`）回 `Pending` 前要負責安排：事件好了的時候呼叫 `cx.waker().clone()` 拿到的 Waker 的 `wake()`
+- future（如 `Delay`）回 `Pending` 前要負責安排：事件好了的時候呼叫 `cx.waker().clone()` 拿到的 Waker 的 `wake()`；用 `started` 旗標確保「派計時 thread」只做一次
 - 用 thread 計時只是這次的手段；真正通用的是「`Pending` 留 Waker、事件源 `wake`」這套機制
-- 但「每個等待的 future 開一條 thread」顯然不理想——thread 很吃記憶體（第 2 集），一萬個連線就一萬條，正是 async 想避免的；所以「怎麼等事件」需要更好的辦法：**reactor**（第 14 集），用少少幾條執行緒盯住成千上萬個事件
+- 但「每個等待的 future 開一條 thread」顯然不理想——thread 很吃記憶體（第 2 集），一萬個連線就一萬條，正是 async 想避免的；接下來用 ready queue（第 11 集）與 reactor（第 14 集）解決
