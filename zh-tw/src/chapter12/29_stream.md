@@ -1,4 +1,4 @@
-# `Stream`：async 版的 iterator
+# `Stream`
 
 ## 本集目標
 

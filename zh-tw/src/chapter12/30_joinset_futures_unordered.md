@@ -88,6 +88,8 @@ async fn main() {
 
 和 `JoinSet` 寫起來幾乎一樣,但底層差很多:`FuturesUnordered` 的 future **沒有變成獨立 task**,而是全部在目前這顆 task 裡輪流被 poll。所以:**不需要 `Send + 'static`**(可以放心借用周圍的區域變數)、回傳的就是 future 的值本身(沒有 `JoinError`,因為沒有獨立 task 可 panic/abort);但相對地,它們**不會跨 thread 平行**,而且某個 future 若長時間不 `.await`(重計算、blocking),會卡住同容器裡的其他 future(整顆 task 都被它佔住)。
 
+還有一個關鍵差別:**`FuturesUnordered` 不依賴任何特定的 runtime／executor 實作。** 它本身只是一個「把裡面的 future 輪流 poll」的 `Future`／`Stream`——不 spawn、不碰排程器,**只要有人 poll 它就能動**。所以它在 tokio、smol、甚至我們第 6～14 集手寫的那台 executor 上都能用。`JoinSet` 剛好相反:它的 `spawn` 是把 task 交給 **tokio 的** runtime,離開 tokio 就不能用。這也正是第 32 集會講的 **runtime-agnostic vs runtime-specific** 的分別——`FuturesUnordered` 是前者,`JoinSet` 是後者。
+
 ### 怎麼選
 
 ```text
@@ -99,6 +101,7 @@ Send + 'static   不需要（可借用區域變數）        需要（因為 spa
 panic            一個 branch panic 會炸整顆 task  變成 join_next 的 Err
 整批取消          丟掉容器即停                    abort_all() / drop 時自動 abort
 出身             futures crate                  tokio
+依賴 runtime     不依賴（任何 executor 都能用）   依賴 tokio runtime
 對應第 22 集     join! 的動態版                  spawn 的動態版
 ```
 
@@ -138,5 +141,5 @@ async fn main() {
 - `join!` 適合**固定、少量**的 future;**大量、動態產生**的用 `JoinSet` 或 `FuturesUnordered`
 - 兩者對應第 22 集的兩個世界:**`FuturesUnordered` = `join!` 的動態版**(同一 task 多工)、**`JoinSet` = `spawn` 的動態版**(獨立 task)
 - `JoinSet`(tokio):每個工作是獨立 task,**可跨 thread 平行**,要 `Send + 'static`;`join_next()` 回 `Result<T, JoinError>`,panic/abort 會收到 `Err`;`abort_all()` 或 drop 可整批取消
-- `FuturesUnordered`(futures crate):在**同一 task** 內多工,**不跨 thread、不需 `Send + 'static`**(可借用區域變數),但一個 branch 卡住會拖累其他
+- `FuturesUnordered`(futures crate):在**同一 task** 內多工,**不跨 thread、不需 `Send + 'static`**(可借用區域變數),但一個 branch 卡住會拖累其他;它**不依賴特定 runtime**(只是個 poll 內部 future 的 `Stream`,tokio／smol／手寫 executor 都能用),`JoinSet` 則綁 tokio——呼應第 32 集 runtime-agnostic vs runtime-specific
 - 兩者都能「完成一個補一個」限制併發數;`for_each_concurrent(N, …)` 是更高階的包裝,延續第 25 集 backpressure 精神
