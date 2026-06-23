@@ -1,4 +1,4 @@
-# Rust 教學影片大綱
+# Rust 教學大綱
 
 ## 非同步
 
@@ -38,12 +38,12 @@
 
 ---
 
-## Optional 進階補充
+## 附錄二
 
 以下主題超出基礎教學範圍，供進階學習者參考：
 
-- **Lifetime Bound** — `'a: 'b` 表示 `'a` outlives `'b`；`T: 'a` 表示 T 內的所有參考都活得過 `'a`；當函數或 struct 有多個 lifetime 參數時，指定它們之間的關係
-- **HRTB（Higher-Ranked Trait Bounds）** — `for<'a> Fn(&'a str) -> &'a str`；當 lifetime 不能在函數簽名上寫死時使用；thread::scope 的簽名完整解讀
-- **Variance** — covariant / contravariant / invariant；`&'a T` 對 `'a` 是 covariant，`&'a mut T` 對 `T` 是 invariant；用 `PhantomData` 控制 variance
+- **lifetime bound** — `'a: 'b` 表示 `'a` outlives `'b`；當函數或 struct 有多個 lifetime 參數時，指定它們之間的關係
+- **HRTB（Higher-Ranked Trait Bounds）** — `for<'a> Fn(&'a str) -> &'a str`；當 lifetime 不能在函數簽名上寫死時使用；`thread::scope` 的簽名完整解讀
+- **variance** — covariant / contravariant / invariant；`&'a T` 對 `'a` 是 covariant，`&'a mut T` 對 `T` 是 invariant；用 `PhantomData` 控制 variance
 - **GAT（Generic Associated Types）** — associated type 帶泛型參數：`type Item<'a> where Self: 'a;`；Rust 最接近 HKT 的功能；主要用於 lending iterator 等 library 設計
-- **RPIT 進階（`use<...>`）** — Return Position Impl Trait 的 lifetime 捕捉行為；`impl Trait + use<T>` 精確控制捕捉哪些泛型參數和 lifetime；Rust 2024 edition 的行為變更
+- **RPIT 進階（`use<...>`）** — Return Position `impl Trait` 的 lifetime 捕捉行為；`impl Trait + use<T>` 精確控制捕捉哪些泛型參數和 lifetime；Rust 2024 edition 的行為變更
