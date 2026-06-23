@@ -251,4 +251,3 @@
     - [`JoinSet` 與 `FuturesUnordered`](chapter12/30_joinset_futures_unordered.md)
     - [測試 `async` 程式](chapter12/31_testing_async.md)
     - [Tokio 以外的 runtime](chapter12/32_other_runtimes.md)
-    - [`async` 閉包](chapter12/33_async_closure.md)

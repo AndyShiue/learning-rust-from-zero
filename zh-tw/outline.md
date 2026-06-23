@@ -34,7 +34,6 @@
 30. **`JoinSet` 與 `FuturesUnordered`** — `join!` 適合固定少量、異質 futures，與其對比，「大量、動態產生、誰先好先處理」的工作有兩條路：**`JoinSet`（tokio）＝ `spawn` 的動態版**——每個工作是獨立 `Task`，可跨 worker `Thread` 真平行，需 `Send + 'static`，`join_next()` 回 `Result<T, JoinError>`（panic ／ abort 會收到 `Err`），且支援 `abort_all()` ／ `drop` 時自動 abort；**`FuturesUnordered`（futures crate）＝ `join!` 的動態版**——在同一個 `Task` 內多工，不跨 `Thread`、不需 `Send + 'static`（可借用區域變數），但一個 branch 卡住會拖累其他；而且它不依賴特定 runtime ／ executor 實作（本身只是個「把內部 `Future` 輪流 `poll`」的 `Stream`，不 `spawn`、不碰排程器），相對地 `JoinSet` 的 `spawn` 綁 Tokio runtime。兩者都「誰先完成就先產生結果」，適合爬蟲、批次請求；要真平行／互不影響用 `JoinSet`，想就地借用、工作輕量用 `FuturesUnordered`；都能「完成一個補一個」限制並行，`for_each_concurrent(N, …)` 是更高階包裝（backpressure）。
 31. **測試 `async` 程式** — 介紹 `#[tokio::test]`：自動幫測試函數套上 runtime，不用自己 `block_on`；並說明 `tokio::time::pause()` / `advance()` 可以手動推進時間，讓牽涉 timeout、延遲的測試變得 deterministic、不必真的空等；呼應前面第 7 章的 `cargo test`
 32. **Tokio 以外的 runtime** — 說明 Rust 標準庫只定義 `Future` 等語言層抽象，並沒有內建 async runtime；runtime 通常包含 executor、reactor、timer、I/O 與 `Task` 的設計。以 Tokio 為主流對照 smol、已停止維護的 async-std、以及 monoio / glommio / Embassy 等特化 runtime，說明不同 runtime 的各方面可能不同，寫程式時可以注意用的或寫的是 runtime-agnostic 的 `Future` 組合邏輯還是用到了 runtime-specific 的 I/O、timer、`spawn`
-33. **`async` 閉包** — 介紹 Rust 的 async closure `async || { ... }`，對比 `|| async { ... }` 的 capture 與 lifetime 差異；說明 `AsyncFn`、`AsyncFnMut`、`AsyncFnOnce` 讓高階函數可以直接表達「接受一個可被 await 的 closure」，並回顧過去常見的 `Fn(...) -> Fut where Fut: Future` 寫法
 
 ---
 
@@ -46,4 +45,5 @@
 - **HRTB（Higher-Ranked Trait Bounds）** — `for<'a> Fn(&'a str) -> &'a str`；當 lifetime 不能在函數簽名上寫死時使用；`thread::scope` 的簽名完整解讀
 - **variance** — covariant / contravariant / invariant；`&'a T` 對 `'a` 是 covariant，`&'a mut T` 對 `T` 是 invariant；用 `PhantomData` 控制 variance
 - **GAT（Generic Associated Types）** — associated type 帶泛型參數：`type Item<'a> where Self: 'a;`；Rust 最接近 HKT 的功能；主要用於 lending iterator 等 library 設計
-- **RPIT 進階（`use<...>`）** — Return Position `impl Trait` 的 lifetime 捕捉行為；`impl Trait + use<T>` 精確控制捕捉哪些泛型參數和 lifetime；Rust 2024 edition 的行為變更
+- **`async` 閉包** — 介紹 Rust 的 async closure `async || { ... }`，對比 `|| async { ... }` 的 capture 與 lifetime 差異；說明 `AsyncFn`、`AsyncFnMut`、`AsyncFnOnce` 讓高階函數可以直接表達「接受一個可被 await 的 closure」，並回顧過去常見的 `Fn(...) -> Fut where Fut: Future` 寫法
+- **RPIT 簡介** — Return Position `impl Trait` 的 lifetime 捕捉行為；`impl Trait + use<T>` 精確控制捕捉哪些泛型參數和 lifetime；Rust 2024 edition 的行為變更
