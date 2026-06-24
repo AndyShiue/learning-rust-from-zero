@@ -50,7 +50,7 @@ let f = async { something().await; };
 //      ^^^^^ 叫編譯器把這塊改寫成 future
 ```
 
-（補充：之後第 33 集會看到 `async || { }`（async 閉包）——它本身也是 async 專屬語法，並不違背這個結論。）
+（補充：`async || { }`（async 閉包）本身也是 async 專屬語法，並不違背這個結論——詳見附錄二。）
 
 ## 重點整理
 

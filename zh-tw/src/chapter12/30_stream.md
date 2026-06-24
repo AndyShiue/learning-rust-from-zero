@@ -46,7 +46,7 @@ async fn main() {
 
 實務上你很少自己從零做 stream,而是從別的東西**轉**出來:
 
-- 一個 channel 的 receiver(第 26 集)可以包成 stream,於是「陸續送來的訊息」就成了一串 item。
+- 一個 channel 的 receiver(第 27 集)可以包成 stream,於是「陸續送來的訊息」就成了一串 item。
 - 一個網路連線可以包成「一行一行的文字」stream。
 - 計時器可以做成「每隔 N 秒吐一個」的 stream。
 

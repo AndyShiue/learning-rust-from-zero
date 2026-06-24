@@ -8,7 +8,7 @@
 
 ### `join!` 的極限
 
-第 22 集的 `join!` 很好用,但它有兩個前提:future 的數量是**固定**的(你寫程式時就要把每個分支列出來),而且通常數量不多。
+第 23 集的 `join!` 很好用,但它有兩個前提:future 的數量是**固定**的(你寫程式時就要把每個分支列出來),而且通常數量不多。
 
 可是真實工作常常是:「我有一個清單,裡面 500 個網址,要全部抓下來,最多同時抓 50 個。」這裡 future 是**動態產生**的(跑的時候才知道有幾個)、而且**數量很多**。你沒辦法寫 `join!(抓第1個, …, 抓第500個)`——數量不固定,根本列不出來。
 
@@ -61,7 +61,7 @@ async fn main() {
 
 ### `FuturesUnordered`：在同一個 task 內多工
 
-`FuturesUnordered`(來自 `futures` crate)是一個**裝 future 的容器**。你把一堆 future 丟進去,它在**目前這一個 task** 裡同時推進它們;它本身是一個 stream(第 29 集),用 `next().await` 拿結果,**哪個先完成就先吐出哪個**。
+`FuturesUnordered`(來自 `futures` crate)是一個**裝 future 的容器**。你把一堆 future 丟進去,它在**目前這一個 task** 裡同時推進它們;它本身是一個 stream(第 30 集),用 `next().await` 拿結果,**哪個先完成就先吐出哪個**。
 
 ```rust,ignore
 use futures::stream::FuturesUnordered;
@@ -88,7 +88,7 @@ async fn main() {
 
 和 `JoinSet` 寫起來幾乎一樣,但底層差很多:`FuturesUnordered` 的 future **沒有變成獨立 task**,而是全部在目前這顆 task 裡輪流被 poll。所以:**不需要 `Send + 'static`**(可以放心借用周圍的區域變數)、回傳的就是 future 的值本身(沒有 `JoinError`,因為沒有獨立 task 可 panic/abort);但相對地,它們**不會跨 thread 平行**,而且某個 future 若長時間不 `.await`(重計算、blocking),會卡住同容器裡的其他 future(整顆 task 都被它佔住)。
 
-還有一個關鍵差別:**`FuturesUnordered` 不依賴任何特定的 runtime／executor 實作。** 它本身只是一個「把裡面的 future 輪流 poll」的 `Future`／`Stream`——不 spawn、不碰排程器,**只要有人 poll 它就能動**。所以它在 tokio、smol、甚至我們第 6～14 集手寫的那台 executor 上都能用。`JoinSet` 剛好相反:它的 `spawn` 是把 task 交給 **tokio 的** runtime,離開 tokio 就不能用。這也正是第 32 集會講的 **runtime-agnostic vs runtime-specific** 的分別——`FuturesUnordered` 是前者,`JoinSet` 是後者。
+還有一個關鍵差別:**`FuturesUnordered` 不依賴任何特定的 runtime／executor 實作。** 它本身只是一個「把裡面的 future 輪流 poll」的 `Future`／`Stream`——不 spawn、不碰排程器,**只要有人 poll 它就能動**。所以它在 tokio、smol、甚至我們第 6～14 集手寫的那台 executor 上都能用。`JoinSet` 剛好相反:它的 `spawn` 是把 task 交給 **tokio 的** runtime,離開 tokio 就不能用。這也正是第 33 集會講的 **runtime-agnostic vs runtime-specific** 的分別——`FuturesUnordered` 是前者,`JoinSet` 是後者。
 
 ### 怎麼選
 
@@ -102,7 +102,7 @@ panic            一個 branch panic 會炸整顆 task  變成 join_next 的 Err
 整批取消          丟掉容器即停                    abort_all() / drop 時自動 abort
 出身             futures crate                  tokio
 依賴 runtime     不依賴（任何 executor 都能用）   依賴 tokio runtime
-對應第 22 集     join! 的動態版                  spawn 的動態版
+對應第 23 集     join! 的動態版                  spawn 的動態版
 ```
 
 口訣:**想要真平行、或工作之間互不影響 → `JoinSet`;想就地借用區域變數、不想 spawn、工作很輕 → `FuturesUnordered`。**
@@ -130,7 +130,7 @@ async fn main() {
 # async fn fetch(_url: &str) {}
 ```
 
-那個 `2` 就是併發上限——和第 25 集 semaphore 限制同時數量是同一個 backpressure 精神,只是換了更順手的寫法。
+那個 `2` 就是併發上限——和第 26 集 semaphore 限制同時數量是同一個 backpressure 精神,只是換了更順手的寫法。
 
 ## 範例程式碼
 
@@ -139,7 +139,7 @@ async fn main() {
 ## 重點整理
 
 - `join!` 適合**固定、少量**的 future;**大量、動態產生**的用 `JoinSet` 或 `FuturesUnordered`
-- 兩者對應第 22 集的兩個世界:**`FuturesUnordered` = `join!` 的動態版**(同一 task 多工)、**`JoinSet` = `spawn` 的動態版**(獨立 task)
+- 兩者對應第 23 集的兩個世界:**`FuturesUnordered` = `join!` 的動態版**(同一 task 多工)、**`JoinSet` = `spawn` 的動態版**(獨立 task)
 - `JoinSet`(tokio):每個工作是獨立 task,**可跨 thread 平行**,要 `Send + 'static`;`join_next()` 回 `Result<T, JoinError>`,panic/abort 會收到 `Err`;`abort_all()` 或 drop 可整批取消
-- `FuturesUnordered`(futures crate):在**同一 task** 內多工,**不跨 thread、不需 `Send + 'static`**(可借用區域變數),但一個 branch 卡住會拖累其他;它**不依賴特定 runtime**(只是個 poll 內部 future 的 `Stream`,tokio／smol／手寫 executor 都能用),`JoinSet` 則綁 tokio——呼應第 32 集 runtime-agnostic vs runtime-specific
-- 兩者都能「完成一個補一個」限制併發數;`for_each_concurrent(N, …)` 是更高階的包裝,延續第 25 集 backpressure 精神
+- `FuturesUnordered`(futures crate):在**同一 task** 內多工,**不跨 thread、不需 `Send + 'static`**(可借用區域變數),但一個 branch 卡住會拖累其他;它**不依賴特定 runtime**(只是個 poll 內部 future 的 `Stream`,tokio／smol／手寫 executor 都能用),`JoinSet` 則綁 tokio——呼應第 33 集 runtime-agnostic vs runtime-specific
+- 兩者都能「完成一個補一個」限制併發數;`for_each_concurrent(N, …)` 是更高階的包裝,延續第 26 集 backpressure 精神

@@ -109,7 +109,7 @@ async fn main() {
 }
 ```
 
-用一個 `{}` 區塊把 `Rc` 的生命週期限制在 `.await` 之前,它就不會被存進狀態機、不會汙染 future 的 `Send`。記住這個診斷:**看到「future is not Send」,先找哪個非 `Send` 的值跨過了 `.await`。** 後面講 tokio 的鎖時(第 28 集)還會再遇到這個坑。
+用一個 `{}` 區塊把 `Rc` 的生命週期限制在 `.await` 之前,它就不會被存進狀態機、不會汙染 future 的 `Send`。記住這個診斷:**看到「future is not Send」,先找哪個非 `Send` 的值跨過了 `.await`。** 後面講 tokio 的鎖時(第 29 集)還會再遇到這個坑。
 
 ### 可以改 runtime 的種類
 
@@ -124,6 +124,8 @@ async fn main() { }
 ```
 
 `current_thread` 整個 runtime 只用一條執行緒(task 不會跨執行緒,所以不少 `Send` 限制會放寬);多執行緒版可以指定要幾條 worker。初學階段用預設就好,知道有得調即可。
+
+（還有一條和 worker 執行緒密切相關的重要原則:一個 task 不能長時間**霸佔** worker 執行緒,否則會拖垮整台 runtime。這牽涉到「不要在 async 裡做 blocking 工作」以及解法 `spawn_blocking`,下一集會專門講。）
 
 ## 範例程式碼
 
@@ -157,3 +159,4 @@ async fn main() {
 - 預設 multi-thread runtime 會把 task 在 worker 執行緒間搬動,所以 spawn 的 future 要 **`Send + 'static`**
 - 最常見錯誤:**非 `Send` 的值(如 `Rc`、稍後的 `MutexGuard`)跨越 `.await`** → future 不是 `Send`;解法是別讓它活過 `.await`(用 `{}` 限制範圍)
 - runtime 種類可調:`current_thread` 單執行緒、`multi_thread` + `worker_threads = N`
+- worker 執行緒會輪流 `poll` 很多 task,所以一個 task 不能長時間霸佔 worker——這條原則與解法 `spawn_blocking` 留到下一集

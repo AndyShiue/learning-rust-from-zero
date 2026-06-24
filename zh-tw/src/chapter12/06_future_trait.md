@@ -147,7 +147,7 @@ fn main() {
 - **單執行緒還是多執行緒？** 本章手寫的都是單執行緒；Tokio 預設用多條 worker thread，還會在 thread 之間搬移 task（work-stealing）來平衡負載（第 21 集）。
 - **怎麼等 I/O？** 每個等待各開一條 thread 是權宜之計（第 10 集）；用一條 **reactor** thread 同時盯住成千上萬個 I/O 來源才是正解（第 14 集）。
 
-正因為這些都是「選擇」而不是「定論」，Rust 標準庫**乾脆不內建 runtime**，只定義 `Future` 這個共通介面，把 executor、reactor、排程策略統統留給社群——這就是為什麼會有 Tokio、smol 等不同 runtime，各自做不同取捨（第 32 集）。
+正因為這些都是「選擇」而不是「定論」，Rust 標準庫**乾脆不內建 runtime**，只定義 `Future` 這個共通介面，把 executor、reactor、排程策略統統留給社群——這就是為什麼會有 Tokio、smol 等不同 runtime，各自做不同取捨（第 33 集）。
 
 所以接下來幾集，我們就是從這台「最笨」的版本出發，一步步把上面這些選擇補進去，最後長成一個更接近真實 runtime 的樣子。
 
@@ -170,6 +170,6 @@ fn main() {
 - `poll` 能把 `self` 寫成 `self: Pin<&mut Self>`，是因為 `Pin` 是少數被允許放在 `self` 位置的特殊型別之一（和 `Box`／`Rc`／`Arc` 一樣）；你自己定義的型別不能這樣用
 - 要 poll 一個 future，先用 **`Box::pin`** 得到 `Pin<Box<F>>`（`fn pin(x: T) -> Pin<Box<T>>`），再用 **`Pin::as_mut`** 借出 `Pin<&mut F>`（`fn as_mut(&mut self) -> Pin<&mut F>`）——正是 `poll` 的 `self` 要的型別
 - **executor** 就是「不斷 poll 一個 future 直到 `Ready`」的東西；我們用一個 `loop` 就寫出了最陽春的版本
-- executor 沒有標準答案：標準庫只定義 `Future`／`poll` 介面，「遇到 `Pending` 怎麼辦、怎麼睡、單還是多執行緒、怎麼等 I/O」全是設計選擇；本章從最笨版本一步步演進到接近真實 runtime，Rust 也因此不內建 runtime（第 32 集）
+- executor 沒有標準答案：標準庫只定義 `Future`／`poll` 介面，「遇到 `Pending` 怎麼辦、怎麼睡、單還是多執行緒、怎麼等 I/O」全是設計選擇；本章從最笨版本一步步演進到接近真實 runtime，Rust 也因此不內建 runtime（第 33 集）
 - 這個笨版本遇到 `Pending` 會空轉燒 CPU；後面會用 Waker 讓它學會「睡著、被叫醒」
 - 到此為止（第 3–6 集）寫的 async 都「沒在等東西」、一 poll 就 `Ready`，純粹是示範機制用的；下一集的 `Delay` 才是第一個真的會 `Pending`、更像真正 async 的 future

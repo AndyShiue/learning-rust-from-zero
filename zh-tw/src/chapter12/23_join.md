@@ -2,7 +2,7 @@
 
 ## 本集目標
 
-用 tokio 內建的 `join!` 讓多個 future 並行,不用自己手寫第 9 集那個 `Join`;順帶認識 `spawn_blocking` 與「不要在 async 裡做 blocking」這條重要原則。
+用 tokio 內建的 `join!` 讓多個 future 並行,不用自己手寫第 9 集那個 `Join`;並看清 `join!` 的並行是「一條執行緒上輪流」、不是 CPU 平行——一個分支若霸佔執行緒,會連兄弟分支一起拖住(這正是第 22 集「不要 block worker 執行緒」的具體案例)。
 
 ## 概念說明
 
@@ -84,35 +84,13 @@ async fn main() {
 
 `join!` 一定等全部跑完;`try_join!` 一遇到第一個 `Err` 就提早回傳那個錯誤。
 
-### 重要警告:並行 ≠ CPU 平行,別在裡面做 blocking
+### 重要警告:並行 ≠ CPU 平行
 
-這是非常容易誤會、也很容易出事的一點。`join!` 的並行,是「在一條執行緒上輪流推進」,**不是**讓 CPU 同時開好幾顆核心算(那叫平行,parallelism)。所以:
+這是非常容易誤會的一點。`join!` 的並行,是「在**同一顆 task、同一條執行緒**上輪流推進各分支」,**不是**讓 CPU 同時開好幾顆核心算(那叫平行,parallelism)。實際上 `join!` 在自己被 `poll` 的那一次裡,會把各分支**一個接一個**地 `poll` 過去;一個分支回 `Pending` 才換下一個。
 
-如果你 `join!` 的某個分支裡,做了一件**長時間不 `.await`** 的事——例如一個跑很久的純計算迴圈,或呼叫了一個**會卡住的同步函式**(像 `std::thread::sleep`、`std::fs` 的同步讀檔、一個慢的同步資料庫呼叫)——那這個分支會把整條執行緒**霸佔住**,在它做完之前,同一條執行緒上的其他 future(包括 `join!` 的其他分支、甚至整個 runtime 上別的 task)全都被**卡住、動彈不得**。
+這帶來一個直接後果:如果你 `join!` 的某個分支裡做了一件**長時間不 `.await`** 的事——一個跑很久的純計算迴圈,或一個**會卡住的同步呼叫**——那這個分支會把執行緒**霸佔住**,在它做完之前,**同一個 `join!` 裡的其他分支連被 `poll` 的機會都沒有**,全被它拖住。你以為寫了 `join!` 就會「同時發生」,結果一個 block 的分支就讓並行的假象破功。
 
-記住這條原則:**不要在 async 程式裡做會 blocking 的事。** async 的「讓出執行緒」只在 `.await` 時發生;一段不 `.await` 的程式碼,執行緒就一直被它佔著。
-
-### 真要做 blocking 的事:`spawn_blocking`
-
-那如果你**就是**得做一件耗時的同步工作(一個沒有 async 版本的函式庫、一段很重的計算)呢?tokio 提供 `spawn_blocking`:把這件事丟到一個**專門給 blocking 工作用的執行緒池**去做,不要卡到負責跑 async 的 worker 執行緒。
-
-```rust,ignore
-#[tokio::main]
-async fn main() {
-    let result = tokio::task::spawn_blocking(|| {
-        // 這裡可以安心做會卡住的同步工作,因為它在專用的 blocking 執行緒上
-        let mut sum: u64 = 0;
-        for i in 0..1_000_000_000 { sum += i; } // 很重的純計算
-        sum
-    })
-    .await
-    .unwrap();
-
-    println!("{}", result);
-}
-```
-
-`spawn_blocking` 回傳一個可以 `.await` 的 handle。重點是:它把「會卡執行緒」的工作隔離到專用的池子,你的 async 主流程就不會被拖垮。判準很簡單——**如果一段程式碼會長時間不還執行緒(重計算、同步 I/O),就用 `spawn_blocking` 包起來。**
+這其實就是第 22 集那條「**不要 block 住 worker 執行緒**」原則在 `join!` 上的具體案例——只是這裡被拖住的不只是別的 task,還包括你 `join!` 在一起的兄弟分支。要在 async 裡做不得不做的 blocking 工作,一樣是用第 22 集的 `tokio::task::spawn_blocking` 把它隔離出去。
 
 ## 範例程式碼
 
@@ -142,5 +120,4 @@ async fn main() {
 - `join!` 在**同一個 task** 裡多工(不像 `spawn` 變獨立 task、跨執行緒),所以 future **不需要 `Send + 'static`**,適合固定數量、就地的並行
 - `join!` 是**巨集**不是函式：因為它要吃「任意數量、各自不同型別」的 future，回傳一個形狀對應的 tuple——Rust 函式不能 variadic，只有巨集能在編譯期按你傳的 branch 生成程式碼（對照第 9 集 `JoinAll` 是「同型別、動態數量」，用一般 struct 就行）
 - `try_join!`:任一分支回 `Err` 就提早回傳該錯誤(`join!` 一定等全部)
-- `join!` 的並行**不是 CPU 平行**;某個分支若長時間不 `.await`(重計算或同步 blocking 呼叫),會卡住整條執行緒
-- **不要在 async 裡做 blocking 的事**;真的得做,就用 `tokio::task::spawn_blocking` 丟到專用執行緒池
+- `join!` 的並行**不是 CPU 平行**:各分支在**同一顆 task、同一條執行緒**上被輪流 `poll`;某分支長時間不 `.await`(重計算或同步 blocking 呼叫)會連兄弟分支一起卡死——這是第 22 集「不要 block worker 執行緒 / `spawn_blocking`」在 `join!` 上的具體後果
