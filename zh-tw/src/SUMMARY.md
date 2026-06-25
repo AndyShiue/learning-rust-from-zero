@@ -250,5 +250,6 @@
     - [`async` 的 `Mutex`、`RwLock` 與 `Notify`](chapter12/29_async_sync_primitives.md)
     - [`Stream`](chapter12/30_stream.md)
     - [`JoinSet` 與 `FuturesUnordered`](chapter12/31_joinset_futures_unordered.md)
-    - [測試 `async` 程式](chapter12/32_testing_async.md)
-    - [Tokio 以外的 runtime](chapter12/33_other_runtimes.md)
+    - [graceful shutdown](chapter12/32_graceful_shutdown.md)
+    - [測試 `async` 程式](chapter12/33_testing_async.md)
+    - [Tokio 以外的 runtime](chapter12/34_other_runtimes.md)
