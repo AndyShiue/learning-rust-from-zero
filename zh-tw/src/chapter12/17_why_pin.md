@@ -24,6 +24,23 @@
 
 一個比喻:`&mut T` 像是「你可以隨意搬動的家具」;`Pin<&mut T>` 像是「**被鎖在地板上的家具**」——你還是能打開抽屜、拿東西、整理內容(改它),但你沒辦法把整個櫃子搬到別的房間(move)。
 
+### 釘住的是「被指的值」,不是「指標本身」
+
+這裡要敲掉一個最常見的誤解。`Pin<P>` 保證固定的,**永遠是 `P` 所指向的那個值(pointee)的位址**——而**不是** `Pin<P>` 這個指標自己被存放在哪裡。
+
+換句話說:**`Pin<Box<T>>`、`Pin<&mut T>` 這些值,你還是可以隨意搬。** 你可以把一個 `Pin<Box<T>>` 從函式回傳出去、塞進 `Vec`、move 給別人——完全合法。因為搬走 `Pin<Box<T>>` 只是搬走那個 box 指標(就幾個 byte),**heap 上的 `T` 一步都沒動**,位址照舊;而 `Pin` 保證的,正是 heap 上那個 `T` 不會搬。
+
+```rust,ignore
+let pinned: Pin<Box<MyFuture>> = Box::pin(make_future());
+let moved = pinned;    // OK！搬走的是 Box 指標，不是 heap 上的 future
+let v = vec![moved];   // OK！照樣能塞進容器
+// 自始至終，heap 上那個 MyFuture 的位址都沒變——它才是被「釘住」的東西
+```
+
+這也解開一個常見困惑:「executor 不是一直把 `Pin<Box<Fut>>` 丟進 queue、搬來搬去嗎?那 future 到底哪裡被釘住了?」答案就是:**被釘住的是 heap 上的 `Fut`,不是裝著它的那個指標。move 指標 ≠ move 被指的值。**
+
+對 `Pin<&mut T>` 也一樣:這個參考本身可以傳來傳去、move,被指的 `T` 不會因此移動。唯一被禁掉的,是「**透過 Pin 把 pointee 從它原本的位址上搬走**」(像用 `mem::replace`／`swap` 把 `T` 換出來那樣)。
+
 ### Pin 怎麼「強制」不准搬
 
 關鍵在於:`Pin` 包起來之後,**不再提供 `&mut T`**。前面說過,只要能拿到 `&mut T`,就有辦法搬走 `T`。所以 `Pin` 的招數就是:把 `&mut T` 藏起來,只給你一些「不會洩漏出 `&mut T`」的操作。
@@ -93,6 +110,7 @@ boxed.as_mut().poll(&mut cx);      // 還能再借、再 poll
 
 - `&mut self` 權力太大(可用 `mem::replace`／`swap` 搬走值),不能拿來 poll 不可 move 的 future
 - `Pin<&mut T>` 是「包在參考外的一層保證」:能改內容,但**不准把 `T` 搬走**(比喻:鎖在地板上的家具)
+- `Pin<P>` 釘住的是 **`P` 指向的那個值(pointee)的位址**,不是 `Pin<P>` 這個指標本身的位址——所以 `Pin<Box<T>>`／`Pin<&mut T>` 本身可以隨意 move(搬的是指標,heap／被指的 `T` 不動),被禁的只有「透過 Pin 把 pointee 從它的位址搬走」
 - 強制方式:`Pin` 不再洩漏普通的 `&mut T`,只給你接受 `Pin<&mut Self>` 的方法(如 `poll`)
 - `Pin` 能用的方法：唯讀走 `Deref`（永遠可用，`&*pin`）、`get_ref`、`as_ref`；重新借用成另一個 pin 用 `as_mut`；建立用 `Pin::new`（限 `Unpin`）/ `new_unchecked`（unsafe）/ `Box::pin` / `pin!`。可變的 `&mut T`（`DerefMut` / `get_mut`）要 `Unpin` 才有——下一集講
 - executor 要 poll future,得先用 `pin!` / `Box::pin` 把它釘在固定位址,拿到 `Pin<&mut F>`
