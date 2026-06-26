@@ -138,7 +138,7 @@ let this = self.get_mut(); // JoinAll 是 Unpin，可以拿回普通的 &mut
 if let Some(mut fut) = slot.take() { ... }
 ```
 
-`slot` 的型別是 `&mut Option<BoxFuture>`。`Option::take` 會把 `Option` 裡的值**拿出來**，並且在原本的位置留下 `None`。所以如果 `slot` 原本是 `Some(fut)`，呼叫 `take()` 之後，我們會拿到那個 `fut`，而 `slot` 會暫時變成 `None`。
+`slot` 的型別是 `&mut Option<BoxFuture>`。`Option::take` 會把 `Option` 裡的值**拿出來**（取得所有權），並且在原本的位置留下 `None`。所以如果 `slot` 原本是 `Some(fut)`，呼叫 `take()` 之後，我們會拿到那個 `fut`，而 `slot` 會暫時變成 `None`。
 
 這正好符合我們要做的事：先把子 `Future` 拿出來 `poll` 一次。如果它完成了，就不放回去，讓 `slot` 維持 `None`；如果它還沒完成，就用 `*slot = Some(fut)` 放回去，下一輪再繼續 `poll`。
 
