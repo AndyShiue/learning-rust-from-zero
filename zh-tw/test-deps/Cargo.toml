@@ -14,3 +14,9 @@ rand = "0.10"
 thiserror = "2.0.18"
 anyhow = "1.0.102"
 
+# chapter12（async）會用到的套件
+futures = "0.3"
+mio = { version = "1", features = ["os-poll", "net"] }
+tokio = { version = "1", features = ["full", "test-util"] }
+tokio-util = { version = "0.7", features = ["full"] }
+tokio-stream = { version = "0.1", features = ["sync", "net", "time", "io-util"] }

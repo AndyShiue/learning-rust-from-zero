@@ -2,66 +2,42 @@
 
 ## 本集目標
 
-理解「Rust 語言本身不附 runtime」這件事,認識 Tokio 以外的選擇,以及寫程式庫時該注意的事。
+認識 Tokio 以外的 `async` runtime，並學會分辨自己寫的程式哪些綁定特定 runtime、哪些不綁。
 
 ## 概念說明
 
-### 語言只給抽象,runtime 要自己選
+### 標準庫只定義語言層的抽象
 
-這一章我們從頭手刻過一台迷你 runtime,也用了 Tokio。現在來釐清一個容易混淆的分界:**Rust 標準庫只定義了 `Future`、`poll`、`Pin`、`Waker` 這些「語言層的抽象」,但它不提供一個 runtime。**
+這一章我們花了很大力氣，從零手寫了一個 runtime。這趟旅程其實也順帶證明了一件事：**Rust 標準庫並沒有內建 `async` runtime**。
 
-也就是說,標準庫告訴你「future 長什麼樣、怎麼被 poll」,但**沒有**附一個 executor 去 poll 它、也沒有附 reactor 去等 I/O、沒有附計時器、沒有 `spawn`。這些全都要靠外部的 runtime crate 提供。這就是為什麼從第 1 集開始,我們就得在 `Cargo.toml` 加 `tokio`——沒有它,`async fn` 寫得出來,卻沒有東西去跑它。
+標準庫只定義了**語言層的抽象**——`Future` `trait`、`Poll`、`Context`、`Waker`、`Pin` 這些。但「怎麼真正把 `Future` 跑起來」——executor 怎麼排程、reactor 怎麼盯 I/O、計時器怎麼實作——標準庫一概不管，全部留給第三方 runtime 自由發揮。我們前面手寫的東西（executor、reactor、timer、`Task` 的設計），正是一個 runtime 該包含的那些零件。
 
-(對照一下:很多別的語言,async runtime 是內建在語言或標準庫裡的,你不用選。Rust 選擇把它留給生態系,好處是可以針對不同場景換不同的 runtime,代價就是你得自己挑一個。)
+### 不只有 Tokio
 
-### 一個 runtime 通常包含什麼
+Tokio 是目前最主流的 runtime，但不是唯一的選擇。因為標準庫不規定 runtime 怎麼寫，社群就長出了各有特色的好幾種：
 
-把這一章的零件列出來,正好就是一個 runtime 該有的東西:
+- **Tokio**：功能最完整、生態最大的通用 runtime，多執行緒、什麼都有。本章後半用的就是它。
+- **smol**：走輕量、精簡路線的 runtime，核心很小、容易理解。
+- **monoio / glommio**：走 **thread-per-core** 路線的特化 runtime，常搭配 Linux 的 `io_uring`，為極致 I/O 效能而生。
+- **Embassy**：給**嵌入式**裝置用的 runtime，能在沒有作業系統、沒有標準庫（`no_std`）的微控制器上跑 `async`。
 
-- **executor**:排程並 poll task(第 6、12 集)。
-- **reactor**:等 I/O 事件,好了就喚醒 task(第 14 集)。
-- **timer**:計時器,支撐 `sleep`、`timeout`(我們第 7 集手寫過陽春版)。
-- **I/O 與 task API**:`TcpStream`、`spawn`、channel、鎖等好用的工具。
+這些 runtime 在各方面可能都不一樣：用幾條執行緒、怎麼排程、I/O 怎麼做、計時器怎麼實作、`spawn` 的細節與限制。選哪個，取決於你的場景——寫一般網路服務用 Tokio 最省事；做嵌入式就得用 Embassy。
 
-### Tokio 以外的選擇
+### runtime-agnostic vs runtime-specific
 
-Tokio 是目前最主流、生態最豐富的 runtime,初學就用它準沒錯。但你會在社群裡看到其他名字,簡單認識一下:
+既然有這麼多 runtime，寫程式時最好有個意識：你寫的這段程式碼，到底**綁不綁**特定 runtime？
 
-- **smol**:走輕量、精簡路線的 runtime,程式碼小、容易讀。
-- **async-std**:曾經想做成「async 版的標準庫」,API 風格貼近 std;但**已停止維護**,新專案別選它了,認得這名字、知道它退場了即可。
-- **特化型 runtime**:有些 runtime 為特定場景而生,例如 **monoio**、**glommio**(走 thread-per-core、搭配 Linux 的 io_uring,追求極致 I/O 效能),以及 **Embassy**(給沒有作業系統的嵌入式裝置用的 async runtime)。
+- **runtime-agnostic（不綁 runtime）的部分**：純粹的 `Future` 組合邏輯。例如你自己 `impl Future`、用 `async` / `.await` 串接、用 `join!` / `select!` 組合、用 `FuturesUnordered`（第 31 集說過它不碰排程）——這些只依賴標準庫的 `Future` 抽象，搬到別的 runtime 上通常照樣能用。
+- **runtime-specific（綁 runtime）的部分**：真正碰到外部世界或排程的東西。例如 `tokio::net::TcpStream`（I/O）、`tokio::time::sleep`（timer）、`tokio::spawn`（排程）——這些是 Tokio 提供的，換一個 runtime 就得換成它對應的版本。
 
-它們之間的差異主要在:API 長相不同、底層 I/O driver 不同(epoll vs io_uring 等)、task model 不同(會不會跨執行緒搬動 task)。所以**為某個 runtime 寫的程式碼,不一定能直接搬到另一個上面跑**——例如 `tokio::spawn`、`tokio::time::sleep` 是 Tokio 專屬的。
+實務上不必為了「runtime 中立」而綁手綁腳——大部分專案選定 Tokio 就一路用到底。但知道這個界線，能幫你在「想換 runtime」或「寫一個給別人用、不想綁死 runtime 的函式庫」時，清楚哪些程式碼可以原封不動、哪些得抽換。
 
-### 寫程式庫時:盡量和 runtime 脫鉤
+### 結語
 
-這帶出一個實務上的好習慣,尤其當你寫的是要給別人用的**程式庫(library)**而不是自己的應用程式時:
-
-> 盡量把**和 runtime 無關**的部分,跟**綁定特定 runtime** 的部分分開。
-
-「組合 future 的邏輯」(接受一個 future、`.await` 它、用 `join` / `select` 把幾個 future 兜起來)是**runtime-agnostic** 的——它只依賴標準庫的 `Future` 抽象,在哪個 runtime 上都能跑。而「`tokio::time::sleep`、`tokio::net::TcpStream`、`tokio::spawn`」這些是**runtime-specific** 的,寫進你的程式庫就等於強迫使用者也得用 Tokio。
-
-所以寫程式庫時,理想是讓核心邏輯只碰 `Future`、把「要怎麼計時、怎麼開連線、怎麼 spawn」這些留給使用者決定(或透過設定切換)。這樣你的程式庫才能服務用不同 runtime 的人。對初學階段、自己寫應用程式來說,直接用 Tokio、不用煩惱這層;但知道有這個分界,以後寫共用的東西會少踩很多坑。
-
-## 範例程式碼
-
-這一集是觀念與生態介紹,沒有新的可執行範例。記住這張分界圖就好:
-
-```text
-標準庫(語言層)            外部 runtime(Tokio / smol / ...)
-─────────────────         ──────────────────────────────────
-Future / poll             executor(排程 + poll)
-Pin / Unpin               reactor(等 I/O)
-Waker / Context           timer(sleep / timeout)
-async / await 語法         I/O 型別、spawn、channel、鎖 ...
-
-→ 語言只給左邊;右邊要自己選一個 runtime 補上
-```
+恭喜你讀完了整本書最硬的一章！回頭看，你從「`.await` 是什麼都不知道」，一路走到親手打造 executor、reactor、狀態機，再回到 Tokio 把各種實用工具一網打盡。`async` 之所以讓很多人卻步，多半是因為只看到表面的語法、不知道底下發生什麼事。而你現在不一樣——你看過底層的每一個齒輪，再看任何 `async` 程式，都能猜到它背後大概在做什麼。這正是這本書從第一頁開始就希望帶給你的能力。
 
 ## 重點整理
 
-- Rust 標準庫只定義 `Future`／`Pin`／`Waker` 等**抽象**,**不附 runtime**——所以一定要自己加一個(如 Tokio)
-- 一個 runtime 通常含 **executor、reactor、timer、I/O 與 task API**(正是這一章手刻過的零件)
-- Tokio 最主流;其他有輕量的 **smol**、已停止維護的 **async-std**、特化的 **monoio / glommio / Embassy**
-- 不同 runtime 的 API、I/O driver、task model 可能不同,為某個 runtime 寫的程式碼不一定能搬到別的上
-- 寫**程式庫**時,盡量把 runtime-agnostic 的 future 組合邏輯,和 runtime-specific 的 I/O／timer／spawn 分開
+- Rust 標準庫只定義 `Future` 等**語言層抽象**，不內建 runtime；executor、reactor、timer、I/O、`Task` 設計都由 runtime 提供（正是我們手寫過的那些零件）。
+- Tokio 是主流通用 runtime；此外還有輕量的 smol、thread-per-core 的 monoio / glommio、嵌入式用的 Embassy 等，各方面設計可能不同。
+- 寫程式時可留意：純 `Future` 組合邏輯（自訂 `Future`、`join!`、`select!`、`FuturesUnordered`）大多 **runtime-agnostic**；I/O、timer、`spawn` 則是 **runtime-specific**，換 runtime 要抽換。

@@ -2,103 +2,66 @@
 
 ## 本集目標
 
-用 semaphore 限制「同時進行的數量」,並理解 backpressure(背壓)這個概念。
+學會用 `Semaphore` 限制「同時進行的數量」，並理解 backpressure（反壓）這個觀念。
 
 ## 概念說明
 
-### 一個常見的需求:限制同時數量
+### 限制同時進行的數量
 
-假設你要下載 1000 個檔案。你當然不想一個一個下載(太慢),但也不該 1000 個同時下載——這會塞爆網路、開太多連線、可能被對方封鎖。你想要的是「**最多同時下載 10 個**,有空位才放下一個進來」。
+有些事情你不希望「無限制地一起做」。例如：同時下載的檔案數別太多（不然頻寬爆掉）、同時開啟的檔案數有上限、同時打某個 API 的請求數要節制（不然對方會擋你）。
 
-控制「同時最多幾個」的工具,就是 **semaphore(號誌)**。
+`tokio::sync::Semaphore` 就是管這個的。它的核心是一把固定數量的 **permit（許可證）**：你設定總共有幾張 permit，誰要做事就得先**拿一張**，做完**還回去**。permit 被拿光時，後來的人就得**等**，直到有人還回一張。
 
-### semaphore = 一疊有限的通行證
-
-把 semaphore 想成櫃台上一疊**通行證(permit)**,數量固定,比方說 10 張。規則是:
-
-- 想開始工作,先去拿一張通行證(`acquire`)。拿得到就開始;沒了(10 張都被拿走)就**在那裡等**,直到有人還回來。
-- 工作做完,把通行證**還回去**,讓下一個等待的人能拿。
-
-因為通行證總共就 10 張,所以**同時最多就只有 10 個工作在進行**。這就達成了「限制並行數量」。
-
-```rust,ignore
-use std::sync::Arc;
-use tokio::sync::Semaphore;
-
-#[tokio::main]
-async fn main() {
-    // 一疊 10 張通行證
-    let semaphore = Arc::new(Semaphore::new(10));
-
-    let mut handles = Vec::new();
-    for i in 0..1000 {
-        let sem = semaphore.clone();
-        handles.push(tokio::spawn(async move {
-            // 拿一張通行證;拿不到就在這裡 .await 等
-            let _permit = sem.acquire().await.unwrap();
-
-            download(i).await; // 做事——此刻最多只有 10 個 task 同時跑到這裡
-
-            // _permit 在這裡離開 scope、自動還回去,下一個等待者就能拿到
-        }));
-    }
-
-    for h in handles { h.await.unwrap(); }
-}
-# async fn download(_i: i32) {}
-```
-
-### RAII:通行證自己會還
-
-注意我們**沒有**手動寫「還通行證」的程式碼。`acquire()` 回傳的 `_permit`,是一個會在離開 scope 時**自動把通行證還回去**的東西——就是第 5 章的 `Drop`、以及第 8 章 `MutexGuard` 那套 RAII 模式。permit 還活著,代表你還佔著一個名額;它一被 drop,名額就釋出。所以只要讓 permit 在「你做事的那段範圍」內活著就好,剩下的它自己管。
-
-(小提醒:正因為 permit 一 drop 名額就放開,別不小心讓它太早被丟掉——例如寫成 `let _ = sem.acquire().await;`,`_` 會讓 permit **當場就 drop**,等於沒限制到。要用具名的 `let _permit = ...` 把它留住。)
-
-### backpressure:當下游跟不上,讓上游慢下來
-
-semaphore 背後是一個更通用的概念,叫 **backpressure(背壓)**。
-
-想像一條生產線:上游一直生產工作,下游負責處理。如果上游生產得比下游處理得快,工作就會越積越多——記憶體被未處理的工作塞爆,系統垮掉。backpressure 的意思是:**當下游忙不過來時,要有一個機制讓上游「慢下來、先等一等」**,而不是無限制地塞。
-
-semaphore 就是一種 backpressure:通行證有限,拿不到的人得等,於是「正在進行的量」被自然地壓在容量之內。很多東西本質上都是這個模式:
-
-- **有容量上限的 channel**(下一集的 bounded channel):佇列滿了,送的人就得等。
-- **connection pool(連線池)**:連線數有限,要用得先借、用完還。
-- **worker pool**:固定數量的 worker,工作多了就排隊。
-
-它們都可以用同一句話理解:**容量有限,滿了就等空位。** 認得這個模式,你就能在很多看似不同的工具裡看到同一個影子。
-
-## 範例程式碼
-
-```rust,ignore
+```rust,no_run
+# extern crate tokio;
 use std::sync::Arc;
 use tokio::sync::Semaphore;
 use tokio::time::{sleep, Duration};
 
 #[tokio::main]
 async fn main() {
-    let semaphore = Arc::new(Semaphore::new(2)); // 同時最多 2 個
-    let mut handles = Vec::new();
+    // 總共只有 3 張 permit，所以最多 3 個 task 能同時工作
+    let semaphore = Arc::new(Semaphore::new(3));
 
-    for i in 1..=6 {
-        let sem = semaphore.clone();
+    let mut handles = vec![];
+    for i in 0..10 {
+        let semaphore = Arc::clone(&semaphore);
         handles.push(tokio::spawn(async move {
-            let _permit = sem.acquire().await.unwrap();
-            println!("任務 {} 開始", i);
-            sleep(Duration::from_secs(1)).await; // 假裝在做事
-            println!("任務 {} 結束", i);
+            // 拿一張 permit，拿不到就 .await 等著
+            let _permit = semaphore.acquire().await.expect("semaphore 已關閉");
+            println!("task {i} 拿到 permit，開始工作");
+            sleep(Duration::from_millis(100)).await;
+            // _permit 在這裡離開 scope，自動把名額還回去
         }));
     }
 
-    for h in handles { h.await.unwrap(); }
+    for h in handles {
+        h.await.expect("task 失敗");
+    }
 }
 ```
 
-跑起來你會看到任務一次只開始兩個,前面的結束、釋出通行證後,後面的才接著開始——同時進行數被牢牢壓在 2。
+雖然我們 spawn 了 10 個 task，但因為只有 3 張 permit，任何時刻最多只有 3 個在工作，其餘的乖乖排隊等 permit。
+
+### permit 靠 `Drop` 自動歸還
+
+注意上面我們拿到 permit 後，**完全沒有手動把它還回去**——它怎麼自己回來的？
+
+因為 permit（`acquire().await` 回傳的那個值）實作了 `Drop`（第 5 章學過）。當 `_permit` 離開 scope 被 drop 時，它的 `Drop` 就自動把名額還給 `Semaphore`。所以你只要讓 permit 在「該結束」的時候離開 scope，歸還就自動發生，不會忘記。這也是為什麼我們用 `let _permit = ...` 把它綁成一個變數——是為了讓它**活到工作結束**才被 drop；如果寫成 `let _ = ...`，它會立刻被 drop，permit 馬上就還回去了，等於沒限制到。
+
+### backpressure（反壓）
+
+`Semaphore` 帶出一個更一般的觀念：**backpressure**。
+
+想像一條生產線：上游一直送東西進來，下游慢慢處理。如果上游送得比下游處理得快，東西就會越積越多——記憶體被塞爆只是時間問題。backpressure 的意思就是：**當下游忙不過來時，要有辦法讓上游「慢下來、等一等」**，而不是讓它無限制地塞。
+
+`Semaphore` 正是一種 backpressure：permit 代表「容量」，容量滿了，想進來的人就被擋在 `acquire().await` 等待，自然就慢了下來。
+
+下一集要講的 **bounded channel** 也是同一個道理——它的容量有限，滿了的時候 `send().await` 就會等待，逼上游放慢腳步。所以你可以用「**容量有限，滿了就等 permit**」這個角度，去理解各種帶 backpressure 的工具。
 
 ## 重點整理
 
-- `Semaphore` 控制「同時最多幾個」:`acquire().await` 拿一張通行證(拿不到就等),做完釋出
-- 通行證(permit)用 **RAII** 管理:離開 scope 自動還回去——和 `MutexGuard` 同一套;別用 `let _ =` 讓它當場 drop
-- 背後的通用概念是 **backpressure**:下游忙不過來時,讓上游等一等,避免工作無限堆積撐爆系統
-- 同模式的還有:bounded channel(下一集)、連線池、worker pool——都是「容量有限,滿了就等空位」
+- `tokio::sync::Semaphore` 用固定數量的 **permit** 表示容量，限制「同時進行的數量」：同時下載數、同時開檔數、同時進入某段流程的 `Task` 數等。
+- `acquire().await` 拿一張 permit，拿不到就等；permit 實作 `Drop`，離開 scope 時自動把名額還回去。
+- 用 `let _permit = ...` 讓 permit 活到工作結束才歸還；別寫成 `let _ = ...`（會馬上 drop）。
+- **backpressure**：下游忙不過來時讓上游等一等，避免無限堆積；`Semaphore`（和下一集的 bounded channel）都可以用「容量有限、滿了就等」來理解。

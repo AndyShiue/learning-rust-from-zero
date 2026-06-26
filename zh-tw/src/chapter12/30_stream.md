@@ -2,110 +2,73 @@
 
 ## 本集目標
 
-認識 `Stream`——把第 6 章的 iterator 概念搬到 async 世界:一連串「要等」才會出現的值。
+認識 `Stream`——`async` 版的 `Iterator`，以及怎麼走訪它。
 
 ## 概念說明
 
-### 從 iterator 到 stream
+### `Stream` 是 `async` 版的 `Iterator`
 
-第 6 章學過 iterator:`next()` 每次給你下一個值,給完回 `None`。它是**同步**的——下一個值立刻就有。
+第 6 章的 `Iterator` 是「一連串值，要一個一個取」。但它的 `next()` 是**同步**的——呼叫就馬上給你下一個值（或 `None`）。
 
-但很多 async 情境裡,值是**一個一個慢慢來**的:network 連線上一行一行進來的資料、channel 裡陸續送達的訊息、每隔一秒觸發一次的計時事件。這種「一連串、但每個都要等」的值,就是 **Stream**。
+`Stream` 是它的 `async` 版本：一樣是一連串值要一個一個取，但下一個值**可能要等**（例如等網路送來下一筆資料、等計時器、等使用者輸入）。所以 `Stream` 的 `next()` 回傳的是一個 `Future`，你要 `next().await` 才拿得到下一個值。
 
-你可以一句話記住它們的對應關係:
+對照記就很好懂：
 
-> **`Stream` 之於 `Iterator`,就像 `Future` 之於一個普通的值。**
->
-> - `Future`:一個**要等**的值 → `.await` 拿到它。
-> - `Iterator`:一連串**立刻有**的值 → `.next()` 一個個拿。
-> - `Stream`:一連串**要等**的值 → `.next().await` 一個個等著拿。
+- `Iterator::next()` → 回傳 `Option<Item>`（同步、馬上給）。
+- `Stream::next().await` → 回傳 `Option<Item>`（要 `.await`、可能等一下）。
 
-所以 stream 的核心動作就是 `next().await`:等下一個 item 出現,沒有了就回 `None`。
+兩者都用「`None` 代表結束」。
 
-### 用 `while let` 走訪一個 stream
+### 走訪一個 `Stream`
 
-走訪 stream 的標準寫法,是 `while let Some(x) = stream.next().await`——和 channel 的 `recv` 迴圈長得很像,因為精神一樣:一個一個等、拿、處理,直到結束。
+`Iterator` 可以用 `for` 走訪，但 `Stream` 不行（`for` 沒辦法 `.await`）。`Stream` 的標準走訪寫法是 **`while let Some(x) = stream.next().await`**——一個一個取，取到 `None` 就停：
 
-```rust,ignore
-use tokio_stream::StreamExt; // 提供 .next() 等方法,要先 use 進來
+```rust,no_run
+# extern crate tokio;
+# extern crate tokio_stream;
+use tokio_stream::StreamExt;
 
 #[tokio::main]
 async fn main() {
-    // tokio_stream 可以把一個 Vec 變成 stream(這裡每個值其實立刻就有)
+    // 從一個 Vec 做出最簡單的 stream
     let mut stream = tokio_stream::iter(vec![1, 2, 3]);
 
+    // 一個一個取值，取到 None 為止
     while let Some(value) = stream.next().await {
-        println!("收到 {}", value);
+        println!("收到 {value}");
     }
 }
 ```
 
-`.next()` 這些方法來自 `StreamExt` 這個擴充 trait(就像第 6 章 iterator 的各種方法),記得 `use` 進來。tokio 生態用 `tokio_stream`,另一個常見來源是 `futures` crate 的 `StreamExt`,兩者很類似。
+### `Stream` 不在標準庫裡
 
-### 哪裡會冒出 stream
+有件事要特別說明：和 `Future` 不同，`Stream` **目前不在標準庫裡**，它定義在社群套件（`futures`）裡，Tokio 生態則提供 `tokio_stream`。要用 `next()`、`map`、`filter` 這些方法，得引入對應的擴充 trait `StreamExt`（就像第 6 章 `Iterator` 的各種方法那樣）：
 
-實務上你很少自己從零做 stream,而是從別的東西**轉**出來:
-
-- 一個 channel 的 receiver(第 27 集)可以包成 stream,於是「陸續送來的訊息」就成了一串 item。
-- 一個網路連線可以包成「一行一行的文字」stream。
-- 計時器可以做成「每隔 N 秒吐一個」的 stream。
-
-### 熟悉的 combinators
-
-既然 stream 是 async 版 iterator,第 6 章那些 iterator 的招式——`map`、`filter`、`take` 等——大多也有 stream 版本,一樣可以鏈式串接,只是它們是惰性地、隨著值慢慢到達而套用:
-
-```rust,ignore
+```rust,no_run
+# extern crate tokio;
+# extern crate tokio_stream;
 use tokio_stream::StreamExt;
 
 #[tokio::main]
 async fn main() {
-    let mut stream = tokio_stream::iter(1..=10)
-        .filter(|n| n % 2 == 0) // 只留偶數
-        .map(|n| n * 10)        // 各自乘 10
-        .take(3);               // 只取前 3 個
-
-    while let Some(v) = stream.next().await {
-        println!("{}", v); // 20, 40, 60
-    }
-}
-```
-
-如果你回想第 6 章 iterator 的惰性求值(一層層包住、`next` 逐層往內拉),stream 是完全一樣的機制,只是每次往內拉的時候可能要 `.await` 等一下而已。
-
-## 範例程式碼
-
-把一個 `mpsc` 的 receiver 當成 stream 來處理——這是很實用的模式:
-
-```rust,ignore
-use tokio::sync::mpsc;
-use tokio_stream::wrappers::ReceiverStream;
-use tokio_stream::StreamExt;
-
-#[tokio::main]
-async fn main() {
-    let (tx, rx) = mpsc::channel::<i32>(16);
-
-    // 生產者:陸續送一些值進來
-    tokio::spawn(async move {
-        for i in 1..=5 {
-            tx.send(i).await.unwrap();
-        }
-    });
-
-    // 把 receiver 包成 stream,就能用 stream 的 combinators 處理
-    let mut stream = ReceiverStream::new(rx).map(|n| n * n); // 各自平方
+    // 和 Iterator 一樣可以串接 map / filter 這些工具
+    let mut stream = tokio_stream::iter(1..=5)
+        .map(|x| x * 2)
+        .filter(|x| x % 3 == 0);
 
     while let Some(value) = stream.next().await {
-        println!("{}", value); // 1, 4, 9, 16, 25
+        println!("{value}");
     }
 }
 ```
+
+你會發現 `map`、`filter` 這些組合器跟第 6 章的 `Iterator` 幾乎一模一樣——因為 `Stream` 本來就是 `Iterator` 的 `async` 翻版，連惰性求值的特性都一樣（不 `.await` 走訪就什麼都不會算）。學過 `Iterator`，`Stream` 對你來說只是多了個 `.await`。
+
+實務上 `Stream` 很適合表達「源源不絕、會陸續到來的資料」——例如一個一個進來的網路連線、資料庫查詢的逐筆結果、或定時觸發的事件。`tokio_stream` 和 `futures::StreamExt` 提供了一整套處理它們的工具。
 
 ## 重點整理
 
-- `Stream` 是 async 版的 iterator:一連串**要等**才會出現的值;核心動作是 `next().await`
-- 記憶法:`Stream : Iterator = Future : 普通值`——前者是「一串要等的值」,後者是「一串立刻有的值」
-- 走訪用 `while let Some(x) = stream.next().await`(和 channel 的 `recv` 迴圈神似)
-- `.next()`、`.map()`、`.filter()` 等方法來自 `StreamExt`(`tokio_stream` 或 `futures`),記得 `use`
-- 你通常是把 channel receiver、網路連線、計時器等**轉**成 stream,而不是自己從零做
-- 它的惰性求值機制和第 6 章 iterator 一樣,只是逐個拉取時可能要 `.await`
+- `Stream` 是 `async` 版的 `Iterator`：一連串值一個一個取，但下一個值可能要等，所以是 `next().await`。
+- 對照：`Iterator::next()` 同步回 `Option`；`Stream::next().await` 要 `.await` 才回 `Option`；都用 `None` 表示結束。
+- 走訪用 **`while let Some(x) = stream.next().await`**（`Stream` 不能用 `for`）。
+- `Stream` 不在標準庫，定義在 `futures`；用 `tokio_stream` / `futures::StreamExt` 取得 `next`、`map`、`filter` 等工具（用法和 `Iterator` 幾乎一樣，也一樣惰性）。

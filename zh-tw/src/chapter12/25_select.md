@@ -2,106 +2,77 @@
 
 ## 本集目標
 
-用 `select!` 同時等多件事、誰先好就處理誰;並看到它如何**大量觸發上一集帶到的「取消(cancellation)」**。
+學會用 `select!` 等待「多個 branch 中第一個完成的」，並理解它和取消（cancellation）的密切關係。
 
 ## 概念說明
 
-### `join!` 等全部,`select!` 等第一個
+### 等「誰先到」
 
-`join!` 是「我要這幾件事**全部**做完」。但很多時候你要的是相反:「這幾件事,**誰先好我就先處理誰**」。例如「等網路回應,但最多等 5 秒」——是「網路回來」和「5 秒到了」在比快。這種「比快、取第一個」用 `select!`:
+`join!` 等的是「**全部**都完成」。`select!` 正好相反：它同時等多個 branch，只要**第一個**完成，就執行那個 branch 對應的 handler，然後整個 `select!` 就結束——**其他還沒完成的 branch 會被 `drop` 掉**。
 
-```rust,ignore
+最經典的用途是 **timeout**：把「真正的工作」和「一個計時器」一起 `select!`，看誰先到。
+
+```rust,no_run
+# extern crate tokio;
 use tokio::time::{sleep, Duration};
 
-#[tokio::main]
-async fn main() {
-    let work = async {
-        sleep(Duration::from_secs(5)).await;
-        "工作完成"
-    };
-    let timeout = async {
-        sleep(Duration::from_secs(2)).await;
-        "逾時了"
-    };
-
-    // 兩個一起等,誰先好就跑哪個分支
-    tokio::select! {
-        result = work => println!("{}", result),
-        result = timeout => println!("{}", result), // 2 秒先到,走這裡
-    }
-}
-```
-
-`select!` 同時推進每個分支的 future,只要**第一個**完成,就執行它對應的處理程式碼,然後——這是重點——**其他還沒完成的分支,直接被丟掉(drop)**。
-
-### 被丟掉的 future = 被取消
-
-上面那個 5 秒的 `work`,在 2 秒的 `timeout` 先完成後,就被 drop 了。回想上一集(第 24 集)帶到的**取消(cancellation)**:一個 future 被 drop,代表它**從此不會再被 poll**、工作停在原地永遠不會完成——這就是取消。而 `select!` 正是**最常製造取消的地方**:每次只有第一個完成的分支被執行,其餘沒搶贏的分支全部被丟掉、取消。
-
-再複習一下它為什麼特別:
-
-> 在第 8 章,一條執行緒一旦開始跑,你**沒有**乾淨的辦法從外面把它喊停。但一個 future 是惰性的、靠別人 poll 才前進——所以你只要**不再 poll 它(把它 drop 掉)**,它就停了。取消一個 async 工作,就只是丟掉它的 future 這麼簡單。
-
-所以「逾時」在 async 裡才這麼自然——你不需要真的去中斷那個工作,只要讓「計時器」這個 future 贏,工作的 future 自然就被丟掉、取消了。
-
-### `select!` 的常見場景
-
-`select!` 適合任何「同時等好幾種事件,處理最先發生的那個」:
-
-- **逾時**:工作 vs 計時器(上面的例子)。
-- **等多個來源**:同時等好幾個 channel(第 27 集),誰先送來就處理誰。
-- **等關機訊號**:一邊做正常工作,一邊等「該關機了」的通知,收到就收尾離開。
-- **比快**:同時向兩個伺服器要同一份資料,用先回來的那個。
-
-### 幾個補充功能
-
-`select!` 還有一些好用的細節,先知道有就好:
-
-- **分支條件(precondition)**:可以在分支前加 `if 條件`,條件不成立時這個分支不參與這次競爭。
-- **`else`**:當所有分支都「沒得選了」(例如對應的 channel 都關了),走 `else`。
-- **公平性**:`select!` 預設會**隨機**挑選順序,避免某個分支老是被優先,造成別的分支餓死。你可以在最前面加 `biased;` 改成「永遠由上到下依序檢查」。
-
-### 一個要小心的坑:loop 裡的 `select!` 與取消安全
-
-`select!` 常和 `loop` 一起用,反覆地等事件。但既然沒搶贏的分支每一輪都會被 drop(取消),你要確定那些分支裡的 future 被「中途丟掉」是安全的——也就是它不會因為被取消在半途,而搞壞什麼狀態(例如讀到一半的資料就這樣丟了)。這個性質叫 **cancellation safety(取消安全)**。
-
-```rust,ignore
-// 示意:在 loop 裡反覆等兩種事件
-loop {
-    tokio::select! {
-        msg = receive_message() => { /* 處理訊息 */ }
-        _ = shutdown_signal() => { break; } // 收到關機訊號,離開迴圈
-    }
-}
-```
-
-判準先記個大方向:**不要把「中途被丟掉會出問題」的 future 放進會反覆被取消的 `select!` 分支。** 第 24 集講 I/O 時已經看過一個具體例子(`read_exact` 被取消會遺失已讀的資料)。哪些操作是取消安全的、哪些不是,各家 API 的文件通常會註明。
-
-## 範例程式碼
-
-```rust,ignore
-use tokio::time::{sleep, Duration};
-
-async fn fetch_from(server: &str, secs: u64) -> String {
-    sleep(Duration::from_secs(secs)).await;
-    format!("來自 {} 的回應", server)
+async fn do_work() {
+    sleep(Duration::from_secs(5)).await; // 假設工作要五秒
+    println!("工作完成");
 }
 
 #[tokio::main]
 async fn main() {
-    // 同時問兩台伺服器,用先回來的那個,慢的那個自動被取消
-    let answer = tokio::select! {
-        a = fetch_from("A", 3) => a,
-        b = fetch_from("B", 1) => b, // B 比較快,贏
-    };
-    println!("{}", answer); // 來自 B 的回應(A 的請求被丟掉、取消了)
+    tokio::select! {
+        _ = do_work() => {
+            println!("工作順利做完了");
+        }
+        _ = sleep(Duration::from_secs(1)) => {
+            println!("逾時！工作太久了，不等了");
+        }
+    }
 }
 ```
+
+這裡計時器一秒就到，比五秒的工作快，所以 `select!` 走計時器那個 branch、印出「逾時」，然後**把 `do_work()` 那個 `Future` `drop` 掉**——工作就此被取消。
+
+### `select!` 是最常製造取消的地方
+
+看到 `drop` 了嗎？這正是上一集講的 **cancellation**：`drop` 一個 `Future` 就是取消它。而 `select!` 天生就會在某個 branch 勝出時，把其他 branch 全部 `drop`——所以 **`select!` 是整個 `async` 程式裡最常製造取消的地方**。理解這一點，後面用 `select!` 才不會踩雷。
+
+`select!` 很適合這些情境：
+
+- **timeout**（上面的例子）。
+- **同時接收多個 channel**：哪個 channel 先有訊息就處理哪個。
+- **等待 shutdown signal**：一邊做正常工作，一邊聽「該收工了」的訊號，誰先到就反應誰。
+
+### 幾個實用補充
+
+`select!` 還有幾個常用功能：
+
+- **branch precondition**：在 branch 前加 `if 條件`，條件為假時這個 branch 直接略過不參與。
+- **`else` 分支**：當所有 branch 都因為 precondition 被略過（沒有任何 branch 能跑）時，執行 `else`。
+- **公平性與 `biased;`**：`select!` 預設是**隨機**挑選同時就緒的 branch（避免某個 branch 永遠被優先、餓死其他人）。如果你希望改成「由上到下依序檢查」，在開頭加一行 `biased;`。
+
+```rust,ignore
+tokio::select! {
+    biased; // 改成由上到下依序檢查，而非隨機
+    _ = high_priority() => { /* ... */ }
+    _ = low_priority()  => { /* ... */ }
+}
+```
+
+### 在迴圈裡用 `select!` 要小心 cancellation safety
+
+`select!` 常常被放在 `loop` 裡反覆使用（例如一個伺服器迴圈：每輪 `select!` 等「新工作」或「shutdown 訊號」）。這種寫法要特別小心上一集的 **cancellation safety**。
+
+回想上一集：`read_exact` 這類「跨多次推進、累積中間狀態」的操作**不是 cancellation safe**，中途被取消會遺失已讀資料。而 `select!` 每一輪都可能因為**別的** branch 先完成，而把這一個 branch 的 `Future` `drop` 掉（取消）。如果你把 `read_exact` 放進 `select!` 的某個 branch，又在 `loop` 裡反覆跑，那它就很可能在讀到一半時被取消，資料就掉了。
+
+所以原則是：**別把不可安全取消的 `Future` 放進「會被 `drop` 的 `select!` branch」**。如果非用不可，要嘛改用 cancellation safe 的替代寫法，要嘛把累積狀態保存在 branch 外面、讓它能跨輪存活。下一章談 channel 和 graceful shutdown 時，會再看到 `select!` 搭配這些原則的實際用法。
 
 ## 重點整理
 
-- `select!` 同時等多個分支,**第一個**完成就執行它的處理程式;其他未完成的分支被 **drop**
-- `select!` 沒搶贏的分支會被 drop = **取消(cancellation,第 24 集帶到的概念)**;這是 async 特有、執行緒做不到的乾淨喊停,`select!` 是最常製造取消的地方
-- `select!` 天生帶來取消,所以逾時、比快、等關機訊號這些都很自然
-- 補充功能:分支 `if` 條件、`else`(全部沒得選時)、預設隨機公平、`biased;` 改成依序
-- 在 `loop` 裡用 `select!` 要注意 **cancellation safety**:別把「中途被丟掉會壞掉」的 future 放進會反覆被取消的分支
+- `select!` 同時等多個 branch，**第一個**完成就執行對應 handler，其他 branch 被 `drop`（取消）。
+- 所以 `select!` 是程式裡**最常製造取消**的地方；適合 timeout、多 channel 接收、等 shutdown 訊號。
+- 補充功能：branch precondition（`if`）、`else`（所有 branch 都被略過時）、預設隨機公平、`biased;` 改成依序。
+- 在 `loop` 裡用 `select!` 要注意 cancellation safety：別把 `read_exact` 這類不可安全取消的 `Future` 放進會被 `drop` 的 branch。

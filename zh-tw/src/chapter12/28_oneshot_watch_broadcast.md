@@ -2,23 +2,18 @@
 
 ## 本集目標
 
-認識另外三種 channel,學會用「訊息的拓樸」來選對工具。
+認識另外三種 channel，並學會用「發送端與接收端的數量」來判斷該用哪一個。
 
 ## 概念說明
 
-### 不是只有 mpsc 一種 channel
+上一集的 `mpsc` 是「多發送、單接收」。Tokio 還有三種 channel，各自適合不同的形狀。最快的分類法，是看**發送端**和**接收端**各有幾個、以及訊息怎麼流。
 
-上一集的 `mpsc` 適合「一串工作排隊處理」。但訊息傳遞還有別的形狀,tokio 針對不同形狀提供了不同的 channel。選哪一個,先問三個問題:
+### `oneshot`：一個值，一次
 
-1. 有**幾個發送端**、**幾個接收端**?
-2. 要傳的是「一連串訊息」,還是「就一個值」?
-3. 接收端要看到**每一則**訊息,還是只關心**最新狀態**?
+`oneshot` 是「**一個發送端、一個接收端、只送一個值**」。最適合「背景算一個結果，算好送回來」這種一次性的回傳。
 
-### `oneshot`:只送一次,回傳一個結果
-
-`oneshot` 就是字面意思——**一個發送端、一個接收端,只傳一個值,傳完就結束**。最典型的用途是「我請另一個 task 幫我算個東西,算完把結果送回來給我」。
-
-```rust,ignore
+```rust,no_run
+# extern crate tokio;
 use tokio::sync::oneshot;
 
 #[tokio::main]
@@ -26,22 +21,26 @@ async fn main() {
     let (tx, rx) = oneshot::channel::<i32>();
 
     tokio::spawn(async move {
-        // 做一些計算 ...
-        tx.send(42).unwrap(); // 送出唯一的那個結果(注意:不用 .await)
+        // 算好一個結果，送回去（send 只能用一次，而且不用 .await）
+        tx.send(42).expect("接收端不見了");
     });
 
-    let result = rx.await.unwrap(); // 等那一個結果
-    println!("拿到 {}", result);
+    // rx 本身就是一個 Future，.await 它就拿到那個值
+    let result = rx.await.expect("發送端不見了");
+    println!("拿到結果：{result}");
 }
 ```
 
-注意 `rx` 本身就是個 future,直接 `rx.await` 就好。`oneshot` 常被當作各種「請求—回應」的回傳管道:你發一個請求出去,順便附上一個 `oneshot` 的 `tx`,對方做完用它把答案送回來。
+注意 `oneshot` 的接收端 `rx` 本身就是一個 `Future`，直接 `rx.await` 即可。其實第 12 集我們手寫的 `JoinHandle` 就很像一個 `oneshot`——背景算好一個值、透過共享狀態送回給等待者。
 
-### `watch`:只關心「最新狀態」
+### `watch`：只關心「最新狀態」
 
-`watch` 適合「**有一個會變動的狀態,大家只關心它現在是什麼**」。它有一個發送端、多個接收端。發送端每次 `send` 會**覆蓋**掉舊值,接收端讀到的永遠是**最新**的那個——中間錯過的舊值不重要。
+`watch` 是「**一個發送端、多個接收端，但接收端只看得到最新的值**」。它不是排隊收每一則訊息，而是像一個「公告欄」：發送端隨時更新上面的內容，接收端只關心「現在公告欄上寫什麼」。中間錯過的舊值不會補給你。
 
-```rust,ignore
+這最適合用來廣播**狀態**或**旗標**——例如「目前設定是什麼」、或「該不該關閉了」這種 shutdown flag。
+
+```rust,no_run
+# extern crate tokio;
 use tokio::sync::watch;
 
 #[tokio::main]
@@ -49,96 +48,56 @@ async fn main() {
     let (tx, mut rx) = watch::channel("啟動中");
 
     tokio::spawn(async move {
-        tx.send("執行中").unwrap();
-        tx.send("關閉中").unwrap(); // 接收端可能只看到最新的「關閉中」
+        tx.send("執行中").expect("沒有接收端");
+        tx.send("完成").expect("沒有接收端");
     });
 
-    // changed() 等到值有變動,再用 borrow() 看目前的值
+    // changed().await 等到值有更新，borrow() 讀目前最新的值
     while rx.changed().await.is_ok() {
-        println!("目前狀態：{}", *rx.borrow());
+        println!("最新狀態：{}", *rx.borrow());
     }
 }
 ```
 
-`watch` 最經典的用途是 **shutdown flag(關機旗標)**:主程式把狀態設成「該關機了」,所有在背景跑的 task 都 watch 著這個旗標,一變動就知道該收尾。因為大家只需要知道「現在要不要關機」,不需要每一次變動的歷史,正好是 `watch` 的形狀。
+### `broadcast`：每個接收端都要看到每則訊息
 
-### `broadcast`:每個接收端都要看到每一則
+`broadcast` 是「**多發送、多接收，而且每個接收端都會收到每一則訊息**」。和 `watch` 不同，它不是只給最新值，而是每則都送到每個接收端手上。適合「一則事件要通知所有訂閱者」的場景。
 
-`broadcast` 適合「**一則訊息要讓所有接收端都收到**」——多個發送端、多個接收端,而且和 `watch` 不同,它**保留每一則**訊息發給每一個接收端(只要接收端跟得上)。
-
-```rust,ignore
+```rust,no_run
+# extern crate tokio;
 use tokio::sync::broadcast;
 
 #[tokio::main]
 async fn main() {
-    let (tx, mut rx1) = broadcast::channel::<&str>(16);
-    let mut rx2 = tx.subscribe(); // 再要一個接收端
+    let (tx, mut rx1) = broadcast::channel::<i32>(16);
+    let mut rx2 = tx.subscribe(); // 多開一個接收端
 
-    tx.send("大家好").unwrap();
+    tx.send(1).expect("沒有接收端");
+    tx.send(2).expect("沒有接收端");
 
-    // 兩個接收端都會各自收到「大家好」
-    println!("rx1: {}", rx1.recv().await.unwrap());
-    println!("rx2: {}", rx2.recv().await.unwrap());
+    // rx1 和 rx2 都會收到 1 和 2
+    println!("rx1 收到：{}", rx1.recv().await.unwrap());
+    println!("rx1 收到：{}", rx1.recv().await.unwrap());
+    println!("rx2 收到：{}", rx2.recv().await.unwrap());
+    println!("rx2 收到：{}", rx2.recv().await.unwrap());
 }
 ```
 
-典型用途是「事件廣播」:聊天室裡一個人發言,所有人都要收到;或一個事件要通知好幾個獨立的處理者。
+### 怎麼選
 
-### 對照表
+把四種 channel 放一起，用「形狀」來記最快：
 
-把四種 channel 放一起,用「訊息拓樸」來記最清楚:
+- `mpsc`：多送、單收，收**每一則**——工作佇列。
+- `oneshot`：單送、單收、**一個值一次**——回傳結果。
+- `watch`：單送、多收、只看**最新值**——廣播狀態 / shutdown flag。
+- `broadcast`：多送、多收、收**每一則**——廣播事件給所有訂閱者。
 
-```text
-channel      發送  接收   特性
-─────────    ───   ───   ──────────────────────────────
-mpsc         多    一     一串工作排隊;有容量會 backpressure
-oneshot      一    一     只送一個值,請求—回應的回傳管道
-watch        一    多     只保留最新狀態;適合 shutdown flag
-broadcast    多    多     每則訊息發給每個接收端;事件廣播
-```
-
-選 channel 時別硬背,回到那三個問題:**幾個 sender、幾個 receiver、要每一則還是只要最新。** 形狀對上了,工具就選對了。
-
-## 範例程式碼
-
-用 `watch` 當 shutdown flag,通知多個 worker 一起收工:
-
-```rust,ignore
-use tokio::sync::watch;
-use tokio::time::{sleep, Duration};
-
-#[tokio::main]
-async fn main() {
-    let (shutdown_tx, shutdown_rx) = watch::channel(false); // false = 還不用關
-
-    // 開三個 worker,都盯著同一個關機旗標
-    let mut handles = Vec::new();
-    for id in 1..=3 {
-        let mut rx = shutdown_rx.clone();
-        handles.push(tokio::spawn(async move {
-            loop {
-                if *rx.borrow() { // 旗標變 true 就收工
-                    println!("worker {} 收工", id);
-                    break;
-                }
-                // ... 做一點工作 ...
-                let _ = rx.changed(); // 簡化:實務上會配 select!
-                sleep(Duration::from_millis(100)).await;
-            }
-        }));
-    }
-
-    sleep(Duration::from_secs(1)).await;
-    shutdown_tx.send(true).unwrap(); // 一聲令下,大家一起收工
-
-    for h in handles { h.await.unwrap(); }
-}
-```
+下一集換個主題，來看 `async` 版的鎖（`Mutex`、`RwLock`）和另一個喚醒工具 `Notify`。
 
 ## 重點整理
 
-- 選 channel 先問三件事:**幾個發送端、幾個接收端、要每一則還是只要最新狀態**
-- `oneshot`:一對一、只送一個值;請求—回應的回傳管道(`rx` 本身就是 future)
-- `watch`:一對多、只保留**最新**狀態;經典用途是 shutdown flag
-- `broadcast`:多對多、**每則**訊息發給**每個**接收端;事件廣播
-- 加上上一集的 `mpsc`(多對一、工作佇列),四種形狀涵蓋了大部分 task 間溝通的需求
+- 用「發送端 / 接收端數量 + 訊息怎麼流」來選 channel。
+- `oneshot`：單送單收、一個值一次，接收端本身是 `Future`（`rx.await`），適合回傳結果。
+- `watch`：單送多收、只看得到最新值，適合廣播狀態或 shutdown flag；用 `changed().await` + `borrow()`。
+- `broadcast`：多送多收、每個接收端都收到每一則，適合把事件通知所有訂閱者。
+- 對照上一集的 `mpsc`（多送單收、收每一則、工作佇列）一起記。

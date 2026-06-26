@@ -2,115 +2,76 @@
 
 ## 本集目標
 
-用 tokio 的 async `mpsc` channel 在 task 之間傳工作,並理解 bounded channel 怎麼帶來 backpressure。
+學會用 `async` 版的 `mpsc` channel 在 `Task` 之間傳遞工作，並理解 bounded channel 的 backpressure。
 
 ## 概念說明
 
-### 又見 channel,這次是 async 版
+### `Task` 之間的工作佇列
 
-第 8 章用過 `std::sync::mpsc`——多個生產者、單一消費者的 channel,讓執行緒之間傳訊息。tokio 提供 async 版的 `mpsc`,概念一樣,差別在:當你 `send` 而佇列滿了、或 `recv` 而還沒有訊息時,它是 `.await`(讓出執行緒)而不是卡住整條執行緒。
+第 9 章我們用過 `std::sync::mpsc` 讓 thread 之間傳訊息。`async` 世界有對應的 `tokio::sync::mpsc`，是 `Task` 之間最常見的「工作佇列」：一邊（生產者）把工作 `send` 進去，另一邊（消費者）`recv` 出來處理。一樣是 **multi-producer single-consumer**——可以有很多發送端，但只有一個接收端。
 
-```rust,ignore
+```rust,no_run
+# extern crate tokio;
 use tokio::sync::mpsc;
 
 #[tokio::main]
 async fn main() {
-    // 建立一個容量為 32 的 channel:tx 送、rx 收
+    // 建立一個容量 32 的 bounded channel
     let (tx, mut rx) = mpsc::channel::<i32>(32);
 
-    // 生產者:spawn 一個 task 一直送
+    // 生產者：spawn 出去送 5 個工作
     tokio::spawn(async move {
         for i in 0..5 {
-            tx.send(i).await.unwrap(); // 送一個工作進去
+            tx.send(i).await.expect("接收端已關閉");
+            println!("送出 {i}");
         }
-        // tx 在這裡 drop——之後 rx 會知道沒人再送了
+        // tx 在這裡 drop，接收端的 recv 之後會收到 None
     });
 
-    // 消費者:一直收,直到所有 tx 都關閉
+    // 消費者：一直收到 channel 關閉
     while let Some(value) = rx.recv().await {
-        println!("收到 {}", value);
+        println!("收到 {value}");
     }
-    println!("沒人再送了,結束");
+    println!("channel 關閉了，結束");
 }
 ```
 
-### 它是 async task 之間最常見的工作佇列
+`rx.recv().await` 回傳 `Option`：有訊息就是 `Some(value)`，所有發送端都 `drop` 之後就回 `None`，於是 `while let` 自然結束。這個收法和第 9 章的 `for received in rx` 是同一個精神。
 
-這個模式——一個(或多個)task 一直把工作 `send` 進來,另一個 task 用 `while let Some(x) = rx.recv().await` 一個一個拿出來處理——是 async 程式裡最常見的結構之一,常被叫做 **worker loop(工作迴圈)**。生產者只管把工作丟進 channel,消費者只管從 channel 拿出來做,兩邊解耦,各自的節奏互不干擾。
+### bounded channel 與 backpressure
 
-`mpsc` 是 **multi-producer, single-consumer** 的縮寫:可以有**很多**個發送端(把 `tx` 用 `.clone()` 複製給多個 task,大家一起送),但只有**一個**接收端。
+注意我們建立 channel 時給了一個容量 `32`——這是 **bounded（有容量上限）** channel。容量上限正是上一集 backpressure 的延伸。
 
-### `recv` 怎麼知道該停
+當 channel 裡累積的訊息**塞滿** 32 個（代表消費者來不及處理），生產者的 `tx.send(value).await` 就會**等待**，直到消費者收走一些、騰出空位才繼續。這就是 backpressure：消費者忙不過來時，自動讓生產者慢下來，而不是讓訊息無限堆積把記憶體塞爆。
 
-消費者的 `while let` 什麼時候結束?當**所有** `tx`(含所有 clone)都被 drop 之後,`rx.recv().await` 會回傳 `None`,迴圈自然結束。這是判斷「工作送完了、可以收工」的標準方式——不需要額外傳一個「結束」訊號,把發送端關掉就是訊號。
+這也解釋了為什麼 `send` 要 `.await`——因為它**可能要等**（等空位）。對照第 9 章同步版的 `send` 不用等（那是無上限的），這裡的 `.await` 正是 backpressure 的體現。（Tokio 也有 `unbounded_channel`，它的 `send` 不用 `.await`，但就沒有 backpressure，要小心用。）
 
-### bounded channel:容量帶來 backpressure
+### 搭配 `select!` 同時等工作與 shutdown
 
-建立 channel 時那個 `32`,是它的**容量**。這種有容量上限的叫 **bounded channel**,它正好接續上一集的 backpressure:
-
-當 channel 裡已經積了 32 個還沒被處理的工作,生產者再 `send` 時,`send().await` 就會**等**——等到消費者拿走一些、騰出空間,才送得進去。換句話說,**消費者跟不上時,生產者會被自動拖慢**,工作不會無限堆積撐爆記憶體。這就是為什麼 `send` 是個要 `.await` 的操作:它可能需要等空位。
-
-(tokio 也有 `unbounded_channel`,沒有容量上限、`send` 不用 `.await` 也不會等。但少了 backpressure,生產者暴衝時可能把記憶體吃光,要謹慎使用。一般優先用 bounded。)
-
-### 搭配 `select!`:同時等工作和關機訊號
-
-實務上消費者常常不只等工作,還要能回應「該關機了」。把第 25 集的 `select!` 配上來就很自然:
+實務上，消費者迴圈常常不只等工作，還要同時聽「該收工了」的訊號。這正是上一集 `select!` 的拿手好戲——一邊等 `rx.recv()`，一邊等 shutdown：
 
 ```rust,ignore
-use tokio::sync::mpsc;
-
-async fn worker(mut rx: mpsc::Receiver<i32>, mut shutdown: mpsc::Receiver<()>) {
-    loop {
-        tokio::select! {
-            Some(job) = rx.recv() => {
-                println!("處理工作 {}", job);
-            }
-            _ = shutdown.recv() => {
-                println!("收到關機訊號,收工");
-                break;
-            }
+loop {
+    tokio::select! {
+        Some(job) = rx.recv() => {
+            // 收到工作，處理它
+            handle(job).await;
+        }
+        _ = &mut shutdown => {
+            // 收到收工訊號，跳出迴圈
+            println!("準備關閉……");
+            break;
         }
     }
 }
 ```
 
-消費者一邊等新工作、一邊等關機訊號,哪個先來處理哪個——這是 async 服務裡非常典型的骨架。
-
-## 範例程式碼
-
-多個生產者(`tx.clone()`)、單一消費者:
-
-```rust,ignore
-use tokio::sync::mpsc;
-
-#[tokio::main]
-async fn main() {
-    let (tx, mut rx) = mpsc::channel::<String>(16);
-
-    // 開三個生產者,各自送幾則訊息
-    for id in 1..=3 {
-        let tx = tx.clone(); // 每個 task 一份發送端
-        tokio::spawn(async move {
-            for n in 1..=2 {
-                tx.send(format!("生產者 {} 的第 {} 則", id, n)).await.unwrap();
-            }
-        });
-    }
-    drop(tx); // 丟掉最初那個 tx,否則 rx 會一直以為還有人要送
-
-    // 單一消費者收到所有訊息,直到全部 tx 關閉
-    while let Some(msg) = rx.recv().await {
-        println!("{}", msg);
-    }
-}
-```
-
-注意那個 `drop(tx)`:三個 task 各自 clone 了一份 tx,但**最初的 tx** 還在 `main` 手上;如果不 drop 它,即使三個 task 都送完關閉了,`main` 手上這個 tx 還活著,`rx.recv()` 就會一直等下去。
+這樣消費者就能「一邊處理工作、一邊隨時準備乾淨退出」。怎麼產生那個 `shutdown` 訊號、怎麼把整套關閉流程做漂亮，是後面 graceful shutdown 那一集的主題。下一集先把各種不同的 channel 介紹完。
 
 ## 重點整理
 
-- tokio 的 `mpsc` 是 async 版 channel:`send`／`recv` 在滿／空時 `.await` 讓出執行緒,不卡死
-- 「生產者 `send`,消費者 `while let Some(x) = rx.recv().await` 處理」是最常見的 **worker loop**
-- `mpsc` = 多生產者(`tx.clone()`)、單消費者;**所有 `tx` 都 drop 後 `recv` 回 `None`**,用來判斷收工
-- **bounded channel** 的容量帶來 **backpressure**:佇列滿時 `send().await` 會等,消費者跟不上就自動拖慢生產者
-- 消費者常用 `select!` 同時等「新工作」和「關機訊號」
+- `tokio::sync::mpsc` 是 `async` `Task` 之間最常見的工作佇列：多發送端、單接收端。
+- `rx.recv().await` 回傳 `Option`，所有發送端 `drop` 後回 `None`，可用 `while let Some(x) = rx.recv().await` 走訪。
+- **bounded channel** 有容量上限，塞滿時 `send().await` 會等待——這就是 backpressure，逼生產者配合消費者的速度。
+- `send` 要 `.await` 正是因為它可能要等空位；`unbounded_channel` 不用等但沒有 backpressure。
+- 消費者迴圈常用 `select!` 同時等「工作」與「shutdown 訊號」，達成可隨時乾淨退出。

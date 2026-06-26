@@ -2,85 +2,135 @@
 
 ## 本集目標
 
-換一個角度看 `.await`：把它跟你早就會的 `?` 擺在一起。你會發現它們是**同一種東西**——黏在運算式後面的小尾巴，把「包在特殊世界裡的值」拉出來。
+換一個角度看 `async`：把 `.await` 和你早就會的 `?` 放在一起，發現它們其實是同一類東西。
 
 ## 概念說明
 
-### `?` 和 `.await` 是同一招
+### 兩個「小尾巴」
 
-先看 `?`。在「可能失敗的世界」（`Result`）裡，你想拿出裡面的值：
+回想一下第 5 章的 `?`。當一個運算式的型別是 `Result`，你在它後面黏一個 `?`，就能把裡面那個「成功的值」拉出來用，而「萬一失敗了怎麼辦」這件事交給編譯器自動處理：
 
 ```rust,ignore
-let n: i32 = parse(s)?; // parse 回傳 Result<i32, _>，? 把 i32 拉出來
+let x = a.parse::<i32>()?; // ? 把 Result 裡的值拉出來
 ```
 
-`?` 黏在運算式後面，把「包在 `Result` 世界裡的值」拉出來——**成功就拿到值繼續往下，失敗就自動把錯誤往外傳**。你不必手動 `match`，那套「失敗就短路」的規矩 `?` 幫你串好了。
-
-`.await` 在「還沒好的世界」（`Future`）裡做一模一樣的事：
+`.await` 長得很像，做的事也很像。當一個運算式的型別是 `Future`，你在它後面黏一個 `.await`，就能把裡面那個「之後會算好的值」拉出來用，而「萬一還沒好怎麼辦」這件事交給 runtime 自動處理：
 
 ```rust,ignore
-let body = response.await; // response 是 Future，.await 把結果拉出來
+let x = some_async_thing().await; // .await 把 Future 裡的值拉出來
 ```
 
-`.await` 黏在運算式後面，把「包在 `Future` 世界裡的值」拉出來——**好了就拿到值繼續往下，還沒好就先暫停、等好了再繼續**。
+看出來了嗎？`?` 和 `.await` 都是**黏在運算式後面的小尾巴**，它們把「包在某個特殊世界裡的值」拉到你手上。
 
-兩者都是：**黏在運算式尾巴的小符號，把包裝世界裡的值拉出來，世界的規矩自動幫你串接。**
+### 兩個世界，各有各的規矩
 
-| 世界 | 包裝 | 拉值的尾巴 | 規矩 |
-|---|---|---|---|
-| 可能失敗 | `Result<T, E>` | `?` | 失敗就短路往外傳 |
-| 還沒好 | `Future<Output = T>` | `.await` | 沒好就暫停、好了再繼續 |
+可以把這想成：有些值不是住在「普通世界」，而是住在一個被包起來的特殊世界裡。
 
-你寫出來的程式看起來像一條直線的普通程式，但背後編譯器其實在把這些「包裝過的值」一段一段串成一條計算，每個 `?` / `.await` 就是「套上規矩」的接縫。
+- **`Result` 世界**：值可能算不出來。這個世界的規矩是「可能失敗」。
+- **`Future` 世界**：值現在還沒好，要等。這個世界的規矩是「還沒好」。
 
-### 為什麼 `.await` 要特別的語法、`?` 不用
+當你用 `?` 或 `.await` 把值拉出來，你寫的程式看起來就跟普通程式沒兩樣——一行接一行、把值拿來算。但背後編譯器其實在替你做一件事：把這些「包裝過的值」按照各自世界的規矩**串接起來**。每一個 `?` 或 `.await`，就是一道「套用規矩」的接縫：`?` 那道接縫會在出錯時自動提早回傳；`.await` 那道接縫會在還沒好時自動暫停、把執行緒讓出去。
 
-差別在於規矩的複雜度。`?` 的規矩單純（成功 / 失敗），用一個小符號就搞定。`.await` 的規矩複雜得多：它要能**在中途暫停、之後再從原地恢復**。要做到這件事，編譯器得把整段 async 程式**改寫成一個能記住進度的狀態機**（第 15 集會講）。普通語法做不到「暫停又恢復」，所以 async 才需要專屬的關鍵字。
+### 為什麼 `.await` 需要專屬的 `async` 語法
 
-### async 會「傳染」
+`?` 的規矩比較單純，編譯器只要插入一個「出錯就提早 `return`」的判斷就好。但 `.await` 的規矩複雜得多：在「還沒好」的時候，它得把整個函數**暫停**起來、記住現在跑到哪、把執行緒讓給別人，等好了再從原地接著跑。
 
-還有一個共通點：你只能在「世界裡面」拉值。`?` 只能用在會回傳 `Result` 的函數裡；`.await` 只能用在 `async` 函數 / `async` 區塊裡——**一般（同步）函數裡不能直接 `.await`**。這就是常說的「async 會傳染」：一個地方用了 `.await`，它所在的函數就得是 `async`，於是 async 沿著呼叫鏈一路往上長。
+要做到這件事，編譯器得把你的 `async` 函數**大幅改寫**成一個叫「狀態機」的東西（這是本章後半的重頭戲，現在先記得這個詞就好）。正因為改寫幅度這麼大，Rust 才需要 `async` 這個專屬的關鍵字——它等於是在告訴編譯器：「這一段請幫我改寫成可以暫停、可以恢復的形式」。
 
-### 作用最後一定要「落地」
+### `async` 會「傳染」
 
-包裝世界不能無限往上傳，**最後總得結算回普通世界**。先用你熟的錯誤處理當類比——`Result` 有兩條落地路線：
+`?` 有個你或許注意過的限制：你只能在「回傳 `Result` 的函數」裡用它。同理，`.await` 也只能在 `async` 的環境裡用。在一個普通函數裡直接 `.await` 會編譯失敗：
 
-1. **一路頂到最上面，交給邊界**：讓 `main` 回傳 `Result`，框架在程式邊界幫你處理掉。
-2. **自己當場結算掉**：用 `match`（或 `unwrap`）在這裡就把 `Result` 拆成普通值。
+```rust,compile_fail
+# extern crate tokio;
+async fn add(a: i32, b: i32) -> i32 {
+    a + b
+}
 
-`async` 也是一模一樣的兩條路：
+fn normal_function() {
+    let sum = add(3, 4).await; // 編譯錯誤：一般函數裡不能 .await
+}
+```
 
-- **`#[tokio::main]`** ↔ **回傳 `Result` 的 `main`**：把整個 async 程式頂到最上面，交給框架（runtime）在邊界結算。
-- **`block_on`** ↔ **`match`**：在一段普通同步程式裡，當場把一個 future「結算」成普通值。
+換句話說，你只能在「世界裡面」拉值。想用 `.await`，你所在的函數自己也得是 `async`——於是 `async` 會一路往上「傳染」。這和 `?` 要求「呼叫端自己也得能處理錯誤」是同一回事。
 
-並排看就很清楚：
+### 作用總要「落地」
 
-```rust,ignore
-// Result 世界的兩條落地路線
-fn main() -> Result<(), Error> {   // (1) 交給邊界
-    let n = parse(s)?;
+不管哪個世界，總有一刻要回到普通世界——把包裝拆掉、得到一個實實在在的值。先看錯誤處理是怎麼「落地」的，它有兩條路。
+
+第一條：讓 `main` 自己回傳 `Result`，把結算交給框架在程式的邊界處理。
+
+```rust,no_run
+fn parse_and_add(a: &str, b: &str) -> Result<i32, std::num::ParseIntError> {
+    let x = a.parse::<i32>()?;
+    let y = b.parse::<i32>()?;
+    Ok(x + y)
+}
+
+fn main() -> Result<(), std::num::ParseIntError> {
+    let sum = parse_and_add("3", "4")?;
+    println!("結果是 {sum}");
     Ok(())
 }
-fn main() {                        // (2) 當場結算
-    let n = match parse(s) { Ok(n) => n, Err(_) => return };
+```
+
+第二條：自己用 `match` 當場把 `Result` 拆開，在普通程式裡處理掉。
+
+```rust,editable
+fn parse_and_add(a: &str, b: &str) -> Result<i32, std::num::ParseIntError> {
+    let x = a.parse::<i32>()?;
+    let y = b.parse::<i32>()?;
+    Ok(x + y)
 }
 
-// Future 世界的兩條落地路線
-#[tokio::main]                     // (1) 交給框架在邊界結算
-async fn main() {
-    let body = fetch(url).await;
-}
-fn main() {                        // (2) 自己當場結算
-    let body = runtime.block_on(fetch(url));
+fn main() {
+    match parse_and_add("3", "4") {
+        Ok(sum) => println!("結果是 {sum}"),
+        Err(e) => println!("出錯了：{e}"),
+    }
 }
 ```
 
-`block_on` 就是 **sync → async 的橋**：在普通同步程式裡，挑一個 future、卡在這裡把它跑到出結果為止，拿回一個普通值。後面手寫 runtime 時，我們會親手做出 `block_on`。
+### `async` 的落地，完全對應
+
+`Future` 世界的落地也是這兩條路，而且一一對應：
+
+**第一條：`#[tokio::main]`**，對應「回傳 `Result` 的 `main`」。你只管把 `main` 寫成 `async`，把結算交給 Tokio 這個框架在邊界處理：
+
+```rust,no_run
+# extern crate tokio;
+async fn add(a: i32, b: i32) -> i32 {
+    a + b
+}
+
+#[tokio::main]
+async fn main() {
+    let sum = add(3, 4).await;
+    println!("結果是 {sum}");
+}
+```
+
+**第二條：`block_on`**，對應「自己 `match`」。你在一個普通的同步 `main` 裡，當場叫 runtime 把一個 `Future` 跑到完成、結算成普通值：
+
+```rust,no_run
+# extern crate tokio;
+async fn add(a: i32, b: i32) -> i32 {
+    a + b
+}
+
+fn main() {
+    let runtime = tokio::runtime::Runtime::new().expect("無法建立 runtime");
+    let sum = runtime.block_on(add(3, 4)); // 當場把 Future 結算成普通值
+    println!("結果是 {sum}");
+}
+```
+
+兩兩對照：`#[tokio::main]` ↔ 回傳 `Result` 的 `main`（交給框架在邊界結算），`block_on` ↔ `match`（自己在同步程式裡當場結算）。把這個對應記在心裡，`async` 對你來說就不再是全新的東西，而是「你早就會的 `?`，換了一套更複雜的規矩」。
 
 ## 重點整理
 
-- `?` 和 `.await` 是同一招：黏在運算式尾巴，把「包在特殊世界裡的值」拉出來，世界的規矩（失敗短路 / 沒好就暫停）自動幫你串接
-- `.await` 規矩比 `?` 複雜（要能暫停又恢復），所以編譯器得把 async 改寫成狀態機（第 15 集），也因此需要專屬語法
-- async 會「傳染」：`.await` 只能在 async 函數 / 區塊裡用，一般函數不行
-- 作用最後一定要落地回普通世界，兩條路：**`#[tokio::main]` ↔ 回傳 `Result` 的 main（交給邊界）**、**`block_on` ↔ `match`（當場結算）**
-- `block_on` 是 sync → async 的橋，把一個 future 在當下跑到完成、拿回普通值
+- `?` 和 `.await` 都是黏在運算式後的小尾巴，把「特殊世界裡的值」拉出來。
+- `Result` 世界的規矩是「可能失敗」，`Future` 世界的規矩是「還沒好」；編譯器替你把包裝過的值按規矩串接起來。
+- `.await` 的規矩複雜，會把函數改寫成**狀態機**，所以需要 `async` 專屬語法。
+- `async` 像 `?` 一樣會「傳染」：要 `.await`，所在的函數自己也得是 `async`。
+- 落地兩條路一一對應：`#[tokio::main]` ↔ 回傳 `Result` 的 `main`，`block_on` ↔ `match`。

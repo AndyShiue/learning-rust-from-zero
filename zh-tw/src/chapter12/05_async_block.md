@@ -2,59 +2,102 @@
 
 ## 本集目標
 
-認識 `async { ... }`：在函數裡**當場**做出一個 future。並回答一個有意思的問題：為什麼 `?` 不需要專屬語法、`.await` 卻需要一個 `async` 區塊？
+學會用 `async { ... }` 在函數裡當場做出一個 `Future`，並理解它和 `async fn` 的關係。
 
 ## 概念說明
 
-### `async fn` 對 `async` block，像具名函數對閉包
+### 當場做一個 `Future`
 
-`async fn` 是定義一個**可重複呼叫的 future 工廠**：每呼叫一次，產出一個新的 future。`async { ... }` 則是**當場建立一個匿名的 future**：
+除了 `async fn`，Rust 還讓你用 `async { ... }` 在程式中間**當場**建立一個 `Future`：
 
-```rust,ignore
-async fn make() -> i32 {   // future 工廠：呼叫一次生一個
-    1 + 2
+```rust,no_run
+# extern crate tokio;
+#[tokio::main]
+async fn main() {
+    // 這個 async block 本身就是一個 Future
+    let fut = async {
+        println!("我在一個 async block 裡");
+        42
+    };
+
+    // 和 async fn 一樣，要 .await 才會真的跑
+    let value = fut.await;
+    println!("拿到 {value}");
 }
+```
 
+注意：和 `async fn` 完全一樣，光是寫出 `async { ... }` 不會執行裡面的程式，你只是做出一個惰性的 `Future`，要 `.await` 才會動。
+
+### `async fn` 和 `async` block 的關係
+
+這兩者的關係，其實就是你在第 6 章看過的**具名函數 ↔ 閉包**：
+
+- `async fn` 是一個**具名的 `Future` 工廠**——你定義一次，之後可以重複呼叫，每次呼叫產生一個新的 `Future`。
+- `async` block 是**當場建立的一個匿名 `Future`**——就在這裡、這一個，沒有名字。
+
+就像普通函數和閉包一樣：一個是先定義好、到處呼叫的具名工具，一個是在需要的地方臨時寫出來的匿名版本。
+
+### 在 `Result` 世界，這件事不需要新語法
+
+這裡有個很有意思的對照。在 `Result` 世界，如果你想要「當場來一段可以用 `?` 的區塊」，其實**不需要任何新語法**——一個立刻呼叫的閉包就辦到了：
+
+```rust,editable
 fn main() {
-    let f1 = make();           // 具名工廠生出的 future
-    let f2 = async { 1 + 2 };  // 當場做的匿名 future
+    // 定義一個閉包，然後馬上用 () 呼叫它
+    let result: Result<i32, std::num::ParseIntError> = (|| {
+        let x = "3".parse::<i32>()?;
+        let y = "4".parse::<i32>()?;
+        Ok(x + y)
+    })();
+
+    println!("{result:?}");
 }
 ```
 
-這個對比你也很熟：**`async fn` ↔ 具名函數，`async` block ↔ 閉包**。一個是定義好、可重複用的；一個是當場捏一個出來用。`async` block 常用來把「一小段需要 `.await` 的工作」就地包成一個 future，丟給 `spawn`、`join` 之類的東西。
+這裡的 `(|| { ... })()` 是「定義一個閉包並立刻呼叫」。閉包的函數體可以用 `?`，因為它回傳 `Result`。`Result` 世界靠現成的閉包就能表達「當場一段」，不必發明新東西。
 
-### 為什麼需要 `async` 這個語法？
+### 為什麼 `Future` 世界不能照搬
 
-這裡有個值得想一下的對比。回到第 4 集「`?` 和 `.await` 是同一招」——那為什麼 **`?` 不需要任何新語法，`.await` 卻需要一個 `async { }`？**
+你可能會想：那 `Future` 世界是不是也照抄就好？把 `.await` 塞進一個立刻呼叫的閉包裡？
 
-在 `Result` 世界，如果你想要「當場一段能用 `?` 的區塊」，其實用一個**立刻呼叫的閉包**就能表達，不需要任何新語法：
+```rust,compile_fail
+# extern crate tokio;
+async fn get_number() -> i32 {
+    42
+}
 
-```rust,ignore
-let r: Result<i32, _> = (|| {
-    let a = parse(x)?;
-    let b = parse(y)?;
-    Ok(a + b)
-})();   // 定義一個閉包，馬上呼叫它
+#[tokio::main]
+async fn main() {
+    let value = (|| {
+        get_number().await // 編譯錯誤：普通閉包裡不能 .await
+    })();
+}
 ```
 
-那 Future 世界能不能照搬，寫成 `(|| { ... .await })()`？**不行。** 原因在第 4 集講過：`.await` 需要把整段程式**改寫成能暫停、能恢復的狀態機**。而普通閉包只會被編成「一呼叫就從頭跑到尾」的普通函數——它沒有「暫停」這回事，**表達不出那種改寫**。
+不行。原因回到上一集講的：`.await` 需要把整段程式**改寫成狀態機**，才能做到「暫停以允許並行」。但一個普通閉包只會被編譯成一個普通函數，裡面**沒有**「暫停、之後再恢復」這回事——它表達不了那種改寫。所以 `Result` 世界那招在這裡行不通。
 
-所以 async 才需要一個專屬語法 `async { ... }`：它等於是在跟編譯器說「**把這一塊改寫成一個 future（狀態機）**」。`?` 借得到現成的閉包語法，`.await` 借不到，這就是 `async` 區塊存在的理由。
+這正是 `async` block 存在的理由。當你寫 `async { ... }`，等於是明確地叫編譯器：「把這一塊改寫成一個 `Future`」。有了這個專屬語法，裡面才能合法地用 `.await`：
 
-```rust,ignore
-// Result 世界：借用現成的閉包就行
-let r = (|| { parse(x)?; Ok(()) })();
+```rust,no_run
+# extern crate tokio;
+async fn get_number() -> i32 {
+    42
+}
 
-// Future 世界：借不到，需要專屬語法
-let f = async { something().await; };
-//      ^^^^^ 叫編譯器把這塊改寫成 future
+#[tokio::main]
+async fn main() {
+    let value = async {
+        get_number().await // 這次可以了，因為這是 async block
+    }.await;
+    println!("{value}");
+}
 ```
 
-（補充：`async || { }`（async 閉包）本身也是 async 專屬語法，並不違背這個結論——詳見附錄二。）
+到這裡，前五集把「`async` 是什麼」從使用者的角度講完了。下一集開始，我們要捲起袖子，自己動手把 `Future` 的內部機制拆開來看。
 
 ## 重點整理
 
-- `async { ... }` 在函數裡**當場**建立一個匿名 future；對比 `async fn` 是「可重複呼叫的 future 工廠」，就像**閉包對具名函數**
-- `Result` 世界要「當場一段能用 `?` 的區塊」，用立刻呼叫的閉包 `(|| { ...? ; Ok(..) })()` 就行，不需新語法
-- Future 世界不能照搬成 `(|| { ... .await })()`，因為 `.await` 要把整段改寫成狀態機，而普通閉包只會編成「呼叫就跑到完」的普通函數，表達不了「暫停」
-- 所以 `async` 才需要專屬語法——`async { }` 等於叫編譯器「把這塊改寫成一個 future」
+- `async { ... }` 在函數中間當場建立一個匿名的 `Future`，一樣要 `.await` 才會跑。
+- `async fn` ↔ `async` block 的關係，就像具名函數 ↔ 閉包：一個是可重複呼叫的工廠，一個是當場的匿名版本。
+- `Result` 世界用「立刻呼叫的閉包」就能表達「當場一段」，不需新語法。
+- `Future` 世界不能照搬，因為 `.await` 要改寫成狀態機，普通閉包做不到——所以才需要 `async` block 這個專屬語法。

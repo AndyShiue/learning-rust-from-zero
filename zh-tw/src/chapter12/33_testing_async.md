@@ -2,109 +2,68 @@
 
 ## 本集目標
 
-學會幫 async 程式寫測試:`#[tokio::test]`,以及用 `tokio::time` 控制時間,讓和「等待」有關的測試又快又穩。
+學會用 `#[tokio::test]` 寫 `async` 測試，以及用虛擬時間讓牽涉延遲的測試跑得又快又穩。
 
 ## 概念說明
 
-### `#[test]` 不能直接測 async fn
+### `#[tokio::test]`
 
-第 7 章學過用 `#[test]` 和 `cargo test` 寫測試。但測試函數如果是 `async fn`,會有問題——`#[test]` 不知道怎麼跑一個 future(它需要一個 runtime 來 `block_on`):
+第 7 章學過用 `#[test]` 加 `cargo test` 寫測試。但 `#[test]` 標記的是一個普通函式，沒辦法 `.await`。要測 `async` 程式，Tokio 提供 `#[tokio::test]`——它會自動幫你的測試函式套上一個 runtime，你不用自己 `block_on`：
 
-```rust,ignore
-#[test]
-async fn it_works() { // 行不通:普通的 #[test] 不會幫你跑 future
-    let result = compute().await;
-    assert_eq!(result, 42);
-}
-# async fn compute() -> i32 { 42 }
-```
-
-### `#[tokio::test]`:自動套上 runtime
-
-tokio 提供 `#[tokio::test]`,專門解決這件事。它和 `#[test]` 用起來一樣,但會**自動幫你的測試函數建一個 runtime 並 `block_on`**,所以函數體裡可以直接 `.await`:
-
-```rust,ignore
-async fn compute() -> i32 {
-    42
+```rust,noplayground
+# extern crate tokio;
+async fn add(a: i32, b: i32) -> i32 {
+    a + b
 }
 
 #[tokio::test]
-async fn it_works() {
-    let result = compute().await; // 可以直接 await
-    assert_eq!(result, 42);
+async fn test_add() {
+    let result = add(2, 3).await;
+    assert_eq!(result, 5);
 }
+#
+# fn main() {}
 ```
 
-其實 `#[tokio::test]` 就是「`#[test]` + 自動 `block_on`」的組合,本質和第 21 集 `#[tokio::main]` 對 `main` 做的事一樣,只是這次施加在測試函數上。`cargo test` 跑法、`assert_eq!` 等斷言巨集都和第 7 章一模一樣。
+就這麼簡單。`#[tokio::test]` 等於「`#[test]` + 自動準備 runtime + 允許 `async`」。其他和第 7 章一樣：放進 `#[cfg(test)] mod tests`、用 `cargo test` 執行、用 `assert_eq!` 之類的巨集檢查結果。
 
-### 和時間有關的測試:別真的去等
+### 牽涉時間的測試怎麼辦
 
-假設你要測一段「30 秒後逾時」的邏輯。如果測試裡真的 `sleep(30 秒)`,那這個測試每跑一次就要等 30 秒——慢到沒人想跑,而且依賴真實時鐘也容易不穩定。
+`async` 程式常常牽涉時間——timeout、延遲、定時重試。如果照實測，一個「5 秒後逾時」的邏輯，測試就得真的等 5 秒，又慢又煩。更糟的是，靠真實時間的測試常常不穩（有時候機器卡一下，時序就跑掉了，測試忽過忽不過）。
 
-tokio 提供了一個很漂亮的解法:**把時間「暫停」,然後用程式手動把它快轉。** 開啟方式是 `tokio::time::pause()`,之後用 `tokio::time::advance(時間)` 手動推進那個「假時鐘」。
+Tokio 的解法是**虛擬時間**：讓測試裡的時間由你**手動推進**，不必真的空等。兩個關鍵函式：
 
-```rust,ignore
-use tokio::time::{advance, pause, Duration, Instant};
+- `tokio::time::pause()`：把時間「暫停」，從此時間不會自己流動。
+- `tokio::time::advance(duration)`：手動把時間往前快轉一段。
+
+```rust,noplayground
+# extern crate tokio;
+use tokio::time::{self, Duration};
 
 #[tokio::test]
-async fn time_can_be_controlled() {
-    pause(); // 暫停時鐘:從現在起,時間不會自己走
+async fn test_with_virtual_time() {
+    time::pause(); // 暫停時間
 
-    let start = Instant::now();
+    let start = time::Instant::now();
 
-    // 手動把時鐘往前快轉 30 秒(瞬間完成,不是真的等 30 秒)
-    advance(Duration::from_secs(30)).await;
+    // 把虛擬時間往前推 10 秒——瞬間完成，不必真的等
+    time::advance(Duration::from_secs(10)).await;
 
-    // 對 tokio 來說,已經「過了」30 秒
-    assert!(start.elapsed() >= Duration::from_secs(30));
+    assert!(start.elapsed() >= Duration::from_secs(10));
 }
+#
+# fn main() {}
 ```
 
-`pause()` 之後,所有 `tokio::time::sleep`、逾時計時器都跟著那個假時鐘走。你用 `advance` 快轉,它們就「以為」時間到了——於是一個原本要等 30 秒的逾時測試,可以在**一瞬間**跑完,而且結果完全 deterministic(每次都一樣,不受真實機器快慢影響)。
+這個測試**瞬間**就跑完了，即使邏輯上「過了 10 秒」。因為時間是虛擬的，`advance` 一下就跳過去了。如果你想讓測試從一開始就暫停時間，也可以直接寫 `#[tokio::test(start_paused = true)]`，省掉手動呼叫 `pause()`。
 
-(小提醒:`pause` / `advance` 需要用 tokio 的計時功能,且通常在 `current_thread` runtime 下使用;`#[tokio::test]` 預設就是這種,所以一般直接用即可。)
+有了虛擬時間，凡是牽涉 timeout、延遲、重試間隔的測試，都能變得 **deterministic（每次結果一致）** 又快——你完全掌控時間怎麼走，不必看真實時鐘的臉色。
 
-### 為什麼這很重要
-
-「測試要快、要穩」是寫測試的鐵則。async 程式常常牽涉 `sleep`、逾時、重試間隔這些和時間有關的邏輯,如果每次都真的去等,測試就會又慢又飄。`pause` + `advance` 讓你能**精準控制時間的流動**,把「等 N 秒」變成「快轉 N 秒」,是測 async 邏輯時非常實用的一招。
-
-## 範例程式碼
-
-測一段「最多等 1 秒,逾時就回 `None`」的邏輯,但完全不用真的等 1 秒:
-
-```rust,ignore
-use tokio::time::{self, advance, pause, Duration};
-
-// 被測的函數:最多等 work 完成 1 秒,逾時回 None
-async fn with_timeout<F, T>(work: F) -> Option<T>
-where
-    F: std::future::Future<Output = T>,
-{
-    time::timeout(Duration::from_secs(1), work).await.ok()
-}
-
-#[tokio::test]
-async fn times_out_after_one_second() {
-    pause();
-
-    // 一個永遠不會完成的工作
-    let never = std::future::pending::<i32>();
-    let fut = with_timeout(never);
-    tokio::pin!(fut);
-
-    // 還沒到 1 秒,結果還沒出來
-    advance(Duration::from_millis(999)).await;
-    // 再快轉一點點,跨過 1 秒,逾時應該觸發
-    advance(Duration::from_millis(2)).await;
-
-    assert_eq!(fut.await, None); // 逾時,回 None——整個測試瞬間跑完
-}
-```
+（小提醒：`pause` / `advance` 這些虛擬時間工具需要開啟 Tokio 的 `test-util` 功能，在 `Cargo.toml` 把 tokio 的 features 加上 `"test-util"` 即可。）
 
 ## 重點整理
 
-- `#[tokio::test]` = 「`#[test]` + 自動建 runtime 並 `block_on`」,讓測試函數能直接 `.await`
-- `cargo test`、`assert_eq!` 等用法和第 7 章完全一樣
-- 和時間有關的測試別真的去等:`tokio::time::pause()` 暫停時鐘,`advance(時間)` 手動快轉
-- 這讓「等 30 秒」的逾時邏輯能在**一瞬間、deterministic** 地測完,測試又快又穩
-- `tokio::time::timeout` 是包逾時的好工具,搭配 `pause`／`advance` 很好測
+- `#[tokio::test]` 自動幫測試函式套上 runtime、允許 `.await`，等於「`#[test]` + runtime + `async`」；其餘用法和第 7 章的 `cargo test` 一樣。
+- 牽涉時間的測試別用真實時間（又慢又不穩），改用 Tokio 的虛擬時間。
+- `tokio::time::pause()` 暫停時間、`tokio::time::advance(duration)` 手動快轉，讓 timeout / 延遲的測試瞬間完成且結果一致。
+- 也可用 `#[tokio::test(start_paused = true)]` 從頭暫停時間；虛擬時間工具需要 tokio 的 `test-util` 功能。

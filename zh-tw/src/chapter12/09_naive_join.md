@@ -1,51 +1,55 @@
-# 手寫 `join`
+# 手寫 join
 
 ## 本集目標
 
-上一集看到連著兩個 `.await` 會**依序**等待。這一集自己寫一個 `Future`，把好幾個 future 包在一起、讓它們**並行**推進——這就是 `join` 在做的事。
+自己寫一個 `Future`，把好幾個 `Future` 包成一個，讓它們**並行**推進。
 
 ## 概念說明
 
-### 並行的關鍵：一次 poll，推進所有人
+### 目標：把好幾個 `Future` 一起等
 
-要讓好幾個 future 同時前進，訣竅很簡單：**寫一個外層 future，它每次被 poll 時，就把裡面每個還沒完成的子 future 都各 poll 一次。** 全部子 future 都完成了，外層才回 `Ready`。
+上一集結尾留下一個問題：連續兩個 `.await` 會依序等待。如果我想讓好幾個工作**同時**進行、一起等它們全部完成，該怎麼辦？
 
-我們做一個吃整個 `Vec`、用 `for` 迴圈推進全部的 `JoinAll`：
+辦法是自己寫一個 `Future`，叫它 `JoinAll`。它把一整個 `Vec` 的 `Future` 收進來，每次被 `poll` 的時候，就用 `for` 迴圈把裡面**每一個**還沒完成的 `Future` 各推進一次。等到全部都完成了，自己才回 `Ready`。
 
-```rust,ignore
-use std::future::Future;
-use std::pin::Pin;
-use std::task::{Context, Poll};
+### 寫出 `JoinAll`
 
+```rust,editable
+# use std::future::Future;
+# use std::pin::Pin;
+# use std::task::{Context, Poll, Waker};
+# use std::time::Instant;
+#
+# struct Delay {
+#     when: Instant,
+# }
+# impl Delay {
+#     fn new(duration: std::time::Duration) -> Delay {
+#         Delay { when: Instant::now() + duration }
+#     }
+# }
+# impl Future for Delay {
+#     type Output = ();
+#     fn poll(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<()> {
+#         if Instant::now() >= self.when { Poll::Ready(()) } else { Poll::Pending }
+#     }
+# }
+#
+# fn block_on<F: Future>(future: F) -> F::Output {
+#     let mut future = Box::pin(future);
+#     let mut cx = Context::from_waker(Waker::noop());
+#     loop {
+#         match future.as_mut().poll(&mut cx) {
+#             Poll::Ready(value) => return value,
+#             Poll::Pending => {}
+#         }
+#     }
+# }
+use std::time::Duration;
+
+// 把一個 Vec 的 Future 包起來，每個都用 Some 裝著（完成後換成 None）
 struct JoinAll<F: Future> {
-    // 每個 slot：還沒完成是 Some(future)，完成後換成 None
     futures: Vec<Option<Pin<Box<F>>>>,
-}
-
-impl<F: Future> Future for JoinAll<F> {
-    type Output = ();
-
-    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {
-        let this = self.get_mut();
-        let mut all_done = true;
-
-        for slot in this.futures.iter_mut() {
-            if let Some(fut) = slot.as_mut() {
-                // 還沒完成的，推進一次
-                if fut.as_mut().poll(cx).is_ready() {
-                    *slot = None;       // 做完了，換成 None
-                } else {
-                    all_done = false;   // 還有人沒做完
-                }
-            }
-        }
-
-        if all_done {
-            Poll::Ready(())
-        } else {
-            Poll::Pending
-        }
-    }
 }
 
 fn join_all<F: Future>(futures: Vec<F>) -> JoinAll<F> {
@@ -53,125 +57,73 @@ fn join_all<F: Future>(futures: Vec<F>) -> JoinAll<F> {
         futures: futures.into_iter().map(|f| Some(Box::pin(f))).collect(),
     }
 }
-```
 
-`poll` 裡就是一圈 `for`：每個還沒完成（`Some`）的子 future 各 poll 一次，做完的換成 `None`；只要還有任何一個沒做完，就回 `Pending`，全部都 `None` 才回 `Ready`。
-
-（這裡用 `Vec<Option<Pin<Box<F>>>>`：`Box::pin` 把每個子 future 釘好以便 `poll`，`Option` 讓我們能把「做完的」標記成 `None`。`self.get_mut()` 能用，是因為 `JoinAll` 的欄位都能安全 move、它是 `Unpin`。）
-
-### 故意放「要 poll 很多次才完成」的 future 進去
-
-為了證明 `JoinAll` 真的能推進**複雜**的子 future，我們故意放一個**有多個 `.await`** 的 async 工作進去——這種 future 要被 poll 很多次、跨好幾個暫停點才會完成：
-
-```rust,ignore
-async fn work(id: u32) {
-    println!("task {id} 開始");
-    delay(1).await;
-    println!("task {id} 中段");
-    delay(1).await;
-    println!("task {id} 完成");
-}
-```
-
-把三個 `work` 丟進 `JoinAll`：
-
-```rust,ignore
-run(join_all(vec![work(1), work(2), work(3)]));
-```
-
-它們會**並行**推進——三個 task 的「開始 / 中段 / 完成」會交錯印出，而且整批大約只花 2 秒（兩個 `delay(1)` 重疊跑），不是 6 秒。
-
-重點是：`JoinAll` **完全不必特別處理**那些多 `.await` 的 future。它只管「對每個還沒完成的子 future 各 poll 一次」；至於某個子 future 內部有幾個 `.await`、自己記到哪個進度，那是它**自己的事**（它自己是個會記進度的狀態機）。`JoinAll` 只負責「雨露均霑、每個都推一下」，剩下的交給每個 future 自理。
-
-（注意：因為 `Vec<F>` 要求每個元素同型別，我們用「同一個 `async fn` 呼叫多次」（`work(1)`、`work(2)`…）來產生一批**同型別**的 future；如果直接寫好幾個 `async { }` 區塊，每個會是不同的匿名型別，塞不進同一個 `Vec`。）
-
-## 範例程式碼
-
-```rust,ignore
-use std::future::Future;
-use std::pin::Pin;
-use std::task::{Context, Poll, Waker};
-use std::time::{Duration, Instant};
-
-struct Delay {
-    when: Instant,
-}
-impl Future for Delay {
-    type Output = ();
-    fn poll(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<()> {
-        if Instant::now() >= self.when {
-            Poll::Ready(())
-        } else {
-            Poll::Pending
-        }
-    }
-}
-fn delay(secs: u64) -> Delay {
-    Delay {
-        when: Instant::now() + Duration::from_secs(secs),
-    }
-}
-
-struct JoinAll<F: Future> {
-    futures: Vec<Option<Pin<Box<F>>>>,
-}
 impl<F: Future> Future for JoinAll<F> {
     type Output = ();
+
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {
-        let this = self.get_mut();
+        let this = self.get_mut(); // JoinAll 是 Unpin，可以拿回普通的 &mut
         let mut all_done = true;
+
         for slot in this.futures.iter_mut() {
-            if let Some(fut) = slot.as_mut() {
-                if fut.as_mut().poll(cx).is_ready() {
-                    *slot = None;
-                } else {
-                    all_done = false;
+            // 把 Future 暫時取出來（slot 變成 None），poll 一次
+            if let Some(mut fut) = slot.take() {
+                match fut.as_mut().poll(cx) {
+                    Poll::Ready(_) => {
+                        // 完成了，就不放回去，slot 維持 None
+                    }
+                    Poll::Pending => {
+                        *slot = Some(fut); // 還沒好，放回去下次再 poll
+                        all_done = false;
+                    }
                 }
             }
         }
+
         if all_done {
-            Poll::Ready(())
+            Poll::Ready(()) // 全部都完成了
         } else {
-            Poll::Pending
+            Poll::Pending // 還有沒完成的
         }
     }
 }
-fn join_all<F: Future>(futures: Vec<F>) -> JoinAll<F> {
-    JoinAll {
-        futures: futures.into_iter().map(|f| Some(Box::pin(f))).collect(),
-    }
-}
 
-async fn work(id: u32) {
-    println!("task {id} 開始");
-    delay(1).await;
-    println!("task {id} 中段");
-    delay(1).await;
-    println!("task {id} 完成");
-}
-
-// 第 6 集那台笨 executor
-fn run<F: Future>(future: F) -> F::Output {
-    let mut future = Box::pin(future);
-    let waker = Waker::noop();
-    let mut cx = Context::from_waker(waker);
-    loop {
-        match future.as_mut().poll(&mut cx) {
-            Poll::Ready(value) => return value,
-            Poll::Pending => {}
-        }
-    }
+// 一個有「兩個 .await」的工作，所以要 poll 很多次才會完成
+async fn worker(id: u32) {
+    println!("worker {id} 開始");
+    Delay::new(Duration::from_secs(1)).await;
+    println!("worker {id} 過了第一秒");
+    Delay::new(Duration::from_secs(1)).await;
+    println!("worker {id} 完成");
 }
 
 fn main() {
-    run(join_all(vec![work(1), work(2), work(3)]));
+    block_on(async {
+        // 三個 worker 都是同一個 async fn，所以型別相同，可以放進同一個 Vec
+        let workers = vec![worker(1), worker(2), worker(3)];
+        join_all(workers).await;
+        println!("全部 worker 都完成了");
+    });
 }
 ```
 
+### 它為什麼是並行的
+
+跑起來你會發現：三個 worker 幾乎同時開始、同時結束，總共只花**兩秒**，而不是六秒。
+
+原因是 `JoinAll` 的 `poll` 在一輪裡就把三個 worker 各推進一次。三個 `Delay` 同時在計時，所以兩秒後三個 worker 全部到期。這就是並行——同一段時間裡，三件「都在等」的事一起被推著走。對照上一集，如果你寫成 `worker(1).await; worker(2).await; worker(3).await;`，那會是一個跑完才換下一個，總共六秒。
+
+### 連「要 poll 很多次」的 `Future` 也照樣推得動
+
+特別注意我們故意挑了 `worker` 這個有**兩個 `.await`** 的工作放進去。這種 `Future` 不是 poll 一次就好，得 poll 很多很多次（兩個 `Delay` 各要等一秒，期間 executor 會狂 poll）才會走完。
+
+而 `JoinAll` 完全不用為這件事操心——它只管「對每個還沒完成的 `Future` 各 poll 一次」，至於某個 `Future` 內部卡在第幾個 `.await`、還要 poll 幾次才完成，那是那個 `Future` 自己記著的（記得嗎？`Future` 會記住自己的進度）。`JoinAll` 只要重複地一輪一輪 poll，每個 `Future` 自然會一步步往前，直到全部回 `Ready`。這正是 `poll` 這套設計的威力：組合 `Future` 的人不必理解被組合者的內部細節。
+
+不過，我們的 executor 還是那個瘋狂空轉的笨版本。下一集就來解決這件事——讓 executor 在沒事做的時候去睡覺，等該醒了再被叫醒。
+
 ## 重點整理
 
-- 讓多個 future 並行的訣竅：寫一個外層 future，每次被 poll 就**把每個還沒完成的子 future 各 poll 一次**，全部完成才回 `Ready`
-- `JoinAll` 用 `Vec<Option<Pin<Box<F>>>>`：做完的 slot 換成 `None`，`for` 一圈推進其餘的
-- 連「內部有很多 `.await`、要 poll 很多次」的 future，`JoinAll` 也照樣推得動——它不必特別處理，每個子 future 自己記得進度（自己是狀態機）
-- `.await` 依序、`join` 並行：三個各含兩段 `delay(1)` 的 task 一起跑，總共約 2 秒而非 6 秒
-- `Vec<F>` 要求同型別，所以用「同一個 `async fn` 呼叫多次」產生同型別 future；多個 `async { }` 區塊彼此型別不同，塞不進同一個 `Vec`
+- 把多個 `Future` 並行推進的辦法，是自己寫一個 `Future`（`JoinAll`），在 `poll` 裡用 `for` 迴圈把每個子 `Future` 各 poll 一次。
+- 完成的子 `Future` 換成 `None`，全部都 `None`（完成）時 `JoinAll` 才回 `Ready`。
+- 同一個 `async fn` 的多次呼叫型別相同，可以放進同一個 `Vec`。
+- `JoinAll` 不必處理「某個 `Future` 要 poll 很多次」的情況——子 `Future` 自己記得進度，只管一輪一輪 poll 即可。

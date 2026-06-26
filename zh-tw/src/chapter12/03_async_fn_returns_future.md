@@ -2,85 +2,90 @@
 
 ## 本集目標
 
-建立一個關鍵心智模型：**呼叫 `async fn`，並不會執行它的內容，只會拿到一個還沒跑的 `Future`。** 我們用兩個看得見的方式證明這件事。
+建立一個關鍵的心智模型：呼叫 `async fn` 並不會執行它，你只是拿到一個還沒開始跑的 `Future`。
 
 ## 概念說明
 
-### 方法一：呼叫了，但函數體沒執行
+### 呼叫 `async fn` 不會執行它
 
-先看一個會印東西的 `async fn`：
+這是新手最常踩的坑，所以我們用實驗來證明。先看一個普通的 `async fn`：
 
-```rust,ignore
+```rust,no_run
+# extern crate tokio;
 async fn say_hello() {
     println!("hello");
 }
 
-fn main() {
-    let _f = say_hello(); // 呼叫了……
-    println!("main 結束");
+#[tokio::main]
+async fn main() {
+    say_hello(); // 注意：這行不會印出 hello！
 }
 ```
 
-直覺上你可能以為會印 `hello` 再印 `main 結束`。但實際上**只會印 `main 結束`**——`say_hello()` 裡的 `println!` 完全沒執行。
-
-為什麼？因為呼叫 `async fn` **不會跑它的內容**，只會回傳一個「代表這段工作、但還沒開始」的東西。函數體要等到這個東西被**驅動**（之後會講的 `.await` 或交給 runtime）才會真的執行。
-
-### 方法二：讓編譯器告訴你它的型別
-
-那「回傳的東西」到底是什麼型別？故意把它指定成錯的型別，讓編譯器報出來：
-
-```rust,ignore
-async fn say_hello() {}
-
-fn main() {
-    let _x: () = say_hello(); // 故意說它是 ()
-}
-```
-
-編譯器會回報類似：
+直覺上你會以為呼叫 `say_hello()` 就會印出 `hello`，但實際上**什麼都不會發生**。函數體裡的 `println!` 完全沒有執行。不只如此，編譯器還會給你一個警告：
 
 ```text
-expected `()`, found future
+warning: unused implementor of `Future` that must be used
+note: futures do nothing unless you `.await` or poll them
 ```
 
-`async fn say_hello()` 看起來「回傳 `()`」，但其實呼叫它得到的是一個 **future**（編譯器叫它 opaque future）。換句話說：
+這個警告（來自 `#[must_use]` 標記）已經把真相說出來了：呼叫 `say_hello()` 得到的是一個 **`Future`**——一個「還沒跑的工作」。你只是把這個工作描述出來，但沒有人去執行它，所以它就被丟掉了。
 
-> 呼叫 `async fn` 得到的不是「函數的結果」，而是一個**還沒跑、之後會產出那個結果的 `Future`**。
+要真的讓它跑，得加上 `.await`：
+
+```rust,no_run
+# extern crate tokio;
+async fn say_hello() {
+    println!("hello");
+}
+
+#[tokio::main]
+async fn main() {
+    say_hello().await; // 這次才會印出 hello
+}
+```
+
+### 讓編譯器親口證實它是 `Future`
+
+如果你還不信，我們可以用另一招逼編譯器說實話：故意把回傳值的型別標錯，看它怎麼罵人。
+
+```rust,compile_fail
+# extern crate tokio;
+async fn say_hello() {
+    println!("hello");
+}
+
+#[tokio::main]
+async fn main() {
+    let x: () = say_hello(); // 編譯錯誤
+}
+```
+
+`say_hello` 的函數體沒有回傳值，照理說「應該」回傳 `()`，所以我們故意寫 `let x: () = ...`。但編譯器會報錯：
+
+```text
+error[E0308]: mismatched types
+  expected unit type `()`
+              found `async` block / future
+```
+
+它清楚地告訴你：`say_hello()` 的型別**不是** `()`，而是一個 future。這就確認了——呼叫一個 `async fn`，拿到的是一個 `Future`，而不是函數體執行後的結果。
 
 ### `Future` 是惰性的
 
-這帶出新手最常踩的坑：**`Future` 是惰性（lazy）的——你不去驅動它，它什麼都不會做。**
+把上面兩個實驗合起來，我們得到這一集最重要的一句話：
 
-```rust,ignore
-async fn do_work() {
-    println!("做事");
-}
+> 呼叫 `async fn` 只是得到一個 `Future`，這個 `Future` 是**惰性的**——你不 `.await`，它什麼都不會做。
 
-fn main() {
-    do_work(); // 只是建立 future，沒人驅動 → 「做事」不會印
-}
-```
+「惰性」這個詞你應該不陌生。回想第 6 章的**迭代器**：當你寫 `v.iter().map(...).filter(...)`，這幾個方法其實一個元素都還沒處理，它們只是把「之後要做的事」描述出來；真正開始跑，是等到你 `.collect()` 或用 `for` 走訪的那一刻。
 
-這段不只什麼都不印，編譯器還會給你一個 `#[must_use]` 警告：「這個 future 沒被使用」——提醒你「你拿到了一個 future 卻沒去 `.await` 或交出去跑」。
+`Future` 和 `Iterator`骨子裡是同一套設計哲學：**先描述，晚執行**。`Iterator` 描述「一連串值要怎麼算出來」，等你索取才動；`Future` 描述「一個非同步工作要做什麼」，等你 `.await`（或被 runtime 推進）才動。理解了迭代器的惰性，你就已經理解了一半的 `Future`。
 
-### 似曾相識？跟迭代器一樣
-
-這個「先描述、晚執行」的設計，你其實在第 6 章的**迭代器**就見過了。`Iterator` 也是惰性的：
-
-```rust,ignore
-let it = vec![1, 2, 3].into_iter().map(|x| {
-    println!("處理 {x}");
-    x * 2
-});
-// 到這裡一個字都還沒印——map 只是「描述」要做什麼
-// 要等 .collect() 或 for 真正去「拉」值，閉包才會跑
-let _doubled: Vec<_> = it.collect();
-```
-
-`Iterator` 的 `.map` / `.filter` 不會立刻跑，要等 `.collect()` 或 `for` 去拉值才動。`Future` 是同一個哲學的另一個例子：**先把「要做什麼」描述出來（建立 future / iterator），真正執行延後到有人來驅動的時候。** 記住這個類比，後面看 `Future` 會親切很多。
+下一集我們換個角度，把 `.await` 和你早就學過的 `?` 放在一起看，你會發現它們其實是同一類東西。
 
 ## 重點整理
 
-- 呼叫 `async fn` **不執行函數體**，只回傳一個還沒跑的 `Future`（用「函數體的 `println!` 沒印」「指定錯型別讓編譯器回報 found future」兩招可以親眼確認）
-- `Future` 是**惰性**的：不去驅動（`.await` 或交給 runtime）就什麼都不會發生，還會收到 `#[must_use]` 警告
-- 這跟第 6 章的 **`Iterator`** 是同一個「先描述、晚執行」的設計：`.map` 要等 `.collect` / `for` 才動，future 要等被驅動才跑
+- 呼叫 `async fn` **不會**執行函數體，你只會拿到一個 `Future`。
+- 不 `.await` 的話，函數體裡的程式碼一行都不會跑，還會收到 `#[must_use]` 警告。
+- 把回傳值標成 `()` 會讓編譯器報 `expected (), found future`，證明它真的是 `Future`。
+- `Future` 是**惰性的**，和第 6 章的 `Iterator` 一樣，都是「先描述、晚執行」的設計。

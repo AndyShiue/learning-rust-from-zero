@@ -2,104 +2,139 @@
 
 ## 本集目標
 
-揭曉編譯器到底把 `async fn` 變成了什麼——一台可以暫停與恢復的狀態機。
+揭開 `async fn` 的真面目：它被編譯器改寫成一個能暫停、能恢復的**狀態機**。
 
 ## 概念說明
 
-### 一個謎題
+### `.await` 不是開新 thread
 
-我們說 `.await` 會「暫停函數，之後從同一個地方接著跑」。但函數要怎麼「暫停又接著跑」？普通函數一旦開始,就是一路跑到底,中間那些區域變數放在 stack 上,函數一返回就沒了。如果一個 `async fn` 跑到一半要暫停、把執行緒讓出去,那它跑到一半的進度——跑到哪一行了、區域變數現在是什麼值——存到哪去？
+先破除一個常見的誤會。當你看到 `.await`，可能會以為它「在背後偷偷開了一條 thread 去等」。**完全不是。** 從第 6 集到現在，我們手寫的這套 runtime 從頭到尾就是一條 executor thread 在反覆 poll，`.await` 沒有變出任何新 thread。
 
-答案是:編譯器把你的 `async fn` 改寫成一個 **struct**(更精準說是 enum),用它的欄位來存這些進度。這個東西就叫**狀態機(state machine)**。
+那 `.await` 到底做了什麼？它把你的函數**切成好幾段**——每個 `.await` 是一個切點。函數可以在切點暫停、把控制權交還給 executor，之後再從同一個切點恢復。能做到這件事的東西，就叫**狀態機**。
 
-### 用一個例子來看
+### 一個 `async fn` 會被改寫成什麼
 
-假設你寫了這個 async 函數:
+假設有這麼一個 `async fn`，裡面等兩次：
 
 ```rust,ignore
-async fn example() {
-    let a = step_one().await; // 暫停點 1
-    let b = step_two(a).await; // 暫停點 2
-    println!("{}", b);
+async fn two_delays() {
+    Delay::new(Duration::from_secs(1)).await;
+    println!("一秒到");
+    Delay::new(Duration::from_secs(1)).await;
+    println!("兩秒到");
 }
 ```
 
-它有兩個 `.await`,也就是兩個可以暫停的地方。編譯器大致會把它想成這樣一台狀態機(這是**示意**,不是真實產生的程式碼):
+編譯器看到它，會在心裡把它改寫成一個 `enum`——每個「狀態」代表「目前卡在哪一段」：
 
-```rust,ignore
-enum ExampleStateMachine {
-    Start,                                   // 還沒開始
-    WaitingOnStepOne { fut: StepOneFuture },  // 卡在暫停點 1,存著正在等的 future
-    WaitingOnStepTwo { fut: StepTwoFuture, a: i32 }, // 卡在暫停點 2,還要記住變數 a
-    Done,                                    // 跑完了
+- `Start`：還沒開始。
+- `FirstDelay`：正在等第一個 `Delay`（這個還沒完成的 `Delay` 本身也得存進來）。
+- `SecondDelay`：正在等第二個 `Delay`。
+- `Done`：跑完了。
+
+然後它替這個 `enum` 實作 `Future`，`poll` 裡用 `match` 看現在在哪個狀態、該做什麼。我們把這個改寫**手動**寫出來，你就會看到 `async fn` 背後長什麼樣：
+
+```rust,editable
+# use std::future::Future;
+# use std::pin::Pin;
+# use std::sync::Arc;
+# use std::task::{Context, Poll, Wake, Waker};
+# use std::time::{Duration, Instant};
+#
+# struct Delay { when: Instant, started: bool }
+# impl Delay {
+#     fn new(d: Duration) -> Delay { Delay { when: Instant::now() + d, started: false } }
+# }
+# impl Future for Delay {
+#     type Output = ();
+#     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {
+#         let this = self.get_mut();
+#         if Instant::now() >= this.when { Poll::Ready(()) }
+#         else {
+#             if !this.started {
+#                 this.started = true;
+#                 let waker = cx.waker().clone();
+#                 let when = this.when;
+#                 std::thread::spawn(move || {
+#                     let now = Instant::now();
+#                     if now < when { std::thread::sleep(when - now); }
+#                     waker.wake();
+#                 });
+#             }
+#             Poll::Pending
+#         }
+#     }
+# }
+#
+# struct ThreadWaker { thread: std::thread::Thread }
+# impl Wake for ThreadWaker { fn wake(self: Arc<Self>) { self.thread.unpark(); } }
+# fn block_on<F: Future>(future: F) -> F::Output {
+#     let mut future = Box::pin(future);
+#     let waker = Waker::from(Arc::new(ThreadWaker { thread: std::thread::current() }));
+#     let mut cx = Context::from_waker(&waker);
+#     loop {
+#         match future.as_mut().poll(&mut cx) {
+#             Poll::Ready(v) => return v,
+#             Poll::Pending => std::thread::park(),
+#         }
+#     }
+# }
+#
+// 這就是 two_delays 那個 async fn 背後大概的樣子
+enum TwoDelays {
+    Start,
+    FirstDelay(Delay), // 正在等第一個 Delay，把它存著
+    SecondDelay(Delay), // 正在等第二個 Delay
+    Done,
 }
-```
 
-看出重點了嗎?每一個「卡住的地方」都是 enum 的一個 variant,而 variant 裡面的欄位,存的正是**那個當下需要記住的東西**:正在等的內層 future、以及之後還會用到的區域變數(像是 `a`,因為暫停點 2 還要用它)。
+impl Future for TwoDelays {
+    type Output = ();
 
-### poll 一次 = 在狀態機裡往前走一步
-
-這台狀態機怎麼實作 `poll`?它就是一個 `match`,看自己現在卡在哪個狀態,試著往下一個狀態推:
-
-```rust,ignore
-// 同樣是示意
-fn poll(&mut self, cx: &mut Context) -> Poll<()> {
-    loop {
-        match self {
-            Start => {
-                let fut = step_one();          // 開始做 step_one
-                *self = WaitingOnStepOne { fut };
-            }
-            WaitingOnStepOne { fut } => {
-                match fut.poll(cx) {
-                    Poll::Ready(a) => {         // step_one 好了,拿到 a
-                        let fut2 = step_two(a);
-                        *self = WaitingOnStepTwo { fut: fut2, a };
-                    }
-                    Poll::Pending => return Poll::Pending, // 還沒好,把暫停「往外傳」
+    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {
+        let this = self.get_mut();
+        loop {
+            match this {
+                TwoDelays::Start => {
+                    // 進入第一段：建立第一個 Delay，切到下一個狀態
+                    *this = TwoDelays::FirstDelay(Delay::new(Duration::from_secs(1)));
                 }
-            }
-            WaitingOnStepTwo { fut, .. } => {
-                match fut.poll(cx) {
-                    Poll::Ready(b) => {
-                        println!("{}", b);
-                        *self = Done;
+                TwoDelays::FirstDelay(delay) => match Pin::new(delay).poll(cx) {
+                    Poll::Ready(()) => {
+                        println!("一秒到");
+                        *this = TwoDelays::SecondDelay(Delay::new(Duration::from_secs(1)));
+                    }
+                    Poll::Pending => return Poll::Pending, // 卡在這一段，暫停
+                },
+                TwoDelays::SecondDelay(delay) => match Pin::new(delay).poll(cx) {
+                    Poll::Ready(()) => {
+                        println!("兩秒到");
+                        *this = TwoDelays::Done;
                         return Poll::Ready(());
                     }
                     Poll::Pending => return Poll::Pending,
-                }
+                },
+                TwoDelays::Done => panic!("不該在 Ready 之後再 poll"),
             }
-            Done => panic!("不該再 poll 一個跑完的 future"),
         }
     }
 }
+
+fn main() {
+    println!("開始");
+    block_on(TwoDelays::Start); // 等同於 block_on(two_delays())
+}
 ```
 
-每次被 poll,它就從目前的狀態試著往前走;遇到內層 future 還沒好(`Pending`),就**把自己停在那個狀態、回 `Pending`**——這就是「暫停」。下次再被 poll,`match` 會落在同一個狀態,從那裡**接著跑**——這就是「恢復」。進度和區域變數,全都好好存在 enum 的欄位裡,完全不靠 stack。
+> 上面隱藏了 `Delay` 和 `block_on`，按程式碼框左上角可展開。
 
-### 所以,`.await` 不是開新執行緒
+### 對照著看
 
-這解開了一個常見的誤會。`.await` 暫停一個函數,**完全沒有開新的執行緒**,也沒有什麼魔法。它只是:編譯器把你那條「從上到下」的程式,沿著每個 `.await` 切成好幾段,打包成一台 `match` 自己狀態的機器。「暫停」就是停在某個狀態回 `Pending`,「恢復」就是下次 poll 從那個狀態接著跑。
+把這個手寫狀態機和原本的 `async fn` 對照：
 
-你之所以能把 async 程式寫得跟同步程式幾乎一樣(`let a = ...; let b = ...;`),就是因為編譯器在背後幫你做了這整套又繁瑣又容易錯的改寫。前面幾集我們手刻 `Delay`、`Join` 的時候,是自己用 struct 存狀態、自己寫 `poll`——`async fn` 不過是讓編譯器自動幫你生出同一種東西而已。
+- 原本 `async fn` 裡的**進度**，變成 `enum` 的**哪一個 variant**。
+- 原本跨 `.await` 還要用到的**區域變數**（這裡是還沒完成的 `Delay`），被存進 variant 裡帶著走。
+- 每個 `.await`，變成「poll 子 `Future`：`Ready` 就切到下一個狀態繼續，`Pending` 就 `return Poll::Pending` 暫停」。
+- 下次被 poll，`match` 直接跳到上次停下的狀態，從那裡接著跑——這就是「從原地恢復」。
 
-## 範例程式碼
-
-這一集沒有可以獨立執行的新範例,因為狀態機是編譯器在背後生成的,你平常看不到也碰不到。真正要記住的是那張對應關係:
-
-```text
-你寫的 async fn          編譯器生成的狀態機
-────────────────────    ────────────────────
-每個 .await         →    一個「卡住」的狀態(enum variant)
-跨 .await 用到的區域變數 →  存進那個 variant 的欄位
-.await 的內層 future    →  存進 variant 的欄位,在該狀態裡被 poll
-函數從上到下的流程     →    poll 裡的 match + 狀態轉移
-```
-
-## 重點整理
-
-- 編譯器把 `async fn` 改寫成一台**狀態機**:用一個 enum,每個 `.await` 對應一個「卡住」的狀態
-- 跨 `.await` 還會用到的區域變數、正在等的內層 future,都存進狀態機的欄位裡(不靠 stack)
-- `poll` 就是「看現在卡在哪個狀態,試著往下一個狀態推」;遇到內層 `Pending` 就停在原狀態回 `Pending`
-- **暫停 = 停在某狀態回 `Pending`;恢復 = 下次 poll 從那狀態接著跑**——完全沒有開新執行緒
-- 我們手刻 `Delay`／`Join` 做的事,就是編譯器幫 `async fn` 自動做的事
+這正解釋了前面幾集看到的現象：為什麼 `Future` 每次被 poll 都能記得自己跑到
