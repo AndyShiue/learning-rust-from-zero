@@ -2,7 +2,7 @@
 
 ## 本集目標
 
-看懂 `Future` `trait` 的正式定義，並親手寫一個最笨、但真的能跑的 executor。
+看懂 `Future` `trait` 的正式定義，並親手寫一個最笨，但真的能跑的 executor。
 
 ## 正文
 

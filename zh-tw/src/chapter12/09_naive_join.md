@@ -100,7 +100,7 @@ impl Future for JoinAll {
     }
 }
 
-// 一個有「兩個 .await」的工作，所以要 poll 很多次才會完成
+// 一個有「兩個 .await」的工作，所以要 poll 複數次才會完成
 async fn worker(id: u32) {
     println!("worker {} 開始", id);
     Delay::new(Duration::from_secs(1)).await;
