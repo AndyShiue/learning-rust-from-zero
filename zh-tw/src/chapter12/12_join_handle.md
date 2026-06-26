@@ -4,7 +4,7 @@
 
 讓 `spawn` 出去的 `Task` 能把結果回傳，方法是加上 `JoinHandle`——一個可以 `.await` 的把手。
 
-## 概念說明
+## 正文
 
 ### 和上一集只差三樣東西
 
@@ -220,8 +220,8 @@ fn main() {
 
 ## 重點整理
 
-- `JoinHandle<T>` 是一個 `Future`，`.await` 它就能拿到背景 `Task` 的回傳值。
-- 排程核心不變，只加三樣：`Shared<T>` ＋ `JoinHandle<T>`、回傳 `JoinHandle<T>` 的 `spawn<T>`、回傳 `T` 的 `block_on`。
-- `JoinHandle` 沒有自己的 `Waker`，它在 `.await` 時把**等待者自己的** `Waker` 存進 `Shared<T>`。
-- 背景 `Task` 完成時把結果放進 `Shared<T>`，再取出那個 `Waker` `wake()`，喚醒等待者。
-- 喚醒不是 `Future` 直接通知 `Future`，而是完成方透過共享狀態喚醒等待方。
+- `JoinHandle<T>` 是一個 `Future`，`.await` 它就能拿到背景 `Task` 的回傳值
+- 排程核心不變，只加三樣：`Shared<T>` ＋ `JoinHandle<T>`、回傳 `JoinHandle<T>` 的 `spawn<T>`、回傳 `T` 的 `block_on`
+- `JoinHandle` 沒有自己的 `Waker`，它在 `.await` 時把**等待者自己的** `Waker` 存進 `Shared<T>`
+- 背景 `Task` 完成時把結果放進 `Shared<T>`，再取出那個 `Waker` `wake()`，喚醒等待者
+- 喚醒不是 `Future` 直接通知 `Future`，而是完成方透過共享狀態喚醒等待方

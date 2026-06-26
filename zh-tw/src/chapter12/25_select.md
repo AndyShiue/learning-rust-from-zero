@@ -4,7 +4,7 @@
 
 學會用 `select!` 等待「多個 branch 中第一個完成的」，並理解它和取消（cancellation）的密切關係。
 
-## 概念說明
+## 正文
 
 ### 等「誰先到」
 
@@ -14,6 +14,7 @@
 
 ```rust,no_run
 # extern crate tokio;
+#
 use tokio::time::{sleep, Duration};
 
 async fn do_work() {
@@ -72,7 +73,7 @@ tokio::select! {
 
 ## 重點整理
 
-- `select!` 同時等多個 branch，**第一個**完成就執行對應 handler，其他 branch 被 `drop`（取消）。
-- 所以 `select!` 是程式裡**最常製造取消**的地方；適合 timeout、多 channel 接收、等 shutdown 訊號。
-- 補充功能：branch precondition（`if`）、`else`（所有 branch 都被略過時）、預設隨機公平、`biased;` 改成依序。
-- 在 `loop` 裡用 `select!` 要注意 cancellation safety：別把 `read_exact` 這類不可安全取消的 `Future` 放進會被 `drop` 的 branch。
+- `select!` 同時等多個 branch，**第一個**完成就執行對應 handler，其他 branch 被 `drop`（取消）
+- 所以 `select!` 是程式裡**最常製造取消**的地方；適合 timeout、多 channel 接收、等 shutdown 訊號
+- 補充功能：branch precondition（`if`）、`else`（所有 branch 都被略過時）、預設隨機公平、`biased;` 改成依序
+- 在 `loop` 裡用 `select!` 要注意 cancellation safety：別把 `read_exact` 這類不可安全取消的 `Future` 放進會被 `drop` 的 branch

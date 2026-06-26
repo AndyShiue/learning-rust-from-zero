@@ -4,7 +4,7 @@
 
 導入 `Task` 這個觀念，讓 executor 能同時養很多個 `Future`，並用 ready queue（待辦佇列）管理它們。
 
-## 概念說明
+## 正文
 
 ### 為什麼需要 `Task`
 
@@ -200,8 +200,8 @@ fn main() {
 
 ## 重點整理
 
-- 把每個 `Future` 包成 **`Task`**（`Future` ＋ 排程隨身資料），executor 從此管 `Task` 而非裸 `Future`。
-- **ready queue** 排著該被 poll 的 `Task`；`Task` 被 `wake` 時把自己排回 queue 再 `unpark` executor。
-- `unpark` 只是「起床」的門鈴，不說哪個 `Task` 好了；那資訊在 ready queue 裡。
-- `queued` 旗標用 `AtomicBool` + `swap` 做 check-and-set，避免同一個 `Task` 重複入列。
-- `Task` 自己當 `Waker`，`Waker::from(Arc<Task>)` 要求 `Task: Send + Sync + 'static`，所以 `Future` 欄位要 `+ Send` 並用 `Mutex` 包起來。
+- 把每個 `Future` 包成 **`Task`**（`Future` ＋ 排程隨身資料），executor 從此管 `Task` 而非裸 `Future`
+- **ready queue** 排著該被 poll 的 `Task`；`Task` 被 `wake` 時把自己排回 queue 再 `unpark` executor
+- `unpark` 只是「起床」的門鈴，不說哪個 `Task` 好了；那資訊在 ready queue 裡
+- `queued` 旗標用 `AtomicBool` + `swap` 做 check-and-set，避免同一個 `Task` 重複入列
+- `Task` 自己當 `Waker`，`Waker::from(Arc<Task>)` 要求 `Task: Send + Sync + 'static`，所以 `Future` 欄位要 `+ Send` 並用 `Mutex` 包起來

@@ -4,7 +4,7 @@
 
 理解 Rust 如何根據閉包體的內容，自動推斷一個閉包是 `FnOnce`、`FnMut` 還是 `Fn`。
 
-## 概念說明
+## 正文
 
 上一集我們手動用 `struct` 模擬了三種閉包，對應 `self`、`&mut self`、`&self`。但你寫閉包的時候從來不需要告訴 Rust「這是 `FnOnce`」或「這是 `FnMut`」——Rust 會自動判斷。
 

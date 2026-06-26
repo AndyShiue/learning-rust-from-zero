@@ -4,7 +4,7 @@
 
 搞懂為什麼有時候得用 Tokio 版的鎖、什麼時候用標準庫的就好，並認識喚醒工具 `Notify`。
 
-## 概念說明
+## 正文
 
 ### 從 `Send` / `Sync` 的一個例外講起
 
@@ -18,6 +18,7 @@
 
 ```rust,compile_fail
 # extern crate tokio;
+#
 use std::sync::{Arc, Mutex};
 
 async fn do_io() {}
@@ -39,6 +40,7 @@ async fn main() {
 
 ```rust,no_run
 # extern crate tokio;
+#
 use std::sync::{Arc, Mutex};
 
 async fn do_io() {}
@@ -62,6 +64,7 @@ async fn main() {
 
 ```rust,no_run
 # extern crate tokio;
+#
 use std::sync::Arc;
 use tokio::sync::Mutex; // 注意是 tokio 的 Mutex
 
@@ -86,6 +89,7 @@ async fn main() {
 
 ```rust,no_run
 # extern crate tokio;
+#
 use std::sync::Arc;
 use tokio::sync::Notify;
 
@@ -116,8 +120,8 @@ async fn main() {
 
 ## 重點整理
 
-- std 的 `Mutex` / `RwLock` guard 是 `Sync` 但**非 `Send`**（某些 OS 規定上鎖的 thread 才能解鎖），抓著它跨 `.await` 會讓 `Future` 非 `Send`、不能 `spawn`。
-- 這個編譯錯誤是有益的警告：`Mutex` 的 lock scope 要短，別抓著鎖等 I/O；通常縮短 scope（`.await` 前就 drop guard）即可。
+- std 的 `Mutex` / `RwLock` guard 是 `Sync` 但**非 `Send`**（某些 OS 規定上鎖的 thread 才能解鎖），抓著它跨 `.await` 會讓 `Future` 非 `Send`、不能 `spawn`
+- 這個編譯錯誤是有益的警告：`Mutex` 的 lock scope 要短，別抓著鎖等 I/O；通常縮短 scope（`.await` 前就 drop guard）即可
 - 非抓著鎖跨 `.await` 不可時，才用 `tokio::sync::Mutex`（guard 是 `Send`，`lock().await`）；但 std 的鎖更快，優先用 std。
-- Tokio `RwLock` 把讀寫分開：`read().await` 多讀、`write().await` 一寫。
-- `Notify` 是不帶資料的喚醒 primitive，搭配自管的共享狀態用，不是 queue（多次通知可能合併）；對比 `watch`：`Notify` 無狀態（戳你去看），`watch` 有狀態（帶最新值）。
+- Tokio `RwLock` 把讀寫分開：`read().await` 多讀、`write().await` 一寫
+- `Notify` 是不帶資料的喚醒 primitive，搭配自管的共享狀態用，不是 queue（多次通知可能合併）；對比 `watch`：`Notify` 無狀態（戳你去看），`watch` 有狀態（帶最新值）

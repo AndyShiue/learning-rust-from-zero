@@ -4,7 +4,7 @@
 
 認識 Tokio 以外的 `async` runtime，並學會分辨自己寫的程式哪些綁定特定 runtime、哪些不綁。
 
-## 概念說明
+## 正文
 
 ### 標準庫只定義語言層的抽象
 
@@ -38,6 +38,6 @@ Tokio 是目前最主流的 runtime，但不是唯一的選擇。因為標準庫
 
 ## 重點整理
 
-- Rust 標準庫只定義 `Future` 等**語言層抽象**，不內建 runtime；executor、reactor、timer、I/O、`Task` 設計都由 runtime 提供（正是我們手寫過的那些零件）。
-- Tokio 是主流通用 runtime；此外還有輕量的 smol、thread-per-core 的 monoio / glommio、嵌入式用的 Embassy 等，各方面設計可能不同。
-- 寫程式時可留意：純 `Future` 組合邏輯（自訂 `Future`、`join!`、`select!`、`FuturesUnordered`）大多 **runtime-agnostic**；I/O、timer、`spawn` 則是 **runtime-specific**，換 runtime 要抽換。
+- Rust 標準庫只定義 `Future` 等**語言層抽象**，不內建 runtime；executor、reactor、timer、I/O、`Task` 設計都由 runtime 提供（正是我們手寫過的那些零件）
+- Tokio 是主流通用 runtime；此外還有輕量的 smol、thread-per-core 的 monoio / glommio、嵌入式用的 Embassy 等，各方面設計可能不同
+- 寫程式時可留意：純 `Future` 組合邏輯（自訂 `Future`、`join!`、`select!`、`FuturesUnordered`）大多 **runtime-agnostic**；I/O、timer、`spawn` 則是 **runtime-specific**，換 runtime 要抽換

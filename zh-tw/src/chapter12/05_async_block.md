@@ -4,7 +4,7 @@
 
 學會用 `async { ... }` 在函數裡當場做出一個 `Future`，並理解它和 `async fn` 的關係。
 
-## 概念說明
+## 正文
 
 ### 當場做一個 `Future`
 
@@ -12,6 +12,7 @@
 
 ```rust,no_run
 # extern crate tokio;
+#
 #[tokio::main]
 async fn main() {
     // 這個 async block 本身就是一個 Future
@@ -22,7 +23,7 @@ async fn main() {
 
     // 和 async fn 一樣，要 .await 才會真的跑
     let value = fut.await;
-    println!("拿到 {value}");
+    println!("拿到 {}", value);
 }
 ```
 
@@ -30,12 +31,12 @@ async fn main() {
 
 ### `async fn` 和 `async` block 的關係
 
-這兩者的關係，其實就是你在第 6 章看過的**具名函數 ↔ 閉包**：
+這兩者可以先用一個很粗略的角度來分：
 
 - `async fn` 是一個**具名的 `Future` 工廠**——你定義一次，之後可以重複呼叫，每次呼叫產生一個新的 `Future`。
 - `async` block 是**當場建立的一個匿名 `Future`**——就在這裡、這一個，沒有名字。
 
-就像普通函數和閉包一樣：一個是先定義好、到處呼叫的具名工具，一個是在需要的地方臨時寫出來的匿名版本。
+也就是說，如果只看「具名、可重複使用」和「匿名、當場建立」這件事，它們有點像普通函數和閉包的差別。但這只是幫你抓第一印象的比喻，不要把它想得太滿：`async fn` 和 `async` block 產生的都是 `Future`，而且 `async` block 本身不是閉包，它不靠 `()` 呼叫，建立出來後是靠 `.await` 或 runtime 推進。
 
 ### 在 `Result` 世界，這件事不需要新語法
 
@@ -50,11 +51,11 @@ fn main() {
         Ok(x + y)
     })();
 
-    println!("{result:?}");
+    println!("{:?}", result);
 }
 ```
 
-這裡的 `(|| { ... })()` 是「定義一個閉包並立刻呼叫」。閉包的函數體可以用 `?`，因為它回傳 `Result`。`Result` 世界靠現成的閉包就能表達「當場一段」，不必發明新東西。
+這裡的 `(|| { ... })()` 是「定義一個閉包並立刻呼叫」。閉包的函數體可以用 `?`，因為這個閉包自己回傳 `Result`；呼叫完之後，外層的 `main` 只會拿到那個 `Result` 值。
 
 ### 為什麼 `Future` 世界不能照搬
 
@@ -62,6 +63,7 @@ fn main() {
 
 ```rust,compile_fail
 # extern crate tokio;
+#
 async fn get_number() -> i32 {
     42
 }
@@ -78,8 +80,9 @@ async fn main() {
 
 這正是 `async` block 存在的理由。當你寫 `async { ... }`，等於是明確地叫編譯器：「把這一塊改寫成一個 `Future`」。有了這個專屬語法，裡面才能合法地用 `.await`：
 
-```rust,no_run
+```rust,editable
 # extern crate tokio;
+#
 async fn get_number() -> i32 {
     42
 }
@@ -89,7 +92,7 @@ async fn main() {
     let value = async {
         get_number().await // 這次可以了，因為這是 async block
     }.await;
-    println!("{value}");
+    println!("{}", value);
 }
 ```
 
@@ -97,7 +100,7 @@ async fn main() {
 
 ## 重點整理
 
-- `async { ... }` 在函數中間當場建立一個匿名的 `Future`，一樣要 `.await` 才會跑。
-- `async fn` ↔ `async` block 的關係，就像具名函數 ↔ 閉包：一個是可重複呼叫的工廠，一個是當場的匿名版本。
-- `Result` 世界用「立刻呼叫的閉包」就能表達「當場一段」，不需新語法。
-- `Future` 世界不能照搬，因為 `.await` 要改寫成狀態機，普通閉包做不到——所以才需要 `async` block 這個專屬語法。
+- `async { ... }` 在函數中間當場建立一個匿名的 `Future`，一樣要 `.await` 才會跑
+- `async fn` 是具名、可重複呼叫的 `Future` 工廠；`async` block 是當場建立的一個匿名 `Future`
+- 如果建立後立刻呼叫的閉包回傳 `Result` 就可以用 `?`；外層只會拿到閉包呼叫後的 `Result` 值
+- `.await` 不能照搬這招，因為它只能出現在 `async` 結構裡，普通閉包做不到暫停和恢復——所以才需要 `async` block 這個專屬語法

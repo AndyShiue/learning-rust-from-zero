@@ -4,7 +4,7 @@
 
 認識另外三種 channel，並學會用「發送端與接收端的數量」來判斷該用哪一個。
 
-## 概念說明
+## 正文
 
 上一集的 `mpsc` 是「多發送、單接收」。Tokio 還有三種 channel，各自適合不同的形狀。最快的分類法，是看**發送端**和**接收端**各有幾個、以及訊息怎麼流。
 
@@ -14,6 +14,7 @@
 
 ```rust,no_run
 # extern crate tokio;
+#
 use tokio::sync::oneshot;
 
 #[tokio::main]
@@ -41,6 +42,7 @@ async fn main() {
 
 ```rust,no_run
 # extern crate tokio;
+#
 use tokio::sync::watch;
 
 #[tokio::main]
@@ -65,6 +67,7 @@ async fn main() {
 
 ```rust,no_run
 # extern crate tokio;
+#
 use tokio::sync::broadcast;
 
 #[tokio::main]
@@ -96,8 +99,8 @@ async fn main() {
 
 ## 重點整理
 
-- 用「發送端 / 接收端數量 + 訊息怎麼流」來選 channel。
-- `oneshot`：單送單收、一個值一次，接收端本身是 `Future`（`rx.await`），適合回傳結果。
-- `watch`：單送多收、只看得到最新值，適合廣播狀態或 shutdown flag；用 `changed().await` + `borrow()`。
-- `broadcast`：多送多收、每個接收端都收到每一則，適合把事件通知所有訂閱者。
-- 對照上一集的 `mpsc`（多送單收、收每一則、工作佇列）一起記。
+- 用「發送端 / 接收端數量 + 訊息怎麼流」來選 channel
+- `oneshot`：單送單收、一個值一次，接收端本身是 `Future`（`rx.await`），適合回傳結果
+- `watch`：單送多收、只看得到最新值，適合廣播狀態或 shutdown flag；用 `changed().await` + `borrow()`
+- `broadcast`：多送多收、每個接收端都收到每一則，適合把事件通知所有訂閱者
+- 對照上一集的 `mpsc`（多送單收、收每一則、工作佇列）一起記

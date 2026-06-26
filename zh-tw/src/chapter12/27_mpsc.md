@@ -4,7 +4,7 @@
 
 學會用 `async` 版的 `mpsc` channel 在 `Task` 之間傳遞工作，並理解 bounded channel 的 backpressure。
 
-## 概念說明
+## 正文
 
 ### `Task` 之間的工作佇列
 
@@ -12,6 +12,7 @@
 
 ```rust,no_run
 # extern crate tokio;
+#
 use tokio::sync::mpsc;
 
 #[tokio::main]
@@ -70,8 +71,8 @@ loop {
 
 ## 重點整理
 
-- `tokio::sync::mpsc` 是 `async` `Task` 之間最常見的工作佇列：多發送端、單接收端。
-- `rx.recv().await` 回傳 `Option`，所有發送端 `drop` 後回 `None`，可用 `while let Some(x) = rx.recv().await` 走訪。
-- **bounded channel** 有容量上限，塞滿時 `send().await` 會等待——這就是 backpressure，逼生產者配合消費者的速度。
-- `send` 要 `.await` 正是因為它可能要等空位；`unbounded_channel` 不用等但沒有 backpressure。
-- 消費者迴圈常用 `select!` 同時等「工作」與「shutdown 訊號」，達成可隨時乾淨退出。
+- `tokio::sync::mpsc` 是 `async` `Task` 之間最常見的工作佇列：多發送端、單接收端
+- `rx.recv().await` 回傳 `Option`，所有發送端 `drop` 後回 `None`，可用 `while let Some(x) = rx.recv().await` 走訪
+- **bounded channel** 有容量上限，塞滿時 `send().await` 會等待——這就是 backpressure，逼生產者配合消費者的速度
+- `send` 要 `.await` 正是因為它可能要等空位；`unbounded_channel` 不用等但沒有 backpressure
+- 消費者迴圈常用 `select!` 同時等「工作」與「shutdown 訊號」，達成可隨時乾淨退出

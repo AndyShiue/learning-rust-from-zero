@@ -4,7 +4,7 @@
 
 理解 `async` 狀態機為什麼可能變成「自己指向自己」的結構，以及為什麼這種結構被 move 會出事。
 
-## 概念說明
+## 正文
 
 ### move 一個值，它的位址會變
 
@@ -117,8 +117,8 @@ error[E0277]: `{async fn body of borrows()}` cannot be unpinned
 
 ## 重點整理
 
-- move 一個值，它的位址會變；對一般值無所謂，因為舊變數不能再用。
-- 若值裡存了「指向自己的位址」，一 move 那個位址沒人更新，就變成懸垂指標——很危險。
-- **自我參照的 `Future` 狀態機**正是這種值：跨 `.await` 的借用會讓狀態機某欄位指向自己另一欄位。
-- `Counter` 範例證明「poll → move → 再 poll」真的做得出來（兩次位址不同）。
-- Rust 用 `Unpin` 當防線：`Counter` 是 `Unpin` 可被 `Pin::new`，自我參照的 `async` 狀態機不是 `Unpin`，`Pin::new` 直接編譯失敗。
+- move 一個值，它的位址會變；對一般值無所謂，因為舊變數不能再用
+- 若值裡存了「指向自己的位址」，一 move 那個位址沒人更新，就變成懸垂指標——很危險
+- **自我參照的 `Future` 狀態機**正是這種值：跨 `.await` 的借用會讓狀態機某欄位指向自己另一欄位
+- `Counter` 範例證明「poll → move → 再 poll」真的做得出來（兩次位址不同）
+- Rust 用 `Unpin` 當防線：`Counter` 是 `Unpin` 可被 `Pin::new`，自我參照的 `async` 狀態機不是 `Unpin`，`Pin::new` 直接編譯失敗

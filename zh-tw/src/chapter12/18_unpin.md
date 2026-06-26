@@ -4,7 +4,7 @@
 
 搞懂 `Unpin` 是什麼、哪些型別自動是 `Unpin`，以及 `Unpin` 的型別怎麼用 `get_mut` 拿回普通的 `&mut`。
 
-## 概念說明
+## 正文
 
 ### `Unpin` 是一個 auto trait
 
@@ -86,8 +86,8 @@ fn main() {
 
 ## 重點整理
 
-- `Unpin` 是 auto trait，意思是「搬了不會壞」；編譯器自動判斷，不用手動實作。
-- 普通手寫的 `Future`（欄位都可安全 move）通常自動是 `Unpin`；`async fn` / `async` block 的 `Future` 不能假設是 `Unpin`。
-- `get_mut`（以及 `Pin` 的可變 `Deref`）要求 `T: Unpin`，才把 `Pin<&mut T>` 變回普通 `&mut T`。
-- 我們前面 `poll` 裡的 `self.get_mut()` 能用，正是因為那些型別都是 `Unpin`。
-- `!Unpin` 的型別（如含 `PhantomPinned` 或自我參照的 `async` 狀態機）不能 `get_mut`，只能透過 `Pin<&mut Self>` 的方法操作。
+- `Unpin` 是 auto trait，意思是「搬了不會壞」；編譯器自動判斷，不用手動實作
+- 普通手寫的 `Future`（欄位都可安全 move）通常自動是 `Unpin`；`async fn` / `async` block 的 `Future` 不能假設是 `Unpin`
+- `get_mut`（以及 `Pin` 的可變 `Deref`）要求 `T: Unpin`，才把 `Pin<&mut T>` 變回普通 `&mut T`
+- 我們前面 `poll` 裡的 `self.get_mut()` 能用，正是因為那些型別都是 `Unpin`
+- `!Unpin` 的型別（如含 `PhantomPinned` 或自我參照的 `async` 狀態機）不能 `get_mut`，只能透過 `Pin<&mut Self>` 的方法操作

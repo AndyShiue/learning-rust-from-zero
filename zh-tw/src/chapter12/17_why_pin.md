@@ -4,7 +4,7 @@
 
 理解 `poll` 的 `self` 為什麼是 `Pin<&mut Self>` 而不是 `&mut Self`，並認識 `Pin` 各個方法。
 
-## 概念說明
+## 正文
 
 ### `&mut self` 權力太大
 
@@ -61,8 +61,8 @@ impl<Ptr: Deref> Deref for Pin<Ptr> {
 ## 重點整理
 
 - `&mut self` 太強（能用 `mem::swap` 等搬走值），所以 `poll` 改用「閹割版」的 `Pin<&mut Self>`：能改內容、不准 move。
-- 強制手段：`Pin<&mut T>` 不洩漏普通 `&mut T`，沒有 `&mut T` 就搬不走。
-- `Pin<P>` 釘住的是「`P` 指向的值」，不是 `Pin<P>` 本身；所以 `Pin<Box<T>>` 可以隨意 move（搬指標，被指的 `T` 不動），這解釋了 executor 為何能把 `Pin<Box<Fut>>` 搬來搬去。
-- 方法全貌：唯讀（`Deref` / `get_ref` / `as_ref`）永遠可用；`as_mut` 重新借用成 `Pin<&mut T>`；建立用 `Pin::new`（限 `Unpin`）/ `new_unchecked`（unsafe）/ `Box::pin`。
-- 可變存取（`get_mut` / `DerefMut`）要 `Unpin`，留到下一集。
-- `Pin` 是型別層面的約定，平常寫 `async` 幾乎碰不到，主要給寫 runtime 的人。
+- 強制手段：`Pin<&mut T>` 不洩漏普通 `&mut T`，沒有 `&mut T` 就搬不走
+- `Pin<P>` 釘住的是「`P` 指向的值」，不是 `Pin<P>` 本身；所以 `Pin<Box<T>>` 可以隨意 move（搬指標，被指的 `T` 不動），這解釋了 executor 為何能把 `Pin<Box<Fut>>` 搬來搬去
+- 方法全貌：唯讀（`Deref` / `get_ref` / `as_ref`）永遠可用；`as_mut` 重新借用成 `Pin<&mut T>`；建立用 `Pin::new`（限 `Unpin`）/ `new_unchecked`（unsafe）/ `Box::pin`
+- 可變存取（`get_mut` / `DerefMut`）要 `Unpin`，留到下一集
+- `Pin` 是型別層面的約定，平常寫 `async` 幾乎碰不到，主要給寫 runtime 的人

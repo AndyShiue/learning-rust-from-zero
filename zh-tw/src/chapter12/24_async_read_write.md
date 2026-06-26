@@ -4,7 +4,7 @@
 
 認識 `async` 版的 byte I/O，並第一次接觸 `async` 特有的「取消（cancellation）」概念。
 
-## 概念說明
+## 正文
 
 ### `async` 版的讀寫
 
@@ -21,6 +21,7 @@
 
 ```rust,no_run
 # extern crate tokio;
+#
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
 
@@ -60,7 +61,7 @@ async fn main() {
 
 ## 重點整理
 
-- `AsyncRead` / `AsyncWrite` 是 `async` 版的 byte I/O；底層 `read` / `write` 只嘗試推進一次、回傳本次處理的 byte 數，不保證讀滿或寫完。
-- `AsyncReadExt` / `AsyncWriteExt` 提供 `read_exact`、`write_all` 等 helper，幫你包好「讀滿 / 寫完」的迴圈。
-- **取消**：`Future` 是惰性的，`drop` 掉一個 `Future`（不再 `poll`）就等於取消這個 `async` 工作——這是 `async` 特有、`Thread` 做不到的。
-- `read_exact` 這類「跨多次推進、累積中間狀態」的操作**不是 cancellation safe**：中途被取消會遺失已讀資料，不該放進會被中途 `drop` 的地方。
+- `AsyncRead` / `AsyncWrite` 是 `async` 版的 byte I/O；底層 `read` / `write` 只嘗試推進一次、回傳本次處理的 byte 數，不保證讀滿或寫完
+- `AsyncReadExt` / `AsyncWriteExt` 提供 `read_exact`、`write_all` 等 helper，幫你包好「讀滿 / 寫完」的迴圈
+- **取消**：`Future` 是惰性的，`drop` 掉一個 `Future`（不再 `poll`）就等於取消這個 `async` 工作——這是 `async` 特有、`Thread` 做不到的
+- `read_exact` 這類「跨多次推進、累積中間狀態」的操作**不是 cancellation safe**：中途被取消會遺失已讀資料，不該放進會被中途 `drop` 的地方

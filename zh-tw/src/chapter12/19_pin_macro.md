@@ -4,7 +4,7 @@
 
 學會用 `pin!` 在 stack 上釘住一個 `Future`，並理解它為什麼非得是巨集不可。
 
-## 概念說明
+## 正文
 
 ### stack pinning
 
@@ -71,7 +71,7 @@ let future = unsafe { Pin::new_unchecked(&mut future) }; // 用同名 shadow 蓋
 
 ## 重點整理
 
-- `pin!` 做 **stack pinning**：在目前 scope 釘住一個值、回傳 `Pin<&mut T>`，不需 heap 配置，適合不必把 pinned 值傳出 scope 的情況。
-- `pin!` 必須是**巨集**：stack pinning 要在呼叫端的 frame 放 local，函式做不到（值住在函式自己的 frame，返回就懸垂，borrow checker 也禁止）。
-- 巨集就地展開，能在你的 scope 宣告 local，並用同名 shadow 蓋掉可移動的原值，封死 move 後門。
-- `Box::pin` 把值放 heap、交出所有權（活得比這次呼叫久），所以能當普通函式；差別就在「stack 借用 vs heap 擁有」。
+- `pin!` 做 **stack pinning**：在目前 scope 釘住一個值、回傳 `Pin<&mut T>`，不需 heap 配置，適合不必把 pinned 值傳出 scope 的情況
+- `pin!` 必須是**巨集**：stack pinning 要在呼叫端的 frame 放 local，函式做不到（值住在函式自己的 frame，返回就懸垂，borrow checker 也禁止）
+- 巨集就地展開，能在你的 scope 宣告 local，並用同名 shadow 蓋掉可移動的原值，封死 move 後門
+- `Box::pin` 把值放 heap、交出所有權（活得比這次呼叫久），所以能當普通函式；差別就在「stack 借用 vs heap 擁有」

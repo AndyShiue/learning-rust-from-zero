@@ -4,7 +4,7 @@
 
 學會用 `join!` 在同一個 `Task` 裡同時等待多個 `Future`，並理解它為什麼是巨集。
 
-## 概念說明
+## 正文
 
 ### 在同一個 `Task` 裡並行
 
@@ -12,6 +12,7 @@
 
 ```rust,no_run
 # extern crate tokio;
+#
 use tokio::time::{sleep, Duration};
 
 async fn fetch_a() -> i32 {
@@ -66,8 +67,8 @@ Rust 的函式做不到這些：函式不能 variadic（參數個數不能任意
 
 ## 重點整理
 
-- `join!` 在**同一個 `Task`** 裡同時等多個 `Future`，等全部完成後把結果包成 tuple 回傳。
-- 和 `spawn` 不同：`join!` 的 branch 不變成獨立 `Task`、不跨 thread，適合固定數量、生命週期就在當下的並行 I/O。
-- `join!` 的並行不是 CPU 平行：branch 在同一個 `Task` 上輪流 `poll`，某個 branch 卡住會害其他 branch 都得不到 `poll`。
-- `join!` 是巨集，因為它要吃「任意數量＋各自不同型別」的 `Future` 並回傳形狀對應的 tuple，這是函式做不到的。
-- 對照 `JoinAll`（同型別、動態數量、`Vec<F>`），`join!` 是異型別、固定數量。
+- `join!` 在**同一個 `Task`** 裡同時等多個 `Future`，等全部完成後把結果包成 tuple 回傳
+- 和 `spawn` 不同：`join!` 的 branch 不變成獨立 `Task`、不跨 thread，適合固定數量、生命週期就在當下的並行 I/O
+- `join!` 的並行不是 CPU 平行：branch 在同一個 `Task` 上輪流 `poll`，某個 branch 卡住會害其他 branch 都得不到 `poll`
+- `join!` 是巨集，因為它要吃「任意數量＋各自不同型別」的 `Future` 並回傳形狀對應的 tuple，這是函式做不到的
+- 對照 `JoinAll`（同型別、動態數量、`Vec<F>`），`join!` 是異型別、固定數量

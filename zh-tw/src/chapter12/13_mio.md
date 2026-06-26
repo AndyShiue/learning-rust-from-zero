@@ -4,7 +4,7 @@
 
 認識 `mio`——讓「一條 thread 盯住一大堆 I/O 來源」成為可能的工具，它是下一集 reactor 的基礎。
 
-## 概念說明
+## 正文
 
 ### reactor 在 runtime 裡的角色
 
@@ -35,6 +35,7 @@ mio = { version = "1", features = ["os-poll", "net"] }
 
 ```rust,no_run
 # extern crate mio;
+#
 use mio::net::TcpListener;
 use mio::{Events, Interest, Poll, Token};
 use std::time::Duration;
@@ -93,7 +94,7 @@ fn main() {
 
 ## 重點整理
 
-- runtime 有兩個角色：**executor** 跑 `Task`（poll），**reactor** 等事件（盯 I/O、`wake` 對應 `Task`）；reactor 不是 `Task`、不 poll `Future`。
-- `mio::Poll` 是「睡著等 I/O 事件」的地方，一條 thread 就能同時盯住很多 I/O 來源。
-- `Token` 是事件來源的名牌：登記時給，事件發生時 `Poll` 還給你，讓你認出是哪個來源。
-- 用 `registry().register(&mut source, token, Interest::READABLE)` 登記，`poll.poll()` 睡著等事件，`event.token()` 認名牌後再 `accept` / `read`。
+- runtime 有兩個角色：**executor** 跑 `Task`（poll），**reactor** 等事件（盯 I/O、`wake` 對應 `Task`）；reactor 不是 `Task`、不 poll `Future`
+- `mio::Poll` 是「睡著等 I/O 事件」的地方，一條 thread 就能同時盯住很多 I/O 來源
+- `Token` 是事件來源的名牌：登記時給，事件發生時 `Poll` 還給你，讓你認出是哪個來源
+- 用 `registry().register(&mut source, token, Interest::READABLE)` 登記，`poll.poll()` 睡著等事件，`event.token()` 認名牌後再 `accept` / `read`

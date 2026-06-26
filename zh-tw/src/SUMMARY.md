@@ -218,7 +218,7 @@
     - [`Error` `trait`](chapter11/10_error_trait.md)
     - [`thiserror` / `anyhow` 簡介](chapter11/11_thiserror_anyhow.md)
     - [`catch_unwind`](chapter11/12_catch_unwind.md)
-- [非同步](chapter12/README.md)
+- [非同步（本章修改中......）](chapter12/README.md)
     - [第一個 `async` 程式](chapter12/01_first_async_program.md)
     - [為什麼需要 `async`](chapter12/02_why_async.md)
     - [`async fn` 回傳的是 `Future`](chapter12/03_async_fn_returns_future.md)

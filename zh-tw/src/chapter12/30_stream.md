@@ -4,7 +4,7 @@
 
 認識 `Stream`——`async` 版的 `Iterator`，以及怎麼走訪它。
 
-## 概念說明
+## 正文
 
 ### `Stream` 是 `async` 版的 `Iterator`
 
@@ -26,6 +26,7 @@
 ```rust,no_run
 # extern crate tokio;
 # extern crate tokio_stream;
+#
 use tokio_stream::StreamExt;
 
 #[tokio::main]
@@ -47,6 +48,7 @@ async fn main() {
 ```rust,no_run
 # extern crate tokio;
 # extern crate tokio_stream;
+#
 use tokio_stream::StreamExt;
 
 #[tokio::main]
@@ -68,7 +70,7 @@ async fn main() {
 
 ## 重點整理
 
-- `Stream` 是 `async` 版的 `Iterator`：一連串值一個一個取，但下一個值可能要等，所以是 `next().await`。
-- 對照：`Iterator::next()` 同步回 `Option`；`Stream::next().await` 要 `.await` 才回 `Option`；都用 `None` 表示結束。
-- 走訪用 **`while let Some(x) = stream.next().await`**（`Stream` 不能用 `for`）。
-- `Stream` 不在標準庫，定義在 `futures`；用 `tokio_stream` / `futures::StreamExt` 取得 `next`、`map`、`filter` 等工具（用法和 `Iterator` 幾乎一樣，也一樣惰性）。
+- `Stream` 是 `async` 版的 `Iterator`：一連串值一個一個取，但下一個值可能要等，所以是 `next().await`
+- 對照：`Iterator::next()` 同步回 `Option`；`Stream::next().await` 要 `.await` 才回 `Option`；都用 `None` 表示結束
+- 走訪用 **`while let Some(x) = stream.next().await`**（`Stream` 不能用 `for`）
+- `Stream` 不在標準庫，定義在 `futures`；用 `tokio_stream` / `futures::StreamExt` 取得 `next`、`map`、`filter` 等工具（用法和 `Iterator` 幾乎一樣，也一樣惰性）

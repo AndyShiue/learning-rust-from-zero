@@ -4,7 +4,7 @@
 
 把前幾集的喚醒模式接到**真實的 I/O**——做出一個 reactor，讓我們的 runtime 第一次能處理網路連線。
 
-## 概念說明
+## 正文
 
 ### executor 一行不改
 
@@ -24,6 +24,7 @@
 
 ```rust,no_run
 # extern crate mio;
+#
 # use std::cell::RefCell;
 # use std::collections::{HashMap, VecDeque};
 # use std::future::Future;
@@ -260,8 +261,8 @@ fn main() {
 
 ## 重點整理
 
-- reactor 把喚醒接到真實 I/O：**executor 完全沿用第 12 集**，只把「誰來 `wake`」從計時 thread 換成 reactor thread。
-- reactor 跑在自己的 thread、睡在 `mio::Poll` 上，醒來照 `Token` 從 `HashMap` 取出 `Waker` 來 `wake`。
-- `Future` 與 reactor 透過 `Arc` 共享的 `Registry`、`AtomicUsize`、`Mutex<HashMap<Token, Waker>>` 溝通，不傳訊息。
-- I/O `Future` 的 `poll` 一律「**先 `set_waker` 再試 I/O**」，避免漏接喚醒；成功回 `Ready`、`WouldBlock` 回 `Pending`。
-- 不管喚醒來自計時器還是 I/O，最後都走「排回 ready queue ＋ `unpark`」同一條路。
+- reactor 把喚醒接到真實 I/O：**executor 完全沿用第 12 集**，只把「誰來 `wake`」從計時 thread 換成 reactor thread
+- reactor 跑在自己的 thread、睡在 `mio::Poll` 上，醒來照 `Token` 從 `HashMap` 取出 `Waker` 來 `wake`
+- `Future` 與 reactor 透過 `Arc` 共享的 `Registry`、`AtomicUsize`、`Mutex<HashMap<Token, Waker>>` 溝通，不傳訊息
+- I/O `Future` 的 `poll` 一律「**先 `set_waker` 再試 I/O**」，避免漏接喚醒；成功回 `Ready`、`WouldBlock` 回 `Pending`
+- 不管喚醒來自計時器還是 I/O，最後都走「排回 ready queue ＋ `unpark`」同一條路

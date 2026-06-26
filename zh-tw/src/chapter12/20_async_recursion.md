@@ -4,7 +4,7 @@
 
 理解為什麼 `async fn` 不能直接呼叫自己，以及怎麼用 `Box::pin` 解決。
 
-## 概念說明
+## 正文
 
 ### 直接遞迴會編譯失敗
 
@@ -90,7 +90,7 @@ fn main() {
 
 ## 重點整理
 
-- `async fn` 直接呼叫自己會編譯失敗（`recursion in an async fn requires boxing`），因為狀態機大小會變無限大。
-- 原因和第 5 章的遞迴型別一樣：自己包含自己，大小無底。
-- 解法是把遞迴呼叫用 `Box::pin` 包起來，讓狀態機裡只存一個固定大小的指標。
-- `Box::pin` 也用於「把不同型別的 `Future` 放進同一個 `Vec`」或「`match` 分支回傳不同 `Future`」，呼應第 9 章的 `Box<dyn Fn>`。
+- `async fn` 直接呼叫自己會編譯失敗（`recursion in an async fn requires boxing`），因為狀態機大小會變無限大
+- 原因和第 5 章的遞迴型別一樣：自己包含自己，大小無底
+- 解法是把遞迴呼叫用 `Box::pin` 包起來，讓狀態機裡只存一個固定大小的指標
+- `Box::pin` 也用於「把不同型別的 `Future` 放進同一個 `Vec`」或「`match` 分支回傳不同 `Future`」，呼應第 9 章的 `Box<dyn Fn>`

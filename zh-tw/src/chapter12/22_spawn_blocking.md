@@ -4,7 +4,7 @@
 
 學會「不要 block 住執行緒」這條紀律，以及碰到非得 block 的工作時，用 `spawn_blocking` 把它安置好。
 
-## 概念說明
+## 正文
 
 ### 一條鐵律：不要 block 住執行緒
 
@@ -16,6 +16,7 @@
 
 ```rust,no_run
 # extern crate tokio;
+#
 #[tokio::main]
 async fn main() {
     // 在 async task 裡做很重的同步計算——壞示範
@@ -32,6 +33,7 @@ async fn main() {
 
 ```rust,no_run
 # extern crate tokio;
+#
 #[tokio::main]
 async fn main() {
     let handle = tokio::task::spawn_blocking(|| {
@@ -65,8 +67,8 @@ async fn main() {
 
 ## 重點整理
 
-- 鐵律：執行緒只在 `.await` 時讓出，所以 `Task` 不能長時間不 `.await`，否則會霸佔執行緒、拖住同條執行緒上的其他 `Task`。
-- 重計算、同步阻塞呼叫（`thread::sleep`、同步 I/O、慢的同步 DB）都會 block 住執行緒。
-- `tokio::task::spawn_blocking` 把這種工作丟到專用 blocking 池，回傳可 `.await` 的 handle，你的 `Task` 因此會讓出執行緒。
-- 不用 `std::thread::spawn` 是因為它的 `.join()` 是阻塞的、不能 `.await`；`spawn_blocking` 幫你接好了「做完→喚醒 `Task`」這座橋。
-- 但長命的獨立背景執行緒仍該用 `thread::spawn`；把無窮迴圈丟進 `spawn_blocking` 會永久佔住池子名額，是誤用。
+- 鐵律：執行緒只在 `.await` 時讓出，所以 `Task` 不能長時間不 `.await`，否則會霸佔執行緒、拖住同條執行緒上的其他 `Task`
+- 重計算、同步阻塞呼叫（`thread::sleep`、同步 I/O、慢的同步 DB）都會 block 住執行緒
+- `tokio::task::spawn_blocking` 把這種工作丟到專用 blocking 池，回傳可 `.await` 的 handle，你的 `Task` 因此會讓出執行緒
+- 不用 `std::thread::spawn` 是因為它的 `.join()` 是阻塞的、不能 `.await`；`spawn_blocking` 幫你接好了「做完→喚醒 `Task`」這座橋
+- 但長命的獨立背景執行緒仍該用 `thread::spawn`；把無窮迴圈丟進 `spawn_blocking` 會永久佔住池子名額，是誤用
