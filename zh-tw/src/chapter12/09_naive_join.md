@@ -138,15 +138,15 @@ let this = self.get_mut(); // JoinAll 是 Unpin，可以拿回普通的 &mut
 if let Some(mut fut) = slot.take() { ... }
 ```
 
-`slot` 的型別是 `&mut Option<BoxFuture>`。`Option::take()` 會把 `Option` 裡的值**拿出來**，並且在原本的位置留下 `None`。所以如果 `slot` 原本是 `Some(fut)`，呼叫 `take()` 之後，我們會拿到那個 `fut`，而 `slot` 會暫時變成 `None`。
+`slot` 的型別是 `&mut Option<BoxFuture>`。`Option::take` 會把 `Option` 裡的值**拿出來**，並且在原本的位置留下 `None`。所以如果 `slot` 原本是 `Some(fut)`，呼叫 `take()` 之後，我們會拿到那個 `fut`，而 `slot` 會暫時變成 `None`。
 
 這正好符合我們要做的事：先把子 `Future` 拿出來 `poll` 一次。如果它完成了，就不放回去，讓 `slot` 維持 `None`；如果它還沒完成，就用 `*slot = Some(fut)` 放回去，下一輪再繼續 `poll`。
 
 ### 它為什麼是並行的
 
-跑起來你會發現：三個 worker 幾乎同時開始、同時結束，總共只花**兩秒**，而不是六秒。
+跑起來你會發現：三個 `worker` 幾乎同時開始、同時結束，總共只花**兩秒**，而不是六秒。
 
-原因是 `JoinAll` 的 `poll` 在一輪裡就把三個 worker 各推進一次。三個 `Delay` 同時在計時，所以兩秒後三個 worker 全部到期。這就是並行——同一段時間裡，三件「都在等」的事一起被推著走。對照上一集，如果你寫成 `worker(1).await; worker(2).await; worker(3).await;`，那會是一個跑完才換下一個，總共六秒。
+原因是 `JoinAll` 的 `poll` 在一輪裡就把三個 `worker` 各推進一次。三個 `Delay` 同時在計時，所以兩秒後三個 `worker` 全部到期。這就是並行——同一段時間裡，三件「都在等」的事一起被推著走。對照上一集，如果你寫成 `worker(1).await; worker(2).await; worker(3).await;`，那會是一個跑完才換下一個，總共六秒。
 
 ### 連「要 `poll` 很多次」的 `Future` 也照樣推得動
 
