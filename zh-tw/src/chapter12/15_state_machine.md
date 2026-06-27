@@ -8,7 +8,7 @@
 
 ### `.await` 不是開新 thread
 
-先破除一個常見的誤會。當你看到 `.await`，可能會以為它「在背後偷偷開了一條 thread 去等」。**完全不是。** 從第 6 集到現在，我們手寫的這套 runtime 從頭到尾就是一條 executor thread 在反覆 poll，`.await` 沒有變出任何新 thread。
+先破除一個可能的誤會。當你看到 `.await`，可能會以為它「在背後偷偷開了一條 thread 去等」。**完全不是。** 從第 6 集到現在，我們手寫的這套 runtime 從頭到尾就是一條 executor thread 在反覆 poll，`.await` 沒有變出任何新 thread。
 
 那 `.await` 到底做了什麼？它把你的函數**切成好幾段**——每個 `.await` 是一個切點。函數可以在切點暫停、把控制權交還給 executor，之後再從同一個切點恢復。能做到這件事的東西，就叫**狀態機**。
 
@@ -16,7 +16,9 @@
 
 假設有這麼一個 `async fn`，裡面等兩次：
 
-```rust,ignore
+```rust,noplayground
+
+
 async fn two_delays() {
     Delay::new(Duration::from_secs(1)).await;
     println!("一秒到");
@@ -39,25 +41,37 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
 use std::task::{Context, Poll, Wake, Waker};
+use std::thread::{self, Thread};
 use std::time::{Duration, Instant};
 
-struct Delay { when: Instant, started: bool }
-impl Delay {
-    fn new(d: Duration) -> Delay { Delay { when: Instant::now() + d, started: false } }
+struct Delay {
+    when: Instant,
+    started: bool,
 }
+
+impl Delay {
+    fn new(duration: Duration) -> Delay {
+        Delay { when: Instant::now() + duration, started: false }
+    }
+}
+
 impl Future for Delay {
     type Output = ();
+
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {
         let this = self.get_mut();
-        if Instant::now() >= this.when { Poll::Ready(()) }
-        else {
+        if Instant::now() >= this.when {
+            Poll::Ready(())
+        } else {
             if !this.started {
                 this.started = true;
                 let waker = cx.waker().clone();
                 let when = this.when;
-                std::thread::spawn(move || {
+                thread::spawn(move || {
                     let now = Instant::now();
-                    if now < when { std::thread::sleep(when - now); }
+                    if now < when {
+                        thread::sleep(when - now);
+                    }
                     waker.wake();
                 });
             }
@@ -66,16 +80,26 @@ impl Future for Delay {
     }
 }
 
-struct ThreadWaker { thread: std::thread::Thread }
-impl Wake for ThreadWaker { fn wake(self: Arc<Self>) { self.thread.unpark(); } }
+struct ThreadWaker {
+    thread: Thread,
+}
+
+impl Wake for ThreadWaker {
+    fn wake(self: Arc<Self>) {
+        self.thread.unpark();
+    }
+}
+
 fn block_on<F: Future>(future: F) -> F::Output {
     let mut future = Box::pin(future);
-    let waker = Waker::from(Arc::new(ThreadWaker { thread: std::thread::current() }));
+    let waker = Waker::from(Arc::new(ThreadWaker {
+        thread: thread::current(),
+    }));
     let mut cx = Context::from_waker(&waker);
     loop {
         match future.as_mut().poll(&mut cx) {
-            Poll::Ready(v) => return v,
-            Poll::Pending => std::thread::park(),
+            Poll::Ready(value) => return value,
+            Poll::Pending => thread::park(),
         }
     }
 }
@@ -125,8 +149,6 @@ fn main() {
     block_on(TwoDelays::Start); // 等同於 block_on(two_delays())
 }
 ```
-
-> 上面一併列出 `Delay` 和 `block_on`，方便整段程式直接放進沙盒執行。
 
 ### 對照著看
 

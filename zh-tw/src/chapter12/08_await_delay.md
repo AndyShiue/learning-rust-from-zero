@@ -21,14 +21,20 @@ struct Delay {
 }
 
 impl Delay {
-    fn new(duration: std::time::Duration) -> Delay {
+    fn new(duration: Duration) -> Delay {
         Delay { when: Instant::now() + duration }
     }
 }
+
 impl Future for Delay {
     type Output = ();
+
     fn poll(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<()> {
-        if Instant::now() >= self.when { Poll::Ready(()) } else { Poll::Pending }
+        if Instant::now() >= self.when {
+            Poll::Ready(())
+        } else {
+            Poll::Pending
+        }
     }
 }
 
