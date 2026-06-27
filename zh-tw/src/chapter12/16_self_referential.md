@@ -43,9 +43,9 @@ async fn borrows() {
 
 這個 `async fn` 的狀態機，在 `.await` 那個狀態裡同時存著 `s` 和 `r`，而 `r` 指向 `s`。這就是自我參照。一旦它被 move，`r` 就會變成懸垂指標。所以結論是：**move 一個 `Future` 是有風險的**。
 
-### 先證明「create → poll → move → poll」做得出來
+### 先證明「create → `poll` → move → `poll`」做得出來
 
-不過在談怎麼防範之前，先確認一件事：一個 `Future` 真的可能在「被 poll 過之後又被 move、然後再被 poll」。我們寫一個最小的 `Future`——`Counter`，每次 poll 就把計數 +1，並用 `{:p}` 印出 `self` 的位址：
+不過在談怎麼防範之前，先確認一件事：一個 `Future` 真的可能在「被 `poll` 過之後又被 move、然後再被 `poll`」。我們寫一個最小的 `Future`——`Counter`，每次 `poll` 就把計數 +1，並用 `{:p}` 印出 `self` 的位址：
 
 ```rust,editable
 use std::future::Future;
@@ -78,16 +78,16 @@ fn main() {
 }
 ```
 
-跑起來會看到兩次 poll 印出的位址**不一樣**——證明這套「poll → move → 再 poll」的流程真的能發生，而且第二次 poll 時 `Future` 已經在新位址了。`Counter` 自己沒有自我參照，所以搬了也沒差；但如果換成上面那種自我參照的狀態機，這一搬就出事了。
-
-（這裡能 `Pin::new(&mut counter)` 是因為 `Counter` 可以安全 move，下一集會解釋這個條件。）
+跑起來會看到兩次 `poll` 印出的位址**不一樣**——證明這套「`poll` → move → 再 `poll`」的流程真的能發生，而且第二次 `poll` 時 `Future` 已經在新位址了。`Counter` 自己沒有自我參照，所以搬了也沒差；但如果換成上面那種自我參照的狀態機，這一搬就出事了。
 
 ### Rust 的防線：搬了會壞的，連門都不給進
 
 那 Rust 怎麼防止自我參照的 `Future` 被亂搬？我們把同一套流程，套到剛剛那個「跨 `.await` 借用」的 `async fn` 上試試：
 
 ```rust,compile_fail
+use std::future::Future;
 use std::pin::Pin;
+use std::task::{Context, Waker};
 
 async fn other() {}
 
@@ -99,8 +99,17 @@ async fn borrows() {
 }
 
 fn main() {
+    let mut cx = Context::from_waker(Waker::noop());
     let mut fut = borrows();
-    let _pinned = Pin::new(&mut fut); // 編譯錯誤！
+
+    // 想做跟 Counter 一樣的事：poll 一次
+    let _ = Pin::new(&mut fut).poll(&mut cx); // 編譯錯誤！
+
+    // 然後 move 到新位置
+    let mut moved = fut;
+
+    // 再 poll 一次
+    let _ = Pin::new(&mut moved).poll(&mut cx); // 這裡也不會被放行
 }
 ```
 
@@ -108,17 +117,18 @@ fn main() {
 
 ```text
 error[E0277]: `{async fn body of borrows()}` cannot be unpinned
-   the trait `Unpin` is not implemented for `{async fn body of borrows()}`
 ```
 
-`Pin::new` 要求型別是 `Unpin`（「搬了不會壞」的意思，下一集詳談）。`Counter` 是 `Unpin`，所以放行；但這個自我參照的 `async fn` 狀態機**不是** `Unpin`，於是 `Pin::new` 在你**還沒真的搬它之前**就把路擋死。
+這段程式碼把「`poll` 一次、move、再 `poll`」的動作都寫出來了，但編譯器其實在第一次 `Pin::new(&mut fut)` 就擋下來。
 
-對照兩個例子，Rust 的防線就很清楚了：搬了不會壞的（像 `Counter`），給你方便、隨你搬；搬了會壞的（自我參照狀態機），連 `Pin::new` 這道門都不讓你進。至於 `Pin` 是怎麼用型別系統築起這道防線的，就是下一集的主題。
+`Pin::new` 要求型別是 `Unpin`（「搬了不會壞」的意思，下一集詳談）。`Counter` 是 `Unpin`，所以放行；但這個自我參照的 `async fn` 狀態機**不是** `Unpin`，於是 `Pin::new` 在你**還沒真的 poll、也還沒真的搬它之前**就把路擋死。
+
+對照兩個例子，Rust 的防線就很清楚了：搬了不會壞的（像 `Counter`），給你方便、隨你搬；搬了會壞的（自我參照狀態機），連 `Pin::new` 這道門都不讓你進。至於 `Pin` 是怎麼用型別系統築起這道防線的，就是接下來的主題。
 
 ## 重點整理
 
 - move 一個值，它的位址會變；對一般值無所謂，因為舊變數不能再用
 - 若值裡存了「指向自己的位址」，一 move 那個位址沒人更新，就變成懸垂指標——很危險
 - **自我參照的 `Future` 狀態機**正是這種值：跨 `.await` 的借用會讓狀態機某欄位指向自己另一欄位
-- `Counter` 範例證明「poll → move → 再 poll」真的做得出來（兩次位址不同）
+- `Counter` 範例證明「`poll` → move → 再 `poll`」真的做得出來（兩次位址不同）
 - Rust 用 `Unpin` 當防線：`Counter` 是 `Unpin` 可被 `Pin::new`，自我參照的 `async` 狀態機不是 `Unpin`，`Pin::new` 直接編譯失敗

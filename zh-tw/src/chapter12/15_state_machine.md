@@ -8,7 +8,7 @@
 
 ### `.await` 不是開新 thread
 
-先破除一個可能的誤會。當你看到 `.await`，可能會以為它「在背後偷偷開了一條 thread 去等」。**完全不是。** 從第 6 集到現在，我們手寫的這套 runtime 從頭到尾就是一條 executor thread 在反覆 poll，`.await` 沒有變出任何新 thread。
+先破除一個可能的誤會。當你看到 `.await`，可能會以為它「在背後偷偷開了一條 `Thread` 去等」。**完全不是。** 從第 6 集到現在，我們手寫的這套 runtime 從頭到尾就是一條 executor `Thread` 在反覆 `poll`，`.await` 沒有變出任何新 `Thread`。
 
 那 `.await` 到底做了什麼？它把你的函數**切成好幾段**——每個 `.await` 是一個切點。函數可以在切點暫停、把控制權交還給 executor，之後再從同一個切點恢復。能做到這件事的東西，就叫**狀態機**。
 
@@ -17,14 +17,56 @@
 假設有這麼一個 `async fn`，裡面等兩次：
 
 ```rust,noplayground
-
-
+# use std::future::Future;
+# use std::pin::Pin;
+# use std::task::{Context, Poll};
+# use std::thread;
+# use std::time::{Duration, Instant};
+#
+# struct Delay {
+#     when: Instant,
+#     started: bool,
+# }
+#
+# impl Delay {
+#     fn new(duration: Duration) -> Delay {
+#         Delay { when: Instant::now() + duration, started: false }
+#     }
+# }
+#
+# impl Future for Delay {
+#     type Output = ();
+#
+#     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {
+#         let this = self.get_mut();
+#         if Instant::now() >= this.when {
+#             Poll::Ready(())
+#         } else {
+#             if !this.started {
+#                 this.started = true;
+#                 let waker = cx.waker().clone();
+#                 let when = this.when;
+#                 thread::spawn(move || {
+#                     let now = Instant::now();
+#                     if now < when {
+#                         thread::sleep(when - now);
+#                     }
+#                     waker.wake();
+#                 });
+#             }
+#             Poll::Pending
+#         }
+#     }
+# }
+#
 async fn two_delays() {
     Delay::new(Duration::from_secs(1)).await;
     println!("一秒到");
     Delay::new(Duration::from_secs(1)).await;
     println!("兩秒到");
 }
+#
+# fn main() {}
 ```
 
 編譯器看到它，會在心裡把它改寫成一個 `enum`——每個「狀態」代表「目前卡在哪一段」：
@@ -43,6 +85,16 @@ use std::sync::Arc;
 use std::task::{Context, Poll, Wake, Waker};
 use std::thread::{self, Thread};
 use std::time::{Duration, Instant};
+
+struct ThreadWaker {
+    thread: Thread,
+}
+
+impl Wake for ThreadWaker {
+    fn wake(self: Arc<Self>) {
+        self.thread.unpark();
+    }
+}
 
 struct Delay {
     when: Instant,
@@ -77,16 +129,6 @@ impl Future for Delay {
             }
             Poll::Pending
         }
-    }
-}
-
-struct ThreadWaker {
-    thread: Thread,
-}
-
-impl Wake for ThreadWaker {
-    fn wake(self: Arc<Self>) {
-        self.thread.unpark();
     }
 }
 
