@@ -21,11 +21,11 @@
 
 從此 executor 不再直接管 `Future`，而是管 `Task`。而所謂 `spawn`，就是「把一個 `Future` 包成 `Task`、交給 executor」。
 
-### ready queue 與「按門鈴」
+### ready queue 與「喚醒」
 
 executor 將會有一條 **ready queue**：裡面排著「現在該被 `poll` 的 `Task`」。executor 的工作就是從 queue 裡拿 `Task` 出來 `poll`；queue 空了就去睡覺。
 
-當一個 `Task` 被 `wake`，它就把**自己**放回 ready queue，然後 `unpark` 把睡著的 executor 叫醒。注意這個 `unpark` 只是一個**門鈴**——它只說「有事做了，起床！」，並不指出是哪個 `Task` 好了。真正「哪些 `Task` 該被 `poll`」的資訊，是放在 ready queue 裡的。
+當一個 `Task` 被 `wake`，它就把**自己**放回 ready queue，然後 `unpark` 把睡著的 executor 叫醒。注意這個 `unpark` 只是一個**鬧鈴**——它只說「有事做了，起床！」，並不指出是哪個 `Task` 好了。真正「哪些 `Task` 該被 `poll`」的資訊，是放在 ready queue 裡的。
 
 ### 把它寫出來
 
@@ -200,7 +200,7 @@ fn main() {
 
 - 把每個 `Future` 包成 **`Task`**（`Future` ＋ 排程隨身資料），executor 從此管 `Task` 而非裸 `Future`
 - **ready queue** 排著該被 poll 的 `Task`；`Task` 被 `wake` 時把自己排回 queue 再 `unpark` executor
-- `unpark` 只是「起床」的門鈴，不說哪個 `Task` 好了；那資訊在 ready queue 裡
+- `unpark` 只是「起床」的鬧鈴，不說哪個 `Task` 好了；那資訊在 ready queue 裡
 - `spawn` 是 `Executor` 的方法：把 `Future` 包成 `Task`，排進自己的 ready queue
 - `queued.swap(true, ...)` 像 `Option::take`：拿到舊值、留下新值，且是一次 atomic 操作，避免同一個 `Task` 重複入列
 - `Task` 自己當 `Waker`，`Waker::from(Arc<Task>)` 要求 `Task: Send + Sync + 'static`，所以 `Future` 欄位要 `+ Send` 並用 `Mutex` 包起來

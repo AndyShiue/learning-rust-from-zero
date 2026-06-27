@@ -8,23 +8,23 @@
 
 ### executor 一行不改
 
-這集有個讓人安心的核心訊息：**executor 完全沿用第 12 集**。`Task`、`Executor::spawn<T>`、`JoinHandle<T>`、`Shared<T>`、`Executor::block_on` 一行都不用改。
+這集有件事能讓人安心：**executor 完全沿用第 12 集**。`Task`、`Executor::spawn<T>`、`JoinHandle<T>`、`Shared<T>`、`Executor::block_on` 一行都不用改。
 
-我們唯一要換掉的是「誰來 `wake`」。前面是 `Delay` 自己開一條計時 thread 來 `wake`；現在改成一條 **reactor thread**，它睡在 `mio::Poll` 上等真實的 I/O，醒來後找到對應的 `Waker` 把它 `wake()`。
+我們唯一要換掉的是「誰來 `wake`」。前面是 `Delay` 自己開一條計時 `Thread` 來 `wake`；現在改成一條 **reactor thread**，它睡在 `mio::Poll` 上等真實的 I/O，醒來後找到對應的 `Waker` 把它 `wake()`。
 
-要加的東西只有兩塊：一個 `Reactor`，以及兩個 I/O `Future`（`Accept` 和 `Read`）。
+要加的東西是一個 `Reactor`，以及兩個 I/O `Future`（`Accept` 和 `Read`）。
 
-### 第一塊：`Reactor`
+### `Reactor` 與 I/O `Future`
 
-`Reactor` 跑在自己的 thread 上，睡在 `mio::Poll` 上。而那些跑在 executor thread 上的 `Future`，要怎麼跟它溝通？答案是**透過共享狀態，而不是傳訊息**。三樣東西用 `Arc` 共用：
+`Reactor` 跑在自己的 `Thread` 上，睡在 `mio::Poll` 上。而那些跑在 executor `Thread` 上的 `Future`，要怎麼跟它溝通？答案是**透過共享狀態，而不是傳訊息**。三樣東西用 `Arc` 共用：
 
-- **`Registry`**（mio 的）：`Future` 拿它直接登記 / 取消 socket。
+- **`Registry`**（`mio` 的）：`Future` 拿它直接登記 / 取消 socket。
 - **`AtomicUsize`**：reactor 用它替每個來源自分配獨一無二的 `Token`。
 - **`Mutex<HashMap<Token, Waker>>`**：`Future` 在執行時把自己的 `Waker` 寫進去（用 `Token` 當鑰匙），reactor 收到事件後就照 `Token` 取出來 `wake`。
 
-```rust,editable
-extern crate mio;
-
+```rust,no_run
+# extern crate mio;
+#
 use std::collections::{HashMap, VecDeque};
 use std::future::Future;
 use std::io::Read as _;
@@ -45,6 +45,7 @@ struct Task {
     executor_thread: Thread,
     queued: AtomicBool,
 }
+
 impl Wake for Task {
     fn wake(self: Arc<Self>) {
         if !self.queued.swap(true, Ordering::SeqCst) {
@@ -203,19 +204,19 @@ fn start_reactor() -> Arc<Reactor> {
     reactor
 }
 
-// ===== 第二塊：I/O Future =====
+// 開始實作新的 Future
 
 struct Accept {
     reactor: Arc<Reactor>,
     listener: TcpListener,
-    token: Token,
+    listener_token: Token,
 }
 
 impl Accept {
     fn new(reactor: Arc<Reactor>, mut listener: TcpListener) -> Accept {
-        let token = reactor.unique_token();
-        reactor.register(&mut listener, token, Interest::READABLE);
-        Accept { reactor, listener, token }
+        let listener_token = reactor.unique_token();
+        reactor.register(&mut listener, listener_token, Interest::READABLE);
+        Accept { reactor, listener, listener_token }
     }
 }
 
@@ -225,7 +226,7 @@ impl Future for Accept {
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<TcpStream> {
         let this = self.get_mut();
         // 先登記 Waker 給 reactor，再試一次 accept（順序刻意「先登記再試」避免 race）
-        this.reactor.set_waker(this.token, cx.waker().clone());
+        this.reactor.set_waker(this.listener_token, cx.waker().clone());
         match this.listener.accept() {
             Ok((stream, _addr)) => {
                 this.reactor.deregister(&mut this.listener);
@@ -241,7 +242,7 @@ struct Read<'a> {
     reactor: Arc<Reactor>,
     stream: &'a mut TcpStream,
     buf: &'a mut [u8],
-    token: Token,
+    stream_token: Token,
 }
 
 impl<'a> Future for Read<'a> {
@@ -249,7 +250,7 @@ impl<'a> Future for Read<'a> {
 
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<usize> {
         let this = self.get_mut();
-        this.reactor.set_waker(this.token, cx.waker().clone()); // 先登記
+        this.reactor.set_waker(this.stream_token, cx.waker().clone()); // 先登記
         match this.stream.read(this.buf) { // 再試一次
             Ok(n) => Poll::Ready(n),
             Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => Poll::Pending,
@@ -262,12 +263,12 @@ impl<'a> Future for Read<'a> {
 async fn serve(reactor: Arc<Reactor>, listener: TcpListener) {
     let mut stream = Accept::new(reactor.clone(), listener).await;
 
-    let token = reactor.unique_token();
-    reactor.register(&mut stream, token, Interest::READABLE);
+    let stream_token = reactor.unique_token();
+    reactor.register(&mut stream, stream_token, Interest::READABLE);
 
     for i in 0..3 {
         let mut buf = vec![0u8; 1024];
-        let n = Read { reactor: reactor.clone(), stream: &mut stream, buf: &mut buf, token }.await;
+        let n = Read { reactor: reactor.clone(), stream: &mut stream, buf: &mut buf, stream_token }.await;
         if n == 0 {
             println!("連線關閉了");
             break;
@@ -288,28 +289,46 @@ fn main() {
 }
 ```
 
-> 上面一併列出第 12 集的整套 executor（`Task`、ready queue、`JoinHandle`、`Executor::spawn`、`Executor::block_on` 等），方便整段程式直接放進沙盒。這個範例啟動後會監聽 `127.0.0.1:8080` 並等待連線。
+> 注意：這段程式會在本機監聽 `127.0.0.1:8080`，需要另外用瀏覽器或 `curl` 連進來才看得到效果。網頁版沙盒不適合體驗這種互動式網路程式；如果想體驗完整成果，請在自己的電腦上執行這段程式碼。
+
+### Token 跟 I/O 來源綁在一起
+
+`Accept` 和 `Read` 沒有共用同一個 `Token`。`Accept` 裡的 `listener_token` 是給 `TcpListener` 用的；接到連線後，`serve` 另外建立 `stream_token`，登記給那條 `TcpStream`。
+
+後面的三次 `Read` 會共用同一個 `stream_token`，這是刻意的：`Token` 是 I/O 來源的名牌，不是每一次 `.await` 都要換一張名牌。這個簡化範例同一時間只會等待這條 stream 上的一次 `read`，所以同一個 stream `Token` 對應一個等待中的 `Waker` 就夠了。
+
+### `WouldBlock` 是什麼
+
+`mio` 的 socket 是**非阻塞**的。這代表你呼叫 `accept` 或 `read` 時，它不會因為「現在還沒有連線 / 還沒有資料」就把 executor thread 卡在那裡等。它會立刻回來，並用 `WouldBlock` 告訴你：「現在還不能做這件事，晚點再試。」
+
+所以 `WouldBlock` 在這裡不是「壞掉了」的錯誤，而是非阻塞 I/O 的正常狀態。對我們手寫的 `Future` 來說，它剛好對應到 `Poll::Pending`：
+
+- `accept` / `read` 成功：代表真的拿到連線或資料，回 `Poll::Ready(...)`
+- `WouldBlock`：代表現在還沒好，先回 `Poll::Pending`
+- 其他錯誤：才是真的出問題，這個簡化範例直接 `panic`
 
 ### 「先登記再試」為什麼重要
 
 注意 `Accept` 和 `Read` 的 `poll` 都是**先** `set_waker`、**再**試一次 `accept` / `read`。這個順序是刻意的。
 
+這個「再試一次」不代表這一輪一定會成功。如果還是 `WouldBlock`，這次 `poll` 就回 `Pending`；等 reactor 之後收到事件、呼叫剛剛存好的 `Waker`，executor 下一輪再 poll 這個 `Future`，才會再試一次 I/O。
+
 想像如果反過來：先試 `read` 拿到 `WouldBlock`（還沒資料），然後正要去登記 `Waker`——就在這個空檔，資料剛好到了，reactor 醒來想 `wake`，卻發現 `HashMap` 裡還沒有這個 `Token` 的 `Waker`，這個喚醒就**漏掉**了，於是這個 `Future` 永遠不會再被 poll。
 
-把順序倒過來——先把 `Waker` 放好，再試一次 I/O——就堵住了這個空檔：萬一資料早就到了，這次的 `accept` / `read` 會直接成功回 `Ready`；萬一真的還沒到，`Waker` 也已經就位，等 reactor 通知。成功就回 `Ready`，`WouldBlock` 就回 `Pending`，乾淨俐落。
+把順序倒過來——先把 `Waker` 放好，再試一次 I/O——就堵住了這個空檔：萬一資料早就到了，這次的 `accept` / `read` 會直接成功回 `Ready`；萬一真的還沒到，`Waker` 也已經就位，等 reactor 通知下一輪再試。成功就回 `Ready`，`WouldBlock` 就回 `Pending`，乾淨俐落。
 
 ### 喚醒路徑完全沒變
 
-把這集和第 12 集對照，你會發現喚醒的終點一模一樣。reactor 雖然跑在自己的 thread 上，但它呼叫的 `waker.wake()` 仍然是某個 `Task` 的 `Waker`——`wake` 一樣會把那個 `Task` 排回 ready queue、`unpark` executor。我們只是把「敲門的人」從計時 thread 換成了 reactor thread，門鈴和門後的流程完全沒動。
+把這集和第 12 集對照，你會發現喚醒的終點一模一樣。reactor 雖然跑在自己的 `Thread` 上，但它呼叫的 `waker.wake()` 仍然是某個 `Task` 的 `Waker`——`wake` 一樣會把那個 `Task` 排回 ready queue、`unpark` executor。我們只是把「負責叫醒 `Thread` 的人」從計時 `Thread` 換成了 reactor `Thread`，後面的流程完全沒動。
 
-這就是 `Future` / `Waker` 這套設計漂亮的地方：不管喚醒的理由是「計時到了」還是「網路來資料了」，executor 都用同一套機制接住。
-
-到這裡，我們從零手寫的 runtime 大功告成了！它能 `spawn`、能 `join`、能睡覺、能被計時器或真實 I/O 喚醒。接下來幾集，我們要轉回頭，把 `async fn` 背後那個一直被我們提到、卻還沒拆開的「狀態機」看個明白。
+到這裡，我們從零手寫的 runtime 大功告成了！它能 `spawn`、能睡覺、能被計時器或真實 I/O 喚醒。接下來幾集，我們要轉回頭，把 `async fn` 背後那個一直被我們提到、卻還沒拆開的「狀態機」看個明白。
 
 ## 重點整理
 
-- reactor 把喚醒接到真實 I/O：**executor 完全沿用第 12 集**，只把「誰來 `wake`」從計時 thread 換成 reactor thread
-- reactor 跑在自己的 thread、睡在 `mio::Poll` 上，醒來照 `Token` 從 `HashMap` 取出 `Waker` 來 `wake`
+- reactor 把喚醒接到真實 I/O：**executor 完全沿用第 12 集**，只把「誰來 `wake`」從計時 `Thread` 換成 reactor `Thread`
+- reactor 跑在自己的 `Thread`、睡在 `mio::Poll` 上，醒來照 `Token` 從 `HashMap` 取出 `Waker` 來 `wake`
 - `Future` 與 reactor 透過 `Arc` 共享的 `Registry`、`AtomicUsize`、`Mutex<HashMap<Token, Waker>>` 溝通，不傳訊息
+- `Token` 是 I/O 來源的名牌：listener 有自己的 `listener_token`，stream 有自己的 `stream_token`；在我們的程式碼中同一條 stream 的多次 `Read` 可以共用同一個 stream `Token`
+- `WouldBlock` 是非阻塞 I/O 的正常狀態，意思是「現在還不能做 `accept` / `read` 之類的 I/O 動作，晚點再試」，在 `Future` 裡對應 `Poll::Pending`
 - I/O `Future` 的 `poll` 一律「**先 `set_waker` 再試 I/O**」，避免漏接喚醒；成功回 `Ready`、`WouldBlock` 回 `Pending`
 - 不管喚醒來自計時器還是 I/O，最後都走「排回 ready queue ＋ `unpark`」同一條路
