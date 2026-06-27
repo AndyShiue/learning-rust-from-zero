@@ -236,7 +236,7 @@
     - [`async fn` 背後的狀態機](chapter12/15_state_machine.md)
     - [自我參照的 `Future`](chapter12/16_self_referential.md)
     - [為什麼 `poll` 需要 `Pin`](chapter12/17_why_pin.md)
-    - [`Unpin` 與 `get_mut`](chapter12/18_unpin.md)
+    - [`Unpin`](chapter12/18_unpin.md)
     - [`pin!`](chapter12/19_pin_macro.md)
     - [`async` 遞迴](chapter12/20_async_recursion.md)
     - [回到 Tokio](chapter12/21_back_to_tokio.md)

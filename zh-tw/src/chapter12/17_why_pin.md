@@ -2,38 +2,46 @@
 
 ## 本集目標
 
-理解 `poll` 的 `self` 為什麼是 `Pin<&mut Self>` 而不是 `&mut Self`，並認識 `Pin` 各個方法。
+弄懂 `poll` 為什麼把 `self` 寫成 `Pin<&mut Self>`，以及 `Pin` 究竟是用什麼手段把「不准 move」這件事變成事實。
 
 ## 正文
 
-### `&mut self` 權力太大
+### `poll` 想要兩件互相打架的事
 
-上一集知道了：自我參照的 `Future` 被 move 會壞掉。那 `poll` 要怎麼避免「在 poll 的過程中不小心把 `Future` 搬走」？
+回顧：自我參照的 `Future` 一旦被 move，內部那個指向自己的指標就會懸空。
 
-關鍵在於：如果 `poll` 收的是普通的 `&mut self`，那它**權力太大**了。有了 `&mut T`，你能用 `std::mem::swap`、`std::mem::replace` 之類的工具，神不知鬼不覺地把值搬到別的地方去。對自我參照的 `Future` 來說，這就是災難。
+還記得上一集對 `Counter` 做的那一串動作嗎？
 
-所以 Rust 改用一個「閹割版的 `&mut`」——`Pin<&mut T>`。它的能力剛好被砍到位：
+```rust,ignore
+let _ = Pin::new(&mut counter).poll(&mut cx); // poll 一次
+let mut moved = counter; // 用 let 把它整個搬到新位置
+let _ = Pin::new(&mut moved).poll(&mut cx); // 再 poll 一次
+```
 
-- **能改內容**：你還是可以修改 `T` 內部的欄位（poll 本來就要更新狀態機的狀態）。
-- **不准 move**：但你不能把 `T` 整個從它的位址搬走。
+兩次 `poll` 印出的位址不一樣——這證明了一個 `Future` 真的可能「`poll` 過、被搬走、再 `poll`」。`Counter` 沒有自我參照，搬了無所謂；但同一套動作換成自我參照的 `Future`，第二次 `poll` 時它已經躺在新位址，內部那根指向自己的指標就懸空了。
 
-強制的手段很單純：`Pin<&mut T>` **不再洩漏**普通的 `&mut T` 給你（除非你保證搬了不會壞，那是下一集的事）。它只提供「接受 `Pin<&mut Self>` 的方法」。沒有 `&mut T`，就沒有 `mem::swap`，也就搬不走。
+所以負責推進 `Future` 的人（executor）得守住一條規矩：**在一連串 `poll` 之間，不可以把這個 `Future` 搬走**。問題是，`poll` 該收什麼樣的 `self`，才幫得上這條規矩？站在 `poll` 的角度，它同時想要兩件事：
 
-### `Pin` 釘住的到底是什麼
+1. **要能動手腳**：每次 `poll` 都得改 `Future` 內部的欄位（推進狀態機、把進度往前帶），所以它需要某種「可變」的存取權。
+2. **但不准搬家**：它不能讓人趁機把整個 `Future` 從原本的位址挪走，不然自我參照就毀了。
 
-這裡有個超容易誤解的點，務必講清楚。
+現成的工具——普通的 `&mut Self`——只滿足第一件。一旦 `poll` 收的是 `&mut Self`，那這個 `Future` 對 executor 來說就只是它手裡一個普通的值，executor 大可在兩次 `poll` 之間像上面那樣 `let moved = ...` 把它搬走，沒有東西攔得住。
 
-`Pin<P>` 釘住的，是 **`P` 指向的那個值的位址**——不是 `Pin<P>` 這個指標本身被存放的位址。
+所以 Rust 需要一種「能動手腳、但擋住搬家」的 `&mut`。這就是 `Pin<&mut T>`：你可以把它讀成「**一個被綁在原地、不准搬走的 `&mut T`**」。
 
-舉例：`Pin<Box<T>>` 釘住的是「heap 上那個 `T`」，而不是「`Pin<Box<T>>` 這個變數」。所以 `Pin<Box<T>>`、`Pin<&mut T>` 這些值**本身可以隨意 move**——你搬動的只是那個指標（指標換個地方放沒關係），被它指著的 `T` 一動也不動，仍然牢牢釘在原處。
+### 關鍵：要釘住一個值，得先交出它的所有權
 
-這正好解開一個你可能早就有的困惑：前面手寫 executor 時，我們把 `Pin<Box<Fut>>` 丟進 queue、`pop` 出來、搬來搬去，那 `Fut` 不就被搬動了嗎？沒有。搬的是 `Pin<Box<Fut>>`（那個 box 指標），heap 上真正的 `Fut` 從頭到尾沒挪過位置。`Pin` 禁止的，**只有**「透過 `Pin` 把內部指標指向的那個值，從它原本的位址搬走」這一件事。
+`Pin<&mut T>` 號稱「不准搬走」，但它**憑什麼**做得到？
 
-### `Pin` 能用的方法
+直覺上你可能會猜：大概是因為它不肯把裡面那個普通的 `&mut T` 交給你，你拿不到 `&mut T`，自然就無法用類似 `Option::take` 的方法搬走。這想法不算錯，但還沒搔到癢處。真正擋住 move 的關鍵，發生在更前面一步——**你一開始是怎麼把這個值釘起來、生出那個 `Pin` 的**。不管你怎麼做，你都會喪失原值的所有權；既然連所有權都沒了，自然也就沒辦法把它搬走。`Pin` 擋住 move 靠的不是什麼神祕魔法，而是這個樸素的事實：**能釘住它的代價，就是交出對它的掌控**。
 
-為了讓你對 `Pin` 有個全貌，這裡把它常用的方法整理一遍。
+（你可能會說：上一集不是有個 `Pin::new` 嗎？用它不用交出所有權啊。沒錯，但 `Pin::new` 只肯收「搬了反正不會壞」的型別。為什麼它們可以走後門是下一集的主題。）
 
-**唯讀存取**永遠開放（讀又不會把值搬走，沒風險）。`Pin<P<T>>` 永遠可以解參考成 `&T`，這是透過 `Deref` 做到的：
+### `Pin` 手上其實只有幾招
+
+也因為它的任務就是「擋 move」，`Pin` 能讓你做的事不多。一般的用法就是：
+
+**唯讀**——`Pin<P<T>>` 永遠能解參考成 `T`（讀又搬不走值，沒風險），這來自 `Deref`：
 
 ```rust,ignore
 impl<Ptr: Deref> Deref for Pin<Ptr> {
@@ -42,27 +50,56 @@ impl<Ptr: Deref> Deref for Pin<Ptr> {
 }
 ```
 
-除了自動解參考，也有 `get_ref`（拿到 `&T`）和 `as_ref`（借成 `Pin<&T>`）。
+**重新借出一根釘住的參考**——`as_mut` 把 `Pin<Box<T>>` 之類的東西借成 `Pin<&mut T>`。`as_mut` 可以一次又一次地被呼叫，因為 `as_mut` 只是借而已，不交出所有權。
 
-**重新借用成另一個 `Pin`** 用 `as_mut`：它把 `Pin<Box<T>>` 借成 `Pin<&mut T>`，型別大致是 `fn as_mut(&mut self) -> Pin<&mut T>`。這正是第 6 集 executor 能反覆 `poll` 同一個 `Future` 的原因——`as_mut` 只是借用，不交出所有權，所以 `loop` 裡可以一次又一次借出 `Pin<&mut T>` 來 `poll`。
+當然，拿著一個 `Pin<&mut F>`，你還能做最關鍵的一件事——呼叫它的 `poll`。而對 `async fn` / `async` block 來說，這個 `poll` 不必你動手寫，編譯器會自動幫你生一個。第 6 集 executor 反覆跑的 `future.as_mut().poll(...)` 就是這樣：`as_mut` 重新借出一個 `Pin<&mut F>`，交給 `F` 自己的 `poll`——而當這個 `F` 來自 `async fn` / `async` block 時，跑的正是編譯器產生的那個 `poll`。
 
-**建立一個 `Pin`** 有三種辦法：
+### `Pin` 釘的是「值」，不是「指標」
 
-- `Pin::new(value)`：最安全，但**只限 `Unpin` 的型別**（搬了不會壞的才給用，呼應上一集 `Counter` 可以、自我參照的 `async` 狀態機不行）。
-- `Pin::new_unchecked(value)`：任何型別都能用，但是 `unsafe`——等於你向編譯器擔保「我保證不會把它搬走」。
-- `Box::pin(value)`：把值放到 heap 上並釘住，回傳 `Pin<Box<T>>`，這個我們從第 6 集就一直在用。
+接著澄清一個很容易誤會的點：
 
-至於**可變存取**（拿回普通的 `&mut T`，也就是 `DerefMut` 和 `get_mut`）——這正是有風險、需要 `Unpin` 才開放的部分，留到下一集專門講。
+> `Pin<P>` 釘住的，是 **`P` 指向的那個值**——而不是「`Pin<P>` 這個指標變數自己」。
+
+所以 `Pin<Box<T>>` 這個東西**本身**是可以到處 move 的。你把它從一個變數搬到另一個、塞進 `Vec`、再拿出來，都沒問題——因為你搬的只是那根指標，被它指著的值始終待在 heap 上的原位。
+
+這能回答一個你可能會對前幾集有的疑問：executor 不是一直把 `Pin<Box<Fut>>` 推進 queue、又 `pop` 出來嗎？那 `Fut` 不就被搬來搬去了？下面用 `{:p}` 印出「被指的值」的位址（`&*` 為 `Pin<P<T>>` 取得 `&T`），讓事實說話：
+
+```rust,editable
+use std::pin::Pin;
+
+struct Data {
+    value: i32,
+}
+
+fn main() {
+    let mut queue: Vec<Pin<Box<Data>>> = Vec::new();
+
+    let boxed = Box::pin(Data { value: 7 });
+    println!("放進 queue 前，值在 {:p}", &*boxed);
+
+    queue.push(boxed); // Pin<Box<Data>> 這根指標被搬進 Vec
+    let popped = queue.pop().unwrap(); // 又被搬出來
+
+    println!("從 queue 拿出後，值在 {:p}", &*popped); // 位址一模一樣
+}
+```
+
+兩次印出的位址完全相同：指標在 `Vec` 裡進進出出，但 heap 上那個 `Data` 從頭到尾沒有被 move。`Pin` 唯一禁止的，是「**透過它，把被指的值從原位址搬走**」這個動作而已。
 
 ### 一般人其實碰不到 `Pin`
 
 最後給你一顆定心丸：`Pin` 是**型別層面的約定**，主要是給「寫底層 `Future` 或 runtime 的人」用的。如果你只是平常寫 `async fn`、用 `.await`，編譯器和 runtime 會替你把 `Pin` 處理得好好的，你幾乎不會直接碰到它。所以這幾集的細節看不太懂也別焦慮，它們是讓你「知道底下發生什麼事」，而不是日常會手寫的東西。
 
+真有一天你要手刻底層 `Future`，需要從外層的 `Pin<P<外層>>` 取出某個欄位的 `Pin<P<內層>>`（這動作叫 projection），社群有個叫 `pin_project` 的專案可以替你安全地做掉，不必自己寫 `unsafe`。知道有這工具就夠了，這裡先不深入。
+
+而如果你想「把 `Pin` 裡的值拿回成一個普通的 `&mut T`」，下一集也會講「搬了反正不會壞」時常常能用的辦法。
+
 ## 重點整理
 
-- `&mut self` 太強（能用 `mem::swap` 等搬走值），所以 `poll` 改用「閹割版」的 `Pin<&mut Self>`：能改內容、不准 move。
-- 強制手段：`Pin<&mut T>` 不洩漏普通 `&mut T`，沒有 `&mut T` 就搬不走
-- `Pin<P>` 釘住的是「`P` 指向的值」，不是 `Pin<P>` 本身；所以 `Pin<Box<T>>` 可以隨意 move（搬指標，被指的 `T` 不動），這解釋了 executor 為何能把 `Pin<Box<Fut>>` 搬來搬去
-- 方法全貌：唯讀（`Deref` / `get_ref` / `as_ref`）永遠可用；`as_mut` 重新借用成 `Pin<&mut T>`；建立用 `Pin::new`（限 `Unpin`）/ `new_unchecked`（unsafe）/ `Box::pin`
-- 可變存取（`get_mut` / `DerefMut`）要 `Unpin`，留到下一集
-- `Pin` 是型別層面的約定，平常寫 `async` 幾乎碰不到，主要給寫 runtime 的人
+- `poll` 想要「能改內部、但不准搬走」兩件事；普通 `&mut Self` 擋不住 move（executor 仍能在兩次 `poll` 之間 `let moved = ...` 把它搬走），所以不能用
+- `Pin<&mut T>` 是「綁在原地、不准搬走的 `&mut`」；`poll` 因此收 `Pin<&mut Self>`
+- `Pin` 擋 move 的真正手段：要釘住一個未知型別的值，得先交出它的所有權（`Box::pin`）或讓原變數被遮蔽（`pin!`），之後就沒東西能搬它了
+- `Pin::new` 是後門，只收「搬了不會壞」的型別
+- `Pin` 的用法很有限：唯讀靠 `Deref`，重新借出用 `as_mut`，當然還能餵給 `poll`
+- `Pin<P>` 釘的是「被指的值」不是「指標本身」，所以 `Pin<Box<T>>` 自己能隨意 move（連塞進 `Vec` 再拿出來都行），這就是 executor 能到處搬 `Pin<Box<Fut>>` 的原因
+- `Pin` 對平常寫 `async fn` + `.await`、用現成 runtime 的人是隱形的：你寫的 `async fn` / `async` block 的 `Future` 由編譯器自動實作，`Pin` 由 runtime 建好再拿去 `poll`；只有像我們這章「自己手刻 runtime / `Future`」時才會直接碰到它

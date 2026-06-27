@@ -121,7 +121,7 @@ error[E0277]: `{async fn body of borrows()}` cannot be unpinned
 
 這段程式碼把「`poll` 一次、move、再 `poll`」的動作都寫出來了，但編譯器其實在第一次 `Pin::new(&mut fut)` 就擋下來。
 
-`Pin::new` 要求型別是 `Unpin`（「搬了不會壞」的意思，下一集詳談）。`Counter` 是 `Unpin`，所以放行；但這個自我參照的 `async fn` 狀態機**不是** `Unpin`，於是 `Pin::new` 在你**還沒真的 poll、也還沒真的搬它之前**就把路擋死。
+`Pin::new` 要求型別是 `Unpin`（「搬了不會壞」的意思，後面詳談）。`Counter` 是 `Unpin`，所以放行；但這個自我參照的 `async fn` 狀態機**不是** `Unpin`，於是 `Pin::new` 在你**還沒真的 poll、也還沒真的搬它之前**就把路擋死。
 
 對照兩個例子，Rust 的防線就很清楚了：搬了不會壞的（像 `Counter`），給你方便、隨你搬；搬了會壞的（自我參照狀態機），連 `Pin::new` 這道門都不讓你進。至於 `Pin` 是怎麼用型別系統築起這道防線的，就是接下來的主題。
 

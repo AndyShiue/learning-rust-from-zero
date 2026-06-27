@@ -1,93 +1,110 @@
-# `Unpin` 與 `get_mut`
+# `Unpin`
 
 ## 本集目標
 
-搞懂 `Unpin` 是什麼、哪些型別自動是 `Unpin`，以及 `Unpin` 的型別怎麼用 `get_mut` 拿回普通的 `&mut`。
+認識 `Unpin` 這個「搬了不會壞」的標籤，看懂為什麼有了它，被釘住的 `&mut` 就能變回普通的 `&mut`。
 
 ## 正文
 
-### `Unpin` 是一個 auto trait
+### 先問一個問題：「不准搬」對誰有意義？
 
-前兩集一直提到 `Unpin`，現在正式介紹它。`Unpin` 的意思是「**這個型別搬了不會壞，所以 `Pin` 對它其實沒什麼好限制的**」。
+上一集 `Pin` 千方百計擋住 move。但先退一步想：這條規矩到底在防誰？
 
-`Unpin` 是一個 **auto trait**（自動 trait），就像第 9 章的 `Send` / `Sync` 一樣——你不用手動實作，編譯器會自動判斷。規則很簡單：
+答案是——它幾乎只在防一種東西：**自我參照的 `Future` 狀態機**。除了這種少見的特例，你平常用的型別（`i32`、`String`、`Vec`、自己定義的 `struct`……）搬來搬去根本不會出事，move 對它們就是把幾個 bytes 換個位置存而已。對這些型別硬套上「不准搬」，純粹是多管閒事。
 
-- 普通手寫的 `Future`，只要欄位都是可以安全 move 的東西，通常就會**自動是 `Unpin`**。我們前面寫的 `Delay`、`Counter`、`JoinAll`、`JoinHandle` 全都是 `Unpin`——這也是為什麼它們的 `poll` 裡都能直接呼叫 `self.get_mut()`。
-- 但 `async fn` / `async` block 產生的 `Future`**不能直接假設是 `Unpin`**。因為它可能是自我參照的狀態機（上上集那種），搬了會壞，所以編譯器**不**讓它自動 `Unpin`。
+Rust 用一個標籤把這兩群分開，這個標籤就叫 **`Unpin`**：一個型別是 `Unpin`，意思就是「**我搬了不會壞，`Pin` 不必管我**」。
 
-### `Unpin` 的型別可以 `get_mut`
+### `Unpin` 幾乎人人都有
 
-`Pin` 的可變存取（拿回普通的 `&mut T`）是上一集留下來的部分。關鍵方法是 `get_mut`，它的型別大致是：
+`Unpin` 和第 9 章的 `Send` / `Sync` 一樣是 **auto trait**——你不用手寫，編譯器看你的型別欄位自動判斷。而你會發現它的判斷結果是：**絕大多數型別都是 `Unpin`**。
 
-```rust,ignore
-impl<'a, T: ?Sized> Pin<&'a mut T> {
-    pub fn get_mut(self) -> &'a mut T
-    where
-        T: Unpin, // 只有 Unpin 的型別才給用
-    { /* ... */ }
+寫個小工具就能驗證。下面的 `assert_unpin` 只收 `Unpin` 的型別，把各種常見值丟進去都能過：
+
+```rust,editable
+fn assert_unpin<T: Unpin>(_: T) {}
+
+fn main() {
+    assert_unpin(42);
+    assert_unpin(String::from("hi"));
+    assert_unpin(vec![1, 2, 3]);
+    println!("這些都是 Unpin");
 }
 ```
 
-注意那個 `where T: Unpin`。意思是：只有「搬了不會壞」的型別，才能從 `Pin<&mut T>` 拿回普通的 `&mut T`。這很合理——既然搬了不會壞，那 `Pin` 的保護對它就是多餘的，乾脆放行。
+連我們前面手寫的 `Delay`、`Counter`、`JoinAll`、`JoinHandle` 也都是 `Unpin`——它們的欄位都是普通可搬的東西。
 
-對 `Unpin` 的型別來說，`get_mut` 完全沒問題：
+那誰不是 `Unpin`？把同一個工具拿去檢查一個「跨 `.await` 借了區域變數」的 `async fn`（也就是第 16 集那種自我參照狀態機），就會被擋下來：
+
+```rust,compile_fail
+fn assert_unpin<T: Unpin>(_: T) {}
+
+async fn other() {}
+
+async fn demo() {
+    let s = String::from("hi");
+    let r = &s;
+    other().await; // s 和 r 都跨過了 .await
+    println!("{r}");
+}
+
+fn main() {
+    assert_unpin(demo()); // 編譯錯誤：demo() 的 Future 不是 Unpin
+}
+```
+
+編譯器會說 `... cannot be unpinned`。這就對了：`async fn` / `async` block 的 `Future` **不能假設是 `Unpin`**，因為它有可能正是那個搬了會壞的自我參照狀態機。
+
+### `Unpin` 的型別，可以把值要回來
+
+知道誰是 `Unpin` 之後，上一集留的伏筆就能解開了：「把釘住的值放回成普通 `&mut T`」這件事，對 `Unpin` 的型別是開放的。
+
+道理很直接：既然這個型別搬了不會壞，`Pin` 的保護對它本來就是多餘的，那乾脆讓你把普通 `&mut T` 拿回去。具體來說，當 `T: Unpin`，`Pin<P<T>>` 才會實作 `DerefMut`，而 `Pin<&mut T>` 上才有 `get_mut` 把它變回 `&mut T`：
 
 ```rust,editable
 use std::pin::Pin;
 
-struct Counter {
-    count: u32,
-}
-
 fn main() {
-    let mut counter = Counter { count: 0 };
-    let pinned: Pin<&mut Counter> = Pin::new(&mut counter);
+    let mut n = 10;
+    let mut pinned: Pin<&mut i32> = Pin::new(&mut n);
 
-    // Counter 是 Unpin，所以可以用 get_mut 拿回普通的 &mut Counter
-    let normal: &mut Counter = pinned.get_mut();
-    normal.count += 1;
-    println!("count = {}", normal.count);
+    // i32 是 Unpin，所以 Pin<&mut i32> 實作 DerefMut
+    *pinned = 100;
+    println!("{}", pinned);
+
+    // 也可以用 get_mut 拿回普通的 &mut i32
+    let back: &mut i32 = pinned.get_mut();
+    *back += 5;
+    println!("{}", back);
 }
 ```
 
-這就是我們之前每個 `poll` 開頭 `let this = self.get_mut();` 能成功的原因——那些型別都是 `Unpin`。
+因此，我們前面每個自訂 `Future` 的 `poll` 開頭都寫 `let this = self.get_mut();`，也沒有出問題。那些型別全是 `Unpin`，當然能用 `get_mut`。要是哪天你的 `Future` 不是 `Unpin`，這行就會編譯失敗，逼你改用 `Pin` 的方法小心處理。
 
-### 不是 `Unpin` 的型別呢
+### 兩條規則，其實同一個條件
 
-如果一個型別**不是** `Unpin`，`get_mut` 就會被擋下來。我們可以用標準庫的 `PhantomPinned` 標記，手動做出一個 `!Unpin` 的型別來看效果（`async` 狀態機的 `!Unpin` 也是同樣道理）：
+把 `get_mut` 和上一集的 `Pin::new` 擺在一起看，會發現它們守的是**同一個條件**——`Unpin`：
 
-```rust,compile_fail
-use std::marker::PhantomPinned;
-use std::pin::Pin;
-
-struct NotUnpin {
-    data: String,
-    _pin: PhantomPinned, // 這個標記讓型別退出 Unpin
+```rust,ignore
+// 把釘住的值變回普通 &mut：要 Unpin
+impl<T: ?Sized> Pin<&mut T> {
+    pub fn get_mut(self) -> &mut T where T: Unpin { /* ... */ }
 }
 
-fn main() {
-    let mut value = NotUnpin { data: String::from("hi"), _pin: PhantomPinned };
-    let pinned = unsafe { Pin::new_unchecked(&mut value) };
-    let _normal = pinned.get_mut(); // 編譯錯誤：NotUnpin 不是 Unpin
+// 不交出所有權就建立 Pin：被指的值要 Unpin
+impl<P: Deref> Pin<P> {
+    pub fn new(pointer: P) -> Pin<P> where P::Target: Unpin { /* ... */ }
 }
 ```
 
-編譯器會回報 `the trait Unpin is not implemented`。對這種型別，你只能透過接受 `Pin<&mut Self>` 的方法去操作它（例如自己在 `poll` 裡小心地處理），拿不到那個能隨便搬走它的普通 `&mut T`——這正是 `Pin` 想守住的防線。
+換句話說，這兩個方法都繞過了 `Pin` 的平常限制——`get_mut` 讓你把釘住的值變回普通 `&mut`、`Pin::new` 讓你不交出所有權就把值釘起來——而 Rust 只把這兩道門開給 `Unpin` 的型別。第 16 集用到的 `Counter` 是 `Unpin`，使用 `Pin::new(&mut counter)`、`get_mut` 都暢行無阻；自我參照的 `async` 狀態機不是 `Unpin`，這兩道門都對它關上。
 
-### 哪些地方會要求 `Unpin`
-
-整理一下到目前為止看到的、會要求 `Unpin` 的地方：
-
-- `Pin::new`：建立 `Pin` 的安全版本，要求 `Unpin`。
-- `Pin::get_mut` / `Pin` 的 `DerefMut`：拿回 `&mut T`，要求 `Unpin`。
-- 很多接受 `Future` 的函數或方法（例如某些組合器），會要求傳進去的 `Future` 是 `Unpin`，否則你得先用 `Box::pin` 把它釘在 heap 上（`Box::pin` 出來的 `Pin<Box<T>>` 自己是 `Unpin`），或用下一集要講的 `pin!`。
-
-下一集就來看 `pin!`——一個讓你不必 `Box::pin`、直接在 stack 上釘住 `Future` 的好用工具。
+所以實務上的判斷很簡單：你手上的 `Future` 是 `Unpin` 嗎？是的話，`Pin::new`、`get_mut` 隨你用；不是的話（一般就是 `async fn`/ `async` block 生出來的 `Future`），你就得用「會交出所有權」的方式把它釘起來——`Box::pin` 放 heap，或下一集要登場的 `pin!` 釘在 stack 上。
 
 ## 重點整理
 
-- `Unpin` 是 auto trait，意思是「搬了不會壞」；編譯器自動判斷，不用手動實作
-- 普通手寫的 `Future`（欄位都可安全 move）通常自動是 `Unpin`；`async fn` / `async` block 的 `Future` 不能假設是 `Unpin`
-- `get_mut`（以及 `Pin` 的可變 `Deref`）要求 `T: Unpin`，才把 `Pin<&mut T>` 變回普通 `&mut T`
-- 我們前面 `poll` 裡的 `self.get_mut()` 能用，正是因為那些型別都是 `Unpin`
-- `!Unpin` 的型別（如含 `PhantomPinned` 或自我參照的 `async` 狀態機）不能 `get_mut`，只能透過 `Pin<&mut Self>` 的方法操作
+- `Pin` 的「不准搬」基本上只為一種東西而設：自我參照的 `async` 狀態機；其餘型別搬了都不會壞
+- `Unpin` 就是「搬了不會壞」的標籤，是 auto trait，由編譯器自動判斷，**絕大多數型別都是 `Unpin`**
+- `async fn` / `async` block 的 `Future` 不能假設是 `Unpin`（可能是自我參照狀態機）
+- 當 `T: Unpin`，`Pin<P<T>>` 才實作 `DerefMut`、`Pin<&mut T>` 才能用 `get_mut` 變回普通 `&mut T`；我們手寫 `Future` 的 `self.get_mut()` 能用就是這個原因
+- `Pin::new` 和 `get_mut` 守的是同一個條件——`Unpin`，意即「對搬了不會壞的型別，`Pin` 自動讓路」
+- `Future` 不是 `Unpin` 時，就得用 `Box::pin` 或下一集的 `pin!` 來釘
