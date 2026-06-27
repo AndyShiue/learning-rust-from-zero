@@ -27,7 +27,7 @@ async fn do_io() {}
 async fn main() {
     let data = Arc::new(Mutex::new(0));
     tokio::spawn(async move {
-        let mut guard = data.lock().unwrap(); // std 的 MutexGuard，不是 Send
+        let mut guard = data.lock().expect("取得鎖失敗"); // std 的 MutexGuard，不是 Send
         do_io().await; // 抓著 guard 跨 .await
         *guard += 1;
     }); // 編譯錯誤：future 不是 Send，不能 spawn
@@ -50,7 +50,7 @@ async fn main() {
     let data = Arc::new(Mutex::new(0));
     tokio::spawn(async move {
         {
-            let mut guard = data.lock().unwrap();
+            let mut guard = data.lock().expect("取得鎖失敗");
             *guard += 1;
         } // guard 在這裡就 drop 了，沒有跨 .await
         do_io().await; // 等 I/O 時手上沒抓著鎖

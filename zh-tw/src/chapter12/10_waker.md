@@ -20,19 +20,21 @@
 
 我們希望「喚醒」的動作是把 executor 那條 `Thread` 叫醒，所以做一個記著 executor `Thread` 的小型別   ：
 
-```rust,ignore
+```rust,noplayground
 use std::sync::Arc;
 use std::task::Wake;
 
 struct ThreadWaker {
-    thread: std::thread::Thread, // executor 那條 thread 的把手
+    thread: std::thread::Thread, // executor 那條 Thread
 }
 
 impl Wake for ThreadWaker {
     fn wake(self: Arc<Self>) {
-        self.thread.unpark(); // 被喚醒 = 把那條 thread unpark
+        self.thread.unpark(); // 被喚醒 = 把那條 Thread unpark
     }
 }
+#
+# fn main() {}
 ```
 
 注意 `wake` 的 `self` 是 `Arc<Self>`（這也是上一集說的、能放在 `self` 位置的特別型別之一）。`Waker::from(Arc::new(...))` 就能把它變成一個 `Waker`。
@@ -41,11 +43,24 @@ impl Wake for ThreadWaker {
 
 有了 `ThreadWaker`，executor 就能改成「`Pending` 就 `park` 睡覺」：
 
-```rust,ignore
+```rust,noplayground
+use std::sync::Arc;
+use std::task::Wake;
+#
+# struct ThreadWaker {
+#     thread: std::thread::Thread,
+# }
+#
+# impl Wake for ThreadWaker {
+#     fn wake(self: Arc<Self>) {
+#         self.thread.unpark();
+#     }
+# }
+
 fn block_on<F: Future>(future: F) -> F::Output {
     let mut future = Box::pin(future);
 
-    // 做一個「會 unpark 目前這條 executor thread」的 Waker
+    // 做一個「會 unpark 目前這條 executor Thread」的 Waker
     let waker = Waker::from(Arc::new(ThreadWaker {
         thread: std::thread::current(),
     }));
@@ -69,10 +84,11 @@ use std::future::Future;
 use std::pin::Pin;
 use std::sync::Arc;
 use std::task::{Context, Poll, Wake, Waker};
+use std::thread::{self, Thread};
 use std::time::{Duration, Instant};
 
 struct ThreadWaker {
-    thread: std::thread::Thread,
+    thread: Thread,
 }
 
 impl Wake for ThreadWaker {
@@ -83,7 +99,7 @@ impl Wake for ThreadWaker {
 
 struct Delay {
     when: Instant,
-    started: bool, // 計時 thread 開了沒
+    started: bool, // 計時 Thread 開了沒
 }
 
 impl Delay {
@@ -102,12 +118,12 @@ impl Future for Delay {
         } else {
             if !this.started {
                 this.started = true;
-                let waker = cx.waker().clone(); // 拿一份 Waker 給計時 thread
+                let waker = cx.waker().clone(); // 拿一份 Waker 給計時 Thread
                 let when = this.when;
-                std::thread::spawn(move || {
+                thread::spawn(move || {
                     let now = Instant::now();
                     if now < when {
-                        std::thread::sleep(when - now);
+                        thread::sleep(when - now);
                     }
                     waker.wake(); // 時間到，叫醒 executor
                 });
@@ -120,13 +136,13 @@ impl Future for Delay {
 fn block_on<F: Future>(future: F) -> F::Output {
     let mut future = Box::pin(future);
     let waker = Waker::from(Arc::new(ThreadWaker {
-        thread: std::thread::current(),
+        thread: thread::current(),
     }));
     let mut cx = Context::from_waker(&waker);
     loop {
         match future.as_mut().poll(&mut cx) {
             Poll::Ready(value) => return value,
-            Poll::Pending => std::thread::park(),
+            Poll::Pending => thread::park(),
         }
     }
 }

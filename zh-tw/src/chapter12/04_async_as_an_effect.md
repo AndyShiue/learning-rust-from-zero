@@ -101,8 +101,8 @@ fn main() {
 **第一條：`#[tokio::main]`**，對應「回傳 `Result` 的 `main`」。你只管把 `main` 寫成 `async`，把結算交給 Tokio 這個框架在邊界處理：
 
 ```rust,editable
-# extern crate tokio;
-#
+extern crate tokio;
+
 async fn add(a: i32, b: i32) -> i32 {
     a + b
 }
@@ -117,8 +117,8 @@ async fn main() {
 **第二條：`block_on`**，對應「自己 `match`」。你在一個普通的同步 `main` 裡，當場叫 runtime 把一個 `Future` 跑到完成、結算成普通值：
 
 ```rust,editable
-# extern crate tokio;
-#
+extern crate tokio;
+
 async fn add(a: i32, b: i32) -> i32 {
     a + b
 }

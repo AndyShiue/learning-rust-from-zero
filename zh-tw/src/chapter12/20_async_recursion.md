@@ -56,24 +56,24 @@ fn factorial(n: u64) -> Pin<Box<dyn Future<Output = u64>>> {
     })
 }
 
-# fn block_on<F: Future>(future: F) -> F::Output {
-#     let mut future = Box::pin(future);
-#     let mut cx = Context::from_waker(Waker::noop());
-#     loop {
-#         match future.as_mut().poll(&mut cx) {
-#             Poll::Ready(v) => return v,
-#             Poll::Pending => {}
-#         }
-#     }
-# }
-#
+fn block_on<F: Future>(future: F) -> F::Output {
+    let mut future = Box::pin(future);
+    let mut cx = Context::from_waker(Waker::noop());
+    loop {
+        match future.as_mut().poll(&mut cx) {
+            Poll::Ready(v) => return v,
+            Poll::Pending => {}
+        }
+    }
+}
+
 fn main() {
     let result = block_on(factorial(5));
     println!("5! = {result}");
 }
 ```
 
-> 上面隱藏了一個最陽春的 `block_on`（這個 `factorial` 其實沒有真的需要等的 `.await`，所以用第 6 集那種版本就夠了）。
+> 上面一併列出一個最陽春的 `block_on`（這個 `factorial` 其實沒有真的需要等的 `.await`，所以用第 6 集那種版本就夠了）。
 
 我們把 `factorial` 從 `async fn` 改寫成一個普通函式，回傳 `Pin<Box<dyn Future<Output = u64>>>`，函式體則是一個 `Box::pin` 包起來的 `async` block。遞迴呼叫 `factorial(n - 1)` 回傳的也是 `Pin<Box<...>>`，是固定大小，狀態機就不再無限大了。
 

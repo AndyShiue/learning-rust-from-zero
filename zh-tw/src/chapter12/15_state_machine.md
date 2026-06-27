@@ -35,51 +35,51 @@ async fn two_delays() {
 然後它替這個 `enum` 實作 `Future`，`poll` 裡用 `match` 看現在在哪個狀態、該做什麼。我們把這個改寫**手動**寫出來，你就會看到 `async fn` 背後長什麼樣：
 
 ```rust,editable
-# use std::future::Future;
-# use std::pin::Pin;
-# use std::sync::Arc;
-# use std::task::{Context, Poll, Wake, Waker};
-# use std::time::{Duration, Instant};
-#
-# struct Delay { when: Instant, started: bool }
-# impl Delay {
-#     fn new(d: Duration) -> Delay { Delay { when: Instant::now() + d, started: false } }
-# }
-# impl Future for Delay {
-#     type Output = ();
-#     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {
-#         let this = self.get_mut();
-#         if Instant::now() >= this.when { Poll::Ready(()) }
-#         else {
-#             if !this.started {
-#                 this.started = true;
-#                 let waker = cx.waker().clone();
-#                 let when = this.when;
-#                 std::thread::spawn(move || {
-#                     let now = Instant::now();
-#                     if now < when { std::thread::sleep(when - now); }
-#                     waker.wake();
-#                 });
-#             }
-#             Poll::Pending
-#         }
-#     }
-# }
-#
-# struct ThreadWaker { thread: std::thread::Thread }
-# impl Wake for ThreadWaker { fn wake(self: Arc<Self>) { self.thread.unpark(); } }
-# fn block_on<F: Future>(future: F) -> F::Output {
-#     let mut future = Box::pin(future);
-#     let waker = Waker::from(Arc::new(ThreadWaker { thread: std::thread::current() }));
-#     let mut cx = Context::from_waker(&waker);
-#     loop {
-#         match future.as_mut().poll(&mut cx) {
-#             Poll::Ready(v) => return v,
-#             Poll::Pending => std::thread::park(),
-#         }
-#     }
-# }
-#
+use std::future::Future;
+use std::pin::Pin;
+use std::sync::Arc;
+use std::task::{Context, Poll, Wake, Waker};
+use std::time::{Duration, Instant};
+
+struct Delay { when: Instant, started: bool }
+impl Delay {
+    fn new(d: Duration) -> Delay { Delay { when: Instant::now() + d, started: false } }
+}
+impl Future for Delay {
+    type Output = ();
+    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {
+        let this = self.get_mut();
+        if Instant::now() >= this.when { Poll::Ready(()) }
+        else {
+            if !this.started {
+                this.started = true;
+                let waker = cx.waker().clone();
+                let when = this.when;
+                std::thread::spawn(move || {
+                    let now = Instant::now();
+                    if now < when { std::thread::sleep(when - now); }
+                    waker.wake();
+                });
+            }
+            Poll::Pending
+        }
+    }
+}
+
+struct ThreadWaker { thread: std::thread::Thread }
+impl Wake for ThreadWaker { fn wake(self: Arc<Self>) { self.thread.unpark(); } }
+fn block_on<F: Future>(future: F) -> F::Output {
+    let mut future = Box::pin(future);
+    let waker = Waker::from(Arc::new(ThreadWaker { thread: std::thread::current() }));
+    let mut cx = Context::from_waker(&waker);
+    loop {
+        match future.as_mut().poll(&mut cx) {
+            Poll::Ready(v) => return v,
+            Poll::Pending => std::thread::park(),
+        }
+    }
+}
+
 // 這就是 two_delays 那個 async fn 背後大概的樣子
 enum TwoDelays {
     Start,
@@ -126,7 +126,7 @@ fn main() {
 }
 ```
 
-> 上面隱藏了 `Delay` 和 `block_on`，按程式碼框左上角可展開。
+> 上面一併列出 `Delay` 和 `block_on`，方便整段程式直接放進沙盒執行。
 
 ### 對照著看
 

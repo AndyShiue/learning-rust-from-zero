@@ -8,7 +8,7 @@
 
 ### executor 一行不改
 
-這集有個讓人安心的核心訊息：**executor 完全沿用第 12 集**。`Task`、`spawn<T>`、`JoinHandle<T>`、`Shared<T>`、`block_on` 一行都不用改。
+這集有個讓人安心的核心訊息：**executor 完全沿用第 12 集**。`Task`、`Executor::spawn<T>`、`JoinHandle<T>`、`Shared<T>`、`Executor::block_on` 一行都不用改。
 
 我們唯一要換掉的是「誰來 `wake`」。前面是 `Delay` 自己開一條計時 thread 來 `wake`；現在改成一條 **reactor thread**，它睡在 `mio::Poll` 上等真實的 I/O，醒來後找到對應的 `Waker` 把它 `wake()`。
 
@@ -22,91 +22,136 @@
 - **`AtomicUsize`**：reactor 用它替每個來源自分配獨一無二的 `Token`。
 - **`Mutex<HashMap<Token, Waker>>`**：`Future` 在執行時把自己的 `Waker` 寫進去（用 `Token` 當鑰匙），reactor 收到事件後就照 `Token` 取出來 `wake`。
 
-```rust,no_run
-# extern crate mio;
-#
-# use std::cell::RefCell;
-# use std::collections::{HashMap, VecDeque};
-# use std::future::Future;
-# use std::io::Read as _;
-# use std::pin::Pin;
-# use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
-# use std::sync::{Arc, Mutex};
-# use std::task::{Context, Poll, Wake, Waker};
-# use mio::event::Source;
-# use mio::net::{TcpListener, TcpStream};
-# use mio::{Events, Interest, Poll as MioPoll, Registry, Token};
-#
-# struct Executor {
-#     ready_queue: Mutex<VecDeque<Arc<Task>>>,
-#     thread: std::thread::Thread,
-#     task_count: AtomicUsize,
-# }
-# impl Executor {
-#     fn new() -> Executor {
-#         Executor {
-#             ready_queue: Mutex::new(VecDeque::new()),
-#             thread: std::thread::current(),
-#             task_count: AtomicUsize::new(0),
-#         }
-#     }
-# }
-# struct Task {
-#     future: Mutex<Pin<Box<dyn Future<Output = ()> + Send>>>,
-#     executor: Arc<Executor>,
-#     queued: AtomicBool,
-# }
-# impl Task {
-#     fn schedule(self: &Arc<Self>) {
-#         if !self.queued.swap(true, Ordering::AcqRel) {
-#             self.executor.ready_queue.lock().unwrap().push_back(self.clone());
-#             self.executor.thread.unpark();
-#         }
-#     }
-# }
-# impl Wake for Task {
-#     fn wake(self: Arc<Self>) { self.schedule(); }
-#     fn wake_by_ref(self: &Arc<Self>) { self.schedule(); }
-# }
-# thread_local! {
-#     static CURRENT: RefCell<Option<Arc<Executor>>> = RefCell::new(None);
-# }
-# fn spawn_task<F: Future<Output = ()> + Send + 'static>(future: F) {
-#     CURRENT.with(|c| {
-#         let executor = c.borrow().clone().expect("spawn 必須在 block_on 裡呼叫");
-#         executor.task_count.fetch_add(1, Ordering::AcqRel);
-#         let task = Arc::new(Task {
-#             future: Mutex::new(Box::pin(future)),
-#             executor: executor.clone(),
-#             queued: AtomicBool::new(true),
-#         });
-#         executor.ready_queue.lock().unwrap().push_back(task);
-#     });
-# }
-# fn run_executor(executor: &Arc<Executor>) {
-#     loop {
-#         loop {
-#             let task = executor.ready_queue.lock().unwrap().pop_front();
-#             let Some(task) = task else { break };
-#             task.queued.store(false, Ordering::Release);
-#             let waker = Waker::from(task.clone());
-#             let mut cx = Context::from_waker(&waker);
-#             let mut future = task.future.lock().unwrap();
-#             if future.as_mut().poll(&mut cx).is_ready() {
-#                 executor.task_count.fetch_sub(1, Ordering::AcqRel);
-#             }
-#         }
-#         if executor.task_count.load(Ordering::Acquire) == 0 { break; }
-#         std::thread::park();
-#     }
-# }
-# fn block_on<F: Future<Output = ()> + Send + 'static>(future: F) {
-#     let executor = Arc::new(Executor::new());
-#     CURRENT.with(|c| *c.borrow_mut() = Some(executor.clone()));
-#     spawn_task(future);
-#     run_executor(&executor);
-# }
-#
+```rust,editable
+extern crate mio;
+
+use std::collections::{HashMap, VecDeque};
+use std::future::Future;
+use std::io::Read as _;
+use std::pin::Pin;
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+use std::sync::{Arc, Mutex};
+use std::task::{Context, Poll, Wake, Waker};
+use std::thread::{self, Thread};
+use mio::event::Source;
+use mio::net::{TcpListener, TcpStream};
+use mio::{Events, Interest, Poll as MioPoll, Registry, Token};
+
+type Queue = Arc<Mutex<VecDeque<Arc<Task>>>>;
+
+struct Task {
+    future: Mutex<Pin<Box<dyn Future<Output = ()> + Send>>>,
+    queue: Queue,
+    executor_thread: Thread,
+    queued: AtomicBool,
+}
+impl Wake for Task {
+    fn wake(self: Arc<Self>) {
+        if !self.queued.swap(true, Ordering::SeqCst) {
+            self.queue.lock().expect("取得鎖失敗").push_back(self.clone());
+            self.executor_thread.unpark();
+        }
+    }
+}
+
+struct Shared<T> {
+    state: Mutex<(Option<T>, Option<Waker>)>,
+}
+
+struct JoinHandle<T> {
+    shared: Arc<Shared<T>>,
+}
+
+impl<T> Future for JoinHandle<T> {
+    type Output = T;
+
+    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<T> {
+        let mut state = self.shared.state.lock().expect("取得鎖失敗");
+        if let Some(value) = state.0.take() {
+            Poll::Ready(value)
+        } else {
+            state.1 = Some(cx.waker().clone());
+            Poll::Pending
+        }
+    }
+}
+
+struct Executor {
+    queue: Queue,
+    executor_thread: Thread,
+    remaining: usize,
+}
+
+impl Executor {
+    fn new() -> Executor {
+        Executor {
+            queue: Arc::new(Mutex::new(VecDeque::new())),
+            executor_thread: thread::current(),
+            remaining: 0,
+        }
+    }
+
+    fn spawn<T, F>(&mut self, future: F) -> JoinHandle<T>
+    where
+        F: Future<Output = T> + Send + 'static,
+        T: Send + 'static,
+    {
+        let shared = Arc::new(Shared { state: Mutex::new((None, None)) });
+        let shared_for_task = shared.clone();
+
+        let task_future = async move {
+            let value = future.await;
+            let mut state = shared_for_task.state.lock().expect("取得鎖失敗");
+            state.0 = Some(value);
+            if let Some(waker) = state.1.take() {
+                waker.wake();
+            }
+        };
+
+        let task = Arc::new(Task {
+            future: Mutex::new(Box::pin(task_future)),
+            queue: self.queue.clone(),
+            executor_thread: self.executor_thread.clone(),
+            queued: AtomicBool::new(false),
+        });
+
+        self.remaining += 1;
+        task.wake();
+
+        JoinHandle { shared }
+    }
+
+    fn block_on<T, F>(&mut self, future: F) -> T
+    where
+        F: Future<Output = T> + Send + 'static,
+        T: Send + 'static,
+    {
+        let handle = self.spawn(future);
+
+        while self.remaining > 0 {
+            loop {
+                let task = self.queue.lock().expect("取得鎖失敗").pop_front();
+                let Some(task) = task else { break };
+
+                task.queued.store(false, Ordering::SeqCst);
+                let waker = Waker::from(task.clone());
+                let mut cx = Context::from_waker(&waker);
+                let mut future = task.future.lock().expect("取得鎖失敗");
+
+                if future.as_mut().poll(&mut cx).is_ready() {
+                    self.remaining -= 1;
+                }
+            }
+
+            if self.remaining > 0 {
+                thread::park();
+            }
+        }
+
+        handle.shared.state.lock().expect("取得鎖失敗").0.take().expect("結果應該已經算好了")
+    }
+}
+
 struct Reactor {
     registry: Registry, // Future 用它登記 / 取消 socket
     next_token: AtomicUsize, // 自分配 Token
@@ -127,7 +172,7 @@ impl Reactor {
     }
 
     fn set_waker(&self, token: Token, waker: Waker) {
-        self.wakers.lock().unwrap().insert(token, waker);
+        self.wakers.lock().expect("取得鎖失敗").insert(token, waker);
     }
 
     // 跑在自己的 thread 上：睡在 poll 上，醒來照 Token 找 Waker 來 wake
@@ -136,7 +181,7 @@ impl Reactor {
         loop {
             poll.poll(&mut events, None).expect("poll 失敗");
             for event in events.iter() {
-                if let Some(waker) = self.wakers.lock().unwrap().remove(&event.token()) {
+                if let Some(waker) = self.wakers.lock().expect("取得鎖失敗").remove(&event.token()) {
                     waker.wake();
                 }
             }
@@ -237,11 +282,13 @@ fn main() {
     let reactor = start_reactor();
     let addr = "127.0.0.1:8080".parse().expect("位址解析失敗");
     let listener = TcpListener::bind(addr).expect("綁定失敗");
-    block_on(serve(reactor, listener));
+
+    let mut executor = Executor::new();
+    executor.block_on(serve(reactor, listener));
 }
 ```
 
-> 上面隱藏了第 12 集的整套 executor，按程式碼框左上角可展開——這集真的一行都沒改它。
+> 上面一併列出第 12 集的整套 executor（`Task`、ready queue、`JoinHandle`、`Executor::spawn`、`Executor::block_on` 等），方便整段程式直接放進沙盒。這個範例啟動後會監聽 `127.0.0.1:8080` 並等待連線。
 
 ### 「先登記再試」為什麼重要
 

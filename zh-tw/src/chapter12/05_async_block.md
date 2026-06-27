@@ -81,8 +81,8 @@ async fn main() {
 這正是 `async` block 存在的理由。當你寫 `async { ... }`，等於是明確地叫編譯器：「把這一塊改寫成一個 `Future`」。有了這個專屬語法，裡面才能合法地用 `.await`：
 
 ```rust,editable
-# extern crate tokio;
-#
+extern crate tokio;
+
 async fn get_number() -> i32 {
     42
 }
