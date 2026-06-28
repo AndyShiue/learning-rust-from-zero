@@ -27,7 +27,7 @@ let _ = Pin::new(&mut moved).poll(&mut cx); // 再 poll 一次
 
 現成的工具——普通的 `&mut Self`——只滿足第一件。一旦 `poll` 收的是 `&mut Self`，那這個 `Future` 對 executor 來說就只是它手裡一個普通的值，executor 大可在兩次 `poll` 之間像上面那樣 `let moved = ...` 把它搬走，沒有東西攔得住。
 
-所以 Rust 需要一種「能動手腳、但擋住搬家」的 `&mut`。這就是 `Pin<&mut T>`：你可以把它讀成「**一個被綁在原地、不准搬走的 `&mut T`**」。
+所以 Rust 需要一種「能動手腳，但擋住搬家」的 `&mut`。這就是 `Pin<&mut T>`：你可以把它讀成「**一個被綁在原地、不准搬走的 `&mut T`**」。
 
 ### 關鍵：不能留下能搬走內部值的路徑
 
