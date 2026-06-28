@@ -58,7 +58,7 @@ use rand::Rng;
 # fn main() {}
 ```
 
-`std` 是 Rust 的**標準函式庫（standard library）**——Rust 內建的一組工具，包含我們已經用過的 `Vec`、`String`、`Option`、`Result`、`println!` 等等，以及更多像是檔案操作、網路、集合等功能。你不需要在 Cargo.toml 加 dependency 就能用它，因為每個 Rust 程式都會自動連結 `std`。使用時路徑寫法跟外部 crate 一樣——`std::collections::HashMap`、`std::fmt::Display` 等。不只 `std` 會被自動連結，`std` 中的 **prelude** 更會被自動引入——也就是說，`Vec`、`String`、`Option`、`Result`、`Clone`、`Copy` 等最常用的型別和 trait，不用寫 `use` 就能直接用。這就是為什麼我們在最前面好幾章沒寫 `use` 也能用這些東西。
+`std` 是 Rust 的**標準庫（standard library）**——Rust 內建的一組工具，包含我們已經用過的 `Vec`、`String`、`Option`、`Result`、`println!` 等等，以及更多像是檔案操作、網路、集合等功能。你不需要在 Cargo.toml 加 dependency 就能用它，因為每個 Rust 程式都會自動連結 `std`。使用時路徑寫法跟外部 crate 一樣——`std::collections::HashMap`、`std::fmt::Display` 等。不只 `std` 會被自動連結，`std` 中的 **prelude** 更會被自動引入——也就是說，`Vec`、`String`、`Option`、`Result`、`Clone`、`Copy` 等最常用的型別和 trait，不用寫 `use` 就能直接用。這就是為什麼我們在最前面好幾章沒寫 `use` 也能用這些東西。
 
 如果你想明確強調「這是外部 crate」，可以用 `::` 開頭：
 
@@ -253,7 +253,7 @@ fn main() {
 - `use` 將路徑帶入作用域，讓你不必每次寫完整路徑
 - 絕對路徑用 `crate::` 開頭，相對路徑從當前 `mod` 位置開始
 - 外部 crate 直接用名稱開頭；加 `::` 前綴可以明確標記為外部 crate
-- `std` 是標準函式庫，不用加 dependency 就能用，prelude 也在裡面
+- `std` 是標準庫，不用加 dependency 就能用，prelude 也在裡面
 - `super::` 指向父 `mod`，`self::` 指向當前 `mod`
 - `use a::b::{self, X, Y};` 一次 `use` 多個東西
 - `use X as Alias;` 取別名，解決名字衝突
