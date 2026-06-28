@@ -98,13 +98,13 @@ impl<P: Deref> Pin<P> {
 
 換句話說，這兩個方法都繞過了 `Pin` 的平常限制——`get_mut` 讓你把釘住的值變回普通 `&mut`、`Pin::new` 讓你不交出所有權就把值釘起來——而 Rust 只把這兩道門開給 `Unpin` 的型別。第 16 集用到的 `Counter` 是 `Unpin`，使用 `Pin::new(&mut counter)`、`get_mut` 都暢行無阻；自我參照的 `async` 狀態機不是 `Unpin`，這兩道門都對它關上。
 
-所以實務上的判斷很簡單：你手上的 `Future` 是 `Unpin` 嗎？是的話，`Pin::new`、`get_mut` 隨你用；不是的話（一般就是 `async fn`/ `async` block 生出來的 `Future`），你就得用「會交出所有權」的方式把它釘起來——`Box::pin` 放 heap，或下一集要登場的 `pin!` 釘在 stack 上。
+所以實務上的判斷很簡單：你手上的 `Future` 是 `Unpin` 嗎？是的話，`Pin::new`、`get_mut` 隨你用；不是的話（一般就是 `async fn`/ `async` block 生出來的 `Future`），你就得用能維持 pin 保證的方式把它釘起來——例如 `Box::pin` 放 heap，或下一集要登場的 `pin!` 釘在 stack 上。
 
 ## 重點整理
 
 - `Pin` 的「不准搬」基本上只為一種東西而設：自我參照的 `async` 狀態機；其餘型別搬了都不會壞
 - `Unpin` 就是「搬了不會壞」的標籤，是 auto trait，由編譯器自動判斷，**絕大多數型別都是 `Unpin`**
 - `async fn` / `async` block 的 `Future` 不能假設是 `Unpin`（可能是自我參照狀態機）
-- 當 `T: Unpin`，`Pin<P<T>>` 才實作 `DerefMut`、`Pin<&mut T>` 才能用 `get_mut` 變回普通 `&mut T`；我們手寫 `Future` 的 `self.get_mut()` 能用就是這個原因
-- `Pin::new` 和 `get_mut` 守的是同一個條件——`Unpin`，意即「對搬了不會壞的型別，`Pin` 自動讓路」
+- 當 `T: Unpin`，`Pin<P<T>>` 才實作 `DerefMut`、`&mut Pin<&mut T>` 才能用 `get_mut` 變回普通 `&mut T`；我們手寫 `Future` 的 `self.get_mut()` 能用就是這個原因
+- `Pin::new` 和 `get_mut` 要求必須遵守 `Unpin`，意即「對搬了不會壞的型別，`Pin` 自動讓路」
 - `Future` 不是 `Unpin` 時，就得用 `Box::pin` 或下一集的 `pin!` 來釘
