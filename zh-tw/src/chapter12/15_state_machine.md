@@ -6,7 +6,7 @@
 
 ## 正文
 
-### `.await` 不是開新 thread
+### `.await` 不是開新 `Thread`
 
 先破除一個可能的誤會。當你看到 `.await`，可能會以為它「在背後偷偷開了一條 `Thread` 去等」。**完全不是。** 從第 6 集到現在，我們手寫的這套 runtime 從頭到尾就是一條 executor `Thread` 在反覆 `poll`，`.await` 沒有變出任何新 `Thread`。
 

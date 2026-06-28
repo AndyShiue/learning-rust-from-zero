@@ -32,13 +32,15 @@ fn main() {
 
 那這種「自己指向自己」的值，平常會遇到嗎？會——**自我參照的 `Future` 狀態機正是這種值**。回想上一集：`async fn` 被改寫成狀態機，跨 `.await` 還要用到的區域變數會被存進狀態機裡。如果其中一個區域變數是「另一個區域變數的參考」，那狀態機裡就會有一個欄位指向自己的另一個欄位——標準的自我參照結構。
 
-```rust,ignore
+```rust,noplayground
 async fn borrows() {
     let s = String::from("hello");
     let r = &s; // r 借用 s
     other().await; // 跨過一個 .await，s 和 r 都得被狀態機保存
-    println!("{r}"); // .await 之後還用 r
+    println!("{}", r); // .await 之後還用 r
 }
+#
+# fn main() {}
 ```
 
 這個 `async fn` 的狀態機，在 `.await` 那個狀態裡同時存著 `s` 和 `r`，而 `r` 指向 `s`。這就是自我參照。一旦它被 move，`r` 就會變成懸垂指標。所以結論是：**move 一個 `Future` 是有風險的**。
@@ -95,7 +97,7 @@ async fn borrows() {
     let s = String::from("hello");
     let r = &s;
     other().await;
-    println!("{r}");
+    println!("{}", r);
 }
 
 fn main() {

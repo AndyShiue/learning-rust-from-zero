@@ -6,7 +6,7 @@
 
 ## 正文
 
-### `poll` 想要兩件互相打架的事
+### `poll` 想要的事
 
 回顧：自我參照的 `Future` 一旦被 move，內部那個指向自己的指標就會懸空。
 
@@ -33,7 +33,7 @@ let _ = Pin::new(&mut moved).poll(&mut cx); // 再 poll 一次
 
 `Pin<&mut T>` 號稱「不准搬走」，但它**憑什麼**做得到？
 
-真正的關鍵有兩層：
+真正的關鍵有兩個：
 
 1. 建立 `Pin` 的時候，不能留下另一條路讓你之後把值搬走。
 2. 拿到 `Pin` 之後，安全 API 不能把能搬走內部值的普通指標交回給你。
@@ -46,7 +46,7 @@ let _ = Pin::new(&mut moved).poll(&mut cx); // 再 poll 一次
 let old = option.take();
 ```
 
-它不只把 `Some(value)` 變成 `None`，還會把裡面的 `value` 搬出來，回傳成 `Some(value)`。所以如果你有一個被 pin 住的 `Option<Future>`，又讓人從中拿到普通的 `&mut Option<Future>`，對方就可以 `.take()`，把那個 future 從原本位址搬走。
+它不只把 `Some(value)` 變成 `None`，還會把裡面的 `value` 搬出來，回傳成 `Some(value)`。所以如果你有一個被 pin 住的 `Option<Future>`，又讓人從中拿到普通的 `&mut Option<Future>`，對方就可以 `.take()`，把那個 `Future` 從原本位址搬走。
 
 所以對於一個未知的任意 `T`，`Pin<&mut T>` 不會給你普通的 `&mut T`。更一般地說，`Pin<P>` 會小心保護 `P` 這層指標。`P` 可能是 `&mut T`、`Box<T>`，或其他智慧指標。如果 `Pin<Box<T>>` 隨便把裡面的 `Box<T>` 還給你，你就又拿到能操作 `T` 的普通擁有者了，接著就可能把 `T` move 出來。所以對於任意 `T`，`Pin` 的安全 API 不把指向 `T` 的指標直接交回給你，而是只提供幾個不會破壞 pin 保證的操作。
 
