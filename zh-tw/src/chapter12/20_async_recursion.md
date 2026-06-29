@@ -36,7 +36,7 @@ error[E0733]: recursion in an async fn requires boxing
 
 粗略想像一下，它可能需要長得像這樣：
 
-```rust,ignore
+```rust,compile_fail
 enum FactorialFuture {
     Start { n: u64 },
     Waiting {
@@ -45,6 +45,8 @@ enum FactorialFuture {
     },
     Done,
 }
+#
+# fn main() {}
 ```
 
 `Waiting` 狀態要保存正在 `.await` 的 `factorial(n - 1)`；而 `factorial(n - 1)` 回傳的又是同一種 `FactorialFuture`。於是這個型別直接包含自己，編譯器在算 `child` 欄位要占多少空間時，永遠算不出固定答案。
@@ -84,7 +86,7 @@ fn block_on<F: Future>(future: F) -> F::Output {
 
 fn main() {
     let result = block_on(factorial(5));
-    println!("5! = {result}");
+    println!("5! = {}", result);
 }
 ```
 

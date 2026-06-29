@@ -33,6 +33,8 @@ fn main() {
 那這種「自己指向自己」的值，平常會遇到嗎？會——**自我參照的 `Future` 狀態機正是這種值**。回想上一集：`async fn` 被改寫成狀態機，跨 `.await` 還要用到的區域變數會被存進狀態機裡。如果其中一個區域變數是「另一個區域變數的參考」，那狀態機裡就會有一個欄位指向自己的另一個欄位——標準的自我參照結構。
 
 ```rust,noplayground
+# async fn other() {}
+#
 async fn borrows() {
     let s = String::from("hello");
     let r = &s; // r 借用 s

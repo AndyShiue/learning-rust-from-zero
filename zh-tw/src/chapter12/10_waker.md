@@ -45,7 +45,7 @@ impl Wake for ThreadWaker {
 
 ```rust,noplayground
 use std::sync::Arc;
-use std::task::Wake;
+use std::task::{Context, Poll, Wake, Waker};
 #
 # struct ThreadWaker {
 #     thread: std::thread::Thread,
