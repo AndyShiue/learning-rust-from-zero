@@ -88,7 +88,7 @@ fn main() {
 }
 ```
 
-> 上面一併列出一個最陽春的 `block_on`（這個 `factorial` 其實沒有真的需要等的 `.await`，所以用這種版本就夠了）。
+> 上面一併附上前面寫的最陽春的 `block_on`（這個 `factorial` 其實沒有真的需要等的 `.await`，所以用這種版本就夠了）。
 
 我們把 `factorial` 從 `async fn` 改寫成一個普通函式，回傳 `Pin<Box<dyn Future<Output = u64>>>`，函式體則是一個 `Box::pin` 包起來的 `async` block。遞迴呼叫 `factorial(n - 1)` 回傳的也是 `Pin<Box<...>>`，是固定大小，所以狀態機的大小就能決定了。
 
@@ -96,7 +96,7 @@ fn main() {
 
 你可能也會注意到：`block_on` 接收的是 `F: Future`，可是 `factorial(5)` 回傳的是 `Pin<Box<dyn Future<Output = u64>>>`，這樣也能傳進去嗎？可以，因為 `Pin<Box<dyn Future<Output = u64>>>` 本身也實作了 `Future`，所以對 `block_on` 來說，它收到的仍然是一個可以 `poll` 的東西。
 
-到這裡，我們把 `async` 底層的機制——`Future`、executor、reactor、狀態機、`Pin`——從頭到尾走過一遍了。下一集起，我們要回到 Tokio，看看一個真正成熟的 runtime 提供了哪些好用的工具，而你現在已經有足夠的底子看懂它們背後在做什麼。
+到這裡，我們把 `async` 底層的機制——`Future`、executor、reactor、狀態機、`Pin`——從頭到尾走過一遍了。下一集起，我們要回到 Tokio，看看一個真正成熟的 runtime 提供了哪些好用的工具方便使用者撰寫 `async` 程式碼。
 
 ## 重點整理
 
