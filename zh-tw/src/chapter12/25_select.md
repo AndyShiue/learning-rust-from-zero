@@ -100,5 +100,5 @@ tokio::select! {
 
 - `select!` 同時等多個 branch，**第一個**完成就執行對應 handler，其他 branch 被 `drop`（取消）
 - 所以 `select!` 是程式裡**最常製造取消**的地方；適合 timeout、多 channel 接收、等 shutdown 訊號
-- 補充功能：branch precondition（`if`）、`else`（所有 branch 都被略過時）、`biased;` 把預設的隨機改成依序
 - 在 `loop` 裡用 `select!` 要注意 cancellation safety：別把 `read_exact` 這類不可安全取消的 `Future` 放進會被 `drop` 的 branch
+- 補充功能：branch precondition（`if`）、`else`（所有 branch 都被略過時）、`biased;` 把預設的隨機改成依序
