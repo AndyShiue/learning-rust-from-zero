@@ -2,15 +2,15 @@
 
 ## 本集目標
 
-學會用 `Semaphore` 限制「同時進行的數量」，並理解 backpressure（反壓）這個觀念。
+學會用 `Semaphore` 限制「同時進行的數量」，並理解 backpressure 這個觀念。
 
 ## 正文
 
 ### 限制同時進行的數量
 
-有些事情你不希望「無限制地一起做」。例如：同時下載的檔案數別太多（不然頻寬爆掉）、同時開啟的檔案數有上限、同時打某個 API 的請求數要節制（不然對方會擋你）。
+有些事情你不希望「無限制地一起做」。例如：同時下載的檔案數別太多（不然頻寬爆掉）、同時開啟的檔案數有上限、同時對某個 API 的請求數要節制（不然對方會擋你）。
 
-`tokio::sync::Semaphore` 就是管這個的。它的核心是一把固定數量的 **permit（許可證）**：你設定總共有幾張 permit，誰要做事就得先**拿一張**，做完**還回去**。permit 被拿光時，後來的人就得**等**，直到有人還回一張。
+`tokio::sync::Semaphore` 就是管這個的。它的核心是一些固定數量的 **permit（許可證）**：你設定總共有幾張 permit，誰要做事就得先拿一張，做完還回去。permit 被拿光時，後來的人就得等，直到有人還回一張。
 
 ```rust,no_run
 # extern crate tokio;
@@ -48,9 +48,9 @@ async fn main() {
 
 注意上面我們拿到 permit 後，**完全沒有手動把它還回去**——它怎麼自己回來的？
 
-因為 permit（`acquire().await` 回傳的那個值）實作了 `Drop`（第 5 章學過）。當 `_permit` 離開 scope 被 drop 時，它的 `Drop` 就自動把名額還給 `Semaphore`。所以你只要讓 permit 在「該結束」的時候離開 scope，歸還就自動發生，不會忘記。這也是為什麼我們用 `let _permit = ...` 把它綁成一個變數——是為了讓它**活到工作結束**才被 drop；如果寫成 `let _ = ...`，它會立刻被 drop，permit 馬上就還回去了，等於沒限制到。
+因為 permit 實作了 `Drop`。當 `_permit` 離開作用域時，它的 `Drop` 實作就自動把名額還給 `Semaphore`。所以你只要讓 permit 在「該結束」的時候離開作用域，歸還就自動發生，不會忘記。這也是為什麼我們用 `let _permit = ...` 把它綁成一個變數——是為了讓它**活到工作結束**才被 drop；如果寫成 `let _ = ...`，它會立刻被 `drop`，permit 馬上就還回去了，等於沒限制到名額。
 
-### backpressure（反壓）
+### backpressure
 
 `Semaphore` 帶出一個更一般的觀念：**backpressure**。
 

@@ -14,8 +14,8 @@
 
 對照記就很好懂：
 
-- `Iterator::next()` → 回傳 `Option<Item>`（同步、馬上給）。
-- `Stream::next().await` → 回傳 `Option<Item>`（要 `.await`、可能等一下）。
+- `iterator.next()` → 回傳 `Option<Item>`（同步、馬上給）。
+- `stream.next().await` → 回傳 `Option<Item>`（要 `.await`、可能等一下）。
 
 兩者都用「`None` 代表結束」。
 
@@ -43,7 +43,7 @@ async fn main() {
 
 ### `Stream` 不在標準庫裡
 
-有件事要特別說明：和 `Future` 不同，`Stream` **目前不在標準庫裡**，它定義在社群套件（`futures`）裡，Tokio 生態則提供 `tokio_stream`。要用 `next()`、`map`、`filter` 這些方法，得引入對應的擴充 trait `StreamExt`（就像第 6 章 `Iterator` 的各種方法那樣）：
+有件事要特別說明：和 `Future` 不同，`Stream` **目前不在標準庫裡**，它定義在社群專案（`futures`）裡，Tokio 生態則提供 `tokio_stream`。要用 `.next()`、`map`、`filter` 這些方法，得引入對應的擴充 trait `StreamExt`（就像第 6 章 `Iterator` 的各種方法那樣）：
 
 ```rust,no_run
 # extern crate tokio;
@@ -70,7 +70,7 @@ async fn main() {
 
 ## 重點整理
 
-- `Stream` 是 `async` 版的 `Iterator`：一連串值一個一個取，但下一個值可能要等，所以是 `next().await`
-- 對照：`Iterator::next()` 同步回 `Option`；`Stream::next().await` 要 `.await` 才回 `Option`；都用 `None` 表示結束
+- `Stream` 是 `async` 版的 `Iterator`：一連串值一個一個取，但下一個值可能要等，所以是 `.next().await`
+- 對照：`iterator.next()` 同步回 `Option`；`stream.next().await` 要 `.await` 才回 `Option`；都用 `None` 表示結束
 - 走訪用 **`while let Some(x) = stream.next().await`**（`Stream` 不能用 `for`）
 - `Stream` 不在標準庫，定義在 `futures`；用 `tokio_stream` / `futures::StreamExt` 取得 `next`、`map`、`filter` 等工具（用法和 `Iterator` 幾乎一樣，也一樣惰性）
