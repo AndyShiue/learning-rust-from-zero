@@ -30,7 +30,7 @@ async fn test_add() {
 
 ### 牽涉時間的測試怎麼辦
 
-`async` 程式常常牽涉時間——timeout、延遲、定時重試。如果照實測，一個「5 秒後逾時」的邏輯，測試就得真的等 5 秒，又慢又煩。更糟的是，靠真實時間的測試常常不穩（有時候機器卡一下，時序就跑掉了，測試忽過忽不過）。
+`async` 程式常常牽涉時間——timeout、延遲、定時重試。如果照實測，一個「5 秒後逾時」的邏輯，測試就得真的等 5 秒，又慢又煩。
 
 Tokio 的解法是**虛擬時間**：讓測試裡的時間由你**手動推進**，不必真的空等。兩個關鍵函式：
 
@@ -51,7 +51,7 @@ async fn test_with_virtual_time() {
     // 把虛擬時間往前推 10 秒——瞬間完成，不必真的等
     time::advance(Duration::from_secs(10)).await;
 
-    assert!(start.elapsed() >= Duration::from_secs(10));
+    assert_eq!(start.elapsed(), Duration::from_secs(10));
 }
 #
 # fn main() {}

@@ -10,6 +10,51 @@
 
 `join!` 等的是「**全部**都完成」。`select!` 可說是它的一種相反：它同時等多個 branch，只要**第一個**完成，就執行那個 branch 對應的 handler，然後整個 `select!` 就結束——**其他還沒完成的 branch 會被 `drop` 掉**。
 
+### 基本語法
+
+`select!` 的每個 branch 大致長這樣：
+
+```rust,ignore
+tokio::select! {
+    pattern = future => {
+        // future 完成後，輸出會被 pattern 接住
+    }
+    _ = other_future => {
+        // 不關心 other_future 的輸出
+    }
+}
+```
+
+左邊的 `pattern` 用來接住右邊那個 `Future` 的輸出；右邊寫的是要等待的 `Future`，但這裡**不要**自己加 `.await`。`select!` 會負責同時 `poll` 這些 `Future`，等其中一個先完成。
+
+如果你不需要某個 `Future` 的輸出，就像一般 `match` pattern 一樣用 `_` 忽略它：
+
+```rust,ignore
+tokio::select! {
+    value = compute() => {
+        println!("算出來了：{}", value);
+    }
+    _ = shutdown.recv() => {
+        println!("收到 shutdown 訊號");
+    }
+}
+```
+
+如果輸出本身是 `Option<T>` 或 `Result<T, E>`，左邊也可以直接寫 pattern：
+
+```rust,ignore
+tokio::select! {
+    Some(message) = receiver.recv() => {
+        println!("收到訊息：{}", message);
+    }
+    _ = shutdown.recv() => {
+        println!("準備關閉");
+    }
+}
+```
+
+所以可以先把 `select!` 讀成：「同時等右邊這些 `Future`；誰先完成，就把它的輸出交給左邊的 pattern，然後執行那個 branch 的程式碼。」
+
 最經典的用途是 **timeout**：把「真正的工作」和「一個計時器」一起 `select!`，看誰先到。
 
 ```rust,editable
@@ -99,6 +144,7 @@ tokio::select! {
 ## 重點整理
 
 - `select!` 同時等多個 branch，**第一個**完成就執行對應 handler，其他 branch 被 `drop`（取消）
+- 基本語法是 `pattern = future => { ... }`；branch 裡不用寫 `.await`，不需要輸出時用 `_ = future`
 - 所以 `select!` 是程式裡**最常製造取消**的地方；適合 timeout、多 channel 接收、等 shutdown 訊號
 - 在 `loop` 裡用 `select!` 要注意 cancellation safety：別把 `read_exact` 這類不可安全取消的 `Future` 放進會被 `drop` 的 branch
 - 補充功能：branch `if`（precondition）、`else`（所有 branch 都被略過時）、`biased;` 把預設的隨機改成依序
