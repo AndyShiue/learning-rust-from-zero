@@ -186,7 +186,13 @@ impl Reactor {
         loop {
             poll.poll(&mut events, None).expect("poll 失敗");
             for event in events.iter() {
-                if let Some(waker) = self.wakers.lock().expect("取得鎖失敗").remove(&event.token()) {
+                let waker = self
+                    .wakers
+                    .lock()
+                    .expect("取得鎖失敗")
+                    .remove(&event.token());
+
+                if let Some(waker) = waker {
                     waker.wake();
                 }
             }
@@ -276,7 +282,13 @@ async fn serve(reactor: Arc<Reactor>, listener: TcpListener) {
 
     for i in 0..3 {
         let mut buf = vec![0u8; 1024];
-        let n = Read { reactor: reactor.clone(), stream: &mut stream, buf: &mut buf, stream_token }.await;
+        let n = Read {
+            reactor: reactor.clone(),
+            stream: &mut stream,
+            buf: &mut buf,
+            stream_token,
+        }
+        .await;
         if n == 0 {
             println!("連線關閉了");
             break;
