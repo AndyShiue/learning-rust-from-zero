@@ -24,7 +24,7 @@
 - **廣播 shutdown**用第 28 集的 `watch` 當一個 shutdown flag：一對多、而且晚訂閱的 worker 也讀得到當前狀態。
 - **等待 drain**用第 31 集的 `JoinSet`，`join_next()` 一直收到全空為止。
 
-每個 worker 內部用 `select!`，**同時**等「自己的工作」和「shutdown 訊號」，哪個先到反應哪個：
+每個 worker 內部用 `select!`，**同時**等「下一份工作」和「shutdown 訊號」。如果先等到工作，就離開 `select!` 處理它；如果先等到 shutdown，就不再拿新工作：
 
 ```rust,no_run
 # extern crate tokio;
@@ -34,19 +34,39 @@ use tokio::sync::watch;
 use tokio::task::JoinSet;
 use tokio::time::{sleep, timeout};
 
+async fn wait_next_job(id: u32, next_job: &mut u32) -> u32 {
+    // 這裡用 sleep 假裝「等待下一份工作送進來」。
+    // 這個等待可以被 shutdown 取消；真正處理工作會放在 select! 外面。
+    sleep(Duration::from_millis(500)).await;
+    let job = *next_job;
+    *next_job += 1;
+    println!("worker {} 拿到工作 {}", id, job);
+    job
+}
+
+async fn process_job(id: u32, job: u32) {
+    // 這裡才是假裝「真正處理工作」。
+    // 它刻意放在 select! 外面，所以 shutdown 不會直接把它取消在半路。
+    sleep(Duration::from_millis(300)).await;
+    println!("worker {} 處理完工作 {}", id, job);
+}
+
 async fn worker(id: u32, mut shutdown: watch::Receiver<bool>) {
+    let mut next_job = 0;
+
     loop {
-        tokio::select! {
-            // 自己的工作：這裡用 sleep 假裝「處理一份工作」
-            _ = sleep(Duration::from_millis(500)) => {
-                println!("worker {id} 處理了一份工作");
-            }
+        let job = tokio::select! {
+            // 等下一份工作：這件事可以被 shutdown 取消
+            job = wait_next_job(id, &mut next_job) => job,
             // 收工訊號
             _ = shutdown.changed() => {
-                println!("worker {id} 收到收工訊號，退出");
+                println!("worker {} 收到收工訊號，退出", id);
                 break;
             }
-        }
+        };
+
+        // 真正處理工作放在 select! 外面，避免被 shutdown branch 直接 drop 在半路
+        process_job(id, job).await;
     }
 }
 
@@ -97,9 +117,9 @@ async {
 
 ### cancellation safety 的設計重點
 
-這裡有個呼應第 24、25 集的關鍵設計。worker 的 `select!` 一邊是「自己的工作」、一邊是「shutdown」。當 shutdown 那個 branch 勝出時，「自己的工作」那個 branch 會被 `drop`（取消）。
+這裡有個呼應第 24、25 集的關鍵設計：要**刻意安排 `select!` 的位置**。在上面的 worker 裡，`select!` 等的是「下一份工作」和「shutdown」；一旦真的拿到工作，就離開 `select!`，再呼叫 `process_job`。因此 shutdown 勝出時，被 `drop`（取消）的是「等下一份工作」這種可以重來的等待，而不是已經開始處理的工作。
 
-所以你要**刻意設計 `select!` 的位置**：讓 shutdown 取消的是「**等下一份工作**」這種可以重來的等待，而不是「**已經開始處理的那一份**」。如果真正的處理流程不能安全取消，就先在 `select!` 裡等到工作，離開 `select!` 之後再處理它；不要把那段處理直接放進會輸給 shutdown 的 branch。否則像 `read_exact` 這類不可安全取消的操作，就可能被 shutdown 砍在半路，資料也跟著掉了。這就是前面強調過的 cancellation safety 在 shutdown 上的具體應用。
+如果反過來，把真正的處理流程直接放進會輸給 shutdown 的 branch，像 `read_exact` 這類不可安全取消的操作就可能被砍在半路，資料也跟著掉了。這就是前面強調過的 cancellation safety 在 shutdown 上的具體應用。
 
 ### 一定要給期限
 
@@ -120,17 +140,32 @@ use tokio::task::JoinSet;
 use tokio::time::{sleep, timeout};
 use tokio_util::sync::CancellationToken;
 
+async fn wait_next_job(id: u32, next_job: &mut u32) -> u32 {
+    sleep(Duration::from_millis(500)).await;
+    let job = *next_job;
+    *next_job += 1;
+    println!("worker {} 拿到工作 {}", id, job);
+    job
+}
+
+async fn process_job(id: u32, job: u32) {
+    sleep(Duration::from_millis(300)).await;
+    println!("worker {} 處理完工作 {}", id, job);
+}
+
 async fn worker(id: u32, token: CancellationToken) {
+    let mut next_job = 0;
+
     loop {
-        tokio::select! {
-            _ = sleep(Duration::from_millis(500)) => {
-                println!("worker {} 處理了一份工作", id);
-            }
+        let job = tokio::select! {
+            job = wait_next_job(id, &mut next_job) => job,
             _ = token.cancelled() => { // 直接等「被取消」
                 println!("worker {} 收到取消，退出", id);
                 break;
             }
-        }
+        };
+
+        process_job(id, job).await;
     }
 }
 

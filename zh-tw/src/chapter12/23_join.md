@@ -29,7 +29,7 @@ async fn fetch_b() -> &'static str {
 async fn main() {
     // 兩個 Future 同時等，總共約一秒，回傳一個 tuple
     let (a, b) = tokio::join!(fetch_a(), fetch_b());
-    println!("a = {a}, b = {b}");
+    println!("a = {}, b = {}", a, b);
 }
 ```
 

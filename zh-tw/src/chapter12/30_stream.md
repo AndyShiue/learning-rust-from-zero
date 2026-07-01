@@ -36,7 +36,7 @@ async fn main() {
 
     // 一個一個取值，取到 None 為止
     while let Some(value) = stream.next().await {
-        println!("收到 {value}");
+        println!("收到 {}", value);
     }
 }
 ```
@@ -59,7 +59,7 @@ async fn main() {
         .filter(|x| x % 3 == 0);
 
     while let Some(value) = stream.next().await {
-        println!("{value}");
+        println!("{}", value);
     }
 }
 ```

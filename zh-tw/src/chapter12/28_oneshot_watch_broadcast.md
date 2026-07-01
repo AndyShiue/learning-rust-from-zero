@@ -28,7 +28,7 @@ async fn main() {
 
     // rx 本身就是一個 Future，.await 它就拿到那個值
     let result = rx.await.expect("發送端不見了");
-    println!("拿到結果：{result}");
+    println!("拿到結果：{}", result);
 }
 ```
 
@@ -61,9 +61,9 @@ async fn main() {
 }
 ```
 
-### `broadcast`：每個接收端都要看到每則訊息
+### `broadcast`：把事件送給所有訂閱者
 
-`broadcast` 是「**多發送、多接收，而且每個接收端都會收到每一則訊息**」。和 `watch` 不同，它不是只給最新值，而是每則都送到每個接收端手上。適合「一則事件要通知所有訂閱者」的場景。
+`broadcast` 是「**多發送、多接收，而且每個接收端都有自己的接收進度**」。和 `watch` 不同，它不是只給最新值，而是會把每則訊息送給所有目前訂閱的接收端。適合「一則事件要通知所有訂閱者」的場景。
 
 ```rust,editable
 extern crate tokio;
@@ -86,10 +86,26 @@ async fn main() {
 }
 ```
 
+不過 `broadcast` 不是無限容量的歷史紀錄。建立 channel 時給的 `16` 是容量；如果某個接收端太久沒收，落後超過容量，舊訊息會被丟掉。這時 `recv().await` 會回傳 `Lagged(n)`，告訴你漏掉了幾則：
+
+```rust,ignore
+match rx.recv().await {
+    Ok(value) => println!("收到：{}", value),
+    Err(broadcast::error::RecvError::Lagged(n)) => {
+        println!("太慢了，漏掉 {} 則訊息", n);
+    }
+    Err(broadcast::error::RecvError::Closed) => {
+        println!("所有發送端都關閉了");
+    }
+}
+```
+
+所以比較精準地說：`broadcast` 會把訊息廣播給所有接收端，但每個接收端要自己跟上；如果跟不上，就會收到 `Lagged`，而不是保證永遠拿得到每一則舊訊息。
+
 ## 重點整理
 
 - 用「發送端 / 接收端數量 + 訊息怎麼流」來選 channel
 - `oneshot`：單送單收、一個值一次，接收端本身是 `Future`（`rx.await`），適合回傳結果
 - `watch`：單送多收、只看得到最新值，適合廣播目前狀態；用 `changed().await` + `borrow()`
-- `broadcast`：多送多收、每個接收端都收到每一則，適合把事件通知所有訂閱者
+- `broadcast`：多送多收、把事件通知所有訂閱者；每個接收端有自己的進度，但落後超過容量時會收到 `Lagged`
 - 對照上一集的 `mpsc`（多送單收、收每一則、工作佇列）

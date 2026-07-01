@@ -176,6 +176,10 @@ impl Reactor {
         self.wakers.lock().expect("取得鎖失敗").insert(token, waker);
     }
 
+    fn clear_waker(&self, token: Token) {
+        self.wakers.lock().expect("取得鎖失敗").remove(&token);
+    }
+
     // 跑在自己的 thread 上：睡在 poll 上，醒來照 Token 找 Waker 來 wake
     fn run(&self, mut poll: MioPoll) {
         let mut events = Events::with_capacity(128);
@@ -229,11 +233,12 @@ impl Future for Accept {
         this.reactor.set_waker(this.listener_token, cx.waker().clone());
         match this.listener.accept() {
             Ok((stream, _addr)) => {
+                this.reactor.clear_waker(this.listener_token);
                 this.reactor.deregister(&mut this.listener);
                 Poll::Ready(stream)
             }
             Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => Poll::Pending,
-            Err(e) => panic!("accept 失敗：{e}"),
+            Err(e) => panic!("accept 失敗：{}", e),
         }
     }
 }
@@ -252,9 +257,12 @@ impl<'a> Future for Read<'a> {
         let this = self.get_mut();
         this.reactor.set_waker(this.stream_token, cx.waker().clone()); // 先登記
         match this.stream.read(this.buf) { // 再試一次
-            Ok(n) => Poll::Ready(n),
+            Ok(n) => {
+                this.reactor.clear_waker(this.stream_token);
+                Poll::Ready(n)
+            }
             Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => Poll::Pending,
-            Err(e) => panic!("read 失敗：{e}"),
+            Err(e) => panic!("read 失敗：{}", e),
         }
     }
 }
@@ -273,9 +281,10 @@ async fn serve(reactor: Arc<Reactor>, listener: TcpListener) {
             println!("連線關閉了");
             break;
         }
-        println!("第 {i} 個 request：{}", String::from_utf8_lossy(&buf[..n]).trim());
+        println!("第 {} 個 request：{}", i, String::from_utf8_lossy(&buf[..n]).trim());
     }
 
+    reactor.clear_waker(stream_token);
     reactor.deregister(&mut stream);
 }
 
@@ -296,6 +305,8 @@ fn main() {
 `Accept` 和 `Read` 沒有共用同一個 `Token`。`Accept` 裡的 `listener_token` 是給 `TcpListener` 用的；接到連線後，`serve` 另外建立 `stream_token`，登記給那條 `TcpStream`。
 
 後面的三次 `Read` 會共用同一個 `stream_token`，這是刻意的：`Token` 是 I/O 來源的名牌，不是每一次 `.await` 都要換一張名牌。這個簡化範例同一時間只會等待這條 stream 上的一次 `read`，所以同一個 stream `Token` 對應一個等待中的 `Waker` 就夠了。
+
+等 I/O 成功後，`Accept` / `Read` 會呼叫 `clear_waker`，把這次等待用的 `Waker` 從 `HashMap` 裡拿掉。這樣 reactor 裡就不會留下「已經不需要喚醒」的等待者。
 
 ### `WouldBlock` 是什麼
 

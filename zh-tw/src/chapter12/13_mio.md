@@ -73,7 +73,7 @@ fn main() {
                 SERVER => {
                     // 名牌對上了，表示 listener 可讀，可以 accept 出新連線
                     let (_stream, addr) = listener.accept().expect("accept 失敗");
-                    println!("有人連進來了：{addr}");
+                    println!("有人連進來了：{}", addr);
                     return; // 因為是範例直接收工
                 }
                 _ => {}

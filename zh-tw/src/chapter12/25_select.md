@@ -40,12 +40,15 @@ tokio::select! {
 }
 ```
 
-如果輸出本身是 `Option<T>` 或 `Result<T, E>`，左邊也可以直接寫 pattern：
+如果輸出本身是 `Option<T>` 或 `Result<T, E>`，最直覺的寫法是先把整個值接住，再在 handler 裡自己 `match`：
 
 ```rust,ignore
 tokio::select! {
-    Some(message) = receiver.recv() => {
-        println!("收到訊息：{}", message);
+    message = receiver.recv() => {
+        match message {
+            Some(message) => println!("收到訊息：{}", message),
+            None => println!("channel 關閉"),
+        }
     }
     _ = shutdown.recv() => {
         println!("準備關閉");
@@ -117,6 +120,8 @@ tokio::select! {
 
 **`else` 分支**：當所有 branch 都因為 precondition 被略過，沒有任何 branch 能跑時，執行 `else`。
 
+另外，如果右邊的 `Future` 完成了，但輸出不符合左邊的 pattern，這個 branch 也會在本輪 `select!` 被略過。例如 `Some(job) = jobs.recv()` 遇到 channel 關閉、`recv()` 回 `None` 時，`Some(job)` 匹配失敗，這個 branch 就不會執行。如果所有 branch 都被略過，而且沒有 `else`，`select!` 會 panic。
+
 ```rust,ignore
 tokio::select! {
     Some(job) = jobs.recv(), if accepting_jobs => {
@@ -147,4 +152,4 @@ tokio::select! {
 - 基本語法是 `pattern = future => { ... }`；branch 裡不用寫 `.await`，不需要輸出時用 `_ = future`
 - 所以 `select!` 是程式裡**最常製造取消**的地方；適合 timeout、多 channel 接收、等 shutdown 訊號
 - 在 `loop` 裡用 `select!` 要注意 cancellation safety：別把 `read_exact` 這類不可安全取消的 `Future` 放進會被 `drop` 的 branch
-- 補充功能：branch `if`（precondition）、`else`（所有 branch 都被略過時）、`biased;` 把預設的隨機改成依序
+- 補充功能：branch `if`（precondition）、pattern 不匹配時略過該 branch、`else`（所有 branch 都被略過時）、`biased;` 把預設的隨機改成依序

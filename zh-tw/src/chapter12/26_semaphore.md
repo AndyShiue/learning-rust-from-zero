@@ -30,7 +30,7 @@ async fn main() {
         handles.push(tokio::spawn(async move {
             // 拿一張 permit，拿不到就 .await 等著
             let _permit = semaphore.acquire().await.expect("semaphore 已關閉");
-            println!("task {i} 拿到 permit，開始工作");
+            println!("task {} 拿到 permit，開始工作", i);
             sleep(Duration::from_millis(100)).await;
             // _permit 在這裡離開 scope，自動把名額還回去
         }));

@@ -115,6 +115,7 @@
 | 第 1～7 章 | `chapter1/` 到 `chapter7/` | `##_topic.md` |
 | 附錄一 | `appendix1/` | `a_topic.md` 到 `m_topic.md` |
 | 第 9～11 章 | `chapter9/` 到 `chapter11/` | `##_topic.md` |
+| 第 12 章 | `chapter12/` | `##_topic.md` |
 
 注意：
 
@@ -140,7 +141,8 @@
 | 附錄一 | 數字字面值、短路求值、`break` 回傳值、多行字串與 raw string、格式化字串進階、區域 items、struct update syntax、`ref` pattern、match ergonomics、`panic!`/`todo!` 等、`let` chains、`Weak`、fully qualified syntax、DST 簡介 | 第 9 章之後的多執行緒與 unsafe 等進階主題 |
 | 第 9 章 | 指標、`thread::spawn`、`thread::scope`、`Send`/`Sync`、`Arc`、atomic、`Mutex`、`RwLock`、poisoning、`mpsc`、死鎖 | 第 10、11 章尚未讀到的進階語言與標準庫 |
 | 第 10 章 | `dyn Trait`、dyn compatibility、`const fn`、associated `const`、`const` generics、預設參數模式、運算子重載、`as`、enum discriminant、attribute、`cfg!`、macro、`unsafe`、`static`、`LazyLock`、extern blocks、union、never type | 第 11 章標準庫主題 |
-| 第 11 章 | `AsRef`/`AsMut`、`Ordering`、排序、`HashMap`、`HashSet`、其他集合、`std::env`、`std::process`、`std::path`、進階字串、檔案 I/O、`Error` trait、`thiserror`、`anyhow`、`catch_unwind` | 無；但仍依讀者問題聚焦 |
+| 第 11 章 | `AsRef`/`AsMut`、`Ordering`、排序、`HashMap`、`HashSet`、其他集合、`std::env`、`std::process`、`std::path`、進階字串、檔案 I/O、`Error` trait、`thiserror`、`anyhow`、`catch_unwind` | 第 12 章非同步主題除非讀者主動問 |
+| 第 12 章 | 非同步：`async` / `.await`、Tokio runtime、`Future` / `poll` / `Waker`、手寫 executor / ready queue / `JoinHandle` / reactor、狀態機、`Pin` / `Unpin` / `pin!`、`async` 遞迴、Tokio 實務工具（`spawn`、`spawn_blocking`、`join!`、`select!`、I/O、channel、鎖、`Stream`、`JoinSet`、graceful shutdown、async 測試、其他 runtime） | 仍避免把書外 async 生態一次倒出來；依讀者眼前問題聚焦 |
 
 ### 精確語法門檻
 
@@ -161,6 +163,12 @@
 | Iterator chain | 第 6 章第 8 集後 | 前面用 `for` 或 `while` |
 | `mod` 與多檔案 | 第 7 章第 2～3 集 | 前面範例放在單一 `.rs` 檔 |
 | `cargo test` / `#[test]` | 第 7 章第 6 集 | 前面用 `cargo run` 驗證 |
+| `async fn` / `.await` / `#[tokio::main]` | 第 12 章第 1 集 | 前面不要主動引入；若讀者問，先說第 12 章會正式教 |
+| `Future` / `poll` / `Poll` / executor | 第 12 章第 6 集 | 第 12 章第 1～5 集只用使用者視角說「`.await` 等它好」 |
+| `Waker` / `Task` / ready queue / reactor | 第 12 章第 10～14 集 | 前面不要提前講底層喚醒與 I/O 事件通知 |
+| `Pin` / `Unpin` / `pin!` | 第 12 章第 17～19 集 | 前面只用書中固定句型；不要展開自我參照與 pinning |
+| `tokio::spawn` 的 `Send + 'static` | 第 12 章第 21 集 | 前面若出現 `spawn`，只當作「交給 runtime 背景跑」 |
+| `spawn_blocking` / `join!` / `select!` / channel / `Stream` / graceful shutdown | 第 12 章第 22～34 集 | 前面只用已讀過的手寫版本或簡化說法 |
 
 ---
 
@@ -175,7 +183,8 @@
 7. 第 5 章第 11 集之前不要用 `?`。
 8. 第 6 章之前不要用 closure 或 iterator chain。
 9. 第 7 章之前不要建議拆檔案或設計模組。
-10. 不要 import 不必要的 crate；優先使用標準庫與書中已出現的寫法。
+10. 第 12 章之前不要主動使用 `async` / `.await` / Tokio。
+11. 不要 import 不必要的 crate；優先使用標準庫與書中已出現的寫法。
 
 ---
 

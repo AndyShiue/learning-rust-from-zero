@@ -62,7 +62,7 @@ async fn main() {
         // 把這個連線丟到背景處理，主迴圈馬上回去等下一個連線
         tokio::spawn(async move {
             let n = counter.fetch_add(1, Ordering::SeqCst) + 1;
-            let body = format!("這是第 {n} 個 request\n");
+            let body = format!("這是第 {} 個 request\n", n);
             let response = format!(
                 "HTTP/1.1 200 OK\r\nContent-Length: {}\r\n\r\n{}",
                 body.len(),
