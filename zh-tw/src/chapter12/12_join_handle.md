@@ -223,7 +223,7 @@ fn main() {
 
 假設 A 是上面那個背景 `Task`：它等一秒後算出 `42`。B 是傳給 `block_on` 的那個 `Task`：它 `.await` A 的 `JoinHandle`，拿到結果後再回傳 `142`。
 
-1. `executor.spawn(A)`：`spawn` 先建立一層 `task_future`，負責等待 A、把結果寫進 `Shared<T>`、喚醒等待者。真正放進 ready queue 的是這層包裝後的 `Task`；`spawn` 同時回傳一個 `JoinHandle<i32>`。
+1. `executor.spawn(A)`：`spawn` 先建立一層 `task_future`，負責等待 A、把結果寫進 `Shared<T>`、喚醒等待者。真正放進 ready queue 的是這層包裝後的 `Task`；`spawn` 接著立刻回傳一個 `JoinHandle<i32>`。
 2. `executor.block_on(B)`：B 也被 `spawn` 成一個 `Task`，放進 ready queue；`block_on` 自己保留 B 的 `JoinHandle`，最後要從裡面取出 B 的回傳值。
 3. executor 先 `poll` A 這個 `Task`。實際被 `poll` 的是外層 `task_future`；它跑到 `let value = future.await`，才開始 `poll` 內層真正的 A。內層 A 跑到 `Delay::new(...).await`，開始 `poll` `Delay`；`Delay` 還沒完成，所以回 `Pending`。這個 `Pending` 一路傳回外層 `task_future`，A 這次 `poll` 就結束了。
 4. A 回 `Pending` 後，executor 沒有睡覺，因為 ready queue 裡還有 B。它立刻 `poll` B 這個 `Task`。同樣地，先被 `poll` 的是 B 外面的 `task_future`；它跑到 `let value = future.await`，才開始 `poll` 傳給 `block_on` 的那個 `async` block。
