@@ -97,13 +97,13 @@ fn main() {
 
 最後提醒一個觀念：Rust 標準庫只定義了 `Future` `trait`，**怎麼實作 executor 完全留給 runtime 自由發揮**。我們這集寫的是「回 `Pending` 就忙著空轉重 poll」的笨版本——超級浪費 CPU 資源。真正的 runtime 會聰明得多：沒事做的時候去睡覺，有事了才被叫醒。
 
-正因為標準庫不規定 executor 怎麼寫，才會有 Tokio、smol 等各有特色的 runtime。接下來幾集，我們會從這個最笨的版本出發，一步一步把它演進到接近真實 runtime 的樣子。
+正因為標準庫不規定 executor 怎麼寫，才會有 Tokio、smol 等各有特色的 runtime。接下來幾集，我們會從這個最笨的版本出發，一步一步讓它演進到接近真實 runtime 的樣子。
 
 ## 重點整理
 
 - `Future` `trait` 的核心是 `poll`，回傳 `Poll::Ready(value)`（好了）或 `Poll::Pending`（還沒好）
 - `poll` 的 `self` 是 `Pin<&mut Self>`， `Pin` 是少數能直接放在 `self` 位置的特別型別；目前先當成「受限的 `&mut Self`」
-- **executor** 負責不斷 `poll` 一個 `Future` 直到 `Ready`；標準庫不附 executor，要自己或靠 runtime 提供
+- **executor** 負責不斷 `poll` 一個 `Future` 直到 `Ready`；標準庫不附 executor，要自己做或靠 runtime 提供
 - `Box::pin` 把值放 heap 並釘住、`as_mut` 借出 `Pin<&mut T>`，兩者配合讓 `loop` 能反覆 `poll` 同一個 `Future`
-- 前幾集的 `async` 其實都沒在等東西，`poll` 一次就 `Ready`；下一集的 `Delay` 才會真的 `Pending`
+- 前幾集的 `async` 其實都沒在等東西，`poll` 一次就 `Ready`；下一集的 `Delay` 才會真的有 `Pending` 的狀況
 - 標準庫只定義 `Future`，executor 怎麼寫留給 runtime，這就是 Tokio、smol 等不同 runtime 存在的原因
