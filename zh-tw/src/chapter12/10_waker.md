@@ -8,7 +8,7 @@
 
 ### 不要再空轉了
 
-到目前為止，我們的 executor 有個很糟的毛病：拿到 `Pending` 就馬上再 `poll`，整顆 CPU 被一個其實還在等的工作燒滿。真實的 runtime 不會這樣，它會在沒事做時去**睡覺**，等真的有進展了再被叫醒。
+到目前為止，我們的 executor 有個很糟的毛病：拿到 `Pending` 就馬上再 `poll`，整條執行緒被一個其實還在等的工作燒滿。真實的 runtime 不會這樣，它會在沒事做時去**睡覺**，等真的有進展了再被叫醒。
 
 「叫醒」的工具，就是前幾集一直被我們冷落的 `Waker`。`cx.waker()` 拿得到一個 `Waker`，`Future` 在回 `Pending` 之前，應該把這個 `Waker` 交給「負責通知它好了的人」。等事件完成，那個人就呼叫 `waker.wake()`，把睡著的 executor 叫醒。
 
@@ -23,9 +23,10 @@
 ```rust,noplayground
 use std::sync::Arc;
 use std::task::Wake;
+use std::thread::{self, Thread};
 
 struct ThreadWaker {
-    thread: std::thread::Thread, // executor 那條 Thread
+    thread: Thread, // executor 那條 Thread
 }
 
 impl Wake for ThreadWaker {
@@ -46,9 +47,10 @@ impl Wake for ThreadWaker {
 ```rust,noplayground
 use std::sync::Arc;
 use std::task::{Context, Poll, Wake, Waker};
+use std::thread::{self, Thread};
 #
 # struct ThreadWaker {
-#     thread: std::thread::Thread,
+#     thread: Thread,
 # }
 #
 # impl Wake for ThreadWaker {
@@ -62,14 +64,14 @@ fn block_on<F: Future>(future: F) -> F::Output {
 
     // 做一個「會 unpark 目前這條 executor Thread」的 Waker
     let waker = Waker::from(Arc::new(ThreadWaker {
-        thread: std::thread::current(),
+        thread: thread::current(),
     }));
     let mut cx = Context::from_waker(&waker);
 
     loop {
         match future.as_mut().poll(&mut cx) {
             Poll::Ready(value) => return value,
-            Poll::Pending => std::thread::park(), // 沒事做，睡到被 unpark
+            Poll::Pending => thread::park(), // 沒事做，睡到被 unpark
         }
     }
 }
@@ -115,7 +117,7 @@ impl Future for Delay {
     type Output = ();
 
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<()> {
-        let this = self.get_mut(); // Delay 是 Unpin
+        let this = self.get_mut();
         if Instant::now() >= this.when {
             Poll::Ready(())
         } else {
@@ -175,7 +177,7 @@ fn main() {
 
 **契約一：只有最近一次 poll 給的 `Waker` 算數。** 每次 `poll`，`cx.waker()` 拿到的 `Waker` **可能不一樣**（例如 `Task` 被搬到別條 thread 上跑）。所以一個正確的 `Future`，每次 `poll` 都該把最新的 `Waker` 重新存一份，喚醒時用最新的那個。
 
-我們的 `Delay` 卻偷懶了——靠 `started` 旗標，它只在第一次 `poll` 抓一次 `Waker` 就不管了。這之所以沒出事，純粹是因為我們的 executor 從頭到尾用**同一個** `Waker`，所以舊的剛好還能用。這正是前面說「`Delay` 設計過度簡化」的原因之一：換一個每次給不同 `Waker` 的 executor，這個 `Delay` 就會叫醒失敗。實務上必須老實地每次重存，本章後面動真格時都會這麼做。
+我們的 `Delay` 卻偷懶了——靠 `started` 旗標，它只在第一次 `poll` 抓一次 `Waker` 就不管了。這之所以沒出事，純粹是因為我們的 executor 從頭到尾用**同一個** `Waker`，所以舊的剛好還能用。如果換一個每次給不同 `Waker` 的 executor，這個 `Delay` 就會叫醒失敗。實務上必須老實地每次重存，本章後面動真格時都會這麼做。
 
 **契約二：`Ready` 之後不可以再 `poll`。** 一個 `Future` 一旦回了 `Ready`，就**不准**再被 poll，否則行為沒有保證（可能 panic、可能卡死）。所以 executor 必須記得：哪個 `Future` 做完了，就要把它移除、別再碰。我們現在的 `block_on` 拿到 `Ready` 就直接 `return`，自然不會犯規；但等到要同時管很多個 `Future` 時，這件事就得認真處理了（下一集就會做）。
 
@@ -183,13 +185,13 @@ fn main() {
 
 最後潑一盆冷水：我們現在是「每個在等的 `Delay` 都 `spawn` 一條 `Thread`」。這顯然不是好辦法——還記得第 2 集說的嗎？`Thread` 很吃記憶體。如果有一萬個連線在等，就要一萬條 `Thread`，這**正是 `async` 一開始想避免的問題**，結果我們又繞回去了。
 
-接下來幾集要把這件事徹底解決。第一步，先把每個被 `wake` 的 `Future` 包成一個叫 **`Task`** 的東西，讓它能排回 executor 的一條「ready queue」（待辦佇列）；之後再引入 **reactor**，用少少一條或幾條 `Thread` 盯住大量的 I/O，徹底擺脫「一個工作一條 `Thread`」。
+接下來幾集要把這件事徹底解決。我們會先把每個被 `wake` 的 `Future` 包成一個叫 **`Task`** 的東西，讓它能排回 executor 的一條「ready queue」（待辦佇列）；之後就可以引入 **reactor**，用少少一條或幾條 `Thread` 盯住大量的 I/O，徹底擺脫「一個工作一條 `Thread`」。
 
 ## 重點整理
 
 - `Future` 回 `Pending` 前該把 `cx.waker()` 交給「負責通知它的人」，事件完成時呼叫 `waker.wake()` 叫醒 executor
 - 自製 `Waker`：實作 `Wake` `trait` 的 `wake` 方法，再用 `Waker::from(Arc::new(...))` 轉成 `Waker`
 - executor 用 `thread::park()` 睡覺，`Waker` 用 `unpark()` 叫醒；`unpark` 會留 permit，所以 `wake` 落在 `park` 前或後都不漏接
-- **契約一**：每次 `poll` 的 `Waker` 可能不同，正確的 `Future` 每次都要重存最新的（`Delay` 偷懶只存一次，是過度簡化）
+- **契約一**：每次 `poll` 的 `Waker` 可能不同，正確的 `Future` 每次都要重存最新的 `Waker`（`Delay` 偷懶只存一次，是過度簡化）
 - **契約二**：`Ready` 之後不可再 `poll`，executor 要把完成的 `Future` 移除
 - 「一個 `Future` 一條 `Thread`」太耗資源，下一集起改用 `Task` + ready queue，再加上 reactor 來解決
