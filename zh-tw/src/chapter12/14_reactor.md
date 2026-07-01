@@ -2,7 +2,7 @@
 
 ## 本集目標
 
-把前幾集的喚醒模式接到**真實的 I/O**——做出一個 reactor，讓我們的 runtime 第一次能處理網路連線。
+把前幾集的喚醒功能接到**真實的 I/O**——做出一個 reactor，讓我們的 runtime 第一次能處理網路連線。
 
 ## 正文
 
@@ -180,7 +180,7 @@ impl Reactor {
         self.wakers.lock().expect("取得鎖失敗").remove(&token);
     }
 
-    // 跑在自己的 thread 上：睡在 poll 上，醒來照 Token 找 Waker 來 wake
+    // 跑在自己的 Thread 上：睡在 poll 上，醒來照 Token 找 Waker 來 wake
     fn run(&self, mut poll: MioPoll) {
         let mut events = Events::with_capacity(128);
         loop {
@@ -208,7 +208,7 @@ fn start_reactor() -> Arc<Reactor> {
         next_token: AtomicUsize::new(0),
         wakers: Mutex::new(HashMap::new()),
     });
-    // reactor 跑在自己的 thread 上
+    // reactor 跑在自己的 Thread 上
     let reactor_for_thread = reactor.clone();
     std::thread::spawn(move || reactor_for_thread.run(poll));
     reactor
@@ -235,10 +235,15 @@ impl Future for Accept {
 
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<TcpStream> {
         let this = self.get_mut();
-        // 先登記 Waker 給 reactor，再試一次 accept（順序刻意「先登記再試」避免 race）
+        // 順序刻意是「先登記 Waker，再試 accept」。
+        // 如果先 accept 得到 WouldBlock，才準備登記 Waker，
+        // 連線可能剛好在中間進來；reactor 那時找不到 Waker 可叫醒，
+        // executor 就可能睡過頭。
         this.reactor.set_waker(this.listener_token, cx.waker().clone());
         match this.listener.accept() {
             Ok((stream, _addr)) => {
+                // 這次 poll 可能「先登記、再立刻成功」。
+                // 成功後就不需要再等 I/O 事件，所以要把剛剛存進去的 Waker 清掉。
                 this.reactor.clear_waker(this.listener_token);
                 this.reactor.deregister(&mut this.listener);
                 Poll::Ready(stream)
@@ -264,6 +269,7 @@ impl<'a> Future for Read<'a> {
         this.reactor.set_waker(this.stream_token, cx.waker().clone()); // 先登記
         match this.stream.read(this.buf) { // 再試一次
             Ok(n) => {
+                // 清掉 Waker
                 this.reactor.clear_waker(this.stream_token);
                 Poll::Ready(n)
             }
@@ -322,7 +328,7 @@ fn main() {
 
 ### `WouldBlock` 是什麼
 
-`mio` 的 socket 是**非阻塞**的。這代表你呼叫 `accept` 或 `read` 時，它不會因為「現在還沒有連線 / 還沒有資料」就把 executor thread 卡在那裡等。它會立刻回來，並用 `WouldBlock` 告訴你：「現在還不能做這件事，晚點再試。」
+`mio` 的 socket 是**非阻塞**的。這代表你呼叫 `accept` 或 `read` 時，它不會因為「現在還沒有連線 / 還沒有資料」就把 executor `Thread` 卡在那裡等。它會立刻回來，並用 `WouldBlock` 告訴你：「現在還不能做這件事，晚點再試。」
 
 所以 `WouldBlock` 在這裡不是「壞掉了」的錯誤，而是非阻塞 I/O 的正常狀態。對我們手寫的 `Future` 來說，它剛好對應到 `Poll::Pending`：
 
@@ -334,11 +340,11 @@ fn main() {
 
 注意 `Accept` 和 `Read` 的 `poll` 都是**先** `set_waker`、**再**試一次 `accept` / `read`。這個順序是刻意的。
 
-這個「再試一次」不代表這一輪一定會成功。如果還是 `WouldBlock`，這次 `poll` 就回 `Pending`；等 reactor 之後收到事件、呼叫剛剛存好的 `Waker`，executor 下一輪再 poll 這個 `Future`，才會再試一次 I/O。
+這個「再試一次」不代表這一輪一定會成功。如果還是 `WouldBlock`，這次 `poll` 就回 `Pending`；等 reactor 之後收到事件、呼叫剛剛存好的 `Waker`，executor 下一輪再 `poll` 這個 `Future`，才會再試一次 I/O。
 
-想像如果反過來：先試 `read` 拿到 `WouldBlock`（還沒資料），然後正要去登記 `Waker`——就在這個空檔，資料剛好到了，reactor 醒來想 `wake`，卻發現 `HashMap` 裡還沒有這個 `Token` 的 `Waker`，這個喚醒就**漏掉**了，於是這個 `Future` 永遠不會再被 poll。
+想像如果反過來：先試 `read` 拿到 `WouldBlock`（還沒資料），然後正要去登記 `Waker`——就在這個空檔，資料剛好到了，reactor 醒來想 `wake`，卻發現 `HashMap` 裡還沒有這個 `Token` 的 `Waker`，這個喚醒就**漏掉**了，於是這個 `Future` 永遠不會再被 `poll`。
 
-把順序倒過來——先把 `Waker` 放好，再試一次 I/O——就堵住了這個空檔：萬一資料早就到了，這次的 `accept` / `read` 會直接成功回 `Ready`；萬一真的還沒到，`Waker` 也已經就位，等 reactor 通知下一輪再試。成功就回 `Ready`，`WouldBlock` 就回 `Pending`，乾淨俐落。
+把順序倒過來——先把 `Waker` 放好，再試一次 I/O——就堵住了這個空檔：萬一資料早就到了，這次的 `accept` / `read` 會直接成功回 `Ready`；萬一真的還沒到，`Waker` 也已經就位，等 reactor 通知下一輪再試。成功就回 `Ready`，`WouldBlock` 就回 `Pending`。不過也因為我們是「先登記再試」，所以如果這次 `accept` / `read` 真的立刻成功，剛剛放進 `HashMap` 的 `Waker` 就已經用不到了。這時候 `Accept` / `Read` 會在回 `Ready` 前呼叫 `clear_waker`，把它清掉。換句話說，`set_waker` 是為了避免「還沒登記就錯過喚醒」，`clear_waker` 則是為了避免「已經完成了，卻留下不需要的等待者」。
 
 ### 喚醒路徑完全沒變
 
@@ -353,5 +359,5 @@ fn main() {
 - `Future` 與 reactor 透過 `Arc` 共享的 `Registry`、`AtomicUsize`、`Mutex<HashMap<Token, Waker>>` 溝通，不傳訊息
 - `Token` 是 I/O 來源的名牌：listener 有自己的 `listener_token`，stream 有自己的 `stream_token`；在我們的程式碼中同一條 stream 的多次 `Read` 可以共用同一個 stream `Token`
 - `WouldBlock` 是非阻塞 I/O 的正常狀態，意思是「現在還不能做 `accept` / `read` 之類的 I/O 動作，晚點再試」，在 `Future` 裡對應 `Poll::Pending`
-- I/O `Future` 的 `poll` 一律「**先 `set_waker` 再試 I/O**」，避免漏接喚醒；成功回 `Ready`、`WouldBlock` 回 `Pending`
+- I/O `Future` 的 `poll` 一律「**先 `set_waker` 再試 I/O**」，避免漏接喚醒；如果立刻成功，回 `Ready` 前要 `clear_waker` 清掉不再需要的等待者
 - 不管喚醒來自計時器還是 I/O，最後都走「排回 ready queue ＋ `unpark`」同一條路

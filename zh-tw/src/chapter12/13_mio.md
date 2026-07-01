@@ -10,14 +10,14 @@
 
 先把我們手寫 runtime 的全貌再講一次。一個 runtime 其實有兩個各司其職的角色：
 
-- **executor**：從 ready queue 拿 `Task` 出來 poll，也就是「跑 `Task`」。它對外部世界一無所知——它不知道網路封包到了沒、檔案讀好了沒。
-- **reactor**：負責盯住所有的 I/O 來源，哪個 ready 了就 `wake` 對應的 `Task`，也就是「等事件」。它**不** poll `Future`、它不是 `Task`，它只盯著外部事件來源。
+- **executor**：從 ready queue 拿 `Task` 出來 `poll`，也就是「跑 `Task`」。它對外部世界一無所知——它不知道網路封包到了沒、檔案讀好了沒。
+- **reactor**：負責盯住所有的 I/O 來源，哪個 ready 了就 `wake` 對應的 `Task`，也就是「等事件」。它**不** `poll` `Future`、它不是 `Task`，它只盯著外部事件來源。
 
 前幾集我們的「等待」是靠替每個 `Delay` 開一條 `Thread`，這太浪費了。reactor 的任務，就是用**一條** `Thread` 盯住**很多** I/O 來源。要做到這件事，靠的就是這一集的主角：`mio`。
 
 ### `mio` 的兩個主角
 
-`mio` 是 Rust 生態裡負責跨平台 I/O 事件通知的底層套件（Tokio 內部也是用它）。先用前要安裝：
+`mio` 是 Rust 生態裡負責跨平台 I/O 事件通知的底層套件（Tokio 內部也是用它）。先用前要加上依賴：
 
 ```toml
 [dependencies]
@@ -28,7 +28,7 @@ mio = { version = "1", features = ["os-poll", "net"] }
 
 我們這集只要認識它的兩個東西：
 
-- **`mio::Poll`**：一個可以「睡著等 I/O 事件」的地方。一條 thread 把很多 I/O 來源登記給它之後，就能用一次 `poll.poll(...)` 同時盯住全部，哪個有動靜就醒來。
+- **`mio::Poll`**：一個可以「睡著等 I/O 事件」的地方。一條 `Thread` 把很多 I/O 來源登記給它之後，就能用一次 `poll.poll(...)` 同時盯住全部，哪個有動靜就醒來。
 - **`Token`**：事件來源的「名牌」。登記某個 I/O 來源時，你給它一個 `Token`；之後 `Poll` 通知你「有事件」時，會把當初的 `Token` 還給你，你就知道是哪個來源在叫。
 
 ### 看 `mio` 怎麼盯著一個 `TcpListener`
@@ -87,7 +87,7 @@ fn main() {
 
 1. `Poll::new()` 做出一個 `Poll`。
 2. `registry().register(&mut listener, SERVER, Interest::READABLE)` 把 `listener` 登記進去，給它名牌 `SERVER`，並說明我們關心的是「可讀」（`Interest::READABLE`）。如果是要等「可寫」，就用 `Interest::WRITABLE`。
-3. `poll.poll(&mut events, None)` 讓這條 `Thread` **睡著**，直到有登記過的來源發生事件（`None` 代表不設逾時、睡到有事為止）。
+3. `poll.poll(&mut events, None)` 讓這條 `Thread` **睡著**，直到有登記過的來源發生事件（`None` 代表不設逾時，睡到有事為止）。
 4. 醒來後，逐一檢查 `events`。`event.token()` 還給我們當初登記的名牌；對上 `SERVER`，就知道是 `listener` 有動靜，於是 `accept()` 把新連線收下來。
 
 關鍵在於：就算你登記了**一百個** I/O 來源，也只要**一條** `Thread` 睡在同一個 `poll.poll()` 上。哪個來源有事，`Poll` 就把對應的名牌交給你。這正是 reactor 用少少幾條 `Thread` 盯住大量 I/O 的祕密武器。
@@ -98,6 +98,6 @@ fn main() {
 
 - runtime 有兩個角色：**executor** 跑 `Task`（`poll`），**reactor** 等事件（盯 I/O、`wake` 對應 `Task`）；reactor 不是 `Task`、不 `poll` `Future`
 - `mio` 本身不是 `async` runtime：它只做非阻塞 I/O 的事件通知，不建立 `Future`、不 `.await`、也不排程 `Task`
-- `mio::Poll` 是「睡著等 I/O 事件」的地方，一條 thread 就能同時盯住很多 I/O 來源
+- `mio::Poll` 是「睡著等 I/O 事件」的地方，一條 `Thread` 就能同時盯住很多 I/O 來源
 - `Token` 是事件來源的名牌：登記時給，事件發生時 `Poll` 還給你，讓你認出是哪個來源
-- 用 `registry().register(&mut source, token, Interest::READABLE)` 登記，`poll.poll()` 睡著等事件，`event.token()` 認名牌後再 `accept` / `read`
+- 用 `registry().register(&mut source, token, Interest::READABLE)` 登記，`poll.poll()` 睡著等事件，`event.token()` 認名牌後再 `accept`
