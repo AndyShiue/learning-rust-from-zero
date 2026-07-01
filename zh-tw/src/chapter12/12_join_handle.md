@@ -239,7 +239,7 @@ fn main() {
 
 ### 不是 `Future` 直接通知 `Future`
 
-請特別記住這集的精神：`JoinHandle` 和背景 `Task` 之間沒有直接連線，它們只共用一塊 `Shared<T>`。等待的一方把自己的 `Waker` 留在共享狀態裡，完成的一方做完後從共享狀態取出這個 `Waker`、把它 `wake`。所有的喚醒，最後都還是回到「排回 ready queue + `unpark` executor」這條老路上。
+請特別記注意：`JoinHandle` 和背景 `Task` 之間沒有直接連線，它們只共用一塊 `Shared<T>`。等待的一方把自己的 `Waker` 留在共享狀態裡，完成的一方做完後從共享狀態取出這個 `Waker`、把它 `wake`。所有的喚醒，最後都還是回到「排回 ready queue + `unpark` executor」這條老路上。
 
 到這裡，我們手寫的 executor 已經有模有樣了：能 `spawn`、能睡覺、能被叫醒。但它還缺一塊大拼圖——目前「等待」靠的還是替每個 `Delay` 開一條 `Thread`。下一集起，我們要引入 `mio` 和 reactor，用少少幾條 `Thread` 盯住真正的 I/O。
 
