@@ -8,11 +8,11 @@
 
 ### 為什麼需要 `Task`
 
-前幾集的 executor 手上永遠只有**一個** `Future`，就在迴圈裡反覆 `poll` 它。但真實的 runtime 要同時養**很多**個 `Future`。
+前幾集的 executor 手上永遠只有**一個** `Future`，就在迴圈裡反覆 `poll` 它。但真實的 runtime 要同時養**很多個** `Future`。
 
 問題來了：當某個 `Future` 的 `Waker` 喊「我好了！」，如果 executor 手上有一堆裸 `Future`，它怎麼知道是**哪一個**好了、該去 `poll` 哪一個？光一個 `Future` 本身，是沒帶這個資訊的。
 
-解法是給每個 `Future` 配一份「隨身資料」，把它包成一個 **`Task`**。一個 `Task` 裝著：
+我們的解法是給每個 `Future` 配一份「隨身資料」，把它包成一個 **`Task`**。一個 `Task` 裝著：
 
 - 它自己的那個 `Future`
 - 它該排回**哪條** ready queue
@@ -23,7 +23,7 @@
 
 ### ready queue 與「喚醒」
 
-executor 將會有一條 **ready queue**：裡面排著「現在該被 `poll` 的 `Task`」。executor 的工作就是從 queue 裡拿 `Task` 出來 `poll`；queue 空了就去睡覺。
+executor 將會有一條 **ready queue**：裡面排著「現在該被 `poll` 的 `Task`」。executor 的工作就是從 queue 裡拿 `Task` 出來 `poll` 它的 `Future`；queue 空了就去睡覺。
 
 當一個 `Task` 被 `wake`，它就把**自己**放回 ready queue，然後 `unpark` 把睡著的 executor 叫醒。注意這個 `unpark` 只是一個**鬧鈴**——它只說「有事做了，起床！」，並不指出是哪個 `Task` 好了。真正「哪些 `Task` 該被 `poll`」的資訊，是放在 ready queue 裡的。
 
@@ -82,7 +82,7 @@ impl Future for Delay {
 
 type Queue = Arc<Mutex<VecDeque<Arc<Task>>>>;
 
-// 一個 Future ＋ 重新排程所需的隨身資料
+// 一個 Future + 重新排程所需的隨身資料
 struct Task {
     future: Mutex<Pin<Box<dyn Future<Output = ()> + Send>>>,
     queue: Queue,
@@ -187,11 +187,11 @@ fn main() {
 - 如果拿到的是 `false`，代表這個 `Task` 原本**不在** queue 裡，我們就把它 push 進去。
 - 如果拿到的是 `true`，代表它已經在 queue 裡了，這次 `wake` 就不用再排一次。
 
-為什麼不能先 `load` 再 `store`？因為 `wake` 可能來自不同 `Thread`。`swap` 把「看舊值」和「留下新值」綁成一次 atomic 操作，才不會兩條 thread 都同時看到 `false`、然後把同一個 `Task` 重複排進 queue。
+為什麼不能先 `load` 再 `store`？因為 `wake` 可能來自不同 `Thread`。為了保險，`swap` 把「看舊值」和「留下新值」綁成一次 atomic 操作，才不會兩條 `Thread` 都同時看到 `false`、然後把同一個 `Task` 重複排進 queue。
 
 ### 為什麼 `Future` 欄位要是 `Send`
 
-你可能會注意到 `Task` 的 `future` 欄位型別寫成 `Mutex<Pin<Box<dyn Future<Output = ()> + Send>>>`，為什麼要 `Send`？
+你可能還會注意到 `Task` 的 `future` 欄位型別寫成 `Mutex<Pin<Box<dyn Future<Output = ()> + Send>>>`，為什麼要 `Send`？
 
 順著推一遍就懂了：`Future` 被收進 `Task`，而 `Task` 又 `impl Wake` 兼任 `Waker`（理論上不一定要讓 `Task` 自己當 `Waker`，但這樣寫最省事）。`Waker::from(Arc<Task>)` 這個轉換要求 `Task: Send + Sync + 'static`。一個型別要 `Send + Sync`，它的**每個欄位**都得是 `Send + Sync`——包括那個 `Future`。
 
