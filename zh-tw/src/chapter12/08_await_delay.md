@@ -22,7 +22,9 @@ struct Delay {
 
 impl Delay {
     fn new(duration: Duration) -> Delay {
-        Delay { when: Instant::now() + duration }
+        Delay {
+            when: Instant::now() + duration
+        }
     }
 }
 
@@ -82,10 +84,10 @@ fn main() {
 
 1. 第一次 `poll`：從頭開始跑，印出「開始」「等第一個 delay……」，然後遇到第一個 `.await`。這時 `Delay` 還沒到期，回 `Pending`——於是整個 `async` block 也跟著回 `Pending`，**從這裡暫停**。
 2. 接下來 executor 一次又一次 `poll`，但 `Delay` 還沒到期，每次都卡在第一個 `.await` 那裡回 `Pending`，沒能往下走。
-3. 一秒後 `Delay` 到期回傳 `Ready(())`，這次 `poll` 越過第一個 `.await`，印出「第一個 delay 完成」「等第二個 delay……」，遇到第二個 `.await` 又回 `Pending`，**在新的地方暫停**。
-4. 再一秒，第二個 `Delay` 到期回傳 `Ready(())`，越過第二個 `.await`，印完最後一句，整個 `async` block 回 `Ready`，`block_on` 結束。
+3. 一秒後 `Delay` 如期回傳 `Ready(())`，這次 `poll` 越過第一個 `.await`，印出「第一個 delay 完成」「等第二個 delay……」，遇到第二個 `.await` 又回 `Pending`，**在新的地方暫停**。
+4. 再一秒，第二個 `Delay` 如期回傳 `Ready(())`，越過第二個 `.await`，印完最後一句，整個 `async` block 回 `Ready`，`block_on` 結束。
 
-關鍵在於：**每次被 `poll`，`Future` 都從上次暫停的地方接著跑**，一路跑到下一個還沒好的 `.await` 才又停下。這種「能記住進度、暫停後又從原地恢復」的能力，正是上一集說的「狀態機」在背後撐著——但這集先看現象就好。
+關鍵在於：**每次被 `poll`，`Future` 都從上次暫停的地方接著跑**，一路跑到下一個還沒好的 `.await` 才可能停下。這種「能記住進度、暫停後又從原地恢復」的能力，正是又前面所說的「狀態機」完成——但這集先看現象就好。
 
 ### `.await` 不會自動幫你並行
 
@@ -100,4 +102,4 @@ fn main() {
 - 在 `async` 裡用 `.await` 等待 `Delay`，搭配 `println!` 可以看到執行的步進過程
 - 每次被 `poll`，`Future` 都從上次暫停處接著跑，直到遇到下一個沒完成的 `.await` 才回 `Pending`
 - `Future` 能記住進度、暫停後從原地恢復，這是背後狀態機的功勞
-- `.await` **不會**自動並行：連續兩個 `.await` 會依序等待，想並行得用別的工具（下一集）
+- `.await` **不會**自動並行：連續兩個 `.await` 會依序等待，想要並行得用別的工具（下一集會講一種）

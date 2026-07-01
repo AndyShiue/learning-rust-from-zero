@@ -104,7 +104,10 @@ struct Delay {
 
 impl Delay {
     fn new(duration: Duration) -> Delay {
-        Delay { when: Instant::now() + duration, started: false }
+        Delay {
+            when: Instant::now() + duration,
+            started: false,
+        }
     }
 }
 

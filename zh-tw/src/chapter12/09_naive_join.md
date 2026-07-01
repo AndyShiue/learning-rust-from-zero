@@ -10,7 +10,7 @@
 
 上一集結尾留下一個問題：連續兩個 `.await` 會依序等待。如果我想讓好幾個工作**同時**進行、一起等它們全部完成，該怎麼辦？
 
-辦法是自己寫一個 `Future`，叫它 `JoinAll`。它把一整個 `Vec` 的 `Future` 收進來，每次被 `poll` 的時候，就用 `for` 迴圈把裡面**每一個**還沒完成的 `Future` 各用 `poll` 試著推進一次。等到全部都完成了，自己才回 `Ready`。
+辦法是自己寫一個 `Future`，我們叫它 `JoinAll`。它把一整個 `Vec` 的 `Future` 收進來，每次被 `poll` 的時候，就用 `for` 迴圈把裡面**每一個**還沒完成的 `Future` 各用 `poll` 試著推進一次。等到全部都完成了，自己才回 `Ready`。
 
 ### 寫出 `JoinAll`
 
@@ -26,7 +26,9 @@ struct Delay {
 
 impl Delay {
     fn new(duration: Duration) -> Delay {
-        Delay { when: Instant::now() + duration }
+        Delay {
+            when: Instant::now() + duration
+        }
     }
 }
 
@@ -125,7 +127,7 @@ fn main() {
 }
 ```
 
-這裡我們用 `type BoxFuture = Pin<Box<dyn Future<Output = ()>>>` 幫型別取了個短名字。`dyn Future<Output = ()>` 的意思是：「我不管裡面具體是哪一種 `Future`，只要它完成時回傳 `()` 就好。」`boxed(...)` 則負責把不同的 `Future` 放進 `Box`、用 `Pin` 釘住，再包成同一種 `BoxFuture`，這樣 `JoinAll` 裡的 `Vec` 才能裝下它們。
+這裡我們用 `type BoxFuture = Pin<Box<dyn Future<Output = ()>>>` 幫型別取了個短名字。`dyn Future<Output = ()>` 的意思是：「我不管裡面具體是哪一種 `Future`，只要它完成時回傳 `()` 就好。」`boxed(...)` 則負責把不同的 `Future` 放進 `Box`、用 `Pin` 釘住，包成同一種 `BoxFuture`，這樣 `JoinAll` 裡的 `Vec` 才能裝下它們。
 
 你可能會注意到這行：
 
@@ -133,7 +135,7 @@ fn main() {
 let this = self.get_mut(); // JoinAll 是 Unpin，可以拿回普通的 &mut
 ```
 
-`poll` 收到的 `self` 型別是 `Pin<&mut JoinAll>`，不是普通的 `&mut JoinAll`。但有些時候，Rust 允許我們把外面這層 `Pin` 拿掉，還原成裡面原本的可變參考。`get_mut()` 做的就是這件事：把 `Pin<&mut JoinAll>` 變回 `&mut JoinAll`。可以這麼做的正式原因後面講 `Unpin` 時會再補上；現在只要知道：拿到普通的 `&mut JoinAll` 之後，我們才能用熟悉的方式修改裡面的 `Vec`。
+`poll` 收到的 `self` 型別是 `Pin<&mut JoinAll>`，不是普通的 `&mut JoinAll`。但有些時候，Rust 允許我們把外面這層 `Pin` 拿掉，還原成裡面原本的可變參考。`get_mut()` 做的就是這件事：把 `Pin<&mut JoinAll>` 變回 `&mut JoinAll`。後面會解釋可以這麼做的正式原因；現在只要知道：拿到普通的 `&mut JoinAll` 之後，我們才能用熟悉的方式修改裡面的 `Vec`。
 
 另一個值得注意的是這行：
 
@@ -141,7 +143,7 @@ let this = self.get_mut(); // JoinAll 是 Unpin，可以拿回普通的 &mut
 if let Some(mut fut) = slot.take() { ... }
 ```
 
-`slot` 的型別是 `&mut Option<BoxFuture>`。`Option::take` 會把 `Option` 裡的值**拿出來**（取得所有權），並且在原本的位置留下 `None`。所以如果 `slot` 原本是 `Some(fut)`，呼叫 `take()` 之後，我們會拿到那個 `fut`，而 `slot` 會暫時變成 `None`。
+`slot` 的型別是 `&mut Option<BoxFuture>`。`Option::take` 會把 `Option` 裡的值**拿出來**（取得所有權），並且在原本的位置留下 `None`。所以如果 `slot` 原本是 `Some(fut)`，呼叫 `take()` 之後，我們會拿到那個 `Some(fut)`，而 `slot` 會暫時變成 `None`。
 
 這正好符合我們要做的事：先把子 `Future` 拿出來 `poll` 一次。如果它完成了，就不放回去，讓 `slot` 維持 `None`；如果它還沒完成，就用 `*slot = Some(fut)` 放回去，下一輪再繼續 `poll`。
 
