@@ -14,7 +14,7 @@
 use std::future::Future;
 use std::pin::Pin;
 use std::task::{Context, Poll, Waker};
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 struct Delay {
     when: Instant,
@@ -48,8 +48,6 @@ fn block_on<F: Future>(future: F) -> F::Output {
         }
     }
 }
-
-use std::time::Duration;
 
 fn main() {
     block_on(async {

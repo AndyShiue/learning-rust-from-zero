@@ -18,7 +18,7 @@
 
 先看 `Waker` 怎麼生出來。標準庫提供一個 `Wake` `trait`，你實作它的 `wake` 方法，描述「被喚醒時該做什麼」，再用 `Waker::from` 把它轉成 `Waker`。
 
-我們希望「喚醒」的動作是把 executor 那條 `Thread` 叫醒，所以做一個記著 executor `Thread` 的小型別   ：
+我們希望「喚醒」的動作是把 executor 那條 `Thread` 叫醒，所以做一個記著 executor `Thread` 的小型別：
 
 ```rust,noplayground
 use std::sync::Arc;

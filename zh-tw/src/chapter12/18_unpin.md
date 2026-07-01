@@ -116,6 +116,6 @@ impl<T: ?Sized> Pin<&mut T> {
 - `Pin` 的「不准搬」基本上只為一種東西而設：自我參照的 `async` 狀態機；其餘型別搬了都不會壞
 - `Unpin` 就是「搬了不會壞」的標籤，是 auto trait，由編譯器自動實作，**絕大多數型別都是 `Unpin`**
 - `async fn` / `async` block 的 `Future` 不能假設是 `Unpin`（可能是自我參照的狀態機）
-- 當 `T: Unpin`，`&mut Pin<&mut T>` 才能用 `get_mut` 變回普通 `&mut T`，`Pin<P<T>>` 才實作 `DerefMut`；我們手寫 `Future` 的 `self.get_mut()` 能用就是這個原因
+- 當 `T: Unpin`，`Pin<&mut T>` 才能用 `get_mut` 變回普通 `&mut T`，`Pin<P<T>>` 才實作 `DerefMut`；我們手寫 `Future` 的 `self.get_mut()` 能用就是這個原因
 - `Pin::new` 和 `get_mut` / `DerefMut` 分別放寬上一集的兩個限制：用既有指標建立 `Pin`、拿回普通 `&mut`；它們都只對 `Unpin` 開放
 - `Future` 不是 `Unpin` 時，就得用 `Box::pin` 或下一集的 `pin!` 來釘

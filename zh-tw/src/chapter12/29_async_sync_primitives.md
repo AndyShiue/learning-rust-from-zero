@@ -8,7 +8,7 @@
 
 ### 從 `Send` / `Sync` 的一個例外講起
 
-先回到第多執行緒一章的 `Send` / `Sync`。日常的型別有個規律：一個型別只要是 `Sync`（能被多條 `Thread` 同時借用），通常它也是 `Send`（能搬到別條 `Thread`）。
+先回到多執行緒一章的 `Send` / `Sync`。日常的型別有個規律：一個型別只要是 `Sync`（能被多條 `Thread` 同時借用），通常它也是 `Send`（能搬到別條 `Thread`）。
 
 但有些少數的例外：`std::sync::Mutex` 和 `RwLock` 的 **guard**（`lock()` 回傳的那個 `MutexGuard` / `RwLockReadGuard` / `RwLockWriteGuard`）是 **`Sync` 但不是 `Send`**。為什麼？因為在某些作業系統上，一把鎖**必須由當初上鎖的那條 `Thread` 來解鎖**；如果把 guard 搬到別條 `Thread` 才 `drop`（解鎖），就會出錯。所以標準庫乾脆禁止這些 guard 被 `Send`。
 
@@ -27,7 +27,7 @@ async fn do_io() {}
 async fn main() {
     let data = Arc::new(Mutex::new(0));
     tokio::spawn(async move {
-        let mut guard = data.lock().expect("取得鎖失敗"); //標準庫的 MutexGuard，不是 Send
+        let mut guard = data.lock().expect("取得鎖失敗"); // 標準庫的 MutexGuard，不是 Send
         do_io().await; // 抓著 guard 跨 .await
         *guard += 1;
     }); // 編譯錯誤：future 不是 Send，不能 spawn
