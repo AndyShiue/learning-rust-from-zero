@@ -22,10 +22,10 @@
 
 答案是**透過一塊共享狀態 `Shared<T>`**，而不是 `Future` 直接通知 `Future`。`Shared<T>` 裡放兩樣東西：算好的結果，以及「等待者的 `Waker`」。
 
-流程是這樣的：
+底下的流程是這樣的：
 
-- `JoinHandle<T>` 本身**不是** `Task`，也不會進 ready queue。它只是一個 `Future`，被「等待者 `Task`」在 `.await` 時順帶 `poll`。
-- 等待者 `poll` `JoinHandle` 時，如果結果還沒好，`JoinHandle` 就把 `cx.waker()`（也就是**等待者自己的** `Waker`，因為 `JoinHandle` 沒有自己的 `Waker`）存進 `Shared<T>`，回 `Pending`。
+- `JoinHandle<T>` 沒有被另外包成獨立的 `Task`，也不會自己進 ready queue。它是等待者 `Task` 裡面的其中一個 `Future`，在 `.await` 時被順著 `poll` 到。
+- 等待者 `poll` `JoinHandle` 時，如果結果還沒好，`JoinHandle` 就把 `cx.waker()`（也就是**等待者自己的** `Waker`，因為 `JoinHandle` 沒有獨立的 `Waker`）存進 `Shared<T>`，回 `Pending`。
 - 等背景 `Task` 完成，它把結果放進 `Shared<T>`，再取出剛剛那個 `Waker`、`wake()`——於是等待者 `Task` 被排回 ready queue、executor 被 `unpark`。等待者再次被 `poll` 時，就能從 `Shared<T>` 拿到結果了。
 
 ```rust,editable
@@ -235,11 +235,17 @@ fn main() {
 10. executor 接下來 `poll` B。B 外面的 `task_future` 繼續 `poll` 內層 `async` block；這次 `handle.await` 從 `Shared<T>` 取到 `42`，印出 `main task：拿到背景結果 42`，然後 B 回傳 `142`。
 11. B 自己外面那層 `task_future` 把 `142` 寫進 B 自己的 `Shared<T>`。所有 `Task` 都完成了，`block_on` 從 B 的 `JoinHandle` 裡取出 `142` 回傳，最後印出 `block_on 回傳：142`。
 
-這裡有兩個不同的 `Waker`：A 的 `Waker` 用來在計時完成時叫醒「做事的 A」；B 的 `Waker` 則是 `JoinHandle` 在等待 A 結果時存起來的，用來在 A 完成後叫醒「等結果的 B」。來源不同，但最後都走同一條路：把對應的 `Task` 排回 ready queue，再 `unpark` executor。
+### `cx.waker()` 到底是誰的 `Waker`
+
+走完這一遍，可以補上一個你可能沒注意到、但很重要的一點。executor `poll` 某個 `Task` 時，會先用這個 `Task` 建出一個 `Waker`，放進 `Context` 裡；接著這個 `Context` 會沿著外層 `task_future`、內層 `async` block，再到 `.await` 前面的 `Future` 一路傳下去。也就是說，一個 `Task` 裡被一路 `poll` 到的 `Future`，共用的都是同一個 `Task` 的 `Waker`。
+
+這其實也接近 `Task` 作為排程單位的意義：被排回 ready queue、被 executor 再次 `poll` 的是 `Task`，不是裡面某一個單獨的 `Future`。所以內層 `Future` 要登記喚醒方式時，除了目前這個 `Task` 的 `Waker`，也沒有其他更合理的 `Waker` 可以用。
+
+套回上面的流程，就能看清這裡出現的兩個不同的 `Waker`：A 被 `poll` 時（步驟 3），`Delay` 從 `cx.waker()` 拿到的是 **A 的** `Waker`，交給計時 `Thread`，計時到就叫醒「做事的 A」（步驟 7）；B 被 `poll` 時（步驟 5），`JoinHandle` 從 `cx.waker()` 拿到的是 **B 的** `Waker`，存進 `Shared<T>`，A 完成後用它叫醒「等結果的 B」（步驟 9）。來源不同，但最後都走同一條路：把對應的 `Task` 排回 ready queue，再 `unpark` executor。
 
 ### 不是 `Future` 直接通知 `Future`
 
-請特別記住這集的精神：`JoinHandle` 和背景 `Task` 之間沒有直接連線，它們只共用一塊 `Shared<T>`。等待的一方把自己的 `Waker` 留在共享狀態裡，完成的一方做完後從共享狀態取出這個 `Waker`、把它 `wake`。所有的喚醒，最後都還是回到「排回 ready queue + `unpark` executor」這條老路上。
+請注意這點：`JoinHandle` 和背景 `Task` 之間沒有直接連線，它們只共用一塊 `Shared<T>`。等待的一方把自己的 `Waker` 留在共享狀態裡，完成的一方做完後從共享狀態取出這個 `Waker`、把它 `wake`。所有的喚醒，最後都還是回到「排回 ready queue + `unpark` executor」這條老路上。
 
 到這裡，我們手寫的 executor 已經有模有樣了：能 `spawn`、能睡覺、能被叫醒。但它還缺一塊大拼圖——目前「等待」靠的還是替每個 `Delay` 開一條 `Thread`。下一集起，我們要引入 `mio` 和 reactor，用少少幾條 `Thread` 盯住真正的 I/O。
 
@@ -247,6 +253,7 @@ fn main() {
 
 - `JoinHandle<T>` 是一個 `Future`，`.await` 它就能拿到背景 `Task` 的回傳值
 - 排程核心不變，只加三樣：`Shared<T>` + `JoinHandle<T>`、回傳 `JoinHandle<T>` 的 `Executor::spawn`、回傳 `T` 的 `Executor::block_on`
-- `JoinHandle` 沒有自己的 `Waker`，它在 `.await` 時把**等待者自己的** `Waker` 存進 `Shared<T>`
+- executor `poll` 某個 `Task` 時，`Context` 會一路傳到內層 `Future`；所以內層 `Future` 看到的 `cx.waker()` 就是目前這個 `Task` 的 `Waker`
+- `JoinHandle` 沒有獨立的 `Waker`，它在 `.await` 時把**等待者自己的** `Waker` 存進 `Shared<T>`
 - 背景 `Task` 完成時把結果放進 `Shared<T>`，再取出那個 `Waker` `wake()`，喚醒等待者
 - 喚醒不是 `Future` 直接通知 `Future`，而是完成方透過共享狀態喚醒等待方
