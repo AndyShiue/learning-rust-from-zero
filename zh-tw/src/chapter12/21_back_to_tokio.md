@@ -35,7 +35,7 @@ async fn main() {
 
 ### 和手寫 `block_on` 的語意差異
 
-這裡要特別點出一個容易忽略的差異。我們第 11 集後手寫的 `block_on` 會等 ready queue 裡所有 `Task` 都完成才回傳。Tokio 的 `block_on` 不一樣：它是「**傳給它的那個 `Future` 一完成就回傳**」，不會等其他用 `tokio::spawn` 開出去的背景 `Task`。那些還沒做完的背景 `Task` 會留在 runtime 上。
+這裡要特別點出一點：我們第 11 集後手寫的 `block_on` 會等 ready queue 裡所有 `Task` 都完成才回傳，但 Tokio 的 `block_on` 不一樣：它是「**傳給它的那個 `Future` 一完成就回傳**」，不會等其他用 `tokio::spawn` 開出去的背景 `Task`。那些還沒做完的背景 `Task` 會留在 runtime 上。
 
 一句話對比：手寫版是「跑完整批才繼續」，Tokio 是「跑完我指定的這一個就繼續」。所以在 Tokio 裡，`block_on` 回傳時，只代表你傳進去的那個 `Future` 完成了；你 `spawn` 出去的背景 `Task` 可能還沒跑完。如果 runtime 接著結束，這些背景 `Task` 就沒有機會繼續做完。
 
@@ -64,7 +64,7 @@ async fn main() {
 
 解法有幾種：
 
-**用 `Send` 的替代品。** `Rc` 換成 `Arc`（第 9 章），它就是 `Send` 的：
+**用 `Send` 的替代品。** `Rc` 換成 `Arc`，它就是 `Send` 的：
 
 ```rust,noplayground
 # extern crate tokio;
@@ -83,7 +83,7 @@ async fn main() {
 }
 ```
 
-**在 `.await` 之前就把非 `Send` 的值處理掉。** 用 `{}` 縮小它的 scope，讓它在 `.await` 之前就被 `drop`，這樣狀態機跨 `.await` 時根本不持有它：
+**在 `.await` 之前就把非 `Send` 的值處理掉。** 用 `{}` 縮小它的作用域，讓它在 `.await` 之前就被 `drop`，這樣狀態機跨 `.await` 時根本不持有它：
 
 ```rust,noplayground
 # extern crate tokio;
@@ -138,7 +138,7 @@ async fn main() {
 ## 重點整理
 
 - `tokio::spawn` 把 `Future` 交給 runtime，回傳 `JoinHandle`（`.await` 後得到 `Result`，因為可能 panic）
-- Tokio 預設多執行緒，可能在 thread 間搬 `Task`，所以 `spawn` 的 `Future` 與輸出要 `Send + 'static`；`block_on` 在當前 thread 跑，不需要
+- Tokio 預設多執行緒，可能在 `Thread` 之間搬 `Task`，所以 `spawn` 的 `Future` 與輸出要 `Send + 'static`；`block_on` 在當前 `Thread` 跑，不需要
 - 語意差異：手寫 `block_on` 等**所有** `Task` 完成；Tokio `block_on` 是**指定的 `Future`** 一完成就回傳
 - `.await` 期間持有非 `Send` 的值（`Rc`、`RefCell`）會讓 `Future` 不是 `Send`，不能 `spawn`；解法是改用 `Arc`、或用作用域 / `drop` 讓它在 `.await` 前消失
 - `#[tokio::main]` 預設多執行緒，但可用 `flavor = "current_thread"` 或 `worker_threads = N` 調整
