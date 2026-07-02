@@ -49,7 +49,7 @@ async fn borrows() {
 
 ### 先證明「create → `poll` → move → `poll`」做得出來
 
-不過在談怎麼防範之前，先確認一件事：一個 `Future` 真的可能在「被 `poll` 過之後又被 move、然後再被 `poll`」。我們寫一個最小的 `Future`——`Counter`，每次 `poll` 就把計數 +1，並用 `{:p}` 印出 `self` 的位址：
+不過在談怎麼防範之前，先確認一件事：一個 `Future` 真的可能在「被 `poll` 過之後又被 move，然後再被 `poll`」。我們寫一個最小的 `Future`——`Counter`，每次 `poll` 就把計數 +1，並用 `{:p}` 印出 `self` 的位址：
 
 ```rust,editable
 use std::future::Future;
