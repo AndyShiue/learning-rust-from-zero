@@ -125,4 +125,4 @@ fn main() {
 - `Pin` 擋 move 要守兩件事：建立時不能留下另一條外部路徑讓你之後搬走值；使用時安全 API 也不能把能搬走內部值的內層指標交給你
 - `Pin` 的用法很有限：唯讀靠 `Deref`，重新借出用 `as_mut`，當然還能餵給 `poll`
 - `Pin<P>` 釘的是「被指的值」不是「指標本身」，所以 `Pin<Box<T>>` 自己能隨意 move（連塞進 `Vec` 再拿出來都行），這就是 executor 能到處搬 `Pin<Box<Fut>>` 的原因
-- `Pin` 對平常寫 `async fn` + `.await`、用現成 runtime 的人是隱形的：你寫的 `async fn` / `async` block 的 `Future` 由編譯器自動實作，`Pin` 由 runtime 建好再拿去 `poll`；只有像我們這章「自己手刻 runtime / `Future`」時才會直接碰到它
+- `Pin` 對平常寫 `async fn` + `.await`、用現成 runtime 的人通常是隱形的：你寫的 `async fn` / `async` block 的 `Future` 由編譯器自動實作，`Pin` 由 runtime 建好再拿去 `poll`；像我們這章「自己手刻 runtime / `Future`」時才比較有機會碰到它
