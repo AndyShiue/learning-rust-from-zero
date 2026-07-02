@@ -25,7 +25,7 @@ tokio::select! {
 }
 ```
 
-左邊的 `pattern` 用來接住右邊那個 `Future` 的輸出；右邊寫的是要等待的 `Future`，但這裡**不要**自己加 `.await`。`select!` 會負責同時 `poll` 這些 `Future`，等其中一個先完成。
+等號前的 `pattern` 用來接住等號後那個 `Future` 的輸出；如果 pattern 裡綁定了變數，那個變數會被帶進右邊的大括號裡使用。等號後寫的是要等待的 `Future` 而已，這裡**不要**自己加 `.await`。`select!` 會負責同時 `poll` 這些 `Future`，等其中一個先完成。
 
 如果你不需要某個 `Future` 的輸出，就像一般 `match` pattern 一樣用 `_` 忽略它：
 
@@ -56,9 +56,24 @@ tokio::select! {
 }
 ```
 
-所以可以先把 `select!` 讀成：「同時等右邊這些 `Future`；誰先完成，就把它的輸出交給左邊的 pattern，然後執行那個 branch 的程式碼。」
+`select!` 本身也可以有回傳值，回傳的是勝出 branch 大括號裡最後一個 expression。這點跟 `match` 很像：每個 branch 都要回傳同一種型別。
 
-最經典的用途是 **timeout**：把「真正的工作」和「一個計時器」一起 `select!`，看誰先到。
+```rust,ignore
+let status = tokio::select! {
+    value = compute() => {
+        println!("算出來了：{}", value);
+        "done"
+    }
+    _ = shutdown.recv() => {
+        println!("收到 shutdown 訊號");
+        "shutdown"
+    }
+};
+
+println!("狀態：{}", status);
+```
+
+`select!` 最經典的用途是 **timeout**：把「真正的工作」和「一個計時器」一起 `select!`，看誰先到。
 
 ```rust,editable
 extern crate tokio;
@@ -99,13 +114,15 @@ async fn main() {
 
 回想上一集：`read_exact` 這類「跨多次推進、累積中間狀態」的操作**不是 cancellation safe**，中途被取消時，可能已經消費了一部分資料，但整個「讀滿 buffer」的動作沒有完成。而 `select!` 每一輪都可能因為**別的** branch 先完成，而把這一個 branch 的 `Future` `drop` 掉（取消）。如果你把 `read_exact` 放進 `select!` 的某個 branch，又在 `loop` 裡反覆跑，那它就很可能在讀到一半時被取消，留下不好接續的半成品。
 
-所以原則是：**別把非 cancellation safe 的 `Future` 放進「會被 `drop` 的 `select!` branch」**。如果非用不可，要嘛改用 cancellation safe 的替代寫法，要嘛把累積狀態保存在 branch 外面、讓它能跨輪存活。第 32 集講 graceful shutdown 時，會再看到同一個設計原則：`select!` 可以拿來等 shutdown，但要安排好，別讓它把處理到一半的工作砍掉。
+輸掉的 branch 不會執行自己的大括號，這本來就是 `select!` 的正常行為，問題不在這裡。真正要小心的是：那個輸掉的 `Future` 在被丟掉以前，可能已經造成一部分外部效果，例如從 socket 讀走一些 bytes，或把一部分資料寫出去。
+
+所以風險不是「handler 沒跑」，而是「`Future` 被取消時，已經做了一半的事沒有被完整收尾」。如果這個操作需要跨多步累積進度，就應該把進度放在 `select!` 外面，branch 裡只等待一次可以安全取消的小步驟。本章後面我們會示範如何遵守這樣的設計原則。
 
 ### 幾個實用補充
 
 `select!` 還有幾個常用功能：
 
-**branch precondition**：在 branch 後面加 `,if 條件`。條件為假時，這個 branch 直接略過，不會參與本輪競爭。
+**branch precondition**：在 branch 後面加 `, if 條件`。條件為假時，這個 branch 直接略過，不會參與本輪競爭。
 
 ```rust,ignore
 tokio::select! {
@@ -118,9 +135,9 @@ tokio::select! {
 }
 ```
 
-**`else` 分支**：當所有 branch 都因為 precondition 被略過，沒有任何 branch 能跑時，執行 `else`。
+**`else` 分支**：當所有 branch 都被略過，沒有任何 branch 能跑時，執行 `else`。
 
-另外，如果右邊的 `Future` 完成了，但輸出不符合左邊的 pattern，這個 branch 也會在本輪 `select!` 被略過。例如 `Some(job) = jobs.recv()` 遇到 channel 關閉、`recv()` 回 `None` 時，`Some(job)` 匹配失敗，這個 branch 就不會執行。如果所有 branch 都被略過，而且沒有 `else`，`select!` 會 panic。
+除了 `if` 失敗之外，如果右邊的 `Future` 完成了，但輸出不符合左邊的 pattern，這個 branch 也會在本輪 `select!` 被略過。例如 `Some(job) = jobs.recv()` 遇到 channel 關閉、`recv()` 回 `None` 時，`Some(job)` 匹配失敗，這個 branch 就不會執行。如果所有 branch 都被略過，而且沒有 `else`，`select!` 會 panic。
 
 ```rust,ignore
 tokio::select! {
@@ -136,7 +153,7 @@ tokio::select! {
 }
 ```
 
-**公平性與 `biased;`**：`select!` 預設是**隨機**挑選同時就緒的 branch（避免某個 branch 永遠被優先、餓死其他人）。如果你希望改成「由上到下依序檢查」，在開頭加一行 `biased;`。
+**公平性與 `biased;`**：`select!` 預設是**隨機**挑選同時就緒的 branch（避免某個 branch 永遠被優先，餓死其他人）。如果你希望改成「由上到下依序檢查」，在開頭加一行 `biased;`。
 
 ```rust,ignore
 tokio::select! {
@@ -149,7 +166,7 @@ tokio::select! {
 ## 重點整理
 
 - `select!` 同時等多個 branch，**第一個**完成就執行對應 handler，其他 branch 被 `drop`（取消）
-- 基本語法是 `pattern = future => { ... }`；branch 裡不用寫 `.await`，不需要輸出時用 `_ = future`
+- 基本語法是 `pattern = future => { ... }`；branch 裡不用寫 `.await`，不需要輸出時用 `_ = future`；`select!` 本身也能回傳勝出 branch 的值
 - 所以 `select!` 是程式裡**最常製造取消**的地方；適合 timeout、多 channel 接收、等 shutdown 訊號
 - 在 `loop` 裡用 `select!` 要注意 cancellation safety：別把 `read_exact` 這類不可安全取消的 `Future` 放進會被 `drop` 的 branch
 - 補充功能：branch `if`（precondition）、pattern 不匹配時略過該 branch、`else`（所有 branch 都被略過時）、`biased;` 把預設的隨機改成依序
