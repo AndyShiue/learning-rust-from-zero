@@ -16,7 +16,7 @@ Rust 用一個標籤把這兩群分開，這個標籤就叫 **`Unpin`**：一個
 
 ### `Unpin` 幾乎人人都有
 
-`Unpin` 和第 9 章的 `Send` / `Sync` 一樣是 **auto trait**——如果一個型別裡存的資料都是 `Unpin`，那它本身預設就是 `Unpin`。我們直接跳到結果：**絕大多數型別都是 `Unpin`**。
+`Unpin` 和第 9 章的 `Send` / `Sync` 一樣是 **`auto trait`**——如果一個型別裡存的資料都是 `Unpin`，那它本身預設就是 `Unpin`。我們直接跳到結果：**絕大多數型別都是 `Unpin`**。
 
 寫個小工具就能驗證。下面的 `assert_unpin` 只收 `Unpin` 的型別，把各種常見值丟進去都能過：
 
@@ -103,7 +103,7 @@ impl<T: ?Sized> Pin<&mut T> {
 }
 ```
 
-`Pin::new` 放寬的是第一個限制。它允許你拿一個既有的指標，例如 `&mut T`，直接包成 `Pin<&mut T>`。這件事對「搬了會壞」的型別很危險，因為 `Pin<&mut T>` 只是暫時借用；借用結束後，外面的原變數還可能被搬走。所以 `Pin::new` 只允許用在 `T: Unpin` 的型別上。
+`Pin::new` 放寬的是第一個限制。它允許你拿一個既有的指標，例如 `&mut T`，直接包成 `Pin<&mut T>`。這件事對「搬了會壞」的型別很危險，因為 `Pin<&mut T>` 只是暫時借用；借用結束後，外面的原變數 `T` 還可能被搬走。所以 `Pin::new` 只允許用在 `T: Unpin` 的型別上。
 
 `get_mut` 放寬的是第二個限制。它會把 `Pin<&mut T>` 變回普通 `&mut T`。這也只對 `T: Unpin` 安全，因為普通 `&mut T` 可以做 `Option::take` 這類把值搬出原位址的事。`DerefMut` 同理。
 
@@ -114,7 +114,7 @@ impl<T: ?Sized> Pin<&mut T> {
 ## 重點整理
 
 - `Pin` 的「不准搬」基本上只為一種東西而設：自我參照的 `async` 狀態機；其餘型別搬了都不會壞
-- `Unpin` 就是「搬了不會壞」的標籤，是 auto trait，由編譯器自動實作，**絕大多數型別都是 `Unpin`**
+- `Unpin` 就是「搬了不會壞」的標籤，是 `auto trait`，由編譯器自動實作，**絕大多數型別都是 `Unpin`**
 - `async fn` / `async` block 的 `Future` 不能假設是 `Unpin`（可能是自我參照的狀態機）
 - 當 `T: Unpin`，`Pin<&mut T>` 才能用 `get_mut` 變回普通 `&mut T`，`Pin<P<T>>` 才實作 `DerefMut`；我們手寫 `Future` 的 `self.get_mut()` 能用就是這個原因
 - `Pin::new` 和 `get_mut` / `DerefMut` 分別放寬上一集的兩個限制：用既有指標建立 `Pin`、拿回普通 `&mut`；它們都只對 `Unpin` 開放

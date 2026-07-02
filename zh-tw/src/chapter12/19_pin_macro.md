@@ -8,7 +8,7 @@
 
 ### stack pinning
 
-前面要釘住一個 `Future`，我們都用 `Box::pin`——把它放到 heap 上。但有時候你不想為了釘住一個 `Future` 而特地做一次 heap 配置（heap allocation 是有成本的），尤其當這個 `Future` 只在目前這個作用域裡用、不需要傳出去的時候。
+前面要釘住一個 `Future`，我們都用 `Box::pin`——把它放到 heap 上。但有時候你不想為了釘住一個 `Future` 而特地做一次 heap 配置（因為這麼做是有成本的），尤其當這個 `Future` 只在目前這個作用域裡用、不需要傳出去的時候。
 
 這種情況可以用 `std::pin::pin!`。它會把一個值釘在目前作用域裡，給你一個 `Pin<&mut T>`：
 
@@ -33,7 +33,7 @@ fn main() {
 }
 ```
 
-這裡有個容易誤會的點：目前編譯器保守地把 `hello()` 這種 `async fn` 產生的 `Future` 一律當成**不是** `Unpin`——連這個沒有任何 `.await`、根本不可能自我參照的 `hello` 也一樣（編譯器不想逐一判斷，乾脆全部不實作 `Unpin`）。所以上一集的 `Pin::new` 對它行不通，但 `pin!` 可以：因為 `pin!` 做的是 **stack pinning**，而它釘的辦法不要求 `Unpin`。
+這裡有個容易誤會的點：目前編譯器保守地把 `hello()` 這種 `async fn` 產生的 `Future` 與 `async` block 一律當成**不是** `Unpin`——連這個沒有任何 `.await`、根本不可能自我參照的 `hello` 也一樣（編譯器不想逐一判斷，乾脆全部不實作 `Unpin`）。所以上一集的 `Pin::new` 對它行不通，但 `pin!` 可以：因為 `pin!` 做的是 **stack pinning**，而它釘的辦法不要求 `Unpin`。
 
 ### 為什麼 `pin!` 一定要是巨集
 
@@ -60,7 +60,7 @@ fn pin<T>(value: T) -> Pin<&mut T> { /* ??? */ }
 一句話總結兩者的差別：
 
 - `pin!`：**stack 借用**——在不配置 heap 的情況下，從目前區塊中的值取得 `Pin<&mut T>`；因為普通函式不能回傳指向自己 stack 上變數的參考，所以這件事必須由巨集在呼叫位置完成。
-- `Box::pin`：**heap 擁有**——東西放 heap，交出所有權，可以到處傳，代價是一次 heap 配置。所以可以是普通函數。
+- `Box::pin`：**heap 擁有**——東西放 heap，交出所有權，可以到處傳，所以可以是普通函數。代價是一次 heap 配置。
 
 ## 重點整理
 

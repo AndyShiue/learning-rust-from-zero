@@ -94,7 +94,7 @@ fn main() {
 
 我們把 `factorial` 從 `async fn` 改寫成一個普通函式，回傳 `Pin<Box<dyn Future<Output = u64>>>`，函式體則是一個 `Box::pin` 包起來的 `async` block。遞迴呼叫 `factorial(n - 1)` 回傳的也是 `Pin<Box<...>>`，是固定大小，所以狀態機的大小就能決定了。
 
-這裡的 `Box` 和 `Pin` 各自負責不同的事：`Box` 讓外層大小固定，`Pin` 則讓裡面的 `Future` 可以被安全地 `poll`。只回傳 `Box<dyn Future<Output = u64>>` 不夠，因為 `dyn Future` 不保證 `Unpin`；而 `Box<dyn Future>` 不能直接安全地把盒子裡的 `Future` 當成已經被釘住。所以我們才回傳 `Pin<Box<dyn Future<Output = u64>>>`。
+這裡的 `Box` 和 `Pin` 各自負責不同的事：`Box` 讓外層大小固定，`Pin` 則讓裡面的 `Future` 可以被安全地 `poll`。只回傳 `Box<dyn Future<Output = u64>>` 不夠，因為 `dyn Future` 不保證 `Unpin`；而 `Box<dyn Future>` 不能直接安全地把指標裡的 `Future` 當成已經被釘住。所以我們才回傳 `Pin<Box<dyn Future<Output = u64>>>`。
 
 你可能也會注意到：`block_on` 接收的是 `F: Future`，可是 `factorial(5)` 回傳的是 `Pin<Box<dyn Future<Output = u64>>>`，這樣也能傳進去嗎？可以，因為 `Pin<Box<dyn Future<Output = u64>>>` 本身也實作了 `Future`，所以對 `block_on` 來說，它收到的仍然是一個可以 `poll` 的東西。
 
