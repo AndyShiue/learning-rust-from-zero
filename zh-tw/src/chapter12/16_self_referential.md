@@ -45,7 +45,7 @@ async fn borrows() {
 # fn main() {}
 ```
 
-這個 `async fn` 的狀態機，在 `.await` 那個狀態裡同時存著 `s` 和 `r`，而 `r` 指向 `s`。這就是自我參照。一旦它被 move，`r` 就會變成懸垂指標。所以結論是：**move 一個 `Future` 是有風險的**。
+這個 `async fn` 的狀態機，在 `.await` 那個狀態裡同時存著 `s` 和 `r`，而 `r` 指向 `s`。這就是自我參照。一旦它在這個狀態下被 move，`r` 就會變成懸垂指標。所以結論是：**`Future` 被 `poll` 到可能自我參照的狀態後，再 move 就有風險**。
 
 ### 先證明「create → `poll` → move → `poll`」做得出來
 
@@ -133,6 +133,6 @@ error[E0277]: `{async fn body of borrows()}` cannot be unpinned
 
 - move 一個值，它的位址會變；對一般值無所謂，因為舊變數不能再用
 - 若值裡存了「指向自己的位址」，一 move 那個位址沒人更新，就變成懸垂指標——很危險
-- **自我參照的 `Future` 狀態機**正是這種值：跨 `.await` 的借用會讓狀態機某欄位指向自己另一欄位
+- `async fn` / `async` block 產生的狀態機可能變成這種值：如果某個借用跨過 `.await`，狀態機就可能同時保存被借用的值和那個參考，形成某個欄位指向自己另一個欄位的結構
 - `Counter` 範例證明「`poll` → move → 再 `poll`」真的做得出來（兩次位址不同）
 - Rust 用 `Unpin` 當防線：`Counter` 是 `Unpin` 可被 `Pin::new`，自我參照的 `async` 狀態機不是 `Unpin`，`Pin::new` 直接編譯失敗
