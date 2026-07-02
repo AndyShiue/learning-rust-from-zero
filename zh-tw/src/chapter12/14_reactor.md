@@ -286,7 +286,7 @@ async fn serve(reactor: Arc<Reactor>, listener: TcpListener) {
     let stream_token = reactor.unique_token();
     reactor.register(&mut stream, stream_token, Interest::READABLE);
 
-    for i in 0..3 {
+    for i in 1..=3 {
         let mut buf = vec![0u8; 1024];
         let n = Read {
             reactor: reactor.clone(),
