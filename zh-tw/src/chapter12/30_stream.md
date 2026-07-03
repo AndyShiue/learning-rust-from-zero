@@ -43,7 +43,7 @@ async fn main() {
 
 ### `Stream` 不在標準庫裡
 
-有件事要特別說明：和 `Future` 不同，`Stream` **目前不在標準庫裡**，它定義在社群專案（`futures`）裡，Tokio 生態則提供 `tokio_stream`。要用 `.next()`、`map`、`filter` 這些方法，得引入對應的擴充 `trait` `StreamExt`：
+有件事要特別說明：和 `Future` 不同，`Stream` **目前不在標準庫裡**，它定義在社群專案（`futures`）裡，Tokio 生態則提供 `tokio_stream`。要用 `next`、`map`、`filter` 這些方法，得引入對應的擴充 `trait` `StreamExt`：
 
 ```rust,editable
 extern crate tokio;
