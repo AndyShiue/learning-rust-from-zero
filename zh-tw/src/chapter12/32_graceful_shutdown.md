@@ -21,8 +21,8 @@
 ### 三要素組起來
 
 - **訊號來源**用 `tokio::signal::ctrl_c()`——它是個 `Future`，`.await` 它會等到使用者按下 Ctrl-C（實務上還會再加上監聽 SIGTERM）。
-- **廣播 shutdown**用第 28 集的 `watch` 當一個 shutdown flag：一對多、而且晚訂閱的 worker 也讀得到當前狀態。
-- **等待 drain**用第 31 集的 `JoinSet`，`join_next()` 一直收到全空為止。
+- **廣播 shutdown** 用第 28 集的 `watch` 當一個 shutdown flag：一對多、而且晚訂閱的 worker 也讀得到當前狀態。
+- **等待 drain** 用第 31 集的 `JoinSet`，`join_next()` 一直收到全空為止。
 
 每個 worker 內部用 `select!`，**同時**等「下一份工作」和「shutdown 訊號」。如果先等到工作，就離開 `select!` 處理它；如果先等到 shutdown，就不再拿新工作：
 
@@ -195,12 +195,12 @@ async fn main() {
 }
 ```
 
-`token.cancelled()` 是一個等「被取消」的 `Future`，`token.cancel()` 一呼叫，所有持有 clone 的 worker 都會醒來。它讀起來就是「取消」的意思，比借 `watch` 當開關更貼合需求（而且還支援父子 token 等進階用法）。
+`token.cancelled()` 是一個等「被取消」的 `Future`，`token.cancel()` 一呼叫，所有持有 `clone` 的 worker 都會醒來。它讀起來就是「取消」的意思，比借 `watch` 當開關更貼合需求。
 
 ## 重點整理
 
 - graceful shutdown：不硬切，而是「通知收工 → 等做完（或到期限）→ 乾淨退出」
 - 三要素：訊號來源（`tokio::signal::ctrl_c()`）、廣播 shutdown（`watch` flag）、等待 drain（`JoinSet` 的 `join_next()` 到全空）
 - `select!` 適合用來同時等「下一份工作」與「shutdown」；若真正的工作不能安全取消，就先用 `select!` 拿到工作，再離開 `select!` 處理，避免 shutdown 把處理中的工作 `drop` 在半路（cancellation safety）
-- drain 一定要給期限：用 `tokio::time::timeout` 包住，逾時就 `abort_all()` 或 drop `JoinSet`——先禮貌地等，等不到就動手
-- 更匹配的工具是 `tokio-util` 的 `CancellationToken`：`token.cancel()` 一聲令下，所有 `token.cancelled()` 都醒來，語意比借 `watch` 更貼切
+- drain 一定要給期限：用 `tokio::time::timeout` 包住，逾時就 `abort_all()` 或 `drop` `JoinSet`——先禮貌地等，等不到就動手
+- 更匹配的工具是 `tokio_util` 的 `CancellationToken`：`token.cancel()` 一聲令下，所有 `token.cancelled()` 都醒來，語意比借 `watch` 更貼切

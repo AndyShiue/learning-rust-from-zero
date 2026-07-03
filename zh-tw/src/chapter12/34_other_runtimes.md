@@ -16,8 +16,8 @@ Tokio 是目前最主流的 runtime，但不是唯一的選擇。因為標準庫
 
 - **Tokio**：功能最完整、生態最大的通用 runtime，多執行緒、什麼都有。本章後半用的就是它。
 - **smol**：走輕量、精簡路線的 runtime，核心很小、容易理解。
-- **monoio / glommio**：走 **thread-per-core** 路線的特化 runtime，常搭配 Linux 的 `io_uring`，為極致 I/O 效能而生。
-- **Embassy**：給**嵌入式**裝置用的 runtime，能在沒有作業系統、沒有標準庫（`no_std`）的微控制器上跑 `async`。
+- **monoio / glommio**：走 **thread-per-core** 路線的特化 runtime，常搭配 Linux 的 io_uring，為極致 I/O 效能而生。
+- **Embassy**：給**嵌入式**裝置用的 runtime，能在沒有作業系統、沒有標準庫的微控制器上跑 `async`。
 
 這些 runtime 在各方面可能都不一樣：用幾條執行緒、怎麼排程、I/O 怎麼做、計時器怎麼實作、`spawn` 的細節與限制。選哪個，取決於你的場景——寫一般網路服務用 Tokio 最省事；做嵌入式就得用 Embassy。
 
