@@ -102,6 +102,16 @@ fn print_first<C: Container<Item = i32>>(c: &C) { ... }
 
 `Container<Item = i32>` 表示「實作了 `Container`，而且 `Item` 是 `i32`」。
 
+如果只是要限制 associated type 必須實作某個 `trait`，也可以直接把 `trait` bound 寫在 associated type 後面：
+
+```rust,ignore
+fn print_first<C: Container<Item: Display>>(c: &C) { ... }
+#
+# fn main() {}
+```
+
+`Item: Display` 表示「`Container` 的 `Item` 必須實作 `Display`」。
+
 ## 範例程式碼
 
 ```rust,editable
@@ -199,4 +209,4 @@ fn main() {
 - **input vs output**：`Self` 和角括號參數是 input，associated type 是 output。input 決定 output
 - `Deref` 的 `type Target` 也是 associated type——`Box<T>` 的 `Target = T`，代表解參考後得到 `T`
 - 在 `trait` bound 中用 `Container<Item = i32>` 指定 associated type
-
+- 在 `trait` bound 中也可以用 `Container<Item: Display>` 限制 associated type 必須實作某個 `trait`
