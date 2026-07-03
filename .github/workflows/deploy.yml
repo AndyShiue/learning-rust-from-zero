@@ -60,12 +60,29 @@ jobs:
       - name: Bundle zh-tw/src as rust-book-src.zip for AI consumption
         working-directory: zh-tw
         run: (cd src && zip -r ../book/rust-book-src.zip .)
+      # The en translation is still in progress, so `mdbook test` is skipped.
+      # The English entry on the landing page is disabled until the
+      # translation is complete.
+      - name: Build en book
+        working-directory: en
+        run: mdbook build
+      - name: Build and publish print PDF (en)
+        working-directory: en
+        run: |
+          mkdir -p print/fonts
+          cp ../zh-tw/print/fonts/*.otf print/fonts/
+          bash ./print/build.sh
+          cp book/rust-book-a4.pdf book/book.pdf
+      - name: Bundle en/src as rust-book-src.zip for AI consumption
+        working-directory: en
+        run: (cd src && zip -r ../book/rust-book-src.zip .)
       - name: Assemble multi-language site
         run: |
           rm -rf public
           mkdir -p public
           cp index.html public/index.html
           cp -r zh-tw/book public/zh-tw
+          cp -r en/book public/en
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:

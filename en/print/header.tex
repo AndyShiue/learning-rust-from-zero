@@ -1,0 +1,155 @@
+% 讓 XeTeX 為經過字形替換(如連字)的文字輸出 ActualText,
+% 確保 PDF 中的搜尋與複製能還原成原始字元。
+\XeTeXgenerateactualtext=1
+\usepackage{xeCJK}
+\usepackage{fontspec}
+\usepackage{fancyhdr}
+\usepackage{tocloft}
+\usepackage{titlesec}
+
+\makeatletter
+\renewcommand{\cleardoublepage}{%
+  \clearpage
+  \if@twoside
+    \ifodd\c@page
+    \else
+      \hbox{}%
+      \thispagestyle{empty}%
+      \newpage
+      \if@twocolumn
+        \hbox{}%
+        \newpage
+      \fi
+    \fi
+  \fi
+}
+\makeatother
+
+% Symbola 優先:Noto Emoji 缺 → ← ✓ ✗ 等字形,落在它身上會整個字消失
+\IfFontExistsTF{Symbola}
+  {\newfontfamily\EmojiFont{Symbola}[Scale=MatchUppercase]}
+  {%
+    \IfFontExistsTF{Noto Emoji}
+      {\newfontfamily\EmojiFont{Noto Emoji}[Scale=MatchUppercase]}
+      {\newfontfamily\EmojiFont{Noto Color Emoji}[Scale=MatchUppercase]}%
+  }
+\newcommand{\Emoji}[1]{{\EmojiFont #1}}
+\newcommand{\CodeEmoji}[1]{\makebox[1em][c]{\Emoji{#1}}}
+\newcommand{\PrintCodeBlockSetup}{\xeCJKsetup{CJKecglue={}}}
+
+\ifXeTeX
+  \IfFileExists{print/fonts/NotoSansCJKtc-Regular.otf}{%
+    \setCJKmainfont[
+      Path=print/fonts/,
+      BoldFont=NotoSansCJKtc-Bold.otf,
+      Language=Chinese Traditional
+    ]{NotoSansCJKtc-Regular.otf}
+    \setCJKsansfont[
+      Path=print/fonts/,
+      BoldFont=NotoSansCJKtc-Bold.otf,
+      Language=Chinese Traditional
+    ]{NotoSansCJKtc-Regular.otf}
+    \setCJKmonofont[
+      Path=print/fonts/,
+      AutoFakeBold=2,
+      Language=Chinese Traditional
+    ]{NotoSansMonoCJKtc-Regular.otf}
+  }{%
+    \setCJKmainfont[Language=Chinese Traditional]{Noto Sans CJK TC}
+    \setCJKsansfont[Language=Chinese Traditional]{Noto Sans CJK TC}
+    \setCJKmonofont[Language=Chinese Traditional]{Noto Sans Mono CJK TC}
+  }%
+\fi
+
+% 西文主字型 Noto Sans 缺 ⋯(U+22EF)與 ⊂(U+2282),
+% 宣告為 CJK 字元類讓 Noto Sans CJK TC 負責,避免字直接消失。
+\xeCJKDeclareCharClass{CJK}{"22EF, "2282}
+
+% 表格(longtable)用 \small,避免比較表過寬突出版心
+\usepackage{etoolbox}
+\AtBeginEnvironment{longtable}{\small}
+% 容許段落多一點伸縮,減少行內程式碼造成的超寬行
+\emergencystretch=3em
+
+% 行內程式碼內部不要插入中英文間距,避免字串看起來多了空格
+\usepackage{letltxmacro}
+\LetLtxMacro\PrintOrigTexttt\texttt
+\renewcommand{\texttt}[1]{{\xeCJKsetup{CJKecglue={}}\PrintOrigTexttt{#1}}}
+
+\definecolor{shadecolor}{RGB}{247,247,247}
+\linespread{1.18}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LE,RO]{\thepage}
+\fancyhead[RE]{\nouppercase{\leftmark}}
+\fancyhead[LO]{\nouppercase{\rightmark}}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyhead[LE,RO]{\thepage}%
+  \fancyhead[RE]{\nouppercase{\leftmark}}%
+  \fancyhead[LO]{\nouppercase{\rightmark}}%
+  \renewcommand{\headrulewidth}{0.4pt}%
+}
+
+% 頁眉小節標記(章標記見 StandardChapterStyle / AppendixChapterStyle)
+\renewcommand{\sectionmark}[1]{\markright{\thesection\quad #1}}
+
+\setlength{\cftpartnumwidth}{3.2em}
+\setlength{\cftchapnumwidth}{2.8em}
+\setlength{\cftsecindent}{1.8em}
+\setlength{\cftsecnumwidth}{4.1em}
+\setlength{\cftsubsecindent}{5.9em}
+\setlength{\cftsubsecnumwidth}{4.8em}
+\setlength{\cftbeforepartskip}{0.7em}
+\setlength{\cftbeforechapskip}{0.45em}
+\setlength{\cftbeforesecskip}{0.08em}
+
+% 一般章顯示「第N章」;附錄章只顯示章名。
+% 由 mdbook_to_pandoc.py 在附錄前後用 \AppendixChapterStyle / \StandardChapterStyle 切換。
+\newcommand{\StandardChapterStyle}{%
+  \titleformat{\chapter}[display]
+    {\normalfont\huge\bfseries}
+    {Chapter \thechapter}
+    {0.45em}
+    {}%
+  \renewcommand{\chaptermark}[1]{\markboth{Chapter \thechapter\quad ##1}{}}%
+}
+\newcommand{\AppendixChapterStyle}{%
+  \titleformat{\chapter}[display]
+    {\normalfont\huge\bfseries}
+    {}
+    {0pt}
+    {}%
+  \renewcommand{\chaptermark}[1]{\markboth{##1}{}}%
+}
+\StandardChapterStyle
+\titlespacing*{\chapter}{0pt}{0pt}{2.2em}
+
+\titleformat{\section}
+  {\normalfont\Large\bfseries}
+  {\thesection}
+  {0.65em}
+  {}
+\titlespacing*{\section}{0pt}{1.8em}{1.0em}
+
+\titleformat{\subsection}
+  {\normalfont\large\bfseries}
+  {\thesubsection}
+  {0.75em}
+  {}
+\titlespacing*{\subsection}{0pt}{1.35em}{0.45em}
+
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries}
+  {\thesubsubsection}
+  {0.75em}
+  {}
+\titlespacing*{\subsubsection}{0pt}{0.9em}{0.3em}
+
+\AtBeginDocument{%
+  \RecustomVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\},fontsize=\footnotesize,tabsize=4,formatcom=\PrintCodeBlockSetup}%
+}

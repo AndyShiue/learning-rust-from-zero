@@ -1,0 +1,3 @@
+# Structs, Enums, and Pattern Matching
+
+This chapter teaches you how to write your own types, and how to take apart and analyze both existing types and the ones you create. The knowledge in this chapter may not let you write more complex algorithms, but it does mark your first step down the road of real software engineering. Even though the types you create are composed of other, simpler types that already exist, they can be given logically richer meaning. And as one type becomes part of the next type in turn, we gain the ability to manage more complex logic and model reality — or people's imaginations — with greater precision.

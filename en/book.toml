@@ -1,0 +1,21 @@
+[book]
+title = "Learning Rust from Zero"
+authors = ["Andy Shiue"]
+language = "en"
+
+[rust]
+edition = "2024"
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "ayu"
+git-repository-url = "https://github.com/AndyShiue/learning-rust-from-zero"
+edit-url-template = "https://github.com/AndyShiue/learning-rust-from-zero/edit/main/en/{path}"
+site-url = "https://andyshiue.github.io/learning-rust-from-zero/en/"
+additional-css = ["theme/code-fix.css"]
+
+[output.html.playground]
+editable = true
+
+[output.html.print]
+page-break = false

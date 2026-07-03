@@ -1,0 +1,38 @@
+---
+title-meta: Learning Rust from Zero
+author-meta: Andy Shiue
+lang: en
+documentclass: book
+has-frontmatter: false
+classoption:
+  - twoside
+  - openany
+papersize: a4
+fontsize: 11pt
+toc-title: Contents
+colorlinks: false
+mainfont: Noto Sans
+sansfont: Noto Sans
+monofont: JetBrains Mono
+monofontoptions:
+  - Scale=0.92
+  # Disable JetBrains Mono ligatures: combinations like -> => != get merged
+  # into a single glyph with no proper Unicode mapping in the PDF,
+  # turning search and copy results into garbage like ^: ^>.
+  # (Can't use RawFeature={...}: pandoc escapes braces in metadata.)
+  - Contextuals=AlternateOff
+  - Ligatures=CommonOff
+  # Use the Medium weight; Regular looks too thin in print
+  - UprightFont=* Medium
+  - ItalicFont=* Medium Italic
+  - BoldFont=* Bold
+  - BoldItalicFont=* Bold Italic
+geometry:
+  - a4paper
+  - inner=24mm
+  - outer=18mm
+  - top=20mm
+  - bottom=24mm
+  - headheight=14pt
+  - headsep=8mm
+---
