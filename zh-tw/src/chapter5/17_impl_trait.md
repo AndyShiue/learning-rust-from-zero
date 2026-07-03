@@ -119,7 +119,7 @@ fn main() {
 
 ## 重點整理
 
-- `fn foo(x: &impl Display)` 是 `fn foo<T: Display>(x: &T)` 的簡寫
-- 每個 `impl Trait` 參數代表獨立的型別——兩個 `impl Display` 可以是不同型別
-- 要求同型別，用具名的型別參數 `<T: Display>`
-- 回傳位置的 `-> impl Trait` 隱藏具體型別，呼叫者只知道它實作了什麼 `trait`
+- `fn foo(x: &impl Display)` 是 `fn foo<T: Display>(x: &T)` 的簡寫。
+- 每個 `impl Trait` 參數代表獨立的型別——兩個 `impl Display` 可以是不同型別。
+- 要求同型別，用具名的型別參數 `<T: Display>`。
+- 回傳位置的 `-> impl Trait` 隱藏具體型別，呼叫者只知道它實作了什麼 `trait`。

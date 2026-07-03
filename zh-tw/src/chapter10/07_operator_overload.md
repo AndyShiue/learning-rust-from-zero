@@ -23,9 +23,9 @@ trait Add<Rhs = Self> {
 
 三個重點：
 
-- `Rhs = Self`：上一集學的預設參數，加法右邊預設和左邊同型別
-- `type Output`：第 5 章學的 associated type，加法的結果不一定跟輸入同型別
-- `self` 不是 `&self`：`add` 會消耗左邊的值（`Copy` 的型別不受影響）
+- `Rhs = Self`：上一集學的預設參數，加法右邊預設和左邊同型別。
+- `type Output`：第 5 章學的 associated type，加法的結果不一定跟輸入同型別。
+- `self` 不是 `&self`：`add` 會消耗左邊的值（`Copy` 的型別不受影響）。
 
 ### 幫 `Point` 實作 `Add`
 
@@ -79,8 +79,8 @@ impl Add for Point {
 
 `a += b` 和 `a = a + b` 在 Rust 裡的實作不一定一樣：
 
-- `Add::add(self, rhs)` 消耗 `a`，產生新值
-- `AddAssign::add_assign(&mut self, rhs)` 就地修改 `a`
+- `Add::add(self, rhs)` 消耗 `a`，產生新值。
+- `AddAssign::add_assign(&mut self, rhs)` 就地修改 `a`。
 
 對 `i32` 感覺差不多，但對非 `Copy` 型別（如 `String`），`s1 += &s2` 直接追加內容，`s1 = s1 + &s2` 先消耗 `s1` 再建新的。效率和語意不同，所以需要分開的 `trait`。
 
@@ -158,8 +158,8 @@ fn main() {
 
 ## 重點整理
 
-- `a + b` 是 `Add::add(a, b)` 的簡寫，其他運算子同理
-- `Add` 的簽名用了預設參數（`Rhs = Self`）和 associated type（`Output`）
-- `AddAssign`（`+=`）是就地修改（`&mut self`），`Add`（`+`）是產生新值（`self`）
-- `Index` / `IndexMut` 讓你的型別能用 `[]` 運算子
-- 覆蓋 `Rhs` 可以實現不同型別之間的運算
+- `a + b` 是 `Add::add(a, b)` 的簡寫，其他運算子同理。
+- `Add` 的簽名用了預設參數（`Rhs = Self`）和 associated type（`Output`）。
+- `AddAssign`（`+=`）是就地修改（`&mut self`），`Add`（`+`）是產生新值（`self`）。
+- `Index` / `IndexMut` 讓你的型別能用 `[]` 運算子。
+- 覆蓋 `Rhs` 可以實現不同型別之間的運算。

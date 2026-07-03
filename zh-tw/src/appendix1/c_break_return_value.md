@@ -73,6 +73,6 @@ fn main() {
 
 ## 重點整理
 
-- `let x = loop { break value; };` 讓 `loop` 成為表達式，回傳 `break` 帶出的值
-- 只有 `loop` 能這樣做，`while` 和 `for` 不行——因為它們可能一次都不執行
-- 常見用途是在迴圈中搜尋，找到後用 `break` 帶出結果
+- `let x = loop { break value; };` 讓 `loop` 成為表達式，回傳 `break` 帶出的值。
+- 只有 `loop` 能這樣做，`while` 和 `for` 不行——因為它們可能一次都不執行。
+- 常見用途是在迴圈中搜尋，找到後用 `break` 帶出結果。

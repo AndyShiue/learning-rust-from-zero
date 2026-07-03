@@ -59,15 +59,15 @@ fn main() {
 
 能做的：
 - 算術、比較、邏輯運算
-- `if`、`match`、`loop`、`while`、`for`
-- `let` 綁定（包括 `let mut`）
-- 建立 tuple、`struct`、`enum`
-- 呼叫其他 `const fn`
-- `panic!`（編譯期 panic 會變成編譯錯誤）
+- `if`、`match`、`loop`、`while`、`for`。
+- `let` 綁定（包括 `let mut`）。
+- 建立 tuple、`struct`、`enum`。
+- 呼叫其他 `const fn`。
+- `panic!`（編譯期 panic 會變成編譯錯誤）。
 
 不能做的：
-- 呼叫非 `const` 的函數
-- 輸入 / 輸出（`println!` 等）
+- 呼叫非 `const` 的函數。
+- 輸入 / 輸出（`println!` 等）。
 - 與作業系統互動
 - inline assembly
 
@@ -126,7 +126,7 @@ fn main() {
 
 ## 重點整理
 
-- `const fn` 可以在編譯期執行，也可以在執行期執行
-- 主要用來初始化 `const` 的值
-- 限制：不能呼叫非 `const fn`、不能做輸入輸出，但限制逐版放寬
-- `const { ... }` 區塊可以在任何地方插入編譯期運算
+- `const fn` 可以在編譯期執行，也可以在執行期執行。
+- 主要用來初始化 `const` 的值。
+- 限制：不能呼叫非 `const fn`、不能做輸入輸出，但限制逐版放寬。
+- `const { ... }` 區塊可以在任何地方插入編譯期運算。

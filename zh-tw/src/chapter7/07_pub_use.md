@@ -140,6 +140,6 @@ fn main() {
 
 ## 重點整理
 
-- `pub use path::Item;` 把內部的東西重新匯出，讓外部用更短的路徑存取
-- 可以匯出自己 `mod` 的內容，也可以匯出其他 crate 的東西
-- library 的 `lib.rs` 常用 `pub use` 把重要型別提升到 crate 頂層
+- `pub use path::Item;` 把內部的東西重新匯出，讓外部用更短的路徑存取。
+- 可以匯出自己 `mod` 的內容，也可以匯出其他 crate 的東西。
+- library 的 `lib.rs` 常用 `pub use` 把重要型別提升到 crate 頂層。

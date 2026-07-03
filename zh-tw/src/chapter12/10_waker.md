@@ -189,9 +189,9 @@ fn main() {
 
 ## 重點整理
 
-- `Future` 回 `Pending` 前該把 `cx.waker()` 交給「負責通知它的人」，事件完成時呼叫 `waker.wake()` 叫醒 executor
-- 自製 `Waker`：實作 `Wake` `trait` 的 `wake` 方法，再用 `Waker::from(Arc::new(...))` 轉成 `Waker`
-- executor 用 `thread::park()` 睡覺，`Waker` 用 `unpark()` 叫醒；`unpark` 會留 permit，所以 `wake` 落在 `park` 前或後都不漏接
-- **契約一**：每次 `poll` 的 `Waker` 可能不同，正確的 `Future` 每次都要重存最新的 `Waker`（`Delay` 偷懶只存一次，是過度簡化）
-- **契約二**：`Ready` 之後不可再 `poll`，executor 要把完成的 `Future` 移除
-- 「一個 `Future` 一條 `Thread`」太耗資源，下一集起改用 `Task` + ready queue，再加上 reactor 來解決
+- `Future` 回 `Pending` 前該把 `cx.waker()` 交給「負責通知它的人」，事件完成時呼叫 `waker.wake()` 叫醒 executor。
+- 自製 `Waker`：實作 `Wake` `trait` 的 `wake` 方法，再用 `Waker::from(Arc::new(...))` 轉成 `Waker`。
+- executor 用 `thread::park()` 睡覺，`Waker` 用 `unpark()` 叫醒；`unpark` 會留 permit，所以 `wake` 落在 `park` 前或後都不漏接。
+- **契約一**：每次 `poll` 的 `Waker` 可能不同，正確的 `Future` 每次都要重存最新的 `Waker`（`Delay` 偷懶只存一次，是過度簡化）。
+- **契約二**：`Ready` 之後不可再 `poll`，executor 要把完成的 `Future` 移除。
+- 「一個 `Future` 一條 `Thread`」太耗資源，下一集起改用 `Task` + ready queue，再加上 reactor 來解決。

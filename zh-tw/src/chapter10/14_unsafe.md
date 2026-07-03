@@ -16,12 +16,12 @@ Rust 的安全保證建立在一些**假設**上——例如 `&mut T` 一定是�
 
 safe Rust 保證以下這些事情**不會發生**，不管你的程式碼怎麼寫：
 
-- 不會存取到已經被釋放的記憶體
-- 不會有資料競爭（多個執行緒同時讀寫且至少一方在寫）
-- 不會有懸垂參考
-- 不會同一個值被 `drop` 兩次
-- 不會讀到未初始化的記憶體
-- 不會把型別搞混（例如把 `isize` 的 bytes 當成指標來讀）
+- 不會存取到已經被釋放的記憶體。
+- 不會有資料競爭（多個執行緒同時讀寫且至少一方在寫）。
+- 不會有懸垂參考。
+- 不會同一個值被 `drop` 兩次。
+- 不會讀到未初始化的記憶體。
+- 不會把型別搞混（例如把 `isize` 的 bytes 當成指標來讀）。
 
 `unsafe` 程式碼的責任就是：即使繞過了編譯器的檢查，也必須確保這些保證**全部成立**。
 
@@ -109,12 +109,12 @@ unsafe impl MyGuarantee for i32 {
 
 ### 寫 `unsafe` 程式碼的注意事項
 
-- **盡量縮小 `unsafe` 區塊**——只包住真正需要 `unsafe` 的那幾行
-- **寫 `// SAFETY:` 註解**——解釋為什麼這段 `unsafe` 操作是正確的
-- **注意借用規則**——即使用原始指標，「`&mut` 必須獨佔」等規則在語意上仍然有效
-- **維護型別的不變量**——例如 `String` 一定是合法 UTF-8、`bool` 一定是 0 或 1
-- **考慮 panic safety**——如果 `unsafe` 區塊裡有可能 panic 的操作，確保 panic 後資料結構仍然合法
-- **用 Miri 測試**——`cargo +nightly miri test` 可以偵測很多 `unsafe` 的問題
+- **盡量縮小 `unsafe` 區塊**——只包住真正需要 `unsafe` 的那幾行。
+- **寫 `// SAFETY:` 註解**——解釋為什麼這段 `unsafe` 操作是正確的。
+- **注意借用規則**——即使用原始指標，「`&mut` 必須獨佔」等規則在語意上仍然有效。
+- **維護型別的不變量**——例如 `String` 一定是合法 UTF-8、`bool` 一定是 0 或 1。
+- **考慮 panic safety**——如果 `unsafe` 區塊裡有可能 panic 的操作，確保 panic 後資料結構仍然合法。
+- **用 Miri 測試**——`cargo +nightly miri test` 可以偵測很多 `unsafe` 的問題。
 
 ### 常見用途
 
@@ -151,10 +151,10 @@ fn main() {
 
 ## 重點整理
 
-- `unsafe` 讓你做編譯器無法驗證的操作，但不是關掉所有檢查
-- 五種 `unsafe` 操作：解參考原始指標、呼叫 `unsafe fn`、實作 `unsafe trait`、存取 `static mut`、存取 `union` 欄位
-- 原始指標 `*const T` / `*mut T`：沒有借用規則保護的指標，不保證指向有效的資料。建立不需要 `unsafe`，解參考需要
-- `&raw const x` / `&raw mut x`：直接拿原始指標，不經過參考
-- `unsafe fn` 在 2024 edition 後也要寫 `unsafe { }` 區塊
-- `unsafe trait` 的危險在實作，不在使用（呼叫方法不需要 `unsafe`）
-- `unsafe` 程式碼的邊界：不管被什麼 safe code 呼叫都不能造成未定義行為
+- `unsafe` 讓你做編譯器無法驗證的操作，但不是關掉所有檢查。
+- 五種 `unsafe` 操作：解參考原始指標、呼叫 `unsafe fn`、實作 `unsafe trait`、存取 `static mut`、存取 `union` 欄位。
+- 原始指標 `*const T` / `*mut T`：沒有借用規則保護的指標，不保證指向有效的資料。建立不需要 `unsafe`，解參考需要。
+- `&raw const x` / `&raw mut x`：直接拿原始指標，不經過參考。
+- `unsafe fn` 在 2024 edition 後也要寫 `unsafe { }` 區塊。
+- `unsafe trait` 的危險在實作，不在使用（呼叫方法不需要 `unsafe`）。
+- `unsafe` 程式碼的邊界：不管被什麼 safe code 呼叫都不能造成未定義行為。

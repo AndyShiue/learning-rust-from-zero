@@ -96,11 +96,11 @@ fn main() {
 
 ## 重點整理
 
-- `catch_unwind` 攔截 panic，回傳 `Ok(值)` 或 `Err`
-- 主要用途：FFI 邊界，防止 panic 跨越語言邊界
-- `UnwindSafe`：`&mut T` 不是 `UnwindSafe`（資料可能是半成品）
-- `AssertUnwindSafe`：手動保證安全，繞過 `UnwindSafe` 檢查
-- `panic = "abort"` 設定下 `catch_unwind` 無效
-- 不要用 `catch_unwind` 做一般的錯誤處理——那是 `Result` 的工作
+- `catch_unwind` 攔截 panic，回傳 `Ok(值)` 或 `Err`。
+- 主要用途：FFI 邊界，防止 panic 跨越語言邊界。
+- `UnwindSafe`：`&mut T` 不是 `UnwindSafe`（資料可能是半成品）。
+- `AssertUnwindSafe`：手動保證安全，繞過 `UnwindSafe` 檢查。
+- `panic = "abort"` 設定下 `catch_unwind` 無效。
+- 不要用 `catch_unwind` 做一般的錯誤處理——那是 `Result` 的工作。
 
 恭喜你完成了進階標準庫這一章！🎉 這一章介紹了標準庫和社群裡的各種實用工具——從 `AsRef`、排序、集合，到輸入輸出、字串方法、錯誤處理，再到 `catch_unwind`。下一章我們將進入非同步的世界！

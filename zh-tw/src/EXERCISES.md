@@ -184,7 +184,7 @@ fn main() {
 
 提示方向：
 1. 可以先寫 `let total = 17;` 和 `let group = 5;`。
-2. `println!("{} / {} = {}", total, group, total / group);`
+2. `println!("{} / {} = {}", total, group, total / group);`。
 3. `%` 可以算出除完後剩下多少。
 
 參考答案：
@@ -240,7 +240,7 @@ fn main() {
 - Rust 的 `if` 條件不需要小括號；如果讀者寫了小括號，可以提醒拿掉比較符合書中寫法。
 
 提示方向：
-1. 先建立變數：`let score = 85;`
+1. 先建立變數：`let score = 85;`。
 2. 條件可以寫成 `score >= 60`。
 3. 條件成立時要做的事放進 `{}` 裡。
 
@@ -326,7 +326,7 @@ fn main() {
 - Rust 的 `if` 條件不需要小括號。
 
 提示方向：
-1. 先建立變數：`let temperature = 18;`
+1. 先建立變數：`let temperature = 18;`。
 2. 條件是 `temperature >= 25`。
 3. `else` 裡放條件不成立時要做的事。
 
@@ -355,9 +355,9 @@ fn main() {
 
 題目：
 1. 建立一個變數 `temperature = 32`，依照下面規則印出結果：
-   - `temperature >= 35`：印出 `很熱`
-   - `temperature >= 25`：印出 `溫暖`
-   - 其他情況：印出 `偏涼`
+   - `temperature >= 35`：印出 `很熱`。
+   - `temperature >= 25`：印出 `溫暖`。
+   - 其他情況：印出 `偏涼`。
 
 預期輸出：
 

@@ -80,5 +80,5 @@ fn main() {
 
 ## 重點整理
 
-- 遇到陣列的時候，可以在 `match` 時用 `[a, b, c]` 這種 slice pattern，跟 tuple pattern 類似
+- 遇到陣列的時候，可以在 `match` 時用 `[a, b, c]` 這種 slice pattern，跟 tuple pattern 類似。
 - 切片 `&[T]` 長度不固定，可以用不同長度的模式來匹配（`[]`、`[x]`、`[x, y]`……）

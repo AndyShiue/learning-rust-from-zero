@@ -86,7 +86,7 @@ expected `()`, found future
 
 ## 重點整理
 
-- 呼叫 `async fn` **不會**執行函數體，你只會拿到一個 `Future`
-- `async fn main` 裡不做像是 `.await` 的動作的話，被呼叫的 `async` 函數一行都不會跑，還會收到 `#[must_use]` 警告
-- 把回傳值標成 `()` 會讓編譯器報 `expected (), found future`，證明它真的是 `Future`
-- `Future` 是**惰性的**，和第 6 章的 `Iterator` 一樣，都是「先描述、晚執行」的設計
+- 呼叫 `async fn` **不會**執行函數體，你只會拿到一個 `Future`。
+- `async fn main` 裡不做像是 `.await` 的動作的話，被呼叫的 `async` 函數一行都不會跑，還會收到 `#[must_use]` 警告。
+- 把回傳值標成 `()` 會讓編譯器報 `expected (), found future`，證明它真的是 `Future`。
+- `Future` 是**惰性的**，和第 6 章的 `Iterator` 一樣，都是「先描述、晚執行」的設計。

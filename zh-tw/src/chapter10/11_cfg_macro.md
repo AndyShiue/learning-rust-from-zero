@@ -45,7 +45,7 @@ if cfg!(target_os = "linux") {
 `#[cfg]` 和 `cfg!` 能用的條件一樣：
 
 - `target_os = "windows"` / `"linux"` / `"macos"`
-- `target_arch = "x86_64"` / `"aarch64"`
+- `target_arch = "x86_64"` / `"aarch64"`。
 - `debug_assertions` — debug 模式下為 `true`
 - `feature = "my_feature"` — Cargo feature
 - `test` — 在 `cargo test` 時為 `true`
@@ -75,6 +75,6 @@ fn main() {
 
 ## 重點整理
 
-- `cfg!(...)` 回傳 `bool`，兩邊程式碼都會被編譯，執行時選擇
-- `#[cfg(...)]` 是條件編譯，不符合的程式碼整塊移除
-- 兩者能用的條件一樣：`target_os`、`debug_assertions`、`feature`、`test` 等
+- `cfg!(...)` 回傳 `bool`，兩邊程式碼都會被編譯，執行時選擇。
+- `#[cfg(...)]` 是條件編譯，不符合的程式碼整塊移除。
+- 兩者能用的條件一樣：`target_os`、`debug_assertions`、`feature`、`test` 等。

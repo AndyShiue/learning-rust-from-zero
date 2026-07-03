@@ -29,8 +29,8 @@ enum Option<T> {
 
 看起來是不是很像第 3 集我們自己寫的 `Maybe<T>`？沒錯！概念完全一樣：
 
-- `Some(T)` 表示「有一個 `T` 型別的值」
-- `None` 表示「沒有值」
+- `Some(T)` 表示「有一個 `T` 型別的值」。
+- `None` 表示「沒有值」。
 
 ### 強制處理 `None`
 
@@ -93,8 +93,8 @@ fn main() {
 
 ## 重點整理
 
-- `Option<T>` 是 Rust 用來表達「可能沒有值」的泛型 `enum`，取代了其他語言的 null
-- `Some(T)` 表示有值，`None` 表示沒有值
-- 編譯器強制你處理 `None` 的情況，執行時期不會有 null pointer exception
-- `Option`、`Some`、`None` 太常用，Rust 預設就引入了，不需要額外路徑
-- niche optimization：`Option<&T>` 和 `&T` 大小相同，零額外成本
+- `Option<T>` 是 Rust 用來表達「可能沒有值」的泛型 `enum`，取代了其他語言的 null。
+- `Some(T)` 表示有值，`None` 表示沒有值。
+- 編譯器強制你處理 `None` 的情況，執行時期不會有 null pointer exception。
+- `Option`、`Some`、`None` 太常用，Rust 預設就引入了，不需要額外路徑。
+- niche optimization：`Option<&T>` 和 `&T` 大小相同，零額外成本。

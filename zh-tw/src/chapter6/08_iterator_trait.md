@@ -21,8 +21,8 @@ trait Iterator {
 
 就這樣。只有一個必須實作的方法 `next`，它每次被呼叫就回傳：
 
-- `Some(值)` —— 還有下一個元素
-- `None` —— 迭代結束了
+- `Some(值)` —— 還有下一個元素。
+- `None` —— 迭代結束了。
 
 還記得第 5 章學的 associated type 嗎？`type Item` 就是一個 associated type，代表「這個迭代器產出的元素型別」。
 
@@ -81,7 +81,7 @@ impl Iterator for Countdown {
 標準庫提供了一些方便的函數來建立迭代器：
 
 - `std::iter::repeat(value)` —— 無限重複同一個值
-- `std::iter::from_fn(closure)` —— 用閉包來決定每次 `.next()` 回傳什麼
+- `std::iter::from_fn(closure)` —— 用閉包來決定每次 `.next()` 回傳什麼。
 
 ```rust,editable
 use std::iter;
@@ -181,9 +181,9 @@ fn main() {
 
 ## 重點整理
 
-- `Iterator` `trait` 的核心是 `next(&mut self) -> Option<Self::Item>`
-- 只需實作 `.next()`，就能免費獲得數十個預設實作（接下來會陸續學到）
-- 自己幫型別實作 `Iterator` 很簡單——定義 `type Item` 和 `next` 就好
-- `std::iter::repeat(value)` 建立無限重複的迭代器
-- `std::iter::from_fn(closure)` 用閉包來控制每次產出的值
-- 迭代器可以是無限的（永不回傳 `None`）
+- `Iterator` `trait` 的核心是 `next(&mut self) -> Option<Self::Item>`。
+- 只需實作 `.next()`，就能免費獲得數十個預設實作（接下來會陸續學到）。
+- 自己幫型別實作 `Iterator` 很簡單——定義 `type Item` 和 `next` 就好。
+- `std::iter::repeat(value)` 建立無限重複的迭代器。
+- `std::iter::from_fn(closure)` 用閉包來控制每次產出的值。
+- 迭代器可以是無限的（永不回傳 `None`）。

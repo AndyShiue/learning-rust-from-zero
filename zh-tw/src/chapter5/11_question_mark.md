@@ -30,8 +30,8 @@ fn do_stuff() -> Result<i32, String> {
 
 `?` 放在 `Result` 後面，做的事情就是：
 
-- 如果是 `Ok(v)`，把 `v` 取出來，繼續往下跑
-- 如果是 `Err(e)`，回傳 `Err`，提前離開函數
+- 如果是 `Ok(v)`，把 `v` 取出來，繼續往下跑。
+- 如果是 `Err(e)`，回傳 `Err`，提前離開函數。
 
 所以 `?` 就是 `match` + early `return` 的簡寫。
 
@@ -122,8 +122,8 @@ fn main() -> Result<(), String> {
 
 ## 重點整理
 
-- `?` 是 `match` + early `return` 的簡寫
-- `Result` 上用 `?`：`Ok` 取值，`Err` 提前回傳
-- `Option` 上用 `?`：`Some` 取值，`None` 提前回傳
-- 使用 `?` 時，錯誤型別必須和函數回傳型別一致——不一致時要另外處理
-- `fn main() -> Result<(), String>` 讓 `main` 也能使用 `?`
+- `?` 是 `match` + early `return` 的簡寫。
+- `Result` 上用 `?`：`Ok` 取值，`Err` 提前回傳。
+- `Option` 上用 `?`：`Some` 取值，`None` 提前回傳。
+- 使用 `?` 時，錯誤型別必須和函數回傳型別一致——不一致時要另外處理。
+- `fn main() -> Result<(), String>` 讓 `main` 也能使用 `?`。

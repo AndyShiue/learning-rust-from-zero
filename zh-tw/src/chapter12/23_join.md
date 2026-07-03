@@ -64,8 +64,8 @@ Rust 的函式做不到這些：函式不能接收任意個參數，更不可能
 
 ## 重點整理
 
-- `join!` 在**同一個 `Task`** 裡同時等多個 `Future`，等全部完成後把結果包成 tuple 回傳
-- 和 `spawn` 不同：`join!` 的 branch 不變成獨立 `Task`、不跨 `Thread`，適合固定數量、生命週期就在當下的並行 I/O
-- `join!` 的並行不是 CPU 平行：branch 在同一個 `Task` 上輪流 `poll`，某個 branch 卡住會害其他 branch 都得不到 `poll`
-- `join!` 是巨集，因為它要吃「任意數量 + 各自不同型別」的 `Future` 並回傳對應型別的 tuple，這是函式做不到的
-- 對照我們自己寫的 `JoinAll`（同型別、動態數量），`join!` 是異型別、固定數量
+- `join!` 在**同一個 `Task`** 裡同時等多個 `Future`，等全部完成後把結果包成 tuple 回傳。
+- 和 `spawn` 不同：`join!` 的 branch 不變成獨立 `Task`、不跨 `Thread`，適合固定數量、生命週期就在當下的並行 I/O。
+- `join!` 的並行不是 CPU 平行：branch 在同一個 `Task` 上輪流 `poll`，某個 branch 卡住會害其他 branch 都得不到 `poll`。
+- `join!` 是巨集，因為它要吃「任意數量 + 各自不同型別」的 `Future` 並回傳對應型別的 tuple，這是函式做不到的。
+- 對照我們自己寫的 `JoinAll`（同型別、動態數量），`join!` 是異型別、固定數量。

@@ -100,7 +100,7 @@ async fn main() {
 
 ## 重點整理
 
-- `async { ... }` 在函數中間當場建立一個匿名的 `Future`，一樣要 `.await` 才會跑
-- `async fn` 是具名、可重複呼叫的 `Future` 工廠；`async` block 是當場建立的一個匿名 `Future`
-- 如果建立後立刻呼叫的閉包回傳 `Result` 就可以用 `?`；外層只會拿到閉包呼叫後的 `Result` 值
-- `.await` 不能照搬這招，因為它只能出現在 `async` 結構裡，普通閉包做不到暫停和恢復——所以才需要 `async` block 這個專屬語法
+- `async { ... }` 在函數中間當場建立一個匿名的 `Future`，一樣要 `.await` 才會跑。
+- `async fn` 是具名、可重複呼叫的 `Future` 工廠；`async` block 是當場建立的一個匿名 `Future`。
+- 如果建立後立刻呼叫的閉包回傳 `Result` 就可以用 `?`；外層只會拿到閉包呼叫後的 `Result` 值。
+- `.await` 不能照搬這招，因為它只能出現在 `async` 結構裡，普通閉包做不到暫停和恢復——所以才需要 `async` block 這個專屬語法。

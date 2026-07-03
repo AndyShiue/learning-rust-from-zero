@@ -132,6 +132,6 @@ fn main() {
 
 ## 重點整理
 
-- `trait` 裡可以定義 `const NAME: Type;`，`impl` 時指定值
-- associated `const` 可以有預設值，`impl` 時可以覆蓋
-- `impl` 區塊（不在 `trait` 裡）也能定義 associated `const`，用 `Type::CONST` 存取
+- `trait` 裡可以定義 `const NAME: Type;`，`impl` 時指定值。
+- associated `const` 可以有預設值，`impl` 時可以覆蓋。
+- `impl` 區塊（不在 `trait` 裡）也能定義 associated `const`，用 `Type::CONST` 存取。

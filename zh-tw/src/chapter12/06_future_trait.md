@@ -20,7 +20,7 @@ pub trait Future {
 
 拆開來看：
 
-- `type Output` 是這個 `Future` 完成後會給出的值的型別
+- `type Output` 是這個 `Future` 完成後會給出的值的型別。
 - `poll` 是核心方法。它會問這個 `Future`：「你好了沒？」
 - 回傳值是 `Poll`，一個只有兩種狀態的 `enum`：
 
@@ -39,8 +39,8 @@ pub enum Poll<T> {
 
 先別緊張，這一章後面會花好幾集慢慢講 `Pin` 的細節，現在你只要接受一件事：**`Pin` 是一個很特別的型別**。Rust 規定，除了我們之前認識的 `self` / `&self` / `&mut self`，能放在 `self` 位置的型別只有一小撮「智慧指標」：
 
-- `Box<Self>`、`Rc<Self>`、`Arc<Self>`
-- 以及 `Pin<...>`
+- `Box<Self>`、`Rc<Self>`、`Arc<Self>`。
+- 以及 `Pin<...>`。
 
 一般你自訂的型別**不能**這樣用在 `self` 位置。`poll` 之所以能寫成 `self: Pin<&mut Self>`，正是因為它夠特別。目前你可以先把 `Pin<&mut Self>` 想成「一個受了限制的 `&mut Self`」——它讓你能改 `Future` 的內容，但不准你把它整個搬走。為什麼要有這個限制，之後會講。
 
@@ -101,9 +101,9 @@ fn main() {
 
 ## 重點整理
 
-- `Future` `trait` 的核心是 `poll`，回傳 `Poll::Ready(value)`（好了）或 `Poll::Pending`（還沒好）
-- `poll` 的 `self` 是 `Pin<&mut Self>`， `Pin` 是少數能直接放在 `self` 位置的特別型別；目前先當成「受限的 `&mut Self`」
-- **executor** 負責不斷 `poll` 一個 `Future` 直到 `Ready`；標準庫不附 executor，要自己做或靠 runtime 提供
-- `Box::pin` 把值放 heap 並釘住、`as_mut` 借出 `Pin<&mut T>`，兩者配合讓 `loop` 能反覆 `poll` 同一個 `Future`
-- 前幾集的 `async` 其實都沒在等東西，`poll` 一次就 `Ready`；下一集的 `Delay` 才會真的有 `Pending` 的狀況
-- 標準庫只定義 `Future`，executor 怎麼寫留給 runtime，這就是 Tokio、smol 等不同 runtime 存在的原因
+- `Future` `trait` 的核心是 `poll`，回傳 `Poll::Ready(value)`（好了）或 `Poll::Pending`（還沒好）。
+- `poll` 的 `self` 是 `Pin<&mut Self>`， `Pin` 是少數能直接放在 `self` 位置的特別型別；目前先當成「受限的 `&mut Self`」。
+- **executor** 負責不斷 `poll` 一個 `Future` 直到 `Ready`；標準庫不附 executor，要自己做或靠 runtime 提供。
+- `Box::pin` 把值放 heap 並釘住、`as_mut` 借出 `Pin<&mut T>`，兩者配合讓 `loop` 能反覆 `poll` 同一個 `Future`。
+- 前幾集的 `async` 其實都沒在等東西，`poll` 一次就 `Ready`；下一集的 `Delay` 才會真的有 `Pending` 的狀況。
+- 標準庫只定義 `Future`，executor 怎麼寫留給 runtime，這就是 Tokio、smol 等不同 runtime 存在的原因。

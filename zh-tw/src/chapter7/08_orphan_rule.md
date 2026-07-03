@@ -36,8 +36,8 @@ Rust 有一條規則：
 
 想像一下如果沒有 orphan rule：
 
-- Crate `A` 為 `Vec<i32>` 實作了 `Display`，印出 `[1, 2, 3]`
-- Crate `B` 也為 `Vec<i32>` 實作了 `Display`，印出 `1 | 2 | 3`
+- Crate `A` 為 `Vec<i32>` 實作了 `Display`，印出 `[1, 2, 3]`。
+- Crate `B` 也為 `Vec<i32>` 實作了 `Display`，印出 `1 | 2 | 3`。
 - 你的程式同時用了 `A` 和 `B`……編譯器要用哪一個？
 
 這就是衝突。orphan rule 從根本上避免了這個問題。
@@ -156,10 +156,10 @@ impl From<String> for Vec<i32> { ... }
 
 ## 重點整理
 
-- **orphan rule**：要 `impl` `trait`，`trait` 或型別至少有一個必須是你的 crate 定義的
-- 「你的型別 + 外部 `trait`」✅ 合法
-- 「外部型別 + 你的 `trait`」✅ 合法
-- 「外部型別 + 外部 `trait`」❌ 不合法
-- 這個規則是為了防止不同 crate 之間的 `impl` 衝突
-- **newtype pattern**：用 `struct MyWrapper(OriginalType)` 把外部型別包起來，就變成你的型別了
-- 多參數 `trait` 的 orphan rule 遠比上面講的更複雜，詳見官方文件
+- **orphan rule**：要 `impl` `trait`，`trait` 或型別至少有一個必須是你的 crate 定義的。
+- 「你的型別 + 外部 `trait`」✅ 合法。
+- 「外部型別 + 你的 `trait`」✅ 合法。
+- 「外部型別 + 外部 `trait`」❌ 不合法。
+- 這個規則是為了防止不同 crate 之間的 `impl` 衝突。
+- **newtype pattern**：用 `struct MyWrapper(OriginalType)` 把外部型別包起來，就變成你的型別了。
+- 多參數 `trait` 的 orphan rule 遠比上面講的更複雜，詳見官方文件。

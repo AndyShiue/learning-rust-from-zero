@@ -105,7 +105,7 @@ fn main() {
 
 ## 重點整理
 
-- `env::args()` 回傳命令列參數的迭代器，第一個是程式路徑
-- `env::var("NAME")` 回傳 `Result`
-- `process::exit(code)` 立刻結束程式，回傳型別是 `!`
-- `eprintln!` 輸出到 `stderr`，錯誤訊息應該用它
+- `env::args()` 回傳命令列參數的迭代器，第一個是程式路徑。
+- `env::var("NAME")` 回傳 `Result`。
+- `process::exit(code)` 立刻結束程式，回傳型別是 `!`。
+- `eprintln!` 輸出到 `stderr`，錯誤訊息應該用它。

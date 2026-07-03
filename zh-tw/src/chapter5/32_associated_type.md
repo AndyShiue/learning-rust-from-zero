@@ -64,8 +64,8 @@ impl Container for NumberList {
 
 你可以把 `trait` 想像成一個函數，它接受一些「輸入」然後決定一些「輸出」：
 
-- **輸入（input）**：`Self`（誰來實作這個 `trait`）和角括號裡的型別參數（`<T>`）
-- **輸出（output）**：associated type（`type Item`）
+- **輸入（input）**：`Self`（誰來實作這個 `trait`）和角括號裡的型別參數（`<T>`）。
+- **輸出（output）**：associated type（`type Item`）。
 
 輸入決定了輸出——當你確定了「誰」（`Self`）和「角括號裡的參數」，associated type 就唯一確定了。
 
@@ -203,10 +203,10 @@ fn main() {
 
 ## 重點整理
 
-- `type Item;` 在 `trait` 中定義 associated type
-- 用 `Self::Item` 的語法可以在 `trait` 定義中讀取 `Self` 的 associated type
-- 實作時用 `type Item = i32;` 指定具體型別
-- **input vs output**：`Self` 和角括號參數是 input，associated type 是 output。input 決定 output
-- `Deref` 的 `type Target` 也是 associated type——`Box<T>` 的 `Target = T`，代表解參考後得到 `T`
-- 在 `trait` bound 中用 `Container<Item = i32>` 指定 associated type
-- 在 `trait` bound 中也可以用 `Container<Item: Display>` 限制 associated type 必須實作某個 `trait`
+- `type Item;` 在 `trait` 中定義 associated type。
+- 用 `Self::Item` 的語法可以在 `trait` 定義中讀取 `Self` 的 associated type。
+- 實作時用 `type Item = i32;` 指定具體型別。
+- **input vs output**：`Self` 和角括號參數是 input，associated type 是 output。input 決定 output。
+- `Deref` 的 `type Target` 也是 associated type——`Box<T>` 的 `Target = T`，代表解參考後得到 `T`。
+- 在 `trait` bound 中用 `Container<Item = i32>` 指定 associated type。
+- 在 `trait` bound 中也可以用 `Container<Item: Display>` 限制 associated type 必須實作某個 `trait`。

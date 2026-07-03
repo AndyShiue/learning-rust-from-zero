@@ -85,7 +85,7 @@ fn main() {
 
 ## 重點整理
 
-- `Arc<T>` 是 `Rc<T>` 的多執行緒版本，參考計數用 atomic 操作
-- 用法跟 `Rc` 幾乎一樣：`Arc::new()`、`Arc::clone()`
-- `Arc::clone` 後把 `clone` move 到其他執行緒，就能共享資料
-- `T` 必須是 `Send + Sync`：`Sync` 因為多執行緒同時存取，`Send` 因為 `drop` 可能發生在任何執行緒
+- `Arc<T>` 是 `Rc<T>` 的多執行緒版本，參考計數用 atomic 操作。
+- 用法跟 `Rc` 幾乎一樣：`Arc::new()`、`Arc::clone()`。
+- `Arc::clone` 後把 `clone` move 到其他執行緒，就能共享資料。
+- `T` 必須是 `Send + Sync`：`Sync` 因為多執行緒同時存取，`Send` 因為 `drop` 可能發生在任何執行緒。

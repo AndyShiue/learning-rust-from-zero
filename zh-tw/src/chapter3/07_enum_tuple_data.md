@@ -70,8 +70,8 @@ fn main() {
 
 ## 重點整理
 
-- `enum` variant 可以攜帶資料：`Circle(f64)` 表示 Circle 帶一個 `f64`
-- 建立帶資料的 variant：`Shape::Circle(5.0)`
-- 同一個 `enum` 裡，不同 variant 可以帶不同的資料
-- 有些 variant 可以不帶資料，有些帶一個，有些帶多個——很靈活
-- 要取出 variant 裡的資料，需要用 `match`（第 9 集會學）
+- `enum` variant 可以攜帶資料：`Circle(f64)` 表示 Circle 帶一個 `f64`。
+- 建立帶資料的 variant：`Shape::Circle(5.0)`。
+- 同一個 `enum` 裡，不同 variant 可以帶不同的資料。
+- 有些 variant 可以不帶資料，有些帶一個，有些帶多個——很靈活。
+- 要取出 variant 裡的資料，需要用 `match`（第 9 集會學）。

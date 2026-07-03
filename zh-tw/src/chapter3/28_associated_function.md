@@ -105,7 +105,7 @@ fn main() {
 
 ## 重點整理
 
-- `impl 型別名 { ... }` 為型別定義 associated function
-- associated function 用 `型別名::函數名()` 呼叫
-- 最常見的用途是 `new` 函數，作為建構函數
-- `struct` 和 `enum` 都可以有 `impl` 區塊
+- `impl 型別名 { ... }` 為型別定義 associated function。
+- associated function 用 `型別名::函數名()` 呼叫。
+- 最常見的用途是 `new` 函數，作為建構函數。
+- `struct` 和 `enum` 都可以有 `impl` 區塊。

@@ -62,7 +62,7 @@ async fn main() {
 
 ## 重點整理
 
-- `tokio::sync::Semaphore` 用固定數量的 **permit** 表示容量，限制「同時進行的數量」：同時下載數、同時開檔數、同時進入某段流程的 `Task` 數等
-- `acquire().await` 拿一張 permit，拿不到就等；permit 實作 `Drop`，離開作用域時自動把名額還回去
-- 用 `let _permit = ...` 讓 permit 活到工作結束才歸還；別寫成 `let _ = ...`（會馬上 `drop`）
-- **backpressure**：下游忙不過來時讓上游等一等，避免無限堆積；`Semaphore`（和下一集的 bounded channel）都可以用「容量有限、滿了就等」來理解
+- `tokio::sync::Semaphore` 用固定數量的 **permit** 表示容量，限制「同時進行的數量」：同時下載數、同時開檔數、同時進入某段流程的 `Task` 數等。
+- `acquire().await` 拿一張 permit，拿不到就等；permit 實作 `Drop`，離開作用域時自動把名額還回去。
+- 用 `let _permit = ...` 讓 permit 活到工作結束才歸還；別寫成 `let _ = ...`（會馬上 `drop`）。
+- **backpressure**：下游忙不過來時讓上游等一等，避免無限堆積；`Semaphore`（和下一集的 bounded channel）都可以用「容量有限、滿了就等」來理解。

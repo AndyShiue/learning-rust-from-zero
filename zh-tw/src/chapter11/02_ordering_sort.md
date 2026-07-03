@@ -164,9 +164,9 @@ fn main() {
 
 ## 重點整理
 
-- `Ordering` 有三個值：`Less`、`Equal`、`Greater`
-- `cmp::min` / `cmp::max` 取兩者的較小/大值，要求 `Ord`
-- `f64` 沒有 `Ord`，用 `min_by` / `max_by` 自訂比較
-- `min_by_key` / `max_by_key` 根據 key 比較
-- `sort()` 由小到大、`sort_by()` 自訂比較、`sort_by_key()` 根據 key 排序
-- `Reverse` 是一個 tuple `struct`，`Ord` 實作把比較反過來，所以排序結果跟著反轉
+- `Ordering` 有三個值：`Less`、`Equal`、`Greater`。
+- `cmp::min` / `cmp::max` 取兩者的較小/大值，要求 `Ord`。
+- `f64` 沒有 `Ord`，用 `min_by` / `max_by` 自訂比較。
+- `min_by_key` / `max_by_key` 根據 key 比較。
+- `sort()` 由小到大、`sort_by()` 自訂比較、`sort_by_key()` 根據 key 排序。
+- `Reverse` 是一個 tuple `struct`，`Ord` 實作把比較反過來，所以排序結果跟著反轉。

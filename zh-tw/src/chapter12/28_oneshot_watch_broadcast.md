@@ -104,8 +104,8 @@ match rx.recv().await {
 
 ## 重點整理
 
-- 不同的 channel「發送端 / 接收端數量」也不一樣
-- `oneshot`：單送單收、只送一個值一次，接收端本身是 `Future`（`rx.await`），適合回傳結果
-- `watch`：單送多收、只看得到最新值，適合廣播目前狀態；用 `.changed().await` + `.borrow()`
-- `broadcast`：多送多收、把事件通知所有訂閱者；每個接收端有自己的進度，但落後超過容量時會收到 `Lagged`
-- 對照上一集的 `mpsc`（多送單收、收每一則、queue）
+- 不同的 channel「發送端 / 接收端數量」也不一樣。
+- `oneshot`：單送單收、只送一個值一次，接收端本身是 `Future`（`rx.await`），適合回傳結果。
+- `watch`：單送多收、只看得到最新值，適合廣播目前狀態；用 `.changed().await` + `.borrow()`。
+- `broadcast`：多送多收、把事件通知所有訂閱者；每個接收端有自己的進度，但落後超過容量時會收到 `Lagged`。
+- 對照上一集的 `mpsc`（多送單收、收每一則、queue）。

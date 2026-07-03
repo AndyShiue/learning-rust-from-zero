@@ -35,9 +35,9 @@ Andy
 
 大概的意思是：
 
-1. `let mut input = String::new();` → 建立一個空的文字變數，準備接收輸入
-2. `std::io::stdin().read_line(&mut input).expect("讀取失敗");` → 從鍵盤讀一行文字，存到 `input` 裡
-3. `input.trim()` → 把多餘的空白和換行符號去掉
+1. `let mut input = String::new();` → 建立一個空的文字變數，準備接收輸入。
+2. `std::io::stdin().read_line(&mut input).expect("讀取失敗");` → 從鍵盤讀一行文字，存到 `input` 裡。
+3. `input.trim()` → 把多餘的空白和換行符號去掉。
 
 至於 `String::new()`、`&mut`、`.expect()` 這些是什麼意思？以後會慢慢教，現在先照抄就好。
 
@@ -61,6 +61,6 @@ Andy
 
 ## 重點整理
 
-- 讀取使用者輸入的三行固定寫法：`String::new()` → `stdin().read_line()` → `.trim()`
-- 這段先當成黑盒子照抄即可，背後的觀念之後會慢慢學
-- `.trim()` 用來去掉輸入尾巴的換行符號
+- 讀取使用者輸入的三行固定寫法：`String::new()` → `stdin().read_line()` → `.trim()`。
+- 這段先當成黑盒子照抄即可，背後的觀念之後會慢慢學。
+- `.trim()` 用來去掉輸入尾巴的換行符號。

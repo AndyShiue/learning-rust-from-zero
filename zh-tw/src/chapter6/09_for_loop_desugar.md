@@ -37,9 +37,9 @@ fn main() {
 
 三個步驟：
 
-1. 呼叫 `v.into_iter()` 把 `v` 轉成迭代器
-2. 反覆呼叫 `iter.next()`
-3. 用 `while let Some(x)` 解構（還記得第 3 章的 `while let` 嗎？），直到拿到 `None` 就結束
+1. 呼叫 `v.into_iter()` 把 `v` 轉成迭代器。
+2. 反覆呼叫 `iter.next()`。
+3. 用 `while let Some(x)` 解構（還記得第 3 章的 `while let` 嗎？），直到拿到 `None` 就結束。
 
 ### `IntoIterator` `trait`
 
@@ -137,8 +137,8 @@ impl Iterator for Countdown {
 
 ## 重點整理
 
-- `for x in v` 是簡寫，展開後是 `v.into_iter()` + `while let Some(x) = iter.next()`
-- `IntoIterator` `trait` 定義了「如何把自己轉成迭代器」
-- 任何實作了 `IntoIterator` 的型別都能用 `for` 迴圈
-- 每個 `Iterator` 自動實作了 `IntoIterator`
-- 之所以能寫 `for i in 1..5` 或 `for i in 1..=5`，就是因為 range 實作了 `IntoIterator`
+- `for x in v` 是簡寫，展開後是 `v.into_iter()` + `while let Some(x) = iter.next()`。
+- `IntoIterator` `trait` 定義了「如何把自己轉成迭代器」。
+- 任何實作了 `IntoIterator` 的型別都能用 `for` 迴圈。
+- 每個 `Iterator` 自動實作了 `IntoIterator`。
+- 之所以能寫 `for i in 1..5` 或 `for i in 1..=5`，就是因為 range 實作了 `IntoIterator`。

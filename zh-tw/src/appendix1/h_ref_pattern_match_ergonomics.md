@@ -112,9 +112,9 @@ fn main() {
 
 ## 重點整理
 
-- `let ref x = val;` 等同於 `let x = &val;`——在 `let` 中兩者完全一樣
-- 在 `match` 中，`Some(ref x)` 會借用而不是 move 內部的值
-- **`match` ergonomics（Rust 1.26+）**：`match` 一個參考時，模式中的變數自動變成參考
-- 現代 Rust 幾乎不需要手動寫 `ref`，用 `match &value` 就好
-- `for (k, v) in &collection` 也受 `match` ergonomics 影響，`k` 和 `v` 自動是參考
-- 認識 `ref` 主要是為了讀懂舊程式碼
+- `let ref x = val;` 等同於 `let x = &val;`——在 `let` 中兩者完全一樣。
+- 在 `match` 中，`Some(ref x)` 會借用而不是 move 內部的值。
+- **`match` ergonomics（Rust 1.26+）**：`match` 一個參考時，模式中的變數自動變成參考。
+- 現代 Rust 幾乎不需要手動寫 `ref`，用 `match &value` 就好。
+- `for (k, v) in &collection` 也受 `match` ergonomics 影響，`k` 和 `v` 自動是參考。
+- 認識 `ref` 主要是為了讀懂舊程式碼。

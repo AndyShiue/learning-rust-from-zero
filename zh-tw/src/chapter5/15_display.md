@@ -10,8 +10,8 @@
 
 ### `Display` vs `Debug`
 
-- **`Debug`**（`{:?}`）：給開發者看的格式，可以用 `#[derive(Debug)]` 自動產生
-- **`Display`**（`{}`）：給使用者看的格式，**必須手動實作**，不能 `derive`
+- **`Debug`**（`{:?}`）：給開發者看的格式，可以用 `#[derive(Debug)]` 自動產生。
+- **`Display`**（`{}`）：給使用者看的格式，**必須手動實作**，不能 `derive`。
 
 為什麼要分開？因為開發者需要看到所有欄位、型別資訊（`Debug` 格式），但使用者只需要看到好讀的文字。兩者的需求不同，所以不能用同一個 `trait` 解決。
 
@@ -115,7 +115,7 @@ fn main() {
 
 ## 重點整理
 
-- `Display` `trait` 讓你的型別可以用 `{}` 格式印出
-- `Debug`（`{:?}`）給開發者看，可以 `derive`；`Display`（`{}`）給使用者看，必須手動實作
-- 實作方式：`impl Display for MyType`，在 `fmt` 方法裡用 `write!` 寫格式
-- 實作 `Display` 會自動獲得 `.to_string()` 方法（blanket implementation）
+- `Display` `trait` 讓你的型別可以用 `{}` 格式印出。
+- `Debug`（`{:?}`）給開發者看，可以 `derive`；`Display`（`{}`）給使用者看，必須手動實作。
+- 實作方式：`impl Display for MyType`，在 `fmt` 方法裡用 `write!` 寫格式。
+- 實作 `Display` 會自動獲得 `.to_string()` 方法（blanket implementation）。

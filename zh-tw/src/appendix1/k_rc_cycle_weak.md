@@ -16,8 +16,8 @@
 
 想像兩個節點 A 和 B，A 持有 `Rc` 指向 B，B 也持有 `Rc` 指向 A。當外部不再持有它們的時候：
 
-1. A 的外部 `Rc` 被 `drop` → A 的計數減一，但 B 還在指向 A → 計數不為零 → A 不釋放
-2. B 的外部 `Rc` 被 `drop` → B 的計數減一，但 A 還在指向 B → 計數不為零 → B 不釋放
+1. A 的外部 `Rc` 被 `drop` → A 的計數減一，但 B 還在指向 A → 計數不為零 → A 不釋放。
+2. B 的外部 `Rc` 被 `drop` → B 的計數減一，但 A 還在指向 B → 計數不為零 → B 不釋放。
 
 結果：A 和 B **永遠不會被釋放**，這就是記憶體洩漏。從外面看不見、卻互相撐著的環——這才是迴圈問題的本質。
 
@@ -161,10 +161,10 @@ fn main() {
 
 ## 重點整理
 
-- `Rc` 的參考迴圈會造成記憶體洩漏——strong count 永遠無法歸零
-- `Weak` 不增加 strong count，所以不會阻止資料被釋放
-- `Rc::downgrade(&rc)` 建立 `Weak<T>`，`weak.upgrade()` 回傳 `Option<Rc<T>>`
-- 用 `Weak` 打破迴圈：讓 strong count 構成的圖上不會有環
-- 雙向鏈結串列的做法：`next` 用 `Rc`（擁有後繼），`prev` 用 `Weak`（觀察前驅）
-- `Weak` 欄位對 strong count 的貢獻永遠是 0，`upgrade` 出來的 `Rc` 是獨立的變數
-- `Rc::strong_count()` 和 `Rc::weak_count()` 可以查看目前的計數
+- `Rc` 的參考迴圈會造成記憶體洩漏——strong count 永遠無法歸零。
+- `Weak` 不增加 strong count，所以不會阻止資料被釋放。
+- `Rc::downgrade(&rc)` 建立 `Weak<T>`，`weak.upgrade()` 回傳 `Option<Rc<T>>`。
+- 用 `Weak` 打破迴圈：讓 strong count 構成的圖上不會有環。
+- 雙向鏈結串列的做法：`next` 用 `Rc`（擁有後繼），`prev` 用 `Weak`（觀察前驅）。
+- `Weak` 欄位對 strong count 的貢獻永遠是 0，`upgrade` 出來的 `Rc` 是獨立的變數。
+- `Rc::strong_count()` 和 `Rc::weak_count()` 可以查看目前的計數。

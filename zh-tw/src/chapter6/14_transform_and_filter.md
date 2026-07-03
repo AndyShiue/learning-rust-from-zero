@@ -50,8 +50,8 @@
 
 當迭代器產出參考（`&T`）但你想要值（`T`）時，可以用這兩個方法把每個元素逐個複製出來：
 
-- `.copied()` —— 要求 `T: Copy`，對每個 `&T` 做 copy 得到 `T`
-- `.cloned()` —— 要求 `T: Clone`，對每個 `&T` 呼叫 `.clone()` 得到 `T`
+- `.copied()` —— 要求 `T: Copy`，對每個 `&T` 做 copy 得到 `T`。
+- `.cloned()` —— 要求 `T: Clone`，對每個 `&T` 呼叫 `.clone()` 得到 `T`。
 
 ```rust,noplayground
 # fn main() {
@@ -162,9 +162,9 @@ fn main() {
 
 ## 重點整理
 
-- `.map(f)` 轉換每個元素，`.filter(pred)` 過濾不符合條件的元素
-- `.flat_map(f)` = `.map(f)` + `.flatten()`，概念上跟 `Option` / `Result` 的 `and_then` 類似
-- `.copied()` 把 `&T` 逐個轉成 `T`（需要 `T: Copy`），`.cloned()` 類似但用 `Clone`
-- `.rev()` 反轉迭代順序，需要 `DoubleEndedIterator`
-- 這些方法可以自由鏈式呼叫，形成清晰的資料處理管道
-- 配合 `.copied()` 可以避免 `filter` 中惱人的 `&&T` 問題
+- `.map(f)` 轉換每個元素，`.filter(pred)` 過濾不符合條件的元素。
+- `.flat_map(f)` = `.map(f)` + `.flatten()`，概念上跟 `Option` / `Result` 的 `and_then` 類似。
+- `.copied()` 把 `&T` 逐個轉成 `T`（需要 `T: Copy`），`.cloned()` 類似但用 `Clone`。
+- `.rev()` 反轉迭代順序，需要 `DoubleEndedIterator`。
+- 這些方法可以自由鏈式呼叫，形成清晰的資料處理管道。
+- 配合 `.copied()` 可以避免 `filter` 中惱人的 `&&T` 問題。

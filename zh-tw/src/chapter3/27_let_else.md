@@ -74,9 +74,9 @@ fn describe(color: Color) {
 
 意思是：
 
-1. 嘗試用 pattern 匹配 `color`
-2. 如果成功，`r`、`g`、`b` 被綁定，程式繼續往下
-3. 如果失敗，執行 `else` 裡面的程式碼
+1. 嘗試用 pattern 匹配 `color`。
+2. 如果成功，`r`、`g`、`b` 被綁定，程式繼續往下。
+3. 如果失敗，執行 `else` 裡面的程式碼。
 
 ### `else` 裡面必須離開
 
@@ -90,8 +90,8 @@ fn describe(color: Color) {
 
 ### 和 `if let` 的比較
 
-- `if let`：匹配成功才進入 `{}` 區塊，綁定的變數只活在裡面
-- `let...else...`：匹配失敗就離開，綁定的變數活在後面所有的程式碼裡
+- `if let`：匹配成功才進入 `{}` 區塊，綁定的變數只活在裡面。
+- `let...else...`：匹配失敗就離開，綁定的變數活在後面所有的程式碼裡。
 
 `let...else...` 讓程式碼更扁平——不用多縮排一層。
 
@@ -136,7 +136,7 @@ fn main() {
 
 ## 重點整理
 
-- `let pattern = expr else { return / break / continue };` 在匹配失敗時提前離開
-- `else` 裡面必須離開當前流程（`return` / `break` / `continue`）
-- 匹配成功的話，綁定的變數在後續程式碼還能使用
-- 比 `if let` 更適合「失敗就離開，成功繼續」的場景——程式碼更扁平
+- `let pattern = expr else { return / break / continue };` 在匹配失敗時提前離開。
+- `else` 裡面必須離開當前流程（`return` / `break` / `continue`）。
+- 匹配成功的話，綁定的變數在後續程式碼還能使用。
+- 比 `if let` 更適合「失敗就離開，成功繼續」的場景——程式碼更扁平。

@@ -251,9 +251,9 @@ fn main() {
 
 ## 重點整理
 
-- `JoinHandle<T>` 是一個 `Future`，`.await` 它就能拿到背景 `Task` 的回傳值
-- 排程核心不變，只加三樣：`Shared<T>` + `JoinHandle<T>`、回傳 `JoinHandle<T>` 的 `Executor::spawn`、回傳 `T` 的 `Executor::block_on`
-- executor `poll` 某個 `Task` 時，`Context` 會一路傳到內層 `Future`；所以內層 `Future` 看到的 `cx.waker()` 就是目前這個 `Task` 的 `Waker`
-- `JoinHandle` 沒有獨立的 `Waker`，它在 `.await` 時把**等待者自己的** `Waker` 存進 `Shared<T>`
-- 背景 `Task` 完成時把結果放進 `Shared<T>`，再取出那個 `Waker` `wake()`，喚醒等待者
-- 喚醒不是 `Future` 直接通知 `Future`，而是完成方透過共享狀態喚醒等待方
+- `JoinHandle<T>` 是一個 `Future`，`.await` 它就能拿到背景 `Task` 的回傳值。
+- 排程核心不變，只加三樣：`Shared<T>` + `JoinHandle<T>`、回傳 `JoinHandle<T>` 的 `Executor::spawn`、回傳 `T` 的 `Executor::block_on`。
+- executor `poll` 某個 `Task` 時，`Context` 會一路傳到內層 `Future`；所以內層 `Future` 看到的 `cx.waker()` 就是目前這個 `Task` 的 `Waker`。
+- `JoinHandle` 沒有獨立的 `Waker`，它在 `.await` 時把**等待者自己的** `Waker` 存進 `Shared<T>`。
+- 背景 `Task` 完成時把結果放進 `Shared<T>`，再取出那個 `Waker` `wake()`，喚醒等待者。
+- 喚醒不是 `Future` 直接通知 `Future`，而是完成方透過共享狀態喚醒等待方。

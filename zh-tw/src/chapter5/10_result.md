@@ -21,8 +21,8 @@ enum Result<T, E> {
 # fn main() {}
 ```
 
-- `Ok(T)` 表示成功，裡面包著成功的值
-- `Err(E)` 表示失敗，裡面包著錯誤資訊
+- `Ok(T)` 表示成功，裡面包著成功的值。
+- `Err(E)` 表示失敗，裡面包著錯誤資訊。
 
 和 `Option` 一樣，`Result`、`Ok`、`Err` 也是 Rust 預設就引入到每個檔案裡的。
 
@@ -47,9 +47,9 @@ enum Result<T, E> {
 
 和 `Option` 一樣，`Result` 也有：
 
-- `unwrap()`：成功取出值，失敗 panic
-- `expect("訊息")`：和 `unwrap` 一樣，但自訂 panic 訊息
-- `unwrap_or(預設值)`：失敗時用預設值
+- `unwrap()`：成功取出值，失敗 panic。
+- `expect("訊息")`：和 `unwrap` 一樣，但自訂 panic 訊息。
+- `unwrap_or(預設值)`：失敗時用預設值。
 
 ## 範例程式碼
 
@@ -97,8 +97,8 @@ fn main() {
 
 ## 重點整理
 
-- `Result<T, E>` 表示「成功（`Ok`）或失敗（`Err`）」，比 `Option` 多了錯誤資訊
-- `Ok(T)` 對應成功，`Err(E)` 對應失敗
-- `Result`、`Ok`、`Err` 和 `Option` 一樣，是 Rust 預設就引入每個檔案的
-- `unwrap()`、`expect()`、`unwrap_or()` 的用法和 `Option` 完全對稱
-- 第 1 章的 `.parse().expect(...)` 就是在用 `Result`——現在我們能理解了
+- `Result<T, E>` 表示「成功（`Ok`）或失敗（`Err`）」，比 `Option` 多了錯誤資訊。
+- `Ok(T)` 對應成功，`Err(E)` 對應失敗。
+- `Result`、`Ok`、`Err` 和 `Option` 一樣，是 Rust 預設就引入每個檔案的。
+- `unwrap()`、`expect()`、`unwrap_or()` 的用法和 `Option` 完全對稱。
+- 第 1 章的 `.parse().expect(...)` 就是在用 `Result`——現在我們能理解了。

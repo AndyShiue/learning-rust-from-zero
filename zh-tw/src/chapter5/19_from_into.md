@@ -124,8 +124,8 @@ fn main() {
 
 ## 重點整理
 
-- `From<T>` 定義「從 `T` 轉換而來」：`String::from("hello")` 就是這個
-- 實作 `From` 就自動獲得 `Into`——不需要另外實作
-- `.into()` 是 `.from()` 的反方向：`let f: Fahrenheit = celsius.into();`
-- `TryFrom` / `TryInto` 用於可能失敗的轉換，回傳 `Result`
-- 實作 `TryFrom` 也會自動獲得 `TryInto`
+- `From<T>` 定義「從 `T` 轉換而來」：`String::from("hello")` 就是這個。
+- 實作 `From` 就自動獲得 `Into`——不需要另外實作。
+- `.into()` 是 `.from()` 的反方向：`let f: Fahrenheit = celsius.into();`。
+- `TryFrom` / `TryInto` 用於可能失敗的轉換，回傳 `Result`。
+- 實作 `TryFrom` 也會自動獲得 `TryInto`。

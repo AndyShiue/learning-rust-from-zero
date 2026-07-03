@@ -137,8 +137,8 @@ async fn main() {
 
 ## 重點整理
 
-- `tokio::spawn` 把 `Future` 交給 runtime，回傳 `JoinHandle`（`.await` 後得到 `Result`，因為可能 panic）
-- Tokio 預設多執行緒，可能在 `Thread` 之間搬 `Task`，所以 `spawn` 的 `Future` 與輸出要 `Send + 'static`；`block_on` 在當前 `Thread` 跑，不需要
-- 語意差異：手寫 `block_on` 等**所有** `Task` 完成；Tokio `block_on` 是**指定的 `Future`** 一完成就回傳
-- `.await` 期間持有非 `Send` 的值（`Rc`、`RefCell`）會讓 `Future` 不是 `Send`，不能 `spawn`；解法是改用 `Arc`、或用作用域 / `drop` 讓它在 `.await` 前消失
-- `#[tokio::main]` 預設多執行緒，但可用 `flavor = "current_thread"` 或 `worker_threads = N` 調整
+- `tokio::spawn` 把 `Future` 交給 runtime，回傳 `JoinHandle`（`.await` 後得到 `Result`，因為可能 panic）。
+- Tokio 預設多執行緒，可能在 `Thread` 之間搬 `Task`，所以 `spawn` 的 `Future` 與輸出要 `Send + 'static`；`block_on` 在當前 `Thread` 跑，不需要。
+- 語意差異：手寫 `block_on` 等**所有** `Task` 完成；Tokio `block_on` 是**指定的 `Future`** 一完成就回傳。
+- `.await` 期間持有非 `Send` 的值（`Rc`、`RefCell`）會讓 `Future` 不是 `Send`，不能 `spawn`；解法是改用 `Arc`、或用作用域 / `drop` 讓它在 `.await` 前消失。
+- `#[tokio::main]` 預設多執行緒，但可用 `flavor = "current_thread"` 或 `worker_threads = N` 調整。

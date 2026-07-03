@@ -231,10 +231,10 @@ fn main() {
 
 ## 重點整理
 
-- `Option` 和 `Result` 的 `map` 對內部值做轉換，`None` / `Err` 時不執行
-- `and_then` 用於閉包本身也回傳 `Option` / `Result` 的情況，避免巢狀
-- `unwrap_or_else` 懶惰計算預設值，只在 `None` / `Err` 時才執行閉包
-- `Option` 的 `filter` 根據條件決定保留 `Some` 或轉成 `None`
-- `Result` 的 `map_err` 可以轉換錯誤型別，方便錯誤處理鏈
-- 這些方法可以鏈式呼叫，比層層 `match` 更簡潔易讀
-- 你可能已經注意到：光看型別簽名就能猜出方法在做什麼（`Option<T>` 的 `map` 接受 `FnOnce(T) -> U`，回傳 `Option<U>`）。這是函數式程式設計的一大特色——型別本身就是文件
+- `Option` 和 `Result` 的 `map` 對內部值做轉換，`None` / `Err` 時不執行。
+- `and_then` 用於閉包本身也回傳 `Option` / `Result` 的情況，避免巢狀。
+- `unwrap_or_else` 懶惰計算預設值，只在 `None` / `Err` 時才執行閉包。
+- `Option` 的 `filter` 根據條件決定保留 `Some` 或轉成 `None`。
+- `Result` 的 `map_err` 可以轉換錯誤型別，方便錯誤處理鏈。
+- 這些方法可以鏈式呼叫，比層層 `match` 更簡潔易讀。
+- 你可能已經注意到：光看型別簽名就能猜出方法在做什麼（`Option<T>` 的 `map` 接受 `FnOnce(T) -> U`，回傳 `Option<U>`）。這是函數式程式設計的一大特色——型別本身就是文件。

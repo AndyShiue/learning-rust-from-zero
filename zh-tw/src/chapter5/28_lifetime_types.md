@@ -185,7 +185,7 @@ fn main() {
 
 ## 重點整理
 
-- `struct` 裡放參考時，必須標注生命週期：`struct Excerpt<'a> { text: &'a str }`
-- 生命週期保證 ``struct`` 不會活得比借用的資料更久
-- `'_` 是匿名生命週期，讓編譯器自己推斷（生命週期版的 `_`）
-- `impl` 帶生命週期的 `struct`：`impl<'a> Excerpt<'a> { ... }`
+- `struct` 裡放參考時，必須標注生命週期：`struct Excerpt<'a> { text: &'a str }`。
+- 生命週期保證 ``struct`` 不會活得比借用的資料更久。
+- `'_` 是匿名生命週期，讓編譯器自己推斷（生命週期版的 `_`）。
+- `impl` 帶生命週期的 `struct`：`impl<'a> Excerpt<'a> { ... }`。

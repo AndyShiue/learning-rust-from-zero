@@ -32,8 +32,8 @@ Tokio 是目前最主流的 runtime，但不是唯一的選擇。因為標準庫
 
 ## 重點整理
 
-- Rust 標準庫只定義 `Future` 等**語言層抽象**，不內建 runtime；executor、reactor、timer、I/O、`Task` 設計都由 runtime 提供（正是我們手寫過的那些零件）
-- Tokio 是主流通用 runtime；此外還有輕量的 smol、thread-per-core 的 monoio / glommio、嵌入式用的 Embassy 等，各方面設計可能不同
-- 寫程式時可留意：純 `Future` 組合邏輯（自訂 `Future`、`join!`、`select!`、`FuturesUnordered`）大多 **runtime-agnostic**；I/O、timer、`spawn` 則是 **runtime-specific**，換 runtime 要抽換
+- Rust 標準庫只定義 `Future` 等**語言層抽象**，不內建 runtime；executor、reactor、timer、I/O、`Task` 設計都由 runtime 提供（正是我們手寫過的那些零件）。
+- Tokio 是主流通用 runtime；此外還有輕量的 smol、thread-per-core 的 monoio / glommio、嵌入式用的 Embassy 等，各方面設計可能不同。
+- 寫程式時可留意：純 `Future` 組合邏輯（自訂 `Future`、`join!`、`select!`、`FuturesUnordered`）大多 **runtime-agnostic**；I/O、timer、`spawn` 則是 **runtime-specific**，換 runtime 要抽換。
 
 恭喜你完成了非同步這一章！🎉 這一章從第一個 `async fn` 開始，一路拆到 `Future`、`poll`、`Waker`、executor、reactor、`Pin`，再回到 Tokio 的 `spawn`、I/O、channel、`select!`、graceful shutdown 和測試。走到這裡，你已經看過 `async` 背後那套「惰性的 `Future` 如何被 runtime 推進」的完整骨架。之後在使用 Tokio 或其他 runtime 時，你看到的不只是非同步的 API，而也知道那些 API 大概在替你安排哪些事情。

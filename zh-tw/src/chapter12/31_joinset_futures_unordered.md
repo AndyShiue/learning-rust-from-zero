@@ -94,7 +94,7 @@ async fn main() {
 
 ## 重點整理
 
-- 處理「大量、動態、誰先好先處理」的工作，`join!` 不夠用，改用 `JoinSet` 或 `FuturesUnordered`
-- **`JoinSet`**（`spawn` 的動態版）：每個工作是獨立 `Task`、可真平行、需 `Send + 'static`、綁 Tokio；`join_next()` 回 `Option<Result<T, JoinError>>`，支援 `.abort_all()` 與 `drop` 時自動 abort
-- **`FuturesUnordered`**（`join!` 的動態版）：同一個 `Task` 內多工、不跨 `Thread`、不需 `Send`（可借用區域變數），但一個 branch 卡住會拖累其他；本身是個不綁 runtime 的 `Stream`
-- 要真平行互不影響用 `JoinSet`；要就地借用、工作輕量、不綁 runtime 用 `FuturesUnordered`
+- 處理「大量、動態、誰先好先處理」的工作，`join!` 不夠用，改用 `JoinSet` 或 `FuturesUnordered`。
+- **`JoinSet`**（`spawn` 的動態版）：每個工作是獨立 `Task`、可真平行、需 `Send + 'static`、綁 Tokio；`join_next()` 回 `Option<Result<T, JoinError>>`，支援 `.abort_all()` 與 `drop` 時自動 abort。
+- **`FuturesUnordered`**（`join!` 的動態版）：同一個 `Task` 內多工、不跨 `Thread`、不需 `Send`（可借用區域變數），但一個 branch 卡住會拖累其他；本身是個不綁 runtime 的 `Stream`。
+- 要真平行互不影響用 `JoinSet`；要就地借用、工作輕量、不綁 runtime 用 `FuturesUnordered`。

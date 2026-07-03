@@ -12,10 +12,10 @@
 
 假設兩個執行緒同時對一個變數做 `count += 1`。這看起來是一步，但實際上分成三步：讀出目前的值、加 1、寫回去。如果兩個執行緒同時做這三步，可能會發生這樣的事：
 
-1. 執行緒 A 讀出 `count` = 0
-2. 執行緒 B 讀出 `count` = 0
-3. 執行緒 A 寫入 `count` = 1
-4. 執行緒 B 寫入 `count` = 1
+1. 執行緒 A 讀出 `count` = 0。
+2. 執行緒 B 讀出 `count` = 0。
+3. 執行緒 A 寫入 `count` = 1。
+4. 執行緒 B 寫入 `count` = 1。
 
 兩邊各加了一次，結果卻是 1 而不是 2。
 
@@ -72,8 +72,8 @@ if ready.load(Ordering::Relaxed) {    // 看到 true
 
 細節很複雜，初學的話可以先記住兩個：
 
-- `Ordering::Relaxed`：只保證這個 atomic 操作本身是正確的，不限制其他指令的順序。適合單純的計數器
-- `Ordering::SeqCst`：最嚴格，所有執行緒看到的操作順序都一致
+- `Ordering::Relaxed`：只保證這個 atomic 操作本身是正確的，不限制其他指令的順序。適合單純的計數器。
+- `Ordering::SeqCst`：最嚴格，所有執行緒看到的操作順序都一致。
 
 不確定的時候用 `SeqCst` 最安全。
 
@@ -159,9 +159,9 @@ fn main() {
 
 ## 重點整理
 
-- atomic 操作把讀、改、寫合成一個不可分割的動作，多個執行緒同時做也不會出錯
-- 常用型別：`AtomicI32`、`AtomicUsize`、`AtomicBool`
-- 常用方法：`load`（讀）、`store`（寫）、`fetch_add`（加並回傳舊值）
-- `Ordering` 控制記憶體排序，不確定就用 `SeqCst`
-- atomic 型別有 interior mutability——用 `&self` 就能修改，而且是 `Sync`（可以跨執行緒共享）
-- 只能用在簡單型別，複雜資料需要用鎖
+- atomic 操作把讀、改、寫合成一個不可分割的動作，多個執行緒同時做也不會出錯。
+- 常用型別：`AtomicI32`、`AtomicUsize`、`AtomicBool`。
+- 常用方法：`load`（讀）、`store`（寫）、`fetch_add`（加並回傳舊值）。
+- `Ordering` 控制記憶體排序，不確定就用 `SeqCst`。
+- atomic 型別有 interior mutability——用 `&self` 就能修改，而且是 `Sync`（可以跨執行緒共享）。
+- 只能用在簡單型別，複雜資料需要用鎖。

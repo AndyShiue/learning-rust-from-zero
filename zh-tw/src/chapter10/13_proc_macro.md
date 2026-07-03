@@ -66,9 +66,9 @@ pub fn my_macro(input: TokenStream) -> TokenStream {
 
 ### 三者的差別
 
-- **`derive`**：**附加**新程式碼，不取代原本的 `struct` / `enum`
-- **attribute**：**取代**被標記的項目
-- **function-like**：括號裡的內容被**展開**成新的程式碼
+- **`derive`**：**附加**新程式碼，不取代原本的 `struct` / `enum`。
+- **attribute**：**取代**被標記的項目。
+- **function-like**：括號裡的內容被**展開**成新的程式碼。
 
 ### 獨立 crate
 
@@ -82,8 +82,8 @@ proc-macro = true
 ### `syn` 和 `quote`
 
 實務上通常搭配兩個社群 crate：
-- **`syn`**：把 `TokenStream` 解析成結構化的資料（例如知道「這是一個 `struct`，有一個欄位叫 `x`」）
-- **`quote`**：方便地從結構化資料生成 `TokenStream`
+- **`syn`**：把 `TokenStream` 解析成結構化的資料（例如知道「這是一個 `struct`，有一個欄位叫 `x`」）。
+- **`quote`**：方便地從結構化資料生成 `TokenStream`。
 
 沒有它們你就得自己一個一個 token 處理，非常痛苦。
 
@@ -136,8 +136,8 @@ fn main() {
 
 ## 重點整理
 
-- proc macro 分三種：`derive`、attribute、function-like
-- 本質是接收 `TokenStream`、回傳 `TokenStream` 的編譯期函數
-- `derive` 附加程式碼、attribute 取代項目、function-like 展開內容
-- 必須在獨立 crate 裡定義（`proc-macro = true`）
-- 常用 `syn`（解析）和 `quote`（生成）兩個 crate
+- proc macro 分三種：`derive`、attribute、function-like。
+- 本質是接收 `TokenStream`、回傳 `TokenStream` 的編譯期函數。
+- `derive` 附加程式碼、attribute 取代項目、function-like 展開內容。
+- 必須在獨立 crate 裡定義（`proc-macro = true`）。
+- 常用 `syn`（解析）和 `quote`（生成）兩個 crate。

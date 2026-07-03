@@ -83,8 +83,8 @@ fn main() {
 
 ## 重點整理
 
-- 當變數名和欄位名相同時，可以只寫一次：`Point { x, y }` 等同於 `Point { x: x, y: y }`
-- 這個簡寫叫做 **field shorthand**
-- 建立 `struct` / `enum` variant 時可以用
-- `match` 模式裡也可以用
-- 這是一個很常見的寫法，實際寫 Rust 時常常用簡寫
+- 當變數名和欄位名相同時，可以只寫一次：`Point { x, y }` 等同於 `Point { x: x, y: y }`。
+- 這個簡寫叫做 **field shorthand**。
+- 建立 `struct` / `enum` variant 時可以用。
+- `match` 模式裡也可以用。
+- 這是一個很常見的寫法，實際寫 Rust 時常常用簡寫。

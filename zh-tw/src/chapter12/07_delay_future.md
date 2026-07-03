@@ -126,7 +126,7 @@ fn main() {
 
 ## 重點整理
 
-- 真實 I/O 太複雜，所以先用最簡單的計時器來第一次認識 `Pending`
-- `Delay` 用一個計時器模擬「要花時間才會好的事件」：沒到期回 `Pending`，到期回 `Ready`，之後幾集都拿它當替代品
-- 自訂 `Future` 一旦 `impl Future`、實作 `poll`，搭配上一集的 `block_on` 就能跑
-- 這個 `Delay` 被過度簡化了：`poll` 沒用到 `cx` 裡的 `Waker`，只因為搭配的 executor 也不睡覺才剛好能跑；換到會睡覺的 executor 就會出問題，我們後面會修
+- 真實 I/O 太複雜，所以先用最簡單的計時器來第一次認識 `Pending`。
+- `Delay` 用一個計時器模擬「要花時間才會好的事件」：沒到期回 `Pending`，到期回 `Ready`，之後幾集都拿它當替代品。
+- 自訂 `Future` 一旦 `impl Future`、實作 `poll`，搭配上一集的 `block_on` 就能跑。
+- 這個 `Delay` 被過度簡化了：`poll` 沒用到 `cx` 裡的 `Waker`，只因為搭配的 executor 也不睡覺才剛好能跑；換到會睡覺的 executor 就會出問題，我們後面會修。

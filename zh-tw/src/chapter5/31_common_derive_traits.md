@@ -58,9 +58,9 @@ pub trait Ord: PartialOrd + Eq { ... }
 
 整理成繼承關係：
 
-- `Eq: PartialEq` — 要有完整等價，先要有部分等價
-- `PartialOrd: PartialEq` — 要能比大小，先要能比相不相等（因為 `<=` 包含了 `==`）
-- `Ord: PartialOrd + Eq` — 要有完整排序，先要有部分排序**和**完整等價
+- `Eq: PartialEq` — 要有完整等價，先要有部分等價。
+- `PartialOrd: PartialEq` — 要能比大小，先要能比相不相等（因為 `<=` 包含了 `==`）。
+- `Ord: PartialOrd + Eq` — 要有完整排序，先要有部分排序**和**完整等價。
 
 為什麼 `PartialOrd` 要求 `PartialEq`？因為「比大小」本身隱含了「能判斷相等」——如果 `a <= b` 且 `b <= a`，那 `a == b`。
 
@@ -143,8 +143,8 @@ fn main() {
 
 ## 重點整理
 
-- `PartialEq`：`==`、`!=` 比較；`Eq`：保證自反性（`NAN` 是例外）
-- `PartialOrd`：`<`、`>`、`<=`、`>=` 比較；`Ord`：保證完整排序
-- `f64` 因為 `NAN` 的存在，只有 `Partial` 版本，沒有完整版
-- derive 的 `Ord` 按欄位宣告順序逐一比較
-- `Default`：提供預設值（數字 `0`、`bool` `false`、`String` 空字串）
+- `PartialEq`：`==`、`!=` 比較；`Eq`：保證自反性（`NAN` 是例外）。
+- `PartialOrd`：`<`、`>`、`<=`、`>=` 比較；`Ord`：保證完整排序。
+- `f64` 因為 `NAN` 的存在，只有 `Partial` 版本，沒有完整版。
+- derive 的 `Ord` 按欄位宣告順序逐一比較。
+- `Default`：提供預設值（數字 `0`、`bool` `false`、`String` 空字串）。

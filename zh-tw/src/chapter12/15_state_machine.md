@@ -217,8 +217,8 @@ fn main() {
 
 ## 重點整理
 
-- `.await` **不會**開新 `Thread`，它把函數切成可暫停、可恢復的好幾段
-- 編譯器把 `async fn` / `async` block 改寫成一個**狀態機**（概念上是個 `enum`）：進度變成 variant，跨 `.await` 的區域變數存進 variant
-- `poll` 用 `match` 看目前狀態：子 `Future` `Ready` 就切到下一狀態，`Pending` 就回 `Pending` 暫停
-- 下次 `poll` 直接跳回上次的狀態，從原地恢復——這就是 `Future` 能「記住進度」的原因
-- 這個改寫平常由編譯器自動完成，但理解它是搞懂後面 `Pin` 的前提
+- `.await` **不會**開新 `Thread`，它把函數切成可暫停、可恢復的好幾段。
+- 編譯器把 `async fn` / `async` block 改寫成一個**狀態機**（概念上是個 `enum`）：進度變成 variant，跨 `.await` 的區域變數存進 variant。
+- `poll` 用 `match` 看目前狀態：子 `Future` `Ready` 就切到下一狀態，`Pending` 就回 `Pending` 暫停。
+- 下次 `poll` 直接跳回上次的狀態，從原地恢復——這就是 `Future` 能「記住進度」的原因。
+- 這個改寫平常由編譯器自動完成，但理解它是搞懂後面 `Pin` 的前提。

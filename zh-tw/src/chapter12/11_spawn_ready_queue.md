@@ -14,9 +14,9 @@
 
 我們的解法是給每個 `Future` 配一份「隨身資料」，把它包成一個 **`Task`**。一個 `Task` 裝著：
 
-- 它自己的那個 `Future`
-- 它該排回**哪條** ready queue
-- 該叫醒**哪條** executor `Thread`
+- 它自己的那個 `Future`。
+- 它該排回**哪條** ready queue。
+- 該叫醒**哪條** executor `Thread`。
 - 一個避免自己重複排隊的旗標
 
 從此 executor 不再直接管 `Future`，而是管 `Task`。而所謂 `spawn`，就是「把一個 `Future` 包成 `Task`、交給 executor」。
@@ -201,9 +201,9 @@ fn main() {
 
 ## 重點整理
 
-- 把每個 `Future` 包成 **`Task`**（`Future` ＋ 排程隨身資料），executor 從此管 `Task` 而非裸 `Future`
-- **ready queue** 排著該被 poll 的 `Task`；`Task` 被 `wake` 時把自己排回 queue 再 `unpark` executor
-- `unpark` 只是「起床」的鬧鈴，不說哪個 `Task` 好了；那資訊在 ready queue 裡
-- `spawn` 是 `Executor` 的方法：把 `Future` 包成 `Task`，排進自己的 ready queue
-- `queued.swap(true, ...)` 像 `Option::take`：拿到舊值、留下新值，且是一次 atomic 操作，避免同一個 `Task` 重複入列
-- `Task` 自己當 `Waker`，`Waker::from(Arc<Task>)` 要求 `Task: Send + Sync + 'static`，所以 `Future` 欄位要 `+ Send` 並用 `Mutex` 包起來
+- 把每個 `Future` 包成 **`Task`**（`Future` ＋ 排程隨身資料），executor 從此管 `Task` 而非裸 `Future`。
+- **ready queue** 排著該被 poll 的 `Task`；`Task` 被 `wake` 時把自己排回 queue 再 `unpark` executor。
+- `unpark` 只是「起床」的鬧鈴，不說哪個 `Task` 好了；那資訊在 ready queue 裡。
+- `spawn` 是 `Executor` 的方法：把 `Future` 包成 `Task`，排進自己的 ready queue。
+- `queued.swap(true, ...)` 像 `Option::take`：拿到舊值、留下新值，且是一次 atomic 操作，避免同一個 `Task` 重複入列。
+- `Task` 自己當 `Waker`，`Waker::from(Arc<Task>)` 要求 `Task: Send + Sync + 'static`，所以 `Future` 欄位要 `+ Send` 並用 `Mutex` 包起來。

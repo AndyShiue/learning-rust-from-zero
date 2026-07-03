@@ -123,6 +123,6 @@ fn main() {
 - `contains`、`starts_with`、`ends_with`、`find`：搜尋
 - `trim`、`trim_start`、`trim_end`：修剪空白
 - `replace`：替換
-- `split`、`split_whitespace`：分割，回傳迭代器
-- `chars`：逐字元走訪；`bytes`：逐 byte 走訪
-- `len` 回傳 byte 數，字元數要用 `.chars().count()`
+- `split`、`split_whitespace`：分割，回傳迭代器。
+- `chars`：逐字元走訪；`bytes`：逐 byte 走訪。
+- `len` 回傳 byte 數，字元數要用 `.chars().count()`。

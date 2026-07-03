@@ -112,9 +112,9 @@ fn main() {
 
 ## 重點整理
 
-- `AsRef<T>`：便宜地借用成 `&T`，用 `.as_ref()` 呼叫
-- `AsMut<T>`：便宜地借用成 `&mut T`，用 `.as_mut()` 呼叫
-- `AsRef` 參數用 `impl AsRef<T>`（傳值），`AsMut` 參數用 `&mut impl AsMut<T>`（借用，改完呼叫端還能繼續用）
-- `&mut T` 之所以能當 `impl AsMut<U>` 用，是因為標準庫的 blanket implementation
-- 一個型別可以實作多個 `AsRef` / `AsMut`（`Deref` / `DerefMut` 只能一個目標）
-- 標準庫大量使用
+- `AsRef<T>`：便宜地借用成 `&T`，用 `.as_ref()` 呼叫。
+- `AsMut<T>`：便宜地借用成 `&mut T`，用 `.as_mut()` 呼叫。
+- `AsRef` 參數用 `impl AsRef<T>`（傳值），`AsMut` 參數用 `&mut impl AsMut<T>`（借用，改完呼叫端還能繼續用）。
+- `&mut T` 之所以能當 `impl AsMut<U>` 用，是因為標準庫的 blanket implementation。
+- 一個型別可以實作多個 `AsRef` / `AsMut`（`Deref` / `DerefMut` 只能一個目標）。
+- 標準庫大量使用。

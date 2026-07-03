@@ -101,7 +101,7 @@ fn main() {
 
 ## 重點整理
 
-- `let Point { x, y } = p;` 把 `struct` 的欄位拆成個別變數
-- `..` 可以忽略不需要的欄位
-- tuple `struct` 也能解構：`let Pair(a, b) = p;`
-- `let` 解構在取出 `struct` 資料時非常方便
+- `let Point { x, y } = p;` 把 `struct` 的欄位拆成個別變數。
+- `..` 可以忽略不需要的欄位。
+- tuple `struct` 也能解構：`let Pair(a, b) = p;`。
+- `let` 解構在取出 `struct` 資料時非常方便。

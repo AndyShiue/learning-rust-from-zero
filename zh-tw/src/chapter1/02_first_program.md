@@ -88,8 +88,8 @@ Hello, Rust!
 
 ## 重點整理
 
-- **Cargo** 是 Rust 的專案管理工具，用 `cargo new` 建立新專案
-- 專案裡 `Cargo.toml` 是設定檔，`src/main.rs` 是主程式碼
-- **編譯**是把人看得懂的程式碼翻譯成電腦能跑的檔案
-- 用 `cargo run` 一鍵完成編譯和執行
-- `fn main()` 是程式的入口點，`println!` 用來印東西到螢幕上
+- **Cargo** 是 Rust 的專案管理工具，用 `cargo new` 建立新專案。
+- 專案裡 `Cargo.toml` 是設定檔，`src/main.rs` 是主程式碼。
+- **編譯**是把人看得懂的程式碼翻譯成電腦能跑的檔案。
+- 用 `cargo run` 一鍵完成編譯和執行。
+- `fn main()` 是程式的入口點，`println!` 用來印東西到螢幕上。

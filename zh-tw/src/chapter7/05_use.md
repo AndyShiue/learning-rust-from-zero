@@ -72,8 +72,8 @@ use ::rand::Rng;  // 明確表示 rand 是外部 crate，不是本地 mod
 
 ### super:: 和 self::
 
-- `super::`：往上一層，指向**父 `mod`**
-- `self::`：指向**當前 `mod`**（通常省略，但有時在 `use` 中有用）
+- `super::`：往上一層，指向**父 `mod`**。
+- `self::`：指向**當前 `mod`**（通常省略，但有時在 `use` 中有用）。
 
 ```rust,noplayground
 mod outer {
@@ -250,13 +250,13 @@ fn main() {
 
 ## 重點整理
 
-- `use` 將路徑帶入作用域，讓你不必每次寫完整路徑
-- 絕對路徑用 `crate::` 開頭，相對路徑從當前 `mod` 位置開始
-- 外部 crate 直接用名稱開頭；加 `::` 前綴可以明確標記為外部 crate
-- `std` 是標準庫，不用加 dependency 就能用，prelude 也在裡面
-- `super::` 指向父 `mod`，`self::` 指向當前 `mod`
-- `use a::b::{self, X, Y};` 一次 `use` 多個東西
-- `use X as Alias;` 取別名，解決名字衝突
-- 同作用域 `use` 同名會報錯；不同作用域會 shadow（內層遮蔽外層）
-- `use something::*;` 星號匯入——測試裡常用，正式程式碼少用
-- `enum` 的 variant 也可以被 `use`
+- `use` 將路徑帶入作用域，讓你不必每次寫完整路徑。
+- 絕對路徑用 `crate::` 開頭，相對路徑從當前 `mod` 位置開始。
+- 外部 crate 直接用名稱開頭；加 `::` 前綴可以明確標記為外部 crate。
+- `std` 是標準庫，不用加 dependency 就能用，prelude 也在裡面。
+- `super::` 指向父 `mod`，`self::` 指向當前 `mod`。
+- `use a::b::{self, X, Y};` 一次 `use` 多個東西。
+- `use X as Alias;` 取別名，解決名字衝突。
+- 同作用域 `use` 同名會報錯；不同作用域會 shadow（內層遮蔽外層）。
+- `use something::*;` 星號匯入——測試裡常用，正式程式碼少用。
+- `enum` 的 variant 也可以被 `use`。

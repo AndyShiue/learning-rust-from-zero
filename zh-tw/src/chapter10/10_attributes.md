@@ -8,8 +8,8 @@
 
 ### outer vs inner
 
-- **outer attribute** `#[...]`：放在項目的上面，修飾那個項目
-- **inner attribute** `#![...]`：放在項目的裡面（通常是檔案開頭），修飾包含它的整個項目
+- **outer attribute** `#[...]`：放在項目的上面，修飾那個項目。
+- **inner attribute** `#![...]`：放在項目的裡面（通常是檔案開頭），修飾包含它的整個項目。
 
 ```rust,noplayground
 #![allow(dead_code)] // inner：修飾整個 mod
@@ -155,11 +155,11 @@ fn main() {
 
 ## 重點整理
 
-- `#[...]`（outer）修飾下面的項目，`#![...]`（inner）修飾包含它的項目
-- `#[derive(...)]`：自動實作 `trait`
-- `#[allow/warn/deny(...)]`：控制警告
-- `#[cfg(...)]`：條件編譯
+- `#[...]`（outer）修飾下面的項目，`#![...]`（inner）修飾包含它的項目。
+- `#[derive(...)]`：自動實作 `trait`。
+- `#[allow/warn/deny(...)]`：控制警告。
+- `#[cfg(...)]`：條件編譯。
 - `#[test]` / `#[should_panic]` / `#[ignore]`：測試相關
-- `#[must_use]`：忽略回傳值時警告
-- `#[deprecated]`：標記已棄用
-- `///` 是 `#[doc = "..."]` 的簡寫，`//!` 是 `#![doc = "..."]` 的簡寫
+- `#[must_use]`：忽略回傳值時警告。
+- `#[deprecated]`：標記已棄用。
+- `///` 是 `#[doc = "..."]` 的簡寫，`//!` 是 `#![doc = "..."]` 的簡寫。

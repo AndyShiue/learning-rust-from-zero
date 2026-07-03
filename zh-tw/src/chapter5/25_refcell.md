@@ -12,8 +12,8 @@
 
 `RefCell<T>` 和 `Cell` 類似——讓你在不需要 `&mut` 的情況下修改值。差別在於：
 
-- `Cell<T>`：用 `get` / `set`，`T` 必須 `Copy`，**零成本**（編譯後和直接存取沒有差別）
-- `RefCell<T>`：用 `.borrow()` 和 `.borrow_mut()` 取得參考，`T` **不需要** `Copy`，但**有執行期成本**（每次借用都要檢查有沒有違反規則）
+- `Cell<T>`：用 `get` / `set`，`T` 必須 `Copy`，**零成本**（編譯後和直接存取沒有差別）。
+- `RefCell<T>`：用 `.borrow()` 和 `.borrow_mut()` 取得參考，`T` **不需要** `Copy`，但**有執行期成本**（每次借用都要檢查有沒有違反規則）。
 
 ```rust,editable
 use std::cell::RefCell;
@@ -111,10 +111,10 @@ fn main() {
 
 ## 重點整理
 
-- `RefCell<T>` 和 `Cell` 類似——讓你在不需要 `&mut` 的情況下修改值
-- `RefCell<T>` 把借用規則的檢查從編譯時移到執行時
-- `.borrow()` 取得不可變參考，`.borrow_mut()` 取得可變參考
-- `T` **不需要** `Copy`（和 `Cell` 的差別）
-- `Cell` 是零成本的，但 `RefCell` 每次借用都有執行期檢查的開銷
-- 違反借用規則時會 **panic**（不是編譯錯誤）
-- `Rc<RefCell<T>>` 組合：可變的共享資料
+- `RefCell<T>` 和 `Cell` 類似——讓你在不需要 `&mut` 的情況下修改值。
+- `RefCell<T>` 把借用規則的檢查從編譯時移到執行時。
+- `.borrow()` 取得不可變參考，`.borrow_mut()` 取得可變參考。
+- `T` **不需要** `Copy`（和 `Cell` 的差別）。
+- `Cell` 是零成本的，但 `RefCell` 每次借用都有執行期檢查的開銷。
+- 違反借用規則時會 **panic**（不是編譯錯誤）。
+- `Rc<RefCell<T>>` 組合：可變的共享資料。

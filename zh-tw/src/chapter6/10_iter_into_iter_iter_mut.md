@@ -99,9 +99,9 @@ impl<'a, T> IntoIterator for &'a mut Vec<T> {
 
 ### 選哪一個？
 
-- 只需要讀取 → `.iter()`（最常用）
-- 需要拿走元素的所有權 → `.into_iter()`
-- 需要原地修改 → `.iter_mut()`
+- 只需要讀取 → `.iter()`（最常用）。
+- 需要拿走元素的所有權 → `.into_iter()`。
+- 需要原地修改 → `.iter_mut()`。
 
 原則就是所有權的原則：不要拿你不需要的權限。
 
@@ -163,8 +163,8 @@ fn main() {
 
 ## 重點整理
 
-- `.iter()` 產出 `&T`，借用元素，集合不受影響
-- `.into_iter()` 產出 `T`，消耗整個集合，拿走所有權
-- `.iter_mut()` 產出 `&mut T`，可以原地修改元素
-- `for x in &v` = `.iter()`，`for x in v` = `.into_iter()`，`for x in &mut v` = `.iter_mut()`
-- 選擇原則：不要拿超過需要的權限——只讀就 `.iter()`，要改就 `.iter_mut()`，要消耗就 `.into_iter()`
+- `.iter()` 產出 `&T`，借用元素，集合不受影響。
+- `.into_iter()` 產出 `T`，消耗整個集合，拿走所有權。
+- `.iter_mut()` 產出 `&mut T`，可以原地修改元素。
+- `for x in &v` = `.iter()`，`for x in v` = `.into_iter()`，`for x in &mut v` = `.iter_mut()`。
+- 選擇原則：不要拿超過需要的權限——只讀就 `.iter()`，要改就 `.iter_mut()`，要消耗就 `.into_iter()`。

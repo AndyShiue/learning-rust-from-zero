@@ -41,7 +41,7 @@ impl Describe for Dog {
 
 但既然不知道具體是什麼，`dyn Describe` 的大小就不固定——`Cat` 可能佔 1 byte，`Dog` 可能佔 100 bytes，編譯器在編譯期不知道會是哪個。所以 `dyn Describe` 是 DST（附錄一最後一集學過），必須放在指標後面：
 
-- `&dyn Describe` — 借用
+- `&dyn Describe` — 借用。
 - `Box<dyn Describe>` — 擁有
 
 ```rust,editable
@@ -307,11 +307,11 @@ fn main() {
 
 ## 重點整理
 
-- `dyn Trait` 代表「某個實作了 `Trait` 的型別，具體是什麼不知道」
-- `dyn Trait` 是 DST，必須放在指標後面：`&dyn Trait`、`Box<dyn Trait>`
-- `&dyn Trait` 是胖指標：資料位址 + vtable 指標
-- 動態分派（`dyn Trait`）透過 vtable 查找方法；靜態分派（`impl Trait`）編譯期決定
-- 大部分情況用靜態分派，需要混合不同型別時才用 `dyn Trait`
-- `Box<dyn Fn()>` 可以把不同閉包統一成同一個型別
-- `Box<dyn Trait>` 在某些地方預設隱含 `+ 'static`；`dyn Trait + 'a` 讀成 `dyn (Trait + 'a)`，`dyn` 把 `trait` bound 變成型別
-- `dyn SubTrait` 可以轉成 `dyn SuperTrait`（trait upcasting）
+- `dyn Trait` 代表「某個實作了 `Trait` 的型別，具體是什麼不知道」。
+- `dyn Trait` 是 DST，必須放在指標後面：`&dyn Trait`、`Box<dyn Trait>`。
+- `&dyn Trait` 是胖指標：資料位址 + vtable 指標。
+- 動態分派（`dyn Trait`）透過 vtable 查找方法；靜態分派（`impl Trait`）編譯期決定。
+- 大部分情況用靜態分派，需要混合不同型別時才用 `dyn Trait`。
+- `Box<dyn Fn()>` 可以把不同閉包統一成同一個型別。
+- `Box<dyn Trait>` 在某些地方預設隱含 `+ 'static`；`dyn Trait + 'a` 讀成 `dyn (Trait + 'a)`，`dyn` 把 `trait` bound 變成型別。
+- `dyn SubTrait` 可以轉成 `dyn SuperTrait`（trait upcasting）。

@@ -20,7 +20,7 @@ Rust 有一個官方的安裝工具叫 **rustup**，它會幫你把所有需要�
 https://rustup.rs
 ```
 
-- **Windows 使用者**：下載 `rustup-init.exe`，雙擊執行，然後一路按 enter 選預設就好
+- **Windows 使用者**：下載 `rustup-init.exe`，雙擊執行，然後一路按 enter 選預設就好。
 - **Mac / Linux 使用者**：打開終端機（Terminal），貼上這行指令：
 
 ```bash
@@ -49,6 +49,6 @@ rustc 1.XX.X (xxxxxxx 20XX-XX-XX)
 
 ## 重點整理
 
-- 用 **rustup** 安裝 Rust，它會幫你把所有需要的工具一次裝好
-- 安裝完要重新開終端機，再用 `rustc --version` 確認安裝成功
-- `rustc` 是 Rust 的編譯器，負責把程式碼轉成電腦能執行的東西
+- 用 **rustup** 安裝 Rust，它會幫你把所有需要的工具一次裝好。
+- 安裝完要重新開終端機，再用 `rustc --version` 確認安裝成功。
+- `rustc` 是 Rust 的編譯器，負責把程式碼轉成電腦能執行的東西。

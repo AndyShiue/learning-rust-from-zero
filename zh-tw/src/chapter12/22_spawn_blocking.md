@@ -67,8 +67,8 @@ async fn main() {
 
 ## 重點整理
 
-- 鐵律：執行緒只在 `.await` 時能被讓出，所以 `Task` 不能長時間不 `.await`，否則會霸佔執行緒、拖住同條執行緒上的其他 `Task`
-- 昂貴計算、同步阻塞呼叫（`std::thread::sleep`、同步 I/O、慢的同步 DB）都會 block 住執行緒
-- `tokio::task::spawn_blocking` 把這種工作丟到專用 blocking 池，回傳可 `.await` 的 handle，你的 `Task` 因此會讓出執行緒
-- 不用 `std::thread::spawn` 是因為它的 `.join()` 是阻塞的、不能 `.await`；`spawn_blocking` 幫你接好了「做完 → 喚醒 `Task`」這座橋
-- 但長命的獨立背景執行緒仍該用 `std::thread::spawn`；把無窮迴圈丟進 `spawn_blocking` 會永久佔住池子名額，是誤用
+- 鐵律：執行緒只在 `.await` 時能被讓出，所以 `Task` 不能長時間不 `.await`，否則會霸佔執行緒、拖住同條執行緒上的其他 `Task`。
+- 昂貴計算、同步阻塞呼叫（`std::thread::sleep`、同步 I/O、慢的同步 DB）都會 block 住執行緒。
+- `tokio::task::spawn_blocking` 把這種工作丟到專用 blocking 池，回傳可 `.await` 的 handle，你的 `Task` 因此會讓出執行緒。
+- 不用 `std::thread::spawn` 是因為它的 `.join()` 是阻塞的、不能 `.await`；`spawn_blocking` 幫你接好了「做完 → 喚醒 `Task`」這座橋。
+- 但長命的獨立背景執行緒仍該用 `std::thread::spawn`；把無窮迴圈丟進 `spawn_blocking` 會永久佔住池子名額，是誤用。

@@ -68,7 +68,7 @@ fn main() {
 
 ## 重點整理
 
-- Rust 的 pattern matching 可以解構多層巢狀結構
-- 可以在一個模式裡同時解構 tuple + `enum`、tuple + `struct` 等
-- 巢狀解構讓你不需要寫多個 `match`，一次就能把所有資料取出來
-- 寫法就是把模式一層一層嵌進去，和資料的結構對應
+- Rust 的 pattern matching 可以解構多層巢狀結構。
+- 可以在一個模式裡同時解構 tuple + `enum`、tuple + `struct` 等。
+- 巢狀解構讓你不需要寫多個 `match`，一次就能把所有資料取出來。
+- 寫法就是把模式一層一層嵌進去，和資料的結構對應。

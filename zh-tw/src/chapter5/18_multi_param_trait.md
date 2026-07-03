@@ -59,8 +59,8 @@ impl Convert<String> for i32 {
 
 ### 和沒有其他參數的 `trait` 的差別
 
-- `Clone`（沒有其他參數）：一個型別只能實作一次 `Clone`
-- `Convert<T>`（有其他參數）：一個型別可以實作 `Convert<String>`、`Convert<(i32,)>` 等多個版本
+- `Clone`（沒有其他參數）：一個型別只能實作一次 `Clone`。
+- `Convert<T>`（有其他參數）：一個型別可以實作 `Convert<String>`、`Convert<(i32,)>` 等多個版本。
 
 ## 範例程式碼
 
@@ -115,7 +115,7 @@ fn main() {
 
 ## 重點整理
 
-- `trait` 可以帶其他型別參數：`trait Convert<T> { ... }`
-- 同一個型別可以對不同的 `T` 實作同一個 `trait`（例如 `Convert<String>` 和 `Convert<(i32,)>`）
-- 這和沒有其他參數的 `trait` 不同——一個型別只能實作一次那些 `trait`
-- 多參數 `trait` 讓「和另一個型別相關的行為」可以統一定義
+- `trait` 可以帶其他型別參數：`trait Convert<T> { ... }`。
+- 同一個型別可以對不同的 `T` 實作同一個 `trait`（例如 `Convert<String>` 和 `Convert<(i32,)>`）。
+- 這和沒有其他參數的 `trait` 不同——一個型別只能實作一次那些 `trait`。
+- 多參數 `trait` 讓「和另一個型別相關的行為」可以統一定義。

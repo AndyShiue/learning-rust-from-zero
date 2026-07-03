@@ -111,7 +111,7 @@ where
 
 ## 重點整理
 
-- 用 `+` 組合多個 `trait` bound：`T: Clone + Display`
-- `where` 子句是另一種寫 `trait` bound 的方式，更好讀
-- `where` 比角括號更靈活，冒號前面可以放 tuple 等複雜型別（如 `(T, U): Clone`）
-- `where` 不只能用在函數上，`impl`、`struct`、`enum`、`trait` 等能用泛型的地方都能用
+- 用 `+` 組合多個 `trait` bound：`T: Clone + Display`。
+- `where` 子句是另一種寫 `trait` bound 的方式，更好讀。
+- `where` 比角括號更靈活，冒號前面可以放 tuple 等複雜型別（如 `(T, U): Clone`）。
+- `where` 不只能用在函數上，`impl`、`struct`、`enum`、`trait` 等能用泛型的地方都能用。

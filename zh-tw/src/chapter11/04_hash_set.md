@@ -152,9 +152,9 @@ fn main() {
 
 ## 重點整理
 
-- `HashSet<T>` 是只有 key 的 `HashMap`，元素不重複
-- 元素必須實作 `Eq + Hash`
-- `insert` 加入、`contains` 檢查、`remove` 移除
-- 集合運算：`intersection`（交集）、`union`（聯集）、`difference`（差集）、`symmetric_difference`（對稱差集）
-- 也可以用運算子：`&`（交集）、`|`（聯集）、`-`（差集）、`^`（對稱差集）
-- `is_subset`、`is_superset`、`is_disjoint` 判斷其他關係
+- `HashSet<T>` 是只有 key 的 `HashMap`，元素不重複。
+- 元素必須實作 `Eq + Hash`。
+- `insert` 加入、`contains` 檢查、`remove` 移除。
+- 集合運算：`intersection`（交集）、`union`（聯集）、`difference`（差集）、`symmetric_difference`（對稱差集）。
+- 也可以用運算子：`&`（交集）、`|`（聯集）、`-`（差集）、`^`（對稱差集）。
+- `is_subset`、`is_superset`、`is_disjoint` 判斷其他關係。

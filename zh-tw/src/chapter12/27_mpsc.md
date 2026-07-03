@@ -47,7 +47,7 @@ async fn main() {
 
 ## 重點整理
 
-- `tokio::sync::mpsc` 是 `async` `Task` 之間最常見的工作佇列：多發送端、單接收端
-- `rx.recv().await` 回傳 `Option`；有訊息時回 `Some`，所有發送端 `drop` 且剩餘訊息收完後回 `None`
-- **bounded channel** 有容量上限，塞滿時 `send().await` 會等待——這就是 backpressure，逼生產者配合消費者的速度
-- `send` 要 `.await` 正是因為它可能要等空位；`unbounded_channel` 不用等但就沒有 backpressure
+- `tokio::sync::mpsc` 是 `async` `Task` 之間最常見的工作佇列：多發送端、單接收端。
+- `rx.recv().await` 回傳 `Option`；有訊息時回 `Some`，所有發送端 `drop` 且剩餘訊息收完後回 `None`。
+- **bounded channel** 有容量上限，塞滿時 `send().await` 會等待——這就是 backpressure，逼生產者配合消費者的速度。
+- `send` 要 `.await` 正是因為它可能要等空位；`unbounded_channel` 不用等但就沒有 backpressure。

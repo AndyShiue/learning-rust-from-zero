@@ -132,9 +132,9 @@ fn main() {
 
 `HashMap` 還有一些常用的方法：
 
-- `contains_key(&key)`：檢查 key 是否存在，回傳 `bool`
-- `len()`：回傳有幾組 key-value
-- `is_empty()`：是不是空的
+- `contains_key(&key)`：檢查 key 是否存在，回傳 `bool`。
+- `len()`：回傳有幾組 key-value。
+- `is_empty()`：是不是空的。
 - `keys()`：所有 key 的迭代器
 - `values()`：所有 value 的迭代器
 
@@ -168,9 +168,9 @@ fn main() {
 
 ## 重點整理
 
-- `HashMap<K, V>` 用 key 查 value，不管資料量多大查詢速度幾乎是固定的
-- `insert` 放入、`get` 查詢（回傳 `Option<&V>`）、`remove` 刪除
-- Key 必須實作 `Eq + Hash`，`Hash` 也可以 `derive`
-- `f64` 不能當 key（沒有 `Eq`）
-- `entry().or_insert()` 是「沒有才插入」的慣用寫法，回傳 `&mut V`
-- 走訪順序不固定
+- `HashMap<K, V>` 用 key 查 value，不管資料量多大查詢速度幾乎是固定的。
+- `insert` 放入、`get` 查詢（回傳 `Option<&V>`）、`remove` 刪除。
+- Key 必須實作 `Eq + Hash`，`Hash` 也可以 `derive`。
+- `f64` 不能當 key（沒有 `Eq`）。
+- `entry().or_insert()` 是「沒有才插入」的慣用寫法，回傳 `&mut V`。
+- 走訪順序不固定。

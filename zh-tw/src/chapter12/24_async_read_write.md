@@ -63,7 +63,7 @@ async fn main() {
 
 ## 重點整理
 
-- `AsyncRead` / `AsyncWrite` 是 `async` 版的 `Read` / `Write`；底層核心是 `poll_read` / `poll_write`，每次只嘗試推進一次：`poll_read` 把資料填進 buffer，`poll_write` 回報本次寫入的 bytes 數，兩者都不保證讀滿或寫完
-- `AsyncReadExt` / `AsyncWriteExt` 提供 `read_exact`、`write_all` 等 helper，幫你包好「讀滿 / 寫完」的迴圈
-- **取消**：`Future` 是惰性的，`drop` 掉一個 `Future`（不再 `poll`）就等於取消這個 `async` 工作——這是 `async` 特有、`Thread` 做不到的
-- `read_exact` 這類「跨多次推進、累積中間狀態」的操作**不是 cancellation safe**：中途被取消時，可能已經消費了一部分資料，但整個「讀滿 buffer」的動作沒有完成，不該放進會被中途 `drop` 的地方
+- `AsyncRead` / `AsyncWrite` 是 `async` 版的 `Read` / `Write`；底層核心是 `poll_read` / `poll_write`，每次只嘗試推進一次：`poll_read` 把資料填進 buffer，`poll_write` 回報本次寫入的 bytes 數，兩者都不保證讀滿或寫完。
+- `AsyncReadExt` / `AsyncWriteExt` 提供 `read_exact`、`write_all` 等 helper，幫你包好「讀滿 / 寫完」的迴圈。
+- **取消**：`Future` 是惰性的，`drop` 掉一個 `Future`（不再 `poll`）就等於取消這個 `async` 工作——這是 `async` 特有、`Thread` 做不到的。
+- `read_exact` 這類「跨多次推進、累積中間狀態」的操作**不是 cancellation safe**：中途被取消時，可能已經消費了一部分資料，但整個「讀滿 buffer」的動作沒有完成，不該放進會被中途 `drop` 的地方。

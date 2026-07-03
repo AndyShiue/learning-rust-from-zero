@@ -54,8 +54,8 @@ fn main() {
 
 ### 什麼時候用哪個
 
-- 不在乎順序 → `HashMap` / `HashSet`（比較快）
-- 需要按某種順序走訪、或需要找最小/最大的 key → `BTreeMap` / `BTreeSet`
+- 不在乎順序 → `HashMap` / `HashSet`（比較快）。
+- 需要按某種順序走訪、或需要找最小/最大的 key → `BTreeMap` / `BTreeSet`。
 
 ### `VecDeque`
 
@@ -117,8 +117,8 @@ fn main() {
 
 ## 重點整理
 
-- `BTreeMap`：有序的 `HashMap`，key 必須實作 `Ord`
-- `BTreeSet`：有序的 `HashSet`，元素必須實作 `Ord`
-- 需要排序走訪用 `BTree` 系列，不需要就用 `Hash` 系列（比較快）
-- `VecDeque`：雙端佇列，頭尾操作都很快
-- `Vec` 只在尾巴操作快，頭部操作慢（要搬移所有元素）
+- `BTreeMap`：有序的 `HashMap`，key 必須實作 `Ord`。
+- `BTreeSet`：有序的 `HashSet`，元素必須實作 `Ord`。
+- 需要排序走訪用 `BTree` 系列，不需要就用 `Hash` 系列（比較快）。
+- `VecDeque`：雙端佇列，頭尾操作都很快。
+- `Vec` 只在尾巴操作快，頭部操作慢（要搬移所有元素）。

@@ -68,9 +68,9 @@ fn main() {
 
 ## 重點整理
 
-- `enum` 和 `struct` 一樣，都是定義新型別的方式
-- `struct`：把多個值組合在一起；`enum`：從多個選項中選一個
-- 用 `::` 來指定是哪一個 variant，例如 `Direction::Up`
-- C-style `enum` 的每個 variant 都不帶額外資料
-- 和 `struct` 一樣，`enum` 定義一般放在 `fn main()` 外面，上面或下面都可以
-- 目前還無法直接印出 `enum` 的值（下一集學 `match` 就可以了）
+- `enum` 和 `struct` 一樣，都是定義新型別的方式。
+- `struct`：把多個值組合在一起；`enum`：從多個選項中選一個。
+- 用 `::` 來指定是哪一個 variant，例如 `Direction::Up`。
+- C-style `enum` 的每個 variant 都不帶額外資料。
+- 和 `struct` 一樣，`enum` 定義一般放在 `fn main()` 外面，上面或下面都可以。
+- 目前還無法直接印出 `enum` 的值（下一集學 `match` 就可以了）。

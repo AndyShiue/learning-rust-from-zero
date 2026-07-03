@@ -332,9 +332,9 @@ fn main() {
 
 所以 `WouldBlock` 在這裡不是「壞掉了」的錯誤，而是非阻塞 I/O 的正常狀態。對我們手寫的 `Future` 來說，它剛好對應到 `Poll::Pending`：
 
-- `accept` / `read` 成功：代表真的拿到連線或資料，回 `Poll::Ready(...)`
-- `WouldBlock`：代表現在還沒好，先回 `Poll::Pending`
-- 其他錯誤：才是真的出問題，這個簡化範例直接 `panic`
+- `accept` / `read` 成功：代表真的拿到連線或資料，回 `Poll::Ready(...)`。
+- `WouldBlock`：代表現在還沒好，先回 `Poll::Pending`。
+- 其他錯誤：才是真的出問題，這個簡化範例直接 `panic`。
 
 ### 「先登記再試」為什麼重要
 
@@ -354,10 +354,10 @@ fn main() {
 
 ## 重點整理
 
-- reactor 把喚醒接到真實 I/O：**executor 完全沿用第 12 集**，只把「誰來 `wake`」從計時 `Thread` 換成 reactor `Thread`
-- reactor 跑在自己的 `Thread`、睡在 `mio::Poll` 上，醒來照 `Token` 從 `HashMap` 取出 `Waker` 來 `wake`
-- `Future` 與 reactor 透過 `Arc` 共享的 `Registry`、`AtomicUsize`、`Mutex<HashMap<Token, Waker>>` 溝通，不傳訊息
-- `Token` 是 I/O 來源的名牌：listener 有自己的 `listener_token`，stream 有自己的 `stream_token`；在我們的程式碼中同一條 stream 的多次 `Read` 可以共用同一個 stream `Token`
-- `WouldBlock` 是非阻塞 I/O 的正常狀態，意思是「現在還不能做 `accept` / `read` 之類的 I/O 動作，晚點再試」，在 `Future` 裡對應 `Poll::Pending`
-- I/O `Future` 的 `poll` 一律「**先 `set_waker` 再試 I/O**」，避免漏接喚醒；如果立刻成功，回 `Ready` 前要 `clear_waker` 清掉不再需要的等待者
-- 不管喚醒來自計時器還是 I/O，最後都走「排回 ready queue ＋ `unpark`」同一條路
+- reactor 把喚醒接到真實 I/O：**executor 完全沿用第 12 集**，只把「誰來 `wake`」從計時 `Thread` 換成 reactor `Thread`。
+- reactor 跑在自己的 `Thread`、睡在 `mio::Poll` 上，醒來照 `Token` 從 `HashMap` 取出 `Waker` 來 `wake`。
+- `Future` 與 reactor 透過 `Arc` 共享的 `Registry`、`AtomicUsize`、`Mutex<HashMap<Token, Waker>>` 溝通，不傳訊息。
+- `Token` 是 I/O 來源的名牌：listener 有自己的 `listener_token`，stream 有自己的 `stream_token`；在我們的程式碼中同一條 stream 的多次 `Read` 可以共用同一個 stream `Token`。
+- `WouldBlock` 是非阻塞 I/O 的正常狀態，意思是「現在還不能做 `accept` / `read` 之類的 I/O 動作，晚點再試」，在 `Future` 裡對應 `Poll::Pending`。
+- I/O `Future` 的 `poll` 一律「**先 `set_waker` 再試 I/O**」，避免漏接喚醒；如果立刻成功，回 `Ready` 前要 `clear_waker` 清掉不再需要的等待者。
+- 不管喚醒來自計時器還是 I/O，最後都走「排回 ready queue ＋ `unpark`」同一條路。

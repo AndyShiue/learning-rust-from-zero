@@ -148,7 +148,7 @@ fn main() {
 
 ## 重點整理
 
-- `trait` bound `T: Clone` 限制 `T` 必須實作特定 `trait`
-- `trait` bound 可以加在函數、`struct`、`enum`、`impl` 等各種泛型參數上
-- 沒有 `trait` `bound` 的話，泛型函數或方法不能假設 `T` 有任何能力
-- 條件式 `impl`：`impl<T: Clone> Pair<T> { ... }` 只在 `T` 符合條件時提供方法
+- `trait` bound `T: Clone` 限制 `T` 必須實作特定 `trait`。
+- `trait` bound 可以加在函數、`struct`、`enum`、`impl` 等各種泛型參數上。
+- 沒有 `trait` `bound` 的話，泛型函數或方法不能假設 `T` 有任何能力。
+- 條件式 `impl`：`impl<T: Clone> Pair<T> { ... }` 只在 `T` 符合條件時提供方法。

@@ -102,8 +102,8 @@ fn main() {
 
 ## 重點整理
 
-- `unwrap()`：取出 `Some` 的值，`None` 時 panic——小心使用
-- `expect("訊息")`：和 `unwrap` 一樣，但 panic 時印出自訂訊息
-- `unwrap_or(預設值)`：`None` 時回傳預設值，不會 panic
-- `flatten()`：把 `Option<Option<T>>` 壓成 `Option<T>`
-- 搭配 `if let Some(x) = ...`（第 3 章學的）也很方便
+- `unwrap()`：取出 `Some` 的值，`None` 時 panic——小心使用。
+- `expect("訊息")`：和 `unwrap` 一樣，但 panic 時印出自訂訊息。
+- `unwrap_or(預設值)`：`None` 時回傳預設值，不會 panic。
+- `flatten()`：把 `Option<Option<T>>` 壓成 `Option<T>`。
+- 搭配 `if let Some(x) = ...`（第 3 章學的）也很方便。

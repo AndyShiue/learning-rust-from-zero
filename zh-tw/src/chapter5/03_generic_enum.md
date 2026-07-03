@@ -77,7 +77,7 @@ fn main() {
 
 ## 重點整理
 
-- `enum` 也可以帶型別參數：`enum Maybe<T> { ... }`
-- variant 攜帶的資料型別可以用 `T` 來泛化
-- 可以有多個型別參數：`enum Either<L, R> { Left(L), Right(R) }`
-- 標準庫裡有很多重要的泛型 `enum`，之後會陸續認識
+- `enum` 也可以帶型別參數：`enum Maybe<T> { ... }`。
+- variant 攜帶的資料型別可以用 `T` 來泛化。
+- 可以有多個型別參數：`enum Either<L, R> { Left(L), Right(R) }`。
+- 標準庫裡有很多重要的泛型 `enum`，之後會陸續認識。

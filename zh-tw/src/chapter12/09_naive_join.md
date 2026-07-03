@@ -163,6 +163,6 @@ if let Some(mut fut) = slot.take() { ... }
 
 ## 重點整理
 
-- 把多個 `Future` 並行推進的辦法，是自己寫一個 `Future`（`JoinAll`），在 `poll` 裡用 `for` 迴圈把每個子 `Future` 各 `poll` 一次
-- 完成的子 `Future` 換成 `None`，全部都 `None`（完成）時 `JoinAll` 才回 `Ready`
-- `JoinAll` 不必處理「某個 `Future` 要 `poll` 很多次」的情況——子 `Future` 自己記得進度，只管一輪一輪 `poll` 即可
+- 把多個 `Future` 並行推進的辦法，是自己寫一個 `Future`（`JoinAll`），在 `poll` 裡用 `for` 迴圈把每個子 `Future` 各 `poll` 一次。
+- 完成的子 `Future` 換成 `None`，全部都 `None`（完成）時 `JoinAll` 才回 `Ready`。
+- `JoinAll` 不必處理「某個 `Future` 要 `poll` 很多次」的情況——子 `Future` 自己記得進度，只管一輪一輪 `poll` 即可。

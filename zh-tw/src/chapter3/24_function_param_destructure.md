@@ -135,7 +135,7 @@ fn main() {
 
 ## 重點整理
 
-- 函數參數也可以直接用模式解構：`fn foo((x, y): (i32, i32))`
-- tuple 和 `struct` 都可以在參數位置解構
-- 呼叫時和平常一樣傳值，解構是函數內部的事
-- `let`、`for` 和函數參數只接受不會失敗的模式（irrefutable pattern），所以 tuple 和 `struct` 可以，`enum` 會有問題
+- 函數參數也可以直接用模式解構：`fn foo((x, y): (i32, i32))`。
+- tuple 和 `struct` 都可以在參數位置解構。
+- 呼叫時和平常一樣傳值，解構是函數內部的事。
+- `let`、`for` 和函數參數只接受不會失敗的模式（irrefutable pattern），所以 tuple 和 `struct` 可以，`enum` 會有問題。

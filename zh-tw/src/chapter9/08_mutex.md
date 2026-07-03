@@ -14,8 +14,8 @@
 
 `Mutex<T>` 和 `RefCell` 有些像——都提供一種 interior mutability，讓你在不需要 `&mut` 的情況下修改值。差別在於：
 
-- **`RefCell`**：單執行緒，用普通整數做借用檢查
-- **`Mutex`**：多執行緒，用作業系統的鎖（lock）保護資料
+- **`RefCell`**：單執行緒，用普通整數做借用檢查。
+- **`Mutex`**：多執行緒，用作業系統的鎖（lock）保護資料。
 
 ### `lock` 和 `MutexGuard`
 
@@ -130,10 +130,10 @@ fn main() {
 
 ## 重點整理
 
-- `Mutex<T>` 是多執行緒版的 interior mutability，用鎖保護資料
-- `lock().expect(...)` 回傳 `MutexGuard`，透過 `DerefMut` 直接當 `&mut T` 用
-- 同一時間只有一個執行緒能持有鎖，其他執行緒會等待
-- guard 被 `drop` 時自動解鎖
-- 常見搭配：`Arc<Mutex<T>>`——`Arc` 負責共享，`Mutex` 負責安全修改
-- `MutexGuard` 不要活太久，鎖住的期間其他執行緒全部在等
-- `Mutex<T>` 只要求 `T: Send` 就能是 `Sync`——`Mutex` 的鎖機制讓不是 `Sync` 的型別也能安全地被多個執行緒共享
+- `Mutex<T>` 是多執行緒版的 interior mutability，用鎖保護資料。
+- `lock().expect(...)` 回傳 `MutexGuard`，透過 `DerefMut` 直接當 `&mut T` 用。
+- 同一時間只有一個執行緒能持有鎖，其他執行緒會等待。
+- guard 被 `drop` 時自動解鎖。
+- 常見搭配：`Arc<Mutex<T>>`——`Arc` 負責共享，`Mutex` 負責安全修改。
+- `MutexGuard` 不要活太久，鎖住的期間其他執行緒全部在等。
+- `Mutex<T>` 只要求 `T: Send` 就能是 `Sync`——`Mutex` 的鎖機制讓不是 `Sync` 的型別也能安全地被多個執行緒共享。

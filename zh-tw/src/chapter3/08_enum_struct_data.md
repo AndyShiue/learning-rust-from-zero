@@ -67,8 +67,8 @@ enum Event {
 
 ## 重點整理
 
-- variant 可以用 `struct` 形式攜帶有名字的欄位：`Circle { radius: f64 }`
-- 建立值：`Shape::Circle { radius: 5.0 }`
-- 同一個 enum 可以混搭：有的用 tuple 形式、有的用 `struct` 形式、有的不帶資料
-- `struct` 形式的好處是欄位有名字，程式碼更容易讀懂
-- 取出欄位資料需要用 `match`（第 10 集會學）
+- variant 可以用 `struct` 形式攜帶有名字的欄位：`Circle { radius: f64 }`。
+- 建立值：`Shape::Circle { radius: 5.0 }`。
+- 同一個 enum 可以混搭：有的用 tuple 形式、有的用 `struct` 形式、有的不帶資料。
+- `struct` 形式的好處是欄位有名字，程式碼更容易讀懂。
+- 取出欄位資料需要用 `match`（第 10 集會學）。

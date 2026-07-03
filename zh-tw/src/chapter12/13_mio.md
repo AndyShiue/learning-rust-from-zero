@@ -96,8 +96,8 @@ fn main() {
 
 ## 重點整理
 
-- runtime 有兩個角色：**executor** 跑 `Task`（`poll`），**reactor** 等事件（盯 I/O、`wake` 對應 `Task`）；reactor 不是 `Task`、不 `poll` `Future`
-- `mio` 本身不是 `async` runtime：它只做非阻塞 I/O 的事件通知，不建立 `Future`、不 `.await`、也不排程 `Task`
-- `mio::Poll` 是「睡著等 I/O 事件」的地方，一條 `Thread` 就能同時盯住很多 I/O 來源
-- `Token` 是事件來源的名牌：登記時給，事件發生時 `Poll` 還給你，讓你認出是哪個來源
-- 用 `registry().register(&mut source, token, Interest::READABLE)` 登記，`poll.poll()` 睡著等事件，`event.token()` 認名牌後再 `accept`
+- runtime 有兩個角色：**executor** 跑 `Task`（`poll`），**reactor** 等事件（盯 I/O、`wake` 對應 `Task`）；reactor 不是 `Task`、不 `poll` `Future`。
+- `mio` 本身不是 `async` runtime：它只做非阻塞 I/O 的事件通知，不建立 `Future`、不 `.await`、也不排程 `Task`。
+- `mio::Poll` 是「睡著等 I/O 事件」的地方，一條 `Thread` 就能同時盯住很多 I/O 來源。
+- `Token` 是事件來源的名牌：登記時給，事件發生時 `Poll` 還給你，讓你認出是哪個來源。
+- 用 `registry().register(&mut source, token, Interest::READABLE)` 登記，`poll.poll()` 睡著等事件，`event.token()` 認名牌後再 `accept`。

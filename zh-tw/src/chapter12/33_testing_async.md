@@ -65,7 +65,7 @@ async fn test_with_virtual_time() {
 
 ## 重點整理
 
-- `#[tokio::test]` 自動幫測試函式套上 runtime、允許 `.await`，等於「`#[test]` + runtime + `async`」；其餘用法和第 7 章的 `cargo test` 一樣
-- 牽涉時間的測試別用真實時間（又慢又不穩），改用 Tokio 的虛擬時間
-- `tokio::time::pause()` 暫停時間、`tokio::time::advance(duration)` 手動快轉，讓 timeout / 延遲的測試瞬間完成且結果一致
-- 也可用 `#[tokio::test(start_paused = true)]` 從頭暫停時間；虛擬時間工具需要 Tokio 的 `test-util` 功能
+- `#[tokio::test]` 自動幫測試函式套上 runtime、允許 `.await`，等於「`#[test]` + runtime + `async`」；其餘用法和第 7 章的 `cargo test` 一樣。
+- 牽涉時間的測試別用真實時間（又慢又不穩），改用 Tokio 的虛擬時間。
+- `tokio::time::pause()` 暫停時間、`tokio::time::advance(duration)` 手動快轉，讓 timeout / 延遲的測試瞬間完成且結果一致。
+- 也可用 `#[tokio::test(start_paused = true)]` 從頭暫停時間；虛擬時間工具需要 Tokio 的 `test-util` 功能。

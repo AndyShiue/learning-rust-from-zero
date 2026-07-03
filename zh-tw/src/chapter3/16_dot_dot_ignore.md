@@ -131,8 +131,8 @@ fn main() {
 
 ## 重點整理
 
-- `..` 用來一次忽略多個欄位或值
-- `match` struct 時：`Player { hp, .. }` 只取 `hp`，其他全部忽略；`enum` 的 `struct` variant 也一樣
-- `match` tuple 時：`(first, ..)` 只取第一個，`(.., last)` 只取最後一個；tuple `struct` 和 `enum` 的 tuple variant 用類似寫法
-- 陣列和切片裡：`[first, ..]` 取第一個，`[first, .., last]` 取頭和尾
-- `..` 在一層模式裡只能出現一次
+- `..` 用來一次忽略多個欄位或值。
+- `match` struct 時：`Player { hp, .. }` 只取 `hp`，其他全部忽略；`enum` 的 `struct` variant 也一樣。
+- `match` tuple 時：`(first, ..)` 只取第一個，`(.., last)` 只取最後一個；tuple `struct` 和 `enum` 的 tuple variant 用類似寫法。
+- 陣列和切片裡：`[first, ..]` 取第一個，`[first, .., last]` 取頭和尾。
+- `..` 在一層模式裡只能出現一次。

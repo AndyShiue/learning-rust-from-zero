@@ -199,8 +199,8 @@ async fn main() {
 
 ## 重點整理
 
-- graceful shutdown：不硬切，而是「通知收工 → 等做完（或到期限）→ 乾淨退出」
-- 三要素：訊號來源（`tokio::signal::ctrl_c()`）、廣播 shutdown（`watch` flag）、等待 drain（`JoinSet` 的 `join_next()` 到全空）
-- `select!` 適合用來同時等「下一份工作」與「shutdown」；若真正的工作不能安全取消，就先用 `select!` 拿到工作，再離開 `select!` 處理，避免 shutdown 把處理中的工作 `drop` 在半路（cancellation safety）
-- drain 一定要給期限：用 `tokio::time::timeout` 包住，逾時就 `abort_all()` 或 `drop` `JoinSet`——先禮貌地等，等不到就動手
-- 更匹配的工具是 `tokio_util` 的 `CancellationToken`：`token.cancel()` 一聲令下，所有 `token.cancelled()` 都醒來，語意比借 `watch` 更貼切
+- graceful shutdown：不硬切，而是「通知收工 → 等做完（或到期限）→ 乾淨退出」。
+- 三要素：訊號來源（`tokio::signal::ctrl_c()`）、廣播 shutdown（`watch` flag）、等待 drain（`JoinSet` 的 `join_next()` 到全空）。
+- `select!` 適合用來同時等「下一份工作」與「shutdown」；若真正的工作不能安全取消，就先用 `select!` 拿到工作，再離開 `select!` 處理，避免 shutdown 把處理中的工作 `drop` 在半路（cancellation safety）。
+- drain 一定要給期限：用 `tokio::time::timeout` 包住，逾時就 `abort_all()` 或 `drop` `JoinSet`——先禮貌地等，等不到就動手。
+- 更匹配的工具是 `tokio_util` 的 `CancellationToken`：`token.cancel()` 一聲令下，所有 `token.cancelled()` 都醒來，語意比借 `watch` 更貼切。

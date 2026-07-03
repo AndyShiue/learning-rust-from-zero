@@ -118,8 +118,8 @@ async fn main() {
 
 ## 重點整理
 
-- 標準庫的 `Mutex` / `RwLock` guard 是 `Sync` 但非 `Send`（某些作業系統規定上鎖的 `Thread` 上才能解鎖），抓著它跨 `.await` 會讓 `Future` 非 `Send`、不能 `spawn`
-- 這個編譯錯誤是有益的警告：`Mutex` 的 lock 作用域要短，別抓著鎖等 I/O；通常縮短作用域（`.await` 前就 `drop` guard）即可
+- 標準庫的 `Mutex` / `RwLock` guard 是 `Sync` 但非 `Send`（某些作業系統規定上鎖的 `Thread` 上才能解鎖），抓著它跨 `.await` 會讓 `Future` 非 `Send`、不能 `spawn`。
+- 這個編譯錯誤是有益的警告：`Mutex` 的 lock 作用域要短，別抓著鎖等 I/O；通常縮短作用域（`.await` 前就 `drop` guard）即可。
 - 一定要抓著鎖跨 `.await` 時才用 `tokio::sync::Mutex`（guard 是 `Send`，`.lock().await`），但優先用標準庫更快的鎖。
-- Tokio `RwLock` 把讀寫分開：`.read().await` 多讀、`.write().await` 一寫
-- `Notify` 是不帶資料的喚醒工具，搭配自己管理的共享狀態用，不是 queue（多次通知可能合併）；對比 `watch`：`Notify` 無狀態（戳你去看），`watch` 有狀態（帶最新值）
+- Tokio `RwLock` 把讀寫分開：`.read().await` 多讀、`.write().await` 一寫。
+- `Notify` 是不帶資料的喚醒工具，搭配自己管理的共享狀態用，不是 queue（多次通知可能合併）；對比 `watch`：`Notify` 無狀態（戳你去看），`watch` 有狀態（帶最新值）。

@@ -115,7 +115,7 @@ fn main() {
 
 ## 重點整理
 
-- **`trait`** 是一組行為的規格定義，像是一張「能力清單」
-- 用 `impl TraitName for TypeName` 來幫型別實作 `trait`（例如 `impl Greet for Cat`）
-- `#[derive(Debug)]` 讓 Rust 自動幫你的 `struct` / `enum` 實作 `Debug` `trait`
-- 加了 `#[derive(Debug)]` 之後，就可以用 `{:?}` 來印出自訂的 `struct` / `enum`
+- **`trait`** 是一組行為的規格定義，像是一張「能力清單」。
+- 用 `impl TraitName for TypeName` 來幫型別實作 `trait`（例如 `impl Greet for Cat`）。
+- `#[derive(Debug)]` 讓 Rust 自動幫你的 `struct` / `enum` 實作 `Debug` `trait`。
+- 加了 `#[derive(Debug)]` 之後，就可以用 `{:?}` 來印出自訂的 `struct` / `enum`。

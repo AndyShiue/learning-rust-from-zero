@@ -73,9 +73,9 @@ enum Action {
 
 ## 重點整理
 
-- **解構**（destructuring）：把複合的東西拆開，取出裡面的各個部分
-- 在 `match` 模式裡，可以在括號中使用變數名解構 tuple variant
-- `Shape::Circle(r)` → 把 `Circle` 裡的值取出來叫做 `r`
-- `Shape::Rectangle(w, h)` → 把 `Rectangle` 裡的兩個值分別叫做 `w` 和 `h`
-- 變數名可以自己取
-- `match` 依然要窮舉所有 variant
+- **解構**（destructuring）：把複合的東西拆開，取出裡面的各個部分。
+- 在 `match` 模式裡，可以在括號中使用變數名解構 tuple variant。
+- `Shape::Circle(r)` → 把 `Circle` 裡的值取出來叫做 `r`。
+- `Shape::Rectangle(w, h)` → 把 `Rectangle` 裡的兩個值分別叫做 `w` 和 `h`。
+- 變數名可以自己取。
+- `match` 依然要窮舉所有 variant。

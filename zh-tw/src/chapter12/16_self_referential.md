@@ -131,8 +131,8 @@ error[E0277]: `{async fn body of borrows()}` cannot be unpinned
 
 ## 重點整理
 
-- move 一個值，它的位址會變；對一般值無所謂，因為舊變數不能再用
-- 若值裡存了「指向自己的位址」，一 move 那個位址沒人更新，就變成懸垂指標——很危險
-- `async fn` / `async` block 產生的狀態機可能變成這種值：如果某個借用跨過 `.await`，狀態機就可能同時保存被借用的值和那個參考，形成某個欄位指向自己另一個欄位的結構
-- `Counter` 範例證明「`poll` → move → 再 `poll`」真的做得出來（兩次位址不同）
-- Rust 用 `Unpin` 當防線：`Counter` 是 `Unpin` 可被 `Pin::new`，自我參照的 `async` 狀態機不是 `Unpin`，`Pin::new` 直接編譯失敗
+- move 一個值，它的位址會變；對一般值無所謂，因為舊變數不能再用。
+- 若值裡存了「指向自己的位址」，一 move 那個位址沒人更新，就變成懸垂指標——很危險。
+- `async fn` / `async` block 產生的狀態機可能變成這種值：如果某個借用跨過 `.await`，狀態機就可能同時保存被借用的值和那個參考，形成某個欄位指向自己另一個欄位的結構。
+- `Counter` 範例證明「`poll` → move → 再 `poll`」真的做得出來（兩次位址不同）。
+- Rust 用 `Unpin` 當防線：`Counter` 是 `Unpin` 可被 `Pin::new`，自我參照的 `async` 狀態機不是 `Unpin`，`Pin::new` 直接編譯失敗。

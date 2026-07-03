@@ -94,7 +94,7 @@ async fn main() {
 
 ## 重點整理
 
-- Rust 標準庫只定義 `async` 的規格，真正執行要靠第三方的 **runtime**，最常用的是 **Tokio**
-- `.await` 只能寫在 `async` 的環境裡；`#[tokio::main]` 讓 `main` 可以寫成 `async fn`，並幫你把 runtime 準備好，把它驅動起來
-- `.await` 的意思是「等這件事好，期間可以去做別的事」，而不是傻傻卡住
-- 搭配 `tokio::spawn` 把工作丟到背景，`async` 程式可以同時推進很多連線
+- Rust 標準庫只定義 `async` 的規格，真正執行要靠第三方的 **runtime**，最常用的是 **Tokio**。
+- `.await` 只能寫在 `async` 的環境裡；`#[tokio::main]` 讓 `main` 可以寫成 `async fn`，並幫你把 runtime 準備好，把它驅動起來。
+- `.await` 的意思是「等這件事好，期間可以去做別的事」，而不是傻傻卡住。
+- 搭配 `tokio::spawn` 把工作丟到背景，`async` 程式可以同時推進很多連線。

@@ -72,7 +72,7 @@ fn main() {
 
 ## 重點整理
 
-- `.collect()` 把迭代器的元素收集成目標集合型別
-- 用型別標註 `let v: Vec<i32>` 或 turbofish `.collect::<Vec<i32>>()` 告訴 Rust 目標型別
-- 可以收集成 `Vec`、`String` 等多種型別
-- `.last()` 消耗整個迭代器，回傳 `Some` 包裝的最後一個元素
+- `.collect()` 把迭代器的元素收集成目標集合型別。
+- 用型別標註 `let v: Vec<i32>` 或 turbofish `.collect::<Vec<i32>>()` 告訴 Rust 目標型別。
+- 可以收集成 `Vec`、`String` 等多種型別。
+- `.last()` 消耗整個迭代器，回傳 `Some` 包裝的最後一個元素。

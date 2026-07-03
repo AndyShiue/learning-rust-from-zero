@@ -155,8 +155,8 @@ fn read_number(path: &str) -> Result<i32, Box<dyn Error>> {
 
 ### 什麼時候用哪個
 
-- **快速原型、腳本、`main` 函數**：`Box<dyn Error>` 最省事
-- **函式庫、需要讓呼叫者精確處理錯誤**：自訂錯誤 `enum` + `impl Error` + `impl From`
+- **快速原型、腳本、`main` 函數**：`Box<dyn Error>` 最省事。
+- **函式庫、需要讓呼叫者精確處理錯誤**：自訂錯誤 `enum` + `impl Error` + `impl From`。
 
 下一集會介紹社群 crate 怎麼大幅簡化自訂錯誤型別的寫法。
 
@@ -183,8 +183,8 @@ fn main() {
 
 ## 重點整理
 
-- `Error` `trait` 要求 `Display + Debug`，是所有錯誤型別的共同介面
-- 自訂錯誤：定義 `enum` → `impl Display` → `impl Error` → 為每種底層錯誤 `impl From`
-- 有了 `From`，`?` 就能自動把底層錯誤轉成你的自訂錯誤
-- `Box<dyn Error>`：通用錯誤型別，任何 `Error` 都能自動轉換，`?` 直接能用
-- `Box<dyn Error>` 適合快速開發；自訂錯誤 `enum` 適合函式庫
+- `Error` `trait` 要求 `Display + Debug`，是所有錯誤型別的共同介面。
+- 自訂錯誤：定義 `enum` → `impl Display` → `impl Error` → 為每種底層錯誤 `impl From`。
+- 有了 `From`，`?` 就能自動把底層錯誤轉成你的自訂錯誤。
+- `Box<dyn Error>`：通用錯誤型別，任何 `Error` 都能自動轉換，`?` 直接能用。
+- `Box<dyn Error>` 適合快速開發；自訂錯誤 `enum` 適合函式庫。

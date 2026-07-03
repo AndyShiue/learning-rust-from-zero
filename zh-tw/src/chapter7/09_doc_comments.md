@@ -68,8 +68,8 @@ pub fn add(a: i32, b: i32) -> i32 {
 Rust 社群有一些約定俗成的文件段落名稱：
 
 - `# Examples` — 使用範例（最重要的一個！）
-- `# Panics` — 什麼情況下會 panic
-- `# Errors` — 如果回傳 `Result`，什麼情況下會是 `Err`
+- `# Panics` — 什麼情況下會 panic。
+- `# Errors` — 如果回傳 `Result`，什麼情況下會是 `Err`。
 
 ### 文件範例就是測試（doctest）
 
@@ -91,9 +91,9 @@ cargo doc --open
 
 這會：
 
-1. 編譯你的 crate（不執行）
-2. 從所有 `///` 和 `//!` 產生 HTML 文件
-3. 自動在瀏覽器打開
+1. 編譯你的 crate（不執行）。
+2. 從所有 `///` 和 `//!` 產生 HTML 文件。
+3. 自動在瀏覽器打開。
 
 生成的文件就跟你在 docs.rs 上看到的一模一樣。
 
@@ -184,12 +184,12 @@ impl Temperature {
 
 ## 重點整理
 
-- `///` 為接下來的項目（`fn`、`struct`、`enum` 等）撰寫文件
-- `//!` 為包含它的項目（`mod`、crate）撰寫文件，通常放在檔案最頂端
-- 文件註解支援完整的 Markdown 語法
-- `# Examples` 是最重要的文件段落——好的範例勝過千言萬語
-- **文件範例就是 doctest**：`cargo test` 會編譯並執行所有文件範例，編譯失敗或 `assert` 失敗都算測試失敗
-- doctest 以「library 使用者」的身分編譯，所以範例裡要寫 `use your_crate::...`
-- doctest 只對 library crate 執行
-- `cargo doc --open` 一鍵產生並打開 HTML 文件
-- 你在 docs.rs 上看到的文件，就是用同樣的機制產生的
+- `///` 為接下來的項目（`fn`、`struct`、`enum` 等）撰寫文件。
+- `//!` 為包含它的項目（`mod`、crate）撰寫文件，通常放在檔案最頂端。
+- 文件註解支援完整的 Markdown 語法。
+- `# Examples` 是最重要的文件段落——好的範例勝過千言萬語。
+- **文件範例就是 doctest**：`cargo test` 會編譯並執行所有文件範例，編譯失敗或 `assert` 失敗都算測試失敗。
+- doctest 以「library 使用者」的身分編譯，所以範例裡要寫 `use your_crate::...`。
+- doctest 只對 library crate 執行。
+- `cargo doc --open` 一鍵產生並打開 HTML 文件。
+- 你在 docs.rs 上看到的文件，就是用同樣的機制產生的。

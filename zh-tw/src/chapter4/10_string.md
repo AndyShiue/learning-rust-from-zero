@@ -115,9 +115,9 @@ fn print_string(s: &String) {
 
 ## 重點整理
 
-- `String` 是擁有資料的字串型別，資料存在 heap 上
-- `String::from("...")` 建立新的 `String`
-- `push_str` 在字串後面接上更多文字（需要 `let mut`）
-- `format!` 跟 `println!` 語法一樣，但回傳 `String` 而不是印出來
-- String **不是 `Copy`**，賦值和傳入函數會 move
-- 要保留原本的 `String`，用 `.clone()` 或 `&` 借用
+- `String` 是擁有資料的字串型別，資料存在 heap 上。
+- `String::from("...")` 建立新的 `String`。
+- `push_str` 在字串後面接上更多文字（需要 `let mut`）。
+- `format!` 跟 `println!` 語法一樣，但回傳 `String` 而不是印出來。
+- String **不是 `Copy`**，賦值和傳入函數會 move。
+- 要保留原本的 `String`，用 `.clone()` 或 `&` 借用。

@@ -16,8 +16,8 @@
 
 你其實已經見過它們了：
 
-- **`str`**：字串切片的「內容」型別。`"hello"` 是 5 bytes，`"哈囉"` 是 6 bytes，長度不固定
-- **`[T]`**：陣列切片的「內容」型別。`[i32]` 可能是 3 個元素也可能是 100 個
+- **`str`**：字串切片的「內容」型別。`"hello"` 是 5 bytes，`"哈囉"` 是 6 bytes，長度不固定。
+- **`[T]`**：陣列切片的「內容」型別。`[i32]` 可能是 3 個元素也可能是 100 個。
 
 因為大小不固定，你**不能**直接把它們當作值使用：
 
@@ -148,8 +148,8 @@ DST 也可以拿可變參考。`&mut [T]` 很實用——你可以修改切片�
 
 第 5 章也介紹了 `Deref` `trait`。`String` 和 `Vec<T>` 也實作了 `Deref`，它們解參考得到的正是 DST：
 
-- `String` 實作了 `Deref`，`Deref::deref(&String)` 回傳 `&str`
-- `Vec<T>` 實作了 `Deref`，`Deref::deref(&Vec<T>)` 回傳 `&[T]`
+- `String` 實作了 `Deref`，`Deref::deref(&String)` 回傳 `&str`。
+- `Vec<T>` 實作了 `Deref`，`Deref::deref(&Vec<T>)` 回傳 `&[T]`。
 
 也就是說解參考 `String` 得到的是 `str`，解參考 `Vec<T>` 得到的是 `[T]`。雖然 DST 沒辦法直接放在變數裡，但 `deref` coercion 發生在**參考的層級**：`&String` 轉成 `&str`，`&Vec<T>` 轉成 `&[T]`。轉換的結果就是一個胖指標，帶著位址和長度，不需要知道 DST 的實際大小。
 
@@ -217,11 +217,11 @@ fn main() {
 
 ## 重點整理
 
-- **DST（Dynamically Sized Types）**：大小在編譯期未知的型別，如 `str`、`[T]`
-- DST 不能直接當值使用，必須透過指標：`&str`、`&[T]`、`Box<str>` 等
-- 指向 DST 的指標是**胖指標（fat pointer）**：位址 + 長度，在 64 位元電腦上佔 16 bytes
-- **`Sized`**：表示型別大小在編譯期已知；泛型參數預設有 `T: Sized` bound
-- **`?Sized`**：放寬限制，讓泛型參數可以接受 DST（但必須透過參考使用）
-- `trait` 裡的 `Self` 預設是 `?Sized`；如果方法需要回傳 `Self`，要在 `trait` 上加 `: Sized`（如 `Clone: Sized`）
-- `Cow<'a, B>` 中的 `B: ?Sized` 就是為了讓 `B` 可以是 `str` 或 `[T]` 等 DST
-- `String` 和 `Vec<T>` 的 `Deref` 分別得到 DST `str` 和 `[T]`，`deref` coercion 讓 `&String` → `&str`、`&Vec<T>` → `&[T]` 成為可能
+- **DST（Dynamically Sized Types）**：大小在編譯期未知的型別，如 `str`、`[T]`。
+- DST 不能直接當值使用，必須透過指標：`&str`、`&[T]`、`Box<str>` 等。
+- 指向 DST 的指標是**胖指標（fat pointer）**：位址 + 長度，在 64 位元電腦上佔 16 bytes。
+- **`Sized`**：表示型別大小在編譯期已知；泛型參數預設有 `T: Sized` bound。
+- **`?Sized`**：放寬限制，讓泛型參數可以接受 DST（但必須透過參考使用）。
+- `trait` 裡的 `Self` 預設是 `?Sized`；如果方法需要回傳 `Self`，要在 `trait` 上加 `: Sized`（如 `Clone: Sized`）。
+- `Cow<'a, B>` 中的 `B: ?Sized` 就是為了讓 `B` 可以是 `str` 或 `[T]` 等 DST。
+- `String` 和 `Vec<T>` 的 `Deref` 分別得到 DST `str` 和 `[T]`，`deref` coercion 讓 `&String` → `&str`、`&Vec<T>` → `&[T]` 成為可能。

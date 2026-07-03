@@ -42,9 +42,9 @@ fn increment() {
 
 **`static mut` 幾乎永遠不該用。** 現代 Rust 有更好的替代：
 
-- 簡單的計數器 → `AtomicI32`、`AtomicBool`
-- 複雜的可變全域狀態 → `Mutex<T>`（搭配 `static`）
-- 延遲初始化 → `LazyLock`（下一集教）
+- 簡單的計數器 → `AtomicI32`、`AtomicBool`。
+- 複雜的可變全域狀態 → `Mutex<T>`（搭配 `static`）。
+- 延遲初始化 → `LazyLock`（下一集教）。
 
 ## 範例程式碼
 
@@ -77,7 +77,7 @@ fn main() {
 
 ## 重點整理
 
-- `static` 有固定記憶體位址，整個程式共用一份
-- `const` 沒有固定位址，值被嵌入使用的地方；大部分情況用 `const` 就好
-- `static mut` 讀寫都需要 `unsafe`，幾乎永遠不該用
-- 替代方案：`AtomicXxx`、`Mutex<T>`、`LazyLock`
+- `static` 有固定記憶體位址，整個程式共用一份。
+- `const` 沒有固定位址，值被嵌入使用的地方；大部分情況用 `const` 就好。
+- `static mut` 讀寫都需要 `unsafe`，幾乎永遠不該用。
+- 替代方案：`AtomicXxx`、`Mutex<T>`、`LazyLock`。

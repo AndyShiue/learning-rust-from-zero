@@ -43,9 +43,9 @@ enum AppError {
 # fn main() {}
 ```
 
-- `#[error("...")]` 自動生成 `Display` 的實作
-- `#[from]` 自動生成 `From` 的實作
-- 上一集手動寫了幾十行的東西，現在幾行就搞定
+- `#[error("...")]` 自動生成 `Display` 的實作。
+- `#[from]` 自動生成 `From` 的實作。
+- 上一集手動寫了幾十行的東西，現在幾行就搞定。
 
 使用方式跟上一集一樣——`?` 會自動轉換：
 
@@ -97,15 +97,15 @@ fn read_number(path: &str) -> Result<i32> {
 # fn main() {}
 ```
 
-- `anyhow::Result<T>` 就是 `Result<T, anyhow::Error>`
-- `anyhow::Error` 類似 `Box<dyn Error>`，但更好用
-- `.context("...")` 幫錯誤加上額外說明，方便除錯
-- 不用定義任何錯誤型別，任何 `Error` 都能自動轉換
+- `anyhow::Result<T>` 就是 `Result<T, anyhow::Error>`。
+- `anyhow::Error` 類似 `Box<dyn Error>`，但更好用。
+- `.context("...")` 幫錯誤加上額外說明，方便除錯。
+- 不用定義任何錯誤型別，任何 `Error` 都能自動轉換。
 
 ### 兩者的關係
 
-- **`thiserror`**：幫你定義精確的錯誤型別，省去手寫重複的程式碼。適合函式庫——使用者能 `match` 你的錯誤
-- **`anyhow`**：完全不用定義錯誤型別，所有錯誤統一處理。適合應用程式——只需要報告錯誤，不需要讓別人程式化處理
+- **`thiserror`**：幫你定義精確的錯誤型別，省去手寫重複的程式碼。適合函式庫——使用者能 `match` 你的錯誤。
+- **`anyhow`**：完全不用定義錯誤型別，所有錯誤統一處理。適合應用程式——只需要報告錯誤，不需要讓別人程式化處理。
 
 兩者可以搭配使用：函式庫用 `thiserror` 定義錯誤，應用程式用 `anyhow` 統一接收。
 
@@ -146,8 +146,8 @@ fn main() -> Result<()> {
 
 ## 重點整理
 
-- `thiserror`：用 `derive` 巨集自動生成 `Display`、`Error`、`From`，適合函式庫
-- `#[error("...")]` 生成 `Display`，`#[from]` 生成 `From`
-- `anyhow`：通用錯誤型別，不用定義錯誤 `enum`，適合應用程式
-- `.context("...")` 幫錯誤加上額外說明
-- 函式庫用 `thiserror`，應用程式用 `anyhow`，兩者可以搭配
+- `thiserror`：用 `derive` 巨集自動生成 `Display`、`Error`、`From`，適合函式庫。
+- `#[error("...")]` 生成 `Display`，`#[from]` 生成 `From`。
+- `anyhow`：通用錯誤型別，不用定義錯誤 `enum`，適合應用程式。
+- `.context("...")` 幫錯誤加上額外說明。
+- 函式庫用 `thiserror`，應用程式用 `anyhow`，兩者可以搭配。

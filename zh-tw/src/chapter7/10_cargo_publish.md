@@ -12,8 +12,8 @@
 
 首先，你需要一個 crates.io 的帳號：
 
-1. 到 [crates.io](https://crates.io) 用 GitHub 帳號登入
-2. 到帳號設定頁面，產生一個 **API Token**
+1. 到 [crates.io](https://crates.io) 用 GitHub 帳號登入。
+2. 到帳號設定頁面，產生一個 **API Token**。
 3. 在終端機執行：
 
 ```bash
@@ -41,7 +41,7 @@ categories = ["mathematics"]
 
 根據[官方文件](https://doc.rust-lang.org/cargo/reference/publishing.html)，發布前應填寫：
 
-- `license`（或 `license-file`）：開源授權條款（如 `MIT`、`Apache-2.0`、`MIT OR Apache-2.0`）
+- `license`（或 `license-file`）：開源授權條款（如 `MIT`、`Apache-2.0`、`MIT OR Apache-2.0`）。
 - `description`：一行簡短描述
 - `homepage`：專案首頁網址
 - `repository`：原始碼倉庫網址
@@ -76,17 +76,17 @@ cargo publish
 
 套件發布後，如果要更新：
 
-1. 修改程式碼
-2. 更新 `Cargo.toml` 裡的 `version`，遵循 [SemVer（語意化版本號）](https://semver.org/)
-3. 再次 `cargo publish`
+1. 修改程式碼。
+2. 更新 `Cargo.toml` 裡的 `version`，遵循 [SemVer（語意化版本號）](https://semver.org/)。
+3. 再次 `cargo publish`。
 
 SemVer 的規則：
 
-- **1.0 之前**（`0.x.y`）：整個 API 都被視為不穩定，任何版本都可能有破壞性變更
+- **1.0 之前**（`0.x.y`）：整個 API 都被視為不穩定，任何版本都可能有破壞性變更。
 - **1.0 之後**：
-  - bug 修復：`1.0.0` → `1.0.1`（patch）
-  - 新增功能（向下相容）：`1.0.1` → `1.1.0`（minor）
-  - 破壞性變更：`1.1.0` → `2.0.0`（major）——改第一個數字
+  - bug 修復：`1.0.0` → `1.0.1`（patch）。
+  - 新增功能（向下相容）：`1.0.1` → `1.1.0`（minor）。
+  - 破壞性變更：`1.1.0` → `2.0.0`（major）——改第一個數字。
 
 為什麼 SemVer 要這麼講究「破壞性變更」？因為一旦你發布出去，**你那組公開的 API（那些 `pub` 的東西）就不再只是你自己的事了**——別人寫的程式會 `use` 你的函數、依賴你的型別與方法宣告。這時你的公開 API 就變成一份**對使用者的承諾**：他們依賴的這一面，你不能說改就改。
 
@@ -100,11 +100,11 @@ cargo yank --version 0.1.0
 
 ### 發布前最好做的事
 
-- 寫好 `README.md`（這會顯示在 crates.io 套件頁面上）
-- 跑過 `cargo test` 確認所有測試通過
-- 用 `///` 寫好文件註解（上一集學的）
-- 確保有範例程式碼
-- 用 `cargo doc --open` 檢查文件看起來沒問題
+- 寫好 `README.md`（這會顯示在 crates.io 套件頁面上）。
+- 跑過 `cargo test` 確認所有測試通過。
+- 用 `///` 寫好文件註解（上一集學的）。
+- 確保有範例程式碼。
+- 用 `cargo doc --open` 檢查文件看起來沒問題。
 
 ## 範例程式碼
 
@@ -240,14 +240,14 @@ cargo publish    # 正式發布！
 
 ## 重點整理
 
-- 在 crates.io 用 GitHub 登入，產生 API token 後用 `cargo login` 設定
-- `Cargo.toml` 發布前應填寫 `license`、`description`、`homepage`、`repository`、`readme`
-- `cargo package` 可以在發布前檢查問題
-- `cargo publish` 正式發布到 crates.io
-- 更新版本時修改 `version` 欄位，遵循 SemVer（語意化版本號）
-- 你的公開 API（那些 `pub` 東西）是**對使用者的承諾**；SemVer 之所以有三個數字就是想告訴使用者「這次更新有沒有動到那份承諾」——刪除 `pub` 是破壞性變更（major），純新增則向下相容（minor）。只有 `pub` 是承諾，私有實作可以隨意改
-- 已發布的版本無法刪除，只能用 `cargo yank` 標記為不建議使用
-- 發布前寫好 README、文件註解、測試，是對使用者的基本尊重
+- 在 crates.io 用 GitHub 登入，產生 API token 後用 `cargo login` 設定。
+- `Cargo.toml` 發布前應填寫 `license`、`description`、`homepage`、`repository`、`readme`。
+- `cargo package` 可以在發布前檢查問題。
+- `cargo publish` 正式發布到 crates.io。
+- 更新版本時修改 `version` 欄位，遵循 SemVer（語意化版本號）。
+- 你的公開 API（那些 `pub` 東西）是**對使用者的承諾**；SemVer 之所以有三個數字就是想告訴使用者「這次更新有沒有動到那份承諾」——刪除 `pub` 是破壞性變更（major），純新增則向下相容（minor）。只有 `pub` 是承諾，私有實作可以隨意改。
+- 已發布的版本無法刪除，只能用 `cargo yank` 標記為不建議使用。
+- 發布前寫好 README、文件註解、測試，是對使用者的基本尊重。
 
 恭喜你完成了第 7 章！🎉 到這裡為止，我們已經教完了 Rust 的主要觀念——所有權、借用、泛型、`trait`、生命週期、閉包、迭代器，以及模組系統和套件管理。你現在已經可以獨當一面了。如果你腦中有什麼點子，現在就是動手實作的好時機！
 

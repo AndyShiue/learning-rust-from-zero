@@ -70,7 +70,7 @@ async fn main() {
 
 ## 重點整理
 
-- `Stream` 是 `async` 版的 `Iterator`：一連串值一個一個取，但下一個值可能要等，所以是 `.next().await`
-- 對照：`iterator.next()` 同步回 `Option`；`stream.next().await` 要 `.await` 才回 `Option`；都用 `None` 表示結束
-- 走訪用 **`while let Some(x) = stream.next().await`**（`Stream` 不能用 `for`）
-- `Stream` 不在標準庫，定義在 `futures`；用 `tokio_stream::StreamExt` 取得 `next`、`map`、`filter` 等方法（用法和 `Iterator` 幾乎一樣）
+- `Stream` 是 `async` 版的 `Iterator`：一連串值一個一個取，但下一個值可能要等，所以是 `.next().await`。
+- 對照：`iterator.next()` 同步回 `Option`；`stream.next().await` 要 `.await` 才回 `Option`；都用 `None` 表示結束。
+- 走訪用 **`while let Some(x) = stream.next().await`**（`Stream` 不能用 `for`）。
+- `Stream` 不在標準庫，定義在 `futures`；用 `tokio_stream::StreamExt` 取得 `next`、`map`、`filter` 等方法（用法和 `Iterator` 幾乎一樣）。
