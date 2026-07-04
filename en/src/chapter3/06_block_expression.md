@@ -60,7 +60,7 @@ Note: if a `match` arm uses a block `{}`, the comma after it can be omitted. The
         Season::Summer => {
             println!("So hot!");
             "a scorching summer"
-        }                               // ← No comma; OK
+        } // ← No comma; OK
         Season::Autumn => "a cool autumn", // ← Single-line arm; comma required
         // ...
 #         _ => "",
