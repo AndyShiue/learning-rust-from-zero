@@ -70,5 +70,5 @@ enum Event {
 - Variants can carry named fields in `struct` form: `Circle { radius: f64 }`.
 - Create a value: `Shape::Circle { radius: 5.0 }`.
 - One enum can mix and match: tuple-form variants, `struct`-form variants, and data-free ones.
-- The `struct` form's advantage: named fields make the code easier to read.
+- The `struct` form's advantage: named fields sometimes make the code easier to read.
 - Extracting field data requires `match` (coming in Episode 10).
