@@ -50,7 +50,7 @@ fn double(x: i32) -> i32 {
 # fn main() {}
 ```
 
-The compiler reports an error. Why? With the semicolon, the result of `x * 2` gets thrown away, and the function ends without leaving any value. In that case, what's actually returned is `()` (the unit type — remember Episode 4?). But you promised to return an `i32`; the types don't match, so the compiler complains.
+The compiler reports an error. Why? With the semicolon, the result of `x * 2` gets thrown away, and the function ends without leaving any meaningful value. In that case, what's actually returned is `()` (the unit type — remember Episode 4?). But you promised to return an `i32`; the types don't match, so the compiler complains.
 
 ### Functions with No Declared Return Value
 
