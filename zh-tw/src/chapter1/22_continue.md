@@ -2,7 +2,7 @@
 
 ## 本集目標
 
-用 `continue` 跳過迴圈中的某些輪次。
+用 `continue` 跳過迴圈中的某些迭代。
 
 ## 正文
 
@@ -72,11 +72,11 @@ fn main() {
 }
 ```
 
-每次 `j` 到 2，就 `continue 'outer` 直接跳到外層的下一輪，所以 `j=2` 和 `j=3` 都不會印。
+每次 `j` 到 2，就 `continue 'outer` 直接跳到外層迴圈的下一次迭代，所以 `j=2` 和 `j=3` 都不會印。
 
 ## 重點整理
 
 - `continue` 跳過這一次，直接進入下一次迴圈。
 - `break` 是「整個迴圈不跑了」，`continue` 是「這次跳過，跑下一次」。
 - 搭配 `if` 可以有選擇性地跳過特定情況。
-- `continue 'outer` 可以搭配 loop label 跳過外層迴圈的一輪。
+- `continue 'outer` 可以搭配 loop label 跳過外層迴圈的這一次。

@@ -72,11 +72,11 @@ fn main() {
 }
 ```
 
-Each time `j` reaches 2, `continue 'outer` jumps straight to the outer loop's next round, so `j=2` and `j=3` never get printed.
+Each time `j` reaches 2, `continue 'outer` jumps straight to the outer loop's next iteration, so `j=2` and `j=3` never get printed.
 
 ## Recap
 
 - `continue` skips the current iteration and goes straight to the next one.
-- `break` means "stop the whole loop"; `continue` means "skip this round, run the next."
+- `break` means "stop the whole loop"; `continue` means "skip the current iteration and run the next one."
 - Pair it with `if` to selectively skip particular cases.
-- `continue 'outer` works with loop labels to skip a round of an outer loop.
+- `continue 'outer` works with loop labels to skip the current iteration of an outer loop.

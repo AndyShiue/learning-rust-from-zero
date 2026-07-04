@@ -10,7 +10,7 @@ Last episode we learned the `for` loop. Today we'll try something more advanced 
 
 ### What Are Nested Loops?
 
-"Nested" means "one layer inside another," like Russian nesting dolls. Each time the outer loop runs once, the inner loop runs through a complete round.
+"Nested" means "one layer inside another," like Russian nesting dolls. Each time the outer loop runs once, the inner loop runs all the way through.
 
 ### The Multiplication Table
 
@@ -91,7 +91,7 @@ fn main() {
 
 ## Recap
 
-- Nested loops are loops inside loops: each outer iteration runs the inner loop through a full round.
+- Nested loops are loops inside loops: each outer-loop iteration runs the inner loop all the way through.
 - The difference between `print!` and `println!`: `print!` doesn't start a new line.
 - In nested loops, `break` only exits the innermost loop.
 - Use a loop label (`'outer:` + `break 'outer`) to break out of a specific outer loop.
