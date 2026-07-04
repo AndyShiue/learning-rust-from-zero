@@ -108,7 +108,7 @@ async fn main() {
 
 ### 在迴圈裡用 `select!` 要小心 cancellation safety
 
-剛剛提到了 `drop`：這正是上一集講的 **cancellation**：`drop` 一個 `Future` 就是取消它。而 `select!` 天生就會在某個 branch 勝出時，把其他 branch 全部 `drop`。理解這一點，後面用 `select!` 才不會踩雷。   
+剛剛提到了 `drop`：這正是上一集講的 **cancellation**：`drop` 一個 `Future` 就是取消它。而 `select!` 天生就會在某個 branch 勝出時，把其他 branch 全部 `drop`。理解這一點，後面用 `select!` 才不會踩雷。
 
 `select!` 常常被放在 `loop` 裡反覆使用（例如一個伺服器迴圈：每輪 `select!` 等「新工作」或「shutdown 訊號」）。這種寫法要特別小心上一集的 **cancellation safety**。
 
