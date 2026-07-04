@@ -18,6 +18,7 @@ Our solution is to give each `Future` a set of "carry-on data," wrapping it into
 - **Which** ready queue it should requeue onto
 - **Which** executor `Thread` to wake
 - A flag to avoid queuing itself twice
+- A flag marking that it has already finished
 
 From now on the executor manages `Task`s, not `Future`s directly. And `spawn` simply means "wrap a `Future` into a `Task` and hand it to the executor."
 
@@ -88,6 +89,7 @@ struct Task {
     queue: Queue,
     executor_thread: Thread,
     queued: AtomicBool, // am I currently in the queue?
+    done: AtomicBool,   // am I finished?
 }
 
 impl Wake for Task {
@@ -122,6 +124,7 @@ impl Executor {
             queue: self.queue.clone(),
             executor_thread: self.executor_thread.clone(),
             queued: AtomicBool::new(false),
+            done: AtomicBool::new(false),
         });
 
         self.remaining += 1;
@@ -138,12 +141,17 @@ impl Executor {
                 let task = self.queue.lock().expect("failed to take the lock").pop_front();
                 let Some(task) = task else { break };
 
+                if task.done.load(Ordering::SeqCst) {
+                    continue; // a stale wakeup queued after completion — skip it
+                }
+
                 task.queued.store(false, Ordering::SeqCst); // release the flag before polling
                 let waker = Waker::from(task.clone());
                 let mut cx = Context::from_waker(&waker);
                 let mut future = task.future.lock().expect("failed to take the lock");
 
                 if future.as_mut().poll(&mut cx).is_ready() {
+                    task.done.store(true, Ordering::SeqCst); // from now on, every wakeup is void
                     self.remaining -= 1; // finished
                 }
             }
@@ -189,6 +197,16 @@ Episode 9's `slot.take()` was "take the `Some(fut)` out, leave `None` in its pla
 
 Why not `load` then `store`? Because `wake` can come from different `Thread`s. To be safe, `swap` binds "look at the old value" and "leave the new value" into a single atomic operation, so two `Thread`s can't both see `false` at once and push the same `Task` into the queue twice.
 
+### The `done` Flag: Honoring Contract Two
+
+Last episode's contract two said: once a `Future` returns `Ready`, it must never be polled again. Back then, `block_on` simply `return`ed the moment it got `Ready`, so it couldn't offend; but now that the executor keeps many `Task`s at once, things aren't so simple anymore.
+
+The threat comes from the `Waker` copies scattered outside. After a `Task` completes, the executor itself certainly won't requeue it; but a copy like the one `Delay` handed to its timing `Thread` is beyond the executor's recall. If someone holding such a stale `Waker` calls `wake()` **after** the `Task` has completed, the finished `Task` gets requeued onto the ready queue and then `poll`ed again — contract two is broken, and `remaining -= 1` gets subtracted one extra time.
+
+So a `Task` also needs a `done` flag, to invalidate stale wakeups. The defense sits on the executor's side: after popping a `Task`, check `done` first — if it's `true`, just `continue` past it. That way a stale wakeup at worst puts the `Task` into the queue one extra time; it can never get it `poll`ed again. And since only the executor thread ever `poll`s the `Future`s, and only it sets `done` to `true`, "never `poll` again once `done` is set" holds strictly.
+
+Honestly, this episode's examples can't actually trigger the problem — every timer fires exactly once, and always before its `Task` completes. But the executor's correctness can't rest on that kind of luck.
+
 ### Why the `Future` Field Must Be `Send`
 
 You may also notice the `Task`'s `future` field is typed `Mutex<Pin<Box<dyn Future<Output = ()> + Send>>>` — why `Send`?
@@ -206,4 +224,5 @@ Next episode we build on this and let `spawn` return results — adding a `JoinH
 - `unpark` is only the "get up" alarm — it doesn't say which `Task` is ready; that information lives in the ready queue.
 - `spawn` is an `Executor` method: wrap the `Future` into a `Task` and put it on its ready queue.
 - `queued.swap(true, ...)` is like `Option::take`: grab the old value, leave the new — one atomic operation, preventing duplicate queue entries.
+- After a `Task` completes, unretrievable `Waker` copies may still deliver **stale wakeups**; the `done` flag upholds contract two — the executor checks `done` right after popping a `Task`, sets it on `Ready`, and every wakeup thereafter is void.
 - With `Task` as its own `Waker`, `Waker::from(Arc<Task>)` demands `Task: Send + Sync + 'static`, so the `Future` field needs `+ Send` and a `Mutex` around it.

@@ -84,6 +84,7 @@ struct Task {
     queue: Queue,
     executor_thread: Thread,
     queued: AtomicBool,
+    done: AtomicBool,
 }
 
 impl Wake for Task {
@@ -157,6 +158,7 @@ impl Executor {
             queue: self.queue.clone(),
             executor_thread: self.executor_thread.clone(),
             queued: AtomicBool::new(false),
+            done: AtomicBool::new(false),
         });
 
         self.remaining += 1;
@@ -178,12 +180,17 @@ impl Executor {
                 let task = self.queue.lock().expect("failed to take the lock").pop_front();
                 let Some(task) = task else { break };
 
+                if task.done.load(Ordering::SeqCst) {
+                    continue;
+                }
+
                 task.queued.store(false, Ordering::SeqCst);
                 let waker = Waker::from(task.clone());
                 let mut cx = Context::from_waker(&waker);
                 let mut future = task.future.lock().expect("failed to take the lock");
 
                 if future.as_mut().poll(&mut cx).is_ready() {
+                    task.done.store(true, Ordering::SeqCst);
                     self.remaining -= 1;
                 }
             }

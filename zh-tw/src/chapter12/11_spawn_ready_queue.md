@@ -18,6 +18,7 @@
 - 它該排回**哪條** ready queue
 - 該叫醒**哪條** executor `Thread`
 - 一個避免自己重複排隊的旗標
+- 一個標記自己已經完成的旗標
 
 從此 executor 不再直接管 `Future`，而是管 `Task`。而所謂 `spawn`，就是「把一個 `Future` 包成 `Task`、交給 executor」。
 
@@ -88,6 +89,7 @@ struct Task {
     queue: Queue,
     executor_thread: Thread,
     queued: AtomicBool, // 自己現在排在 queue 裡嗎？
+    done: AtomicBool,   // 自己已經完成了嗎？
 }
 
 impl Wake for Task {
@@ -122,6 +124,7 @@ impl Executor {
             queue: self.queue.clone(),
             executor_thread: self.executor_thread.clone(),
             queued: AtomicBool::new(false),
+            done: AtomicBool::new(false),
         });
 
         self.remaining += 1;
@@ -138,12 +141,17 @@ impl Executor {
                 let task = self.queue.lock().expect("取得鎖失敗").pop_front();
                 let Some(task) = task else { break };
 
+                if task.done.load(Ordering::SeqCst) {
+                    continue; // 完成後才被排進來的過期喚醒，跳過
+                }
+
                 task.queued.store(false, Ordering::SeqCst); // poll 前先放掉旗標
                 let waker = Waker::from(task.clone());
                 let mut cx = Context::from_waker(&waker);
                 let mut future = task.future.lock().expect("取得鎖失敗");
 
                 if future.as_mut().poll(&mut cx).is_ready() {
+                    task.done.store(true, Ordering::SeqCst); // 從此所有喚醒都失效
                     self.remaining -= 1; // 完成了
                 }
             }
@@ -189,6 +197,16 @@ fn main() {
 
 為什麼不能先 `load` 再 `store`？因為 `wake` 可能來自不同 `Thread`。為了保險，`swap` 把「看舊值」和「留下新值」綁成一次 atomic 操作，才不會兩條 `Thread` 都同時看到 `false`、然後把同一個 `Task` 重複排進 queue。
 
+### `done` 旗標：兌現契約二
+
+上一集的契約二說：`Future` 回 `Ready` 之後就不准再被 poll。當時的 `block_on` 拿到 `Ready` 就直接 `return`，自然不會犯規；但現在 executor 要同時養很多 `Task`，事情就沒這麼單純了。
+
+威脅來自散落在外面的 `Waker` 複本。`Task` 完成後，executor 這邊確實不會再主動排它；可是像 `Delay` 交給計時執行緒的那份 `Waker`，executor 收不回來。萬一有人拿著這種過期的 `Waker`，在 `Task` **完成之後**才呼叫 `wake()`，這個已完成的 `Task` 就會被重新排進 ready queue，然後再次被 `poll`——契約二被打破，而且 `remaining -= 1` 還會多扣一次。
+
+所以 `Task` 還需要一個 `done` 旗標，讓過期的喚醒失效。防線設在 executor 這一側：pop 出 `Task` 之後先檢查 `done`，是 `true` 就直接 `continue` 跳過。這樣過期的喚醒頂多讓 `Task` 多排進 queue 一次，絕不會讓它再被 `poll`。而因為只有 executor 這條執行緒會 `poll` `Future`、也只有它會把 `done` 設成 `true`，所以「設完 `done` 之後絕不再 `poll`」是嚴格成立的。
+
+老實說，這一集的範例其實觸發不了這個問題——每個計時器只 fire 一次，而且都在 `Task` 完成之前。但 executor 的正確性不能靠這種巧合。
+
 ### 為什麼 `Future` 欄位要是 `Send`
 
 你可能還會注意到 `Task` 的 `future` 欄位型別寫成 `Mutex<Pin<Box<dyn Future<Output = ()> + Send>>>`，為什麼要 `Send`？
@@ -206,4 +224,5 @@ fn main() {
 - `unpark` 只是「起床」的鬧鈴，不說哪個 `Task` 好了；那資訊在 ready queue 裡。
 - `spawn` 是 `Executor` 的方法：把 `Future` 包成 `Task`，排進自己的 ready queue。
 - `queued.swap(true, ...)` 像 `Option::take`：拿到舊值、留下新值，且是一次 atomic 操作，避免同一個 `Task` 重複入列。
+- `Task` 完成後可能還有收不回來的 `Waker` 複本帶來**過期的喚醒**；`done` 旗標守住契約二——executor pop 出 `Task` 先檢查 `done`，poll 到 `Ready` 就把它設起來，之後的喚醒全部失效。
 - `Task` 自己當 `Waker`，`Waker::from(Arc<Task>)` 要求 `Task: Send + Sync + 'static`，所以 `Future` 欄位要 `+ Send` 並用 `Mutex` 包起來。
