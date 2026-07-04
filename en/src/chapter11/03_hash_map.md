@@ -1,1 +1,1 @@
-# HashMap&lt;K, V&gt;
+# HashMap<K, V>

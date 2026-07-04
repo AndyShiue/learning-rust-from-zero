@@ -1,1 +1,1 @@
-# HashSet&lt;T&gt;
+# HashSet<T>
