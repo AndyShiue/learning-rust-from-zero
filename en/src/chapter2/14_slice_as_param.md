@@ -54,7 +54,7 @@ fn main() {
 }
 ```
 
-Change the parameter type from `[i32; 5]` to `&[i32]`, and the function accepts arrays of **any length**!
+Change the parameter type from `[i32; 5]` to `&[i32]`, and the function accepts slices of **any length**!
 
 When calling, add `&`: `sum(&a)` means "pass in a slice of `a`."
 
