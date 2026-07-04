@@ -40,7 +40,7 @@ See that? The `{}` was replaced by the value of `name`, which is `"Rust"`.
 
 Try changing `"Rust"` to your own name and see what gets printed!
 
-### `let` Doesn't Have to Assign Right Away
+### A `let` Variable Doesn't Have to Be Assigned Right Away
 
 When you declare a variable with `let`, you don't have to give it a value immediately. You can declare first and assign later:
 
@@ -60,4 +60,4 @@ This is perfectly legal, but you must assign to it exactly once before using it 
 - Text is wrapped in `"double quotes"`.
 - `println!("{}", variable)` prints out the value of a variable.
 - `{}` is a placeholder that gets replaced by the value that follows.
-- A `let` declaration doesn't have to assign right away, but it must assign exactly once.
+- A variable declared with `let` doesn't have to be assigned right away, but it must be assigned exactly once.
