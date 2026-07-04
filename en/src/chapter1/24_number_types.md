@@ -102,7 +102,7 @@ fn main() {
 }
 ```
 
-This is a safety-minded design: Rust never converts types for you automatically.
+This is a safety-minded design: Rust generally doesn't convert types for you automatically.
 
 ## Recap
 
@@ -111,4 +111,4 @@ This is a safety-minded design: Rust never converts types for you automatically.
 - Floating-point types are `f32` and `f64`; use `f64` day-to-day (Rust's default).
 - Numeric suffixes (like `5i32`, `3.14f64`) specify the type directly.
 - Floating-point division can produce fractional results, but has precision issues (`0.1 + 0.2 ≠ 0.3`).
-- Numbers of different types can't be mixed in arithmetic; Rust doesn't auto-convert.
+- Rust generally doesn't convert types for you automatically.
