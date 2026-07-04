@@ -57,6 +57,14 @@ async fn main() {
 - 因為不跨 `Thread`，所以**不需要 `Send + 'static`**——它可以放借用了區域變數的 `Future`（`JoinSet` 因為要 `spawn` 就做不到）。
 - 但因為大家在同一個 `Task` 上輪流，**一個 branch 卡住會拖累其他**（又是「不要 block 住執行緒」那條鐵律）。
 
+`FuturesUnordered` 定義在 `futures` 這個套件裡，使用前要加上依賴（上一集加過的 `tokio-stream` 這裡也會用到）：
+
+```toml
+[dependencies]
+futures = "0.3"
+tokio-stream = "0.1"
+```
+
 `FuturesUnordered` 本身其實就是一個 `Stream`——它只是「把內部那堆 `Future` 輪流 `poll`」，自己不 `spawn`、不碰排程。所以它**不依賴特定 runtime**，這是它相對於 `JoinSet` 的一大優點（`JoinSet` 的 `spawn` 就綁死 Tokio runtime）。用 `Stream` 的方式走訪它：
 
 ```rust,editable

@@ -19,6 +19,15 @@
 
 兩者都用「`None` 代表結束」。
 
+本集的範例會用到 `tokio-stream` 這個套件（它不在 Tokio 本體裡），使用前要加上依賴：
+
+```toml
+[dependencies]
+tokio-stream = "0.1"
+```
+
+一個小地方要注意：套件名在 `Cargo.toml` 裡寫 `tokio-stream`（連字號），但在程式碼裡要寫成 `tokio_stream`（底線）——套件名裡的 `-` 到了程式碼裡一律變成 `_`。
+
 ### 走訪一個 `Stream`
 
 `Iterator` 可以用 `for` 走訪，但 `Stream` 不行（`for` 沒辦法 `.await`）。`Stream` 的標準走訪寫法是 **`while let Some(x) = stream.next().await`**——一個一個取，取到 `None` 就停：

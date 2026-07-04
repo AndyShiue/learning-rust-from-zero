@@ -129,7 +129,14 @@ graceful 不代表**無限期**等。萬一某個 worker 卡死了，你不能�
 
 ### 更匹配的工具：`CancellationToken`
 
-用 `watch` 當 shutdown flag 可行，但有點像「借」一個狀態廣播工具來當開關。`tokio-util` 提供了一個從頭就為「取消」設計的工具——`CancellationToken`，語意更貼切。把上面的 `watch` 換成它：
+用 `watch` 當 shutdown flag 可行，但有點像「借」一個狀態廣播工具來當開關。`tokio-util` 提供了一個從頭就為「取消」設計的工具——`CancellationToken`，語意更貼切。`tokio-util` 不在 Tokio 本體裡，使用前要加上依賴：
+
+```toml
+[dependencies]
+tokio-util = "0.7"
+```
+
+把上面的 `watch` 換成它：
 
 ```rust,no_run
 # extern crate tokio;

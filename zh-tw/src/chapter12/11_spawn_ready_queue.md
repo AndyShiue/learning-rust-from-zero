@@ -14,9 +14,9 @@
 
 我們的解法是給每個 `Future` 配一份「隨身資料」，把它包成一個 **`Task`**。一個 `Task` 裝著：
 
-- 它自己的那個 `Future`。
-- 它該排回**哪條** ready queue。
-- 該叫醒**哪條** executor `Thread`。
+- 它自己的那個 `Future`
+- 它該排回**哪條** ready queue
+- 該叫醒**哪條** executor `Thread`
 - 一個避免自己重複排隊的旗標
 
 從此 executor 不再直接管 `Future`，而是管 `Task`。而所謂 `spawn`，就是「把一個 `Future` 包成 `Task`、交給 executor」。
