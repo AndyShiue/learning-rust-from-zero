@@ -75,11 +75,11 @@ fn main() {
 }
 ```
 
-When walking an array, `for x in arr` is cleaner, safer, and faster than using indices — no worrying about going out of bounds. For when you need both the index and the value, we'll learn a better way later.
+When walking an array, `for x in arr` is cleaner, safer, and possibly faster than using indices — no worrying about going out of bounds. For when you need both the index and the value, we'll learn a better way later.
 
 ## Recap
 
 - `for x in arr { ... }` iterates over each element of the array.
 - Inside the loop you can compute, test, and accumulate with each element.
 - `for x in arr` (over an array) and `for i in 0..n` (over a range) share the same syntax; only the thing after `in` differs.
-- When iterating over an array, `for x in arr` beats indexing: cleaner, safer, faster.
+- When iterating over an array, `for x in arr` beats indexing: cleaner, safer, possibly faster.
