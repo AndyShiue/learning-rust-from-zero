@@ -29,7 +29,7 @@ Rust's integer types come in **signed** (can be negative) and **unsigned** (only
 
 ### Floating-point Types
 
-Floating-point numbers are numbers with a decimal point, and there are only two:
+Floating-point numbers are used for values that can have a fractional part. Rust has two floating-point types:
 
 | Type | Precision |
 |------|--------|
@@ -40,7 +40,7 @@ Floating-point numbers are numbers with a decimal point, and there are only two:
 
 ### Floating-point Arithmetic
 
-Back in Episode 5, when we covered arithmetic, we used integers throughout. Floating-point numbers work with `+` `-` `*` `/` `%` too, but there's one important difference — **floating-point division keeps the decimals**:
+Back in Episode 5, when we covered arithmetic, we used integers throughout. Floating-point numbers work with `+` `-` `*` `/` `%` too, but there's one important difference — **floating-point division can produce a fractional result**:
 
 ```rust,editable
 fn main() {
@@ -110,5 +110,5 @@ This is a safety-minded design: Rust never converts types for you automatically.
 - The size of `isize` and `usize` depends on the system (64 bits on 64-bit systems).
 - Floating-point types are `f32` and `f64`; use `f64` day-to-day (Rust's default).
 - Numeric suffixes (like `5i32`, `3.14f64`) specify the type directly.
-- Floating-point division keeps decimals, but has precision issues (`0.1 + 0.2 ≠ 0.3`).
+- Floating-point division can produce fractional results, but has precision issues (`0.1 + 0.2 ≠ 0.3`).
 - Numbers of different types can't be mixed in arithmetic; Rust doesn't auto-convert.
