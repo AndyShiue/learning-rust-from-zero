@@ -61,6 +61,6 @@ Whenever you need to read user input, grab these three lines:
 
 ## Recap
 
-- The three-line boilerplate for reading user input: `String::new()` → `stdin().read_line()` → `.trim()`.
+- The three-line boilerplate for reading user input: `String::new()` → `stdin().read_line(&mut input)` → `.trim()`.
 - Treat it as a black box and copy it for now; the underlying concepts will come gradually later.
 - `.trim()` strips the newline character off the end of the input.

@@ -61,6 +61,6 @@ Andy
 
 ## 重點整理
 
-- 讀取使用者輸入的三行固定寫法：`String::new()` → `stdin().read_line()` → `.trim()`。
+- 讀取使用者輸入的三行固定寫法：`String::new()` → `stdin().read_line(&mut input)` → `.trim()`。
 - 這段先當成黑盒子照抄即可，背後的觀念之後會慢慢學。
 - `.trim()` 用來去掉輸入尾巴的換行符號。
