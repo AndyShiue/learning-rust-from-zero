@@ -76,4 +76,4 @@ To use these operators, the variable must be declared with `let mut`, because yo
 
 - The compound assignment operators: `+=`, `-=`, `*=`, `/=`, `%=`.
 - `x += 5` is shorthand for `x = x + 5` — compute the right side first, then store it back on the left.
-- Prerequisite: the variable must be declared with `let mut`.
+- Requirement: the variable must be declared with `let mut`.
