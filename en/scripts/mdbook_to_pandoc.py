@@ -165,7 +165,11 @@ def build_date_text() -> str:
         today = datetime.now(ZoneInfo(timezone)).date()
     except ZoneInfoNotFoundError:
         today = datetime.now().date()
-    return f"{today.year} 年 {today.month} 月 {today.day} 日"
+    months = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December",
+    ]
+    return f"{months[today.month - 1]} {today.day}, {today.year}"
 
 
 def title_page(build_date: str) -> str:
@@ -175,13 +179,13 @@ def title_page(build_date: str) -> str:
 \thispagestyle{{empty}}
 \vspace*{{\fill}}
 \begin{{center}}
-{{\fontsize{{30pt}}{{38pt}}\selectfont\bfseries 從零開始學 Rust}}
+{{\fontsize{{30pt}}{{38pt}}\selectfont\bfseries Learning Rust from Zero}}
 
 \vspace{{2em}}
 {{\Large Andy Shiue}}
 
 \vspace{{1.5em}}
-{{\large 生成日期：{escaped_date}}}
+{{\large Generated on {escaped_date}}}
 \end{{center}}
 \vspace*{{\fill}}
 \end{{titlepage}}
