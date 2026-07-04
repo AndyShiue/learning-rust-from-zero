@@ -119,4 +119,4 @@ fn main() {
 - `let x = { ... };` runs multiple lines inside the block and assigns the result to x.
 - A `match` arm can use `=> { ... }` to run multiple lines, and no comma is needed after the block.
 - Variables declared inside a block only live within the block (scope).
-- Block expressions are extremely common in Rust — an important foundational concept.
+- Block expressions are extremely common in Rust, and they are an important foundational concept to understand.
