@@ -27,7 +27,7 @@ fn main() {
 
 Look closely:
 
-- `return x;` → uses the `return` keyword, **with a semicolon**.
+- `return x;` → uses the `return` keyword.
 - The last line `-x` → no semicolon; that's the "natural return."
 
 ### `return` vs No Semicolon
@@ -125,7 +125,7 @@ Save `return` for the "leaving early" scenarios.
 
 ## Recap
 
-- `return value;` returns early from the middle of a function (remember the semicolon).
+- `return value;` returns early from the middle of a function.
 - The natural, semicolon-less return on the last line is idiomatic Rust.
 - `return` is most often used in guard clauses: check a condition and bail out early if it's wrong.
 - In functions returning `()`, `return;` is shorthand for `return ();`.
