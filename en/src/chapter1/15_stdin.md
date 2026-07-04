@@ -6,7 +6,7 @@ Make the program read the user's keyboard input — copy the code as-is for now;
 
 ## Main Text
 
-So far, the values in our programs have all been hard-coded. But what if we want the user to type things in themselves? For example, letting the user enter their name so the program can greet them?
+So far, the values in our programs have all been hard-coded. But what if we want the user to enter values themselves? For example, letting the user enter their name so the program can greet them?
 
 ### First, Copy This Code As-Is
 
