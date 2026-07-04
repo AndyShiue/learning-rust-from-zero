@@ -199,7 +199,7 @@ Why not `load` then `store`? Because `wake` can come from different `Thread`s. T
 
 ### The `done` Flag: Honoring Contract Two
 
-Last episode's contract two said: once a `Future` returns `Ready`, it must never be polled again. Back then, `block_on` simply `return`ed the moment it got `Ready`, so it couldn't offend; but now that the executor keeps many `Task`s at once, things aren't so simple anymore.
+Last episode's contract two said: once a `Future` returns `Ready`, it must never be `poll`ed again. Back then, `block_on` simply `return`ed the moment it got `Ready`, so it couldn't offend; but now that the executor keeps many `Task`s at once, things aren't so simple anymore.
 
 The threat comes from the `Waker` copies scattered outside. After a `Task` completes, the executor itself certainly won't requeue it; but a copy like the one `Delay` handed to its timing `Thread` is beyond the executor's recall. If someone holding such a stale `Waker` calls `wake()` **after** the `Task` has completed, the finished `Task` gets requeued onto the ready queue and then `poll`ed again — contract two is broken, and `remaining -= 1` gets subtracted one extra time.
 
