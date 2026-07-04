@@ -1,1 +1,3 @@
-# Async (This Chapter Is Being Revised…)
+# Async
+
+With the foundations from the previous chapters in place, we can now enter the hardest chapter of this tutorial: async. Besides all sorts of new concepts, this chapter also asks you to read a lot of code; I didn't design it specifically to train readers in that, but judging by the outcome, it may well do so. In the first half of the chapter, we'll design a complete API-like set of tools. If you can make it through that part, I believe you'll have a much better sense of how abstractions are built in Rust; in the second half, we introduce the tools you'll actually use when writing async programs in practice.
