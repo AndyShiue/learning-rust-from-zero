@@ -17,7 +17,7 @@ fn main() {
 }
 ```
 
-You've seen this code countless times. But what is the type of `s`?
+You've seen this kind of code countless times. But what is the type of `s`?
 
 The answer: **`&str`** (a string slice).
 
