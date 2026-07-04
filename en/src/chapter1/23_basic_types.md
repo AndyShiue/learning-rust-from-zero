@@ -33,7 +33,7 @@ fn main() {
 ```
 
 - `i32` → an integer (32-bit).
-- `f64` → a floating-point number (64-bit) — that is, a number with a decimal point.
+- `f64` → a floating-point number (64-bit), used for values that can have a fractional part, such as `3.14` or `0.5`.
 - `bool` → a boolean, which is only ever `true` or `false`.
 
 ### Then Why Didn't We Annotate Before?
