@@ -6,7 +6,7 @@ Learn to treat `if` as an "expression" and use it directly to assign a value to 
 
 ## Main Text
 
-This is the last episode of Chapter 1! Today I'll introduce one of Rust's cool traits — `if` isn't just for making decisions; it can also **return a value**.
+This is the last episode of Chapter 1! Today I'll introduce one of Rust's cool features — `if` isn't just for making decisions; it can also **return a value**.
 
 ### First, the Usual Way
 
