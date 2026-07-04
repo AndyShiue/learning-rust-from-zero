@@ -20,7 +20,7 @@ fn main() {
 
 Is 5 equal to 5? Yes, so it's `true`.
 
-Careful here: it's **two equals signs** `==`, not one. A single equals sign `=` is for assigning values to variables (`let x = 5`); two equals signs `==` are for comparing.
+Careful here: it's **two equals signs** `==`, not one. A single equals sign `=` is for assigning values to variables (`let x = 5;`); two equals signs `==` are for comparing.
 
 ### `!=` Not Equal To
 
