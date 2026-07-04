@@ -62,7 +62,7 @@ Your grade is F
 
 1. `println!` → printing a prompt message (Episode 2)
 2. `let mut` + `String::new()` → getting ready to receive input (Episode 15)
-3. `stdin().read_line()` → reading keyboard input (Episode 15)
+3. `stdin().read_line(&mut input)` → reading keyboard input (Episode 15)
 4. `.trim().parse::<i32>()` → converting text to a number (Episode 16)
 5. `if` / `else if` / `else` → conditional logic (Episodes 8, 10, 11)
 

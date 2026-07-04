@@ -62,7 +62,7 @@ fn main() {
 
 1. `println!` → 印提示訊息（第 2 集）
 2. `let mut` + `String::new()` → 準備接收輸入（第 15 集）
-3. `stdin().read_line()` → 讀取鍵盤輸入（第 15 集）
+3. `stdin().read_line(&mut input)` → 讀取鍵盤輸入（第 15 集）
 4. `.trim().parse::<i32>()` → 文字轉數字（第 16 集）
 5. `if` / `else if` / `else` → 條件判斷（第 8、10、11 集）
 
