@@ -36,7 +36,7 @@ This time the answer is **20**. Whatever is inside the parentheses gets computed
 
 ### A Little Tip
 
-When you're not sure about the order, just add parentheses. Parentheses don't just change the order — sometimes they also make code easier to read. Even when the order is already correct, adding parentheses to make your intent clearer is never a bad thing.
+When you're not sure about the order, just add parentheses. Parentheses don't just change the order — sometimes they also make code easier to read. Even when the order is already correct, there's no harm in adding parentheses to make your intent clearer.
 
 ```rust,editable
 fn main() {
