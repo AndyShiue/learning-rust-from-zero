@@ -51,5 +51,5 @@ fn main() {
 - `match` guard: append `if condition` after a pattern for an extra check.
 - Syntax: `pattern if condition => ...`.
 - The arm runs only when the pattern matches **and** the condition is `true`.
-- Guards can use variables bound in the pattern (like `x if x > 0`).
+- Guards can use variables bound by the same arm's pattern, as in `x if x > 0 => ...`.
 - Guard conditions don't count toward exhaustiveness — you usually still need a `_` default arm.
