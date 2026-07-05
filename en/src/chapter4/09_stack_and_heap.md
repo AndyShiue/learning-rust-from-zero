@@ -40,7 +40,7 @@ So when we said "a move is handing over the keychain":
 
 Now it should click: integers (`i32` etc.) are like the little charms on the keychain — entirely on the stack, tiny, zero-cost to copy. So Rust makes them `Copy` automatically.
 
-Types like `String` (coming soon) keep their data on the heap. Copying that freely would mean duplicating everything in the safe — expensive. So Rust uses moves, and copying requires an explicit `.clone()`.
+Types like `String` (coming soon) keep their data on the heap. Replicating that freely would mean replicating everything in the safe — expensive. So Rust uses moves, and full replication requires an explicit `.clone()`.
 
 ## Example Code
 
@@ -85,4 +85,4 @@ fn main() {
 - **Heap**: flexible, variable sizes. Large or dynamically sized data goes here.
 - Keychain analogy unveiled: charms = stack data, safe = heap data, key = pointer.
 - Integers are `Copy` because they live entirely on the stack — copying costs practically nothing.
-- Heap data moves by default (only the key is transferred); a full copy takes `clone` (duplicating the safe's contents).
+- Heap data moves by default (only the key is transferred); full replication takes `clone` (replicating the safe's contents).

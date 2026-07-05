@@ -21,7 +21,7 @@ use std::sync::Arc;
 
 fn main() {
     let a = Arc::new(String::from("hello"));
-    let b = Arc::clone(&a); // 增加計數，不複製資料
+    let b = Arc::clone(&a); // 增加計數，不建立內部資料副本
     println!("計數 = {}", Arc::strong_count(&a)); // 2
 }
 ```

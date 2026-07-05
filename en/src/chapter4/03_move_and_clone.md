@@ -2,7 +2,7 @@
 
 ## Goal of This Episode
 
-Understand Rust's move semantics — both assignment and passing into a function transfer ownership — and copy data with `Clone`.
+Understand Rust's move semantics — both assignment and passing into a function transfer ownership — and replicate data with `Clone`.
 
 ## Concept
 
@@ -50,9 +50,9 @@ fn main() {
 
 Because a function's parameter is like a new variable — the value gets "handed" to it.
 
-### `Clone`: a Full Copy
+### `Clone`: Full Replication
 
-If you need to keep the original value and also want a duplicate, use **`Clone`**.
+If you need to keep the original value and also want a replica, use **`Clone`**.
 
 First, add `#[derive(Clone)]` to your type (throwing in `Debug` too, why not):
 
@@ -66,7 +66,7 @@ struct Point {
 # fn main() {}
 ```
 
-Then copy with `.clone()`:
+Then replicate the value with `.clone()`:
 
 ```rust,editable
 #[derive(Debug, Clone)]
@@ -77,13 +77,13 @@ struct Point {
 
 fn main() {
     let p1 = Point { x: 1, y: 2 };
-    let p2 = p1.clone();  // Make a copy; p1 survives
+    let p2 = p1.clone();  // Replicate p1; p1 survives
     println!("{:?}", p1); // OK! p1 is still usable
-    println!("{:?}", p2); // p2 is an independent copy
+    println!("{:?}", p2); // p2 is an independent replica
 }
 ```
 
-Recall Episode 1's analogy: `clone` is "duplicating the entire keychain and safe." Each variable owns its own data, with no interference.
+Recall Episode 1's analogy: `clone` is "replicating the entire keychain and safe." Each variable owns its own data, with no interference.
 
 ### Integers Don't Move?
 
@@ -115,7 +115,7 @@ fn print_point(p: Point) {
 fn main() {
     let p1 = Point { x: 10, y: 20 };
 
-    // Clone a copy so p1 doesn't get moved away
+    // Use clone to make a replica so p1 doesn't get moved away
     let p2 = p1.clone();
     println!("p1 = {:?}", p1);
     println!("p2 = {:?}", p2);
@@ -135,6 +135,6 @@ fn main() {
 
 - `let p2 = p1;` **moves** — afterward `p1` can't be used.
 - Passing a value into a function is also a move.
-- `#[derive(Clone)]` + `.clone()` makes an independent copy.
+- `#[derive(Clone)]` + `.clone()` makes an independent replica.
 - After a `clone`, the original variable remains usable.
 - Integers (`i32` and friends) don't move — next episode explains why.

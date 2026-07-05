@@ -123,7 +123,7 @@ impl Future for Delay {
         } else {
             if !this.started {
                 this.started = true;
-                let waker = cx.waker().clone(); // 拿一份 Waker 給計時 Thread
+                let waker = cx.waker().clone(); // 建立一份 Waker 副本給計時 Thread
                 let when = this.when;
                 thread::spawn(move || {
                     let now = Instant::now();

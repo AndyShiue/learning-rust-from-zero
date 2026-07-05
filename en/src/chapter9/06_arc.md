@@ -21,7 +21,7 @@ use std::sync::Arc;
 
 fn main() {
     let a = Arc::new(String::from("hello"));
-    let b = Arc::clone(&a); // Bumps the count; no data copied
+    let b = Arc::clone(&a); // Bumps the count; no inner data replicated
     println!("Count = {}", Arc::strong_count(&a)); // 2
 }
 ```

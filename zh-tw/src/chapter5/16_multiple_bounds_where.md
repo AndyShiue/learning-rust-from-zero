@@ -16,7 +16,7 @@
 fn show_clone<T: Clone + std::fmt::Display>(x: &T) {
     let cloned = x.clone();
     println!("原始：{}", x);
-    println!("克隆：{}", cloned);
+    println!("副本：{}", cloned);
 }
 #
 # fn main() {}
@@ -35,7 +35,7 @@ where
 {
     let cloned = x.clone();
     println!("原始：{}", x);
-    println!("克隆：{}", cloned);
+    println!("副本：{}", cloned);
 }
 #
 # fn main() {}
@@ -66,9 +66,9 @@ where
 use std::fmt::Display;
 
 // 多個 trait bound：Clone + Display
-// clone 一份，印出原始值，然後回傳複製品
+// 用 clone 建立一份副本，印出原始值，然後回傳副本
 fn clone_and_show<T: Clone + Display>(x: &T) -> T {
-    println!("複製了：{}", x);
+    println!("建立副本：{}", x);
     x.clone()
 }
 
@@ -84,10 +84,10 @@ where
 fn main() {
     // 多個 trait bound
     let cloned = clone_and_show(&42);
-    println!("拿到的複製品：{}", cloned);
+    println!("拿到的副本：{}", cloned);
 
     let cloned2 = clone_and_show(&String::from("hello"));
-    println!("拿到的複製品：{}", cloned2);
+    println!("拿到的副本：{}", cloned2);
 
     // where 子句
     show_pair(&10, &"world");

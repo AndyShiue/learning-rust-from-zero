@@ -123,7 +123,7 @@ impl Future for Delay {
         } else {
             if !this.started {
                 this.started = true;
-                let waker = cx.waker().clone(); // give a copy of the Waker to the timing Thread
+                let waker = cx.waker().clone(); // give a Waker replica to the timing Thread
                 let when = this.when;
                 thread::spawn(move || {
                     let now = Instant::now();

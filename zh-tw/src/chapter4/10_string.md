@@ -94,7 +94,7 @@ fn main() {
     // String 會 move（不是 Copy）
     let s1 = String::from("Rust");
     // let s2 = s1; // 如果這樣寫，s1 就被 move 走了，不能再用
-    let s2 = s1.clone(); // 用 clone 複製一份，s1 還在
+    let s2 = s1.clone(); // 用 clone 建立一份副本，s1 還在
     println!("s1 = {}", s1);
     println!("s2 = {}", s2);
 

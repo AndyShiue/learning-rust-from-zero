@@ -2,7 +2,7 @@
 
 ## 本集目標
 
-理解 Rust 的 move 語意——賦值和傳入函數都會轉移所有權——以及用 `Clone` 來複製資料。
+理解 Rust 的 move 語意——賦值和傳入函數都會轉移所有權——以及用 `Clone` 來建立資料副本。
 
 ## 概念說明
 
@@ -50,7 +50,7 @@ fn main() {
 
 因為函數的參數就像一個新的變數，值被「交」給了它。
 
-### `Clone`：完整複製一份
+### `Clone`：建立完整副本
 
 如果你需要保留原本的值，又想要一份副本，就用 **`Clone`**。
 
@@ -66,7 +66,7 @@ struct Point {
 # fn main() {}
 ```
 
-然後用 `.clone()` 來複製：
+然後用 `.clone()` 來建立副本：
 
 ```rust,editable
 #[derive(Debug, Clone)]
@@ -77,13 +77,13 @@ struct Point {
 
 fn main() {
     let p1 = Point { x: 1, y: 2 };
-    let p2 = p1.clone();  // 複製一份，p1 還在
+    let p2 = p1.clone();  // 建立一份副本，p1 還在
     println!("{:?}", p1); // OK！p1 還能用
     println!("{:?}", p2); // p2 是獨立的副本
 }
 ```
 
-回想第 1 集的比喻：`clone` 就是「複製一份完整的鑰匙圈和保險箱」。兩個變數各自擁有自己的資料，互不干擾。
+回想第 1 集的比喻：`clone` 就是「建立一份完整的鑰匙圈和保險箱副本」。兩個變數各自擁有自己的資料，互不干擾。
 
 ### 整數不會 move？
 
@@ -115,7 +115,7 @@ fn print_point(p: Point) {
 fn main() {
     let p1 = Point { x: 10, y: 20 };
 
-    // 用 clone 複製一份，這樣 p1 不會被 move 走
+    // 用 clone 建立一份副本，這樣 p1 不會被 move 走
     let p2 = p1.clone();
     println!("p1 = {:?}", p1);
     println!("p2 = {:?}", p2);
@@ -135,6 +135,6 @@ fn main() {
 
 - `let p2 = p1;` 會 **move**，之後 `p1` 不能再用。
 - 把值傳進函數也是 move。
-- `#[derive(Clone)]` + `.clone()` 可以複製一份獨立的副本。
+- `#[derive(Clone)]` + `.clone()` 可以建立一份獨立的副本。
 - `clone` 之後，原本的變數還可以繼續使用。
 - 整數（`i32` 等）不會 move——下一集會解釋為什麼。

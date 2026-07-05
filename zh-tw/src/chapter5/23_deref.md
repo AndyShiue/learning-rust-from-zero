@@ -138,14 +138,14 @@ fn main() {
 
 Rust 從外往內找方法：外層智慧指標自身的方法優先於內層型別的方法。
 
-一個常見的例子是 `clone`。`Rc` 本身有 `clone` 方法（增加參考計數），`T` 可能也有 `clone` 方法（深度複製資料）。直接呼叫 `.clone()` 會拿到 `Rc` 的 `clone`：
+一個常見的例子是 `clone`。`Rc` 本身有 `clone` 方法（增加參考計數），`T` 可能也有 `clone` 方法（建立資料的深度副本）。直接呼叫 `.clone()` 會拿到 `Rc` 的 `clone`：
 
 ```rust,noplayground
 use std::rc::Rc;
 
 fn main() {
     let a = Rc::new(String::from("hello"));
-    let b = a.clone(); // Rc 的 clone，增加參考計數，不複製 String
+    let b = a.clone(); // Rc 的 clone，增加參考計數，不建立 String 副本
 }
 ```
 
@@ -156,7 +156,7 @@ fn main() {
 #
 # fn main() {
 #     let a = Rc::new(String::from("hello"));
-    let c = (*a).clone(); // String 的 clone，真的複製了一份 String
+    let c = (*a).clone(); // String 的 clone，真的建立了一份 String 副本
 # }
 ```
 
@@ -196,7 +196,7 @@ fn main() {
     // clone 的優先順序
     let a = Rc::new(String::from("shared"));
     let b = a.clone();       // Rc 的 clone（快，只增加計數）
-    let c = (*a).clone();    // String 的 clone（慢，複製整個 String）
+    let c = (*a).clone();    // String 的 clone（慢，建立整個 String 的副本）
     println!("a = {}, b = {}, c = {}", a, b, c);
     println!("Rc 計數 = {}", Rc::strong_count(&a)); // 2，不是 3
 }

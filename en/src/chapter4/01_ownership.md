@@ -36,13 +36,13 @@ This is what's called a "data race." Rust's ownership rules exist to **prevent t
 
 ### `clone` = Buying a New Safe
 
-But what if I really need two identical copies of the data?
+But what if I really need two identical replicas of the data?
 
-The answer: **don't copy the key — buy a new safe, duplicate the contents into it, and cut a brand-new key for it.**
+The answer: **don't copy the key — buy a new safe, replicate the contents into it, and cut a brand-new key for it.**
 
 Now each person has their own safe and their own key, without interfering with each other.
 
-In Rust, this is called **`clone`**. It makes a complete copy of the data, producing a brand-new, independent duplicate.
+In Rust, this is called **`clone`**. It produces a brand-new, independent replica.
 
 ### Why Is Rust So Strict?
 
@@ -55,5 +55,5 @@ That's Rust's core philosophy: **prevent errors at compile time, rather than wai
 - Every value has one "owner," just as every keychain is in exactly one person's hands.
 - **Move**: hand the keychain to someone else, and you no longer have it.
 - You can't simply copy a key to open the same safe — that risks data races.
-- **`clone`**: buy a new safe + duplicate the contents + cut a new key — two fully independent copies.
+- **`clone`**: buy a new safe + replicate the contents + cut a new key — two fully independent replicas.
 - Rust enforces ownership rules at compile time, preventing data races.

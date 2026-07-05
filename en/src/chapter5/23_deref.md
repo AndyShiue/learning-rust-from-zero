@@ -138,14 +138,14 @@ fn main() {
 
 Rust searches for methods from the outside in: the outer smart pointer's own methods take priority over the inner type's.
 
-A common example is `clone`. `Rc` itself has a `clone` method (bumping the reference count), and `T` may have a `clone` method too (deep-copying the data). Calling `.clone()` directly gets you `Rc`'s `clone`:
+A common example is `clone`. `Rc` itself has a `clone` method (bumping the reference count), and `T` may have a `clone` method too (deep-replicating the data). Calling `.clone()` directly gets you `Rc`'s `clone`:
 
 ```rust,noplayground
 use std::rc::Rc;
 
 fn main() {
     let a = Rc::new(String::from("hello"));
-    let b = a.clone(); // Rc's clone: bumps the count, doesn't copy the String
+    let b = a.clone(); // Rc's clone: bumps the count, doesn't replicate the String
 }
 ```
 
@@ -156,7 +156,7 @@ If you want the inner `String`'s `clone`, spell it out:
 #
 # fn main() {
 #     let a = Rc::new(String::from("hello"));
-    let c = (*a).clone(); // String's clone: truly copies the String
+    let c = (*a).clone(); // String's clone: truly replicates the String
 # }
 ```
 
@@ -196,7 +196,7 @@ fn main() {
     // clone priority
     let a = Rc::new(String::from("shared"));
     let b = a.clone();       // Rc's clone (fast; only bumps the count)
-    let c = (*a).clone();    // String's clone (slow; copies the whole String)
+    let c = (*a).clone();    // String's clone (slow; replicates the whole String)
     println!("a = {}, b = {}, c = {}", a, b, c);
     println!("Rc count = {}", Rc::strong_count(&a)); // 2, not 3
 }

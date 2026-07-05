@@ -94,7 +94,7 @@ fn main() {
     // String moves (it's not Copy)
     let s1 = String::from("Rust");
     // let s2 = s1; // Writing this would move s1 away, making it unusable
-    let s2 = s1.clone(); // Clone a copy; s1 survives
+    let s2 = s1.clone(); // Make a replica with clone; s1 survives
     println!("s1 = {}", s1);
     println!("s2 = {}", s2);
 
