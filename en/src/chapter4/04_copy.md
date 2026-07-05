@@ -31,9 +31,9 @@ You can think of Copy as: "This thing is so small and simple that copying it cos
 These types are born with Copy:
 
 - Integers: `i8`, `i16`, `i32`, `i64`, `i128`, `u8`, `u16`, `u32`, `u64`, `u128`, `isize`, `usize`.
-- Floats: `f32`, `f64`
+- Floats: `f32`, `f64`.
 - Booleans: `bool`.
-- Characters: `char`
+- Characters: `char`.
 - ...and plenty of other types.
 
 Additionally, **tuples** and **arrays** are `Copy` as a whole if every element inside is `Copy`:
