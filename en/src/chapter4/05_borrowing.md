@@ -11,7 +11,7 @@ Learn to borrow values with `&` — letting others read your data without a move
 So far we've learned two ways to deal with ownership:
 
 - **move**: hand it over and it's gone; the original variable can't be used.
-- **`clone`**: replicate the data — but if the data is large, replication is wasteful.
+- **`clone`**: replicate the data (true for every type we've met so far) — but if the data is large, replication is wasteful.
 
 Is there a way to **neither hand it over nor replicate it — just lend it out for a look**?
 
