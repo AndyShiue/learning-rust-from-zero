@@ -50,7 +50,7 @@ fn main() {
 
 Because a function's parameter is like a new variable — the value gets "handed" to it.
 
-### `Clone`: Full Replication
+### `Clone`: Replication
 
 If you need to keep the original value and also want a replica, use **`Clone`**.
 
