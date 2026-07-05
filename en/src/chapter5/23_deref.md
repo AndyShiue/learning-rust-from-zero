@@ -138,7 +138,7 @@ fn main() {
 
 Rust searches for methods from the outside in: the outer smart pointer's own methods take priority over the inner type's.
 
-A common example is `clone`. `Rc` itself has a `clone` method (bumping the reference count), and `T` may have a `clone` method too (deep-replicating the data). Calling `.clone()` directly gets you `Rc`'s `clone`:
+A common example is `clone`. `Rc` itself has a `clone` method (cutting an extra key and bumping the reference count), and `T` may have a `clone` method too (normally replicating the whole data). Calling `.clone()` directly gets you `Rc`'s `clone`:
 
 ```rust,noplayground
 use std::rc::Rc;

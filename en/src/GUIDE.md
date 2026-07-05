@@ -200,7 +200,7 @@ Avoid synonyms that the book doesn't use (e.g. say "borrowing," not "loaning"; s
 The book's signature analogies:
 
 - **Ownership = a keychain**: every value has a keychain, and a keychain can be in only one person's hands; hand it over and it's gone.
-- **clone = buying a new safe**: to have two replicas of the same data, buy a new safe, replicate the contents, cut a new key — two fully independent replicas.
+- **clone = replicate the keychain, while making sure it causes no trouble**: most types do it by buying a new safe, replicating the contents, and cutting a new key — two fully independent replicas; `Rc`/`Arc` are the exception — they really just cut an extra key and bump the count, without replicating the safe's contents (see 5.22).
 - **Data race**: two people fiddling with the contents of the same safe at the same time ends badly.
 
 ---
