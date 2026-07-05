@@ -36,13 +36,13 @@ This is what's called a "data race." Rust's ownership rules exist to **prevent t
 
 ### `clone` = Get a New Keychain That Works Just Like the Original, and Make Sure It Causes No Trouble
 
-But what if I really do need a second usable set of the data?
+But what if I really do need a second usable keychain?
 
 Rust's answer is called **`clone`**. It means: **get a new keychain that works just like the one in your hand, while making sure that doing so causes no trouble.**
 
 The most common way to "make sure" is to leave the original key alone — buy a new safe, put a `clone` of everything inside into it, and hang a brand-new key on the new keychain. In the simplest case — plain data in the safe — each person ends up with their own safe and their own things, without interfering with each other: two fully independent sets.
 
-Not every type does it this way, though. Later you'll meet types that really do "just cut an extra key," relying on other mechanisms for safety. For now, every `clone` you encounter can be understood as "buy a new safe."
+Not every type does it this way, though. Later you'll meet types that really do "just cut an extra key," relying on other mechanisms for safety. For now, though, every `clone` you encounter can be understood as "buy a new safe."
 
 ### Why Is Rust So Strict?
 
