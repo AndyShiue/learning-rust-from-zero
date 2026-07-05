@@ -91,7 +91,7 @@ fn min_max(a: i32, b: i32) -> (i32, i32) {
 ## Recap
 
 - `let (x, y) = (1, 2);` breaks a tuple apart directly.
-- Destructuring a tuple reads better than `.0` and `.1`.
+- Destructuring a tuple sometimes reads better than `.0` and `.1`.
 - Combine with `_` to ignore single values, or `..` to ignore several.
 - `mut` modifies the binding, not the type — any binding position can take `mut`.
 - When a function returns a tuple, `let` destructuring extracts every value at once.

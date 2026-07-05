@@ -104,7 +104,7 @@ fn main() {
         println!("面積大約 {}", area);
     }
 
-    // 如果不是 Circle 就不會執行
+    // 如果不是 Circle，if let 的大括號裡就不會執行
     let s2 = Shape::Rectangle(10, 20);
 
     if let Shape::Circle(r) = s2 {

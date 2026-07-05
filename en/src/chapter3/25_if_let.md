@@ -104,7 +104,7 @@ fn main() {
         println!("Area roughly {}", area);
     }
 
-    // If it's not a Circle, nothing runs
+    // If it's not a Circle, the if-let body won't run
     let s2 = Shape::Rectangle(10, 20);
 
     if let Shape::Circle(r) = s2 {

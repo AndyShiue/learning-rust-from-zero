@@ -131,8 +131,8 @@ fn main() {
 
 ## Recap
 
-- Capital `Self` inside an `impl` block stands for "the current type."
-- `Self` works in return types `-> Self`, in construction `Self { ... }`, and with `enum` variants `Self::Red`.
+- Capital `Self` inside an `impl` block stands for "the current type," so it can appear where a type is needed.
+- `Self` works in parameter types, return types `-> Self`, construction `Self { ... }`, and `enum` variants `Self::Red`.
 - Lowercase `self` = the value itself; capital `Self` = the type itself.
 - `Self` works in both `struct` and `enum` `impl`s.
 - Using `Self` makes code more concise and easier to maintain.

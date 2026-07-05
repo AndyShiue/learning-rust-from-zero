@@ -131,8 +131,8 @@ fn main() {
 
 ## 重點整理
 
-- 大寫 `Self` 在 `impl` 區塊裡代表「目前的型別」。
-- `Self` 可以用在回傳型別 `-> Self`、建構值 `Self { ... }`、以及 `enum` variant `Self::Red`。
+- 大寫 `Self` 在 `impl` 區塊裡代表「目前的型別」，可以用在需要寫型別的地方。
+- `Self` 可以用在參數型別、回傳型別 `-> Self`、建構值 `Self { ... }`、以及 `enum` variant `Self::Red`。
 - 小寫 `self` = 值本身，大寫 `Self` = 型別本身。
 - `struct` 和 `enum` 的 `impl` 裡都可以用 `Self`。
 - 使用 `Self` 讓程式碼更簡潔，也更容易維護。
