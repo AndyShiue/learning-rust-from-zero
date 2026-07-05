@@ -138,7 +138,7 @@ fn main() {
 
 Rust 從外往內找方法：外層智慧指標自身的方法優先於內層型別的方法。
 
-一個常見的例子是 `clone`。`Rc` 本身有 `clone` 方法（多打一把鑰匙、增加參考計數），`T` 可能也有 `clone` 方法（一般是建立整份資料的副本）。直接呼叫 `.clone()` 會拿到 `Rc` 的 `clone`：
+一個常見的例子是 `clone`。`Rc` 本身有 `clone` 方法（多打一把鑰匙、增加參考計數），`T` 可能也有 `clone` 方法（做什麼由 `T` 自己決定）。直接呼叫 `.clone()` 會拿到 `Rc` 的 `clone`：
 
 ```rust,noplayground
 use std::rc::Rc;
