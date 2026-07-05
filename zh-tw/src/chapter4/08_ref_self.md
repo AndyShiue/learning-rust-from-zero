@@ -158,6 +158,6 @@ fn main() {
 - `&mut self`：可變借用，可以修改欄位，呼叫後還能繼續用。
 - `self`：消耗所有權，呼叫後變數就不能再用了。
 - 選擇原則：**只讀 → `&self`，要改 → `&mut self`，要消耗 → `self`**。
-- `Clone` 裡方法的定義是 `fn clone(&self) -> Self`——借用自己產生一份新的副本，所以 `clone` 不會消耗原本的值。
+- `Clone` 裡方法的定義是 `fn clone(&self) -> Self`——借用自己產生一個新的 `Self`，所以 `clone` 不會消耗原本的值。
 - 一般函數參數也一樣：**只讀 → `&T`，要改 → `&mut T`，要消耗 → `T`**。
 - 呼叫 method 時直接寫 `c.method()`。

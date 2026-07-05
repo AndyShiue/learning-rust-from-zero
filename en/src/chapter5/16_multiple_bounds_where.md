@@ -66,9 +66,9 @@ where
 use std::fmt::Display;
 
 // Multiple trait bounds: Clone + Display
-// Make a replica with clone, print the original, then return the replica
+// Print the original, then return a clone of it
 fn clone_and_show<T: Clone + Display>(x: &T) -> T {
-    println!("Cloned: {}", x);
+    println!("About to clone: {}", x);
     x.clone()
 }
 
@@ -84,10 +84,10 @@ where
 fn main() {
     // Multiple trait bounds
     let cloned = clone_and_show(&42);
-    println!("The replica received: {}", cloned);
+    println!("The clone received: {}", cloned);
 
     let cloned2 = clone_and_show(&String::from("hello"));
-    println!("The replica received: {}", cloned2);
+    println!("The clone received: {}", cloned2);
 
     // A where clause
     show_pair(&10, &"world");

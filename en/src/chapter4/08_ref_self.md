@@ -158,6 +158,6 @@ You may have noticed — when calling, we just write `c.display()` and `c.increm
 - `&mut self`: mutable borrow — can modify fields; the value stays usable after the call.
 - `self`: consumes ownership — the variable is unusable after the call.
 - Selection principle: **read → `&self`, modify → `&mut self`, consume → `self`**.
-- `Clone`'s method is defined as `fn clone(&self) -> Self` — borrowing itself to produce a new replica, so `clone` never consumes the original.
+- `Clone`'s method is defined as `fn clone(&self) -> Self` — borrowing itself to produce a new `Self`, so `clone` never consumes the original.
 - Ordinary function parameters likewise: **read → `&T`, modify → `&mut T`, consume → `T`**.
 - Call methods simply as `c.method()`.

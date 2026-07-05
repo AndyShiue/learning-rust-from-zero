@@ -85,4 +85,4 @@ fn main() {
 - **Heap**: flexible, variable sizes. Large or dynamically sized data goes here.
 - Keychain analogy unveiled: charms = stack data, safe = heap data, key = pointer.
 - Integers are `Copy` because they live entirely on the stack — copying costs practically nothing.
-- Heap data moves by default (only the key is transferred); for types like `String`, `clone` ensures safety by replicating the safe's entire contents.
+- Heap data moves by default (only the key is transferred); for types like `String`, `clone` ensures safety by basically replicating the safe's entire contents.
