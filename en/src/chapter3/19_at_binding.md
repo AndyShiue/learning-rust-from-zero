@@ -2,13 +2,13 @@
 
 ## Goal of This Episode
 
-Learn to use `@` to bind the matching value to a variable while matching a range.
+Learn to use `@` to bind the matching value to a variable while matching a pattern.
 
 ## Concept
 
 We've learned range patterns: `1..=5` matches values from 1 to 5. But there's a problem — after a match succeeds, you can't tell "was it 1, 2, 3, 4, or 5?" You only know it was in the range.
 
-`@` (the at sign) solves this. It lets you store the actual value in a variable at the same time as matching:
+`@` (the at sign) solves this. It lets you store the actual value in a variable at the same time as matching a pattern:
 
 ```rust,editable
 fn main() {
