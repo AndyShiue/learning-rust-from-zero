@@ -70,7 +70,7 @@ struct Point {
 
 Note: `#[derive(Copy)]` must always come with `Clone` — writing `#[derive(Copy)]` alone without `Clone` is a compile error.
 
-Why? Because Rust decrees: anything that can be copied must also be `clone`-able. `Copy` is "automatic copying"; `Clone` is "manual copying." If something can't even be copied manually, it certainly can't be copied automatically. So `Copy` requires `Clone` first.
+Why? Because Rust decrees: anything that can be copied must also be `clone`-able. `Copy` is "automatic copying"; `Clone` is "calling `.clone()` by hand." If something can't even be `clone`d manually, it certainly shouldn't be copied automatically. So `Copy` requires `Clone` first.
 
 Once added, `Point` behaves just like an integer — assignment doesn't move:
 
@@ -93,8 +93,8 @@ fn main() {
 | | copy | `clone` |
 |---|---|---|
 | Triggered by | Automatic (assignment, passing into functions) | Manual (`.clone()`) |
-| Suited to | Small, simple data | Any data |
-| Restrictions | Every field must be `Copy` | No special restrictions |
+| Suited to | Small, simple data | Virtually all data |
+| Prerequisite to implement | All contents must be `Copy` | None |
 
 In short: **copy is automatic duplication; `clone` is manual duplication.**
 
@@ -148,7 +148,7 @@ Having read this episode, you might think: "So why don't I just add `#[derive(Co
 
 And then the trouble starts: with `Copy` gone, every `let p2 = p1;` flips from "automatic copy" to "move," and `p1` stops being usable. All the code using this type may break — potentially in many, scattered places.
 
-So the good habit is: **only add `Copy` when you're sure the type will always stay small and simple and never gain a non-`Copy` field.** Something like `Point { x: i32, y: i32 }` is a great fit. When unsure, add only `Clone` — write `.clone()` manually when you need a copy, and future changes won't ripple through other code.
+So the good habit is: **only add `Copy` when you're sure the type will always stay small and simple and never gain a non-`Copy` field.** Something like `Point { x: i32, y: i32 }` is a great fit. When unsure, add only `Clone` — write `.clone()` manually when you need it, and future changes won't ripple through other code.
 
 ## Recap
 
@@ -158,5 +158,5 @@ So the good habit is: **only add `Copy` when you're sure the type will always st
 - Tuples behave this way for many `trait`s (`Copy`, `Clone`, etc.): all elements implement it → the tuple implements it.
 - Custom `struct`s can take `#[derive(Copy, Clone)]`, but every field must be a `Copy` type.
 - `Copy` must be `derive`d together with `Clone`.
-- **`Copy` = automatic copying; `Clone` = manual copying (`.clone()`)**
+- **`Copy` = automatic copying; `Clone` = calling `.clone()` by hand**
 - Don't add `Copy` casually — removing it later breaks all the code that relied on auto-copying. When unsure, just add `Clone`.
