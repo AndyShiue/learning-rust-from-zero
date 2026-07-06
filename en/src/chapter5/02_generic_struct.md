@@ -8,7 +8,7 @@ Learn to define `struct`s with type parameters, so one structure can hold data o
 
 Last episode we learned generic functions. Well, `struct`s can have type parameters too!
 
-Recall that `Vec<i32>` and `Vec<String>` are the same `struct` definition, just holding different types. We can define generic `struct`s of our own the same way.
+For example, `Vec<T>` is a generic `struct`: `Vec<i32>` and `Vec<String>` use the same `struct` definition, just holding different types. We can define generic `struct`s of our own the same way.
 
 ### Defining a Generic `struct`
 
