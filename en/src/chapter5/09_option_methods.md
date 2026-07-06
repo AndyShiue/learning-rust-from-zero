@@ -17,7 +17,7 @@ Last episode we handled `Option` with `match`, the safest way. But writing `matc
 # }
 ```
 
-If it's `Some`, you get the value inside directly. But if it's `None`, the program panics (crashes)! So use `unwrap` with care — only when you're **certain** it can't be `None`.
+If it's `Some`, you get the value inside directly. But if it's `None`, the program panics (crashes)! So use `unwrap` with care — usually when you're certain it can't be `None`.
 
 ### `expect`: `unwrap` with a Message
 
