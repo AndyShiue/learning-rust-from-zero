@@ -56,13 +56,9 @@ trait Describe {
 # fn main() {}
 ```
 
-`description` has a default implementation that calls `name()` to build the string. When implementing `Describe`, you only need to supply `name()` — `description()` automatically uses the default.
+`description` has a default implementation that calls `.name()` to build the string. When implementing `Describe`, you only need to supply `.name()` — `description()` automatically uses the default.
 
 Of course, you can also override the default with your own version.
-
-### Default Implementations Can Call Other Methods
-
-Notice the default `description` above calls `self.name()`. That's allowed — a default implementation may use other methods of the same `trait`. This enables designs where "provide a few basic methods, and the rest come for free."
 
 ## Example Code
 

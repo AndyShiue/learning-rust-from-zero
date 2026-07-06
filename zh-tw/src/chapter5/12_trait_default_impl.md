@@ -56,13 +56,9 @@ trait Describe {
 # fn main() {}
 ```
 
-`description` 有預設實作，它呼叫了 `name()` 來組合字串。實作 `Describe` 的時候，只需要提供 `name()` 就好——`description()` 會自動使用預設版本。
+`description` 有預設實作，它呼叫了 `.name()` 來組合字串。實作 `Describe` 的時候，只需要提供 `.name()` 就好——`description()` 會自動使用預設版本。
 
 當然，你也可以覆寫預設實作，提供自己的版本。
-
-### 預設實作可以呼叫其他方法
-
-注意上面的 `description` 預設實作裡呼叫了 `self.name()`。這是允許的——預設實作可以使用同一個 `trait` 中的其他方法。這讓你可以建立「只要提供幾個基本方法，其他方法就自動有了」的設計。
 
 ## 範例程式碼
 
