@@ -28,7 +28,7 @@ Rust **calls `drop` automatically** when the value leaves scope. You can't call 
 
 ### Releasing Early by Hand
 
-To release a value early, use `drop()`:
+To release a value early, use `drop(value)`:
 
 ```rust,editable
 struct MyType { name: String }

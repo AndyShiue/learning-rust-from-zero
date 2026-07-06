@@ -28,7 +28,7 @@ Rust 會在值離開作用域時**自動呼叫** `drop`。你不能手動呼叫 
 
 ### 手動提前釋放
 
-如果你想提前釋放一個值，用 `drop()`：
+如果你想提前釋放一個值，用 `drop(value)`：
 
 ```rust,editable
 struct MyType { name: String }
