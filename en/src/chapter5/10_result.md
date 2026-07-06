@@ -47,9 +47,9 @@ Now we can finally understand Chapter 1's "black box" code in full.
 
 Like `Option`, `Result` has:
 
-- `unwrap()`: extract the value on success; panic on failure.
-- `expect("message")`: like `unwrap`, with a custom panic message.
-- `unwrap_or(default)`: use the default on failure.
+- `.unwrap()`: extract the value on success; panic on failure.
+- `.expect("message")`: like `unwrap`, with a custom panic message.
+- `.unwrap_or(default)`: use the default on failure.
 
 ## Example Code
 
@@ -100,5 +100,5 @@ fn main() {
 - `Result<T, E>` expresses "success (`Ok`) or failure (`Err`)" — `Option` plus error information.
 - `Ok(T)` corresponds to success; `Err(E)` to failure.
 - Like `Option`, `Result`, `Ok`, and `Err` come pre-imported in every file.
-- `unwrap()`, `expect()`, and `unwrap_or()` work exactly as they do with `Option`.
+- `unwrap`, `expect`, and `unwrap_or` work exactly as they do with `Option`.
 - Chapter 1's `.parse().expect(...)` was using `Result` all along — now we understand.
