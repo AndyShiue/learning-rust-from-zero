@@ -33,7 +33,7 @@ Yes! That's **borrowing**, using the `&` symbol.
 
 `&p` means: "I'm not taking ownership of `p` — I'm just borrowing it for a look." `p` is still there and remains usable afterward; as for the restrictions during a borrow, we'll lay those out later.
 
-The thing `&p` produces (that is, `r`) is called a **reference**, with the type written `&Point`. And "looking at someone's data through a reference without taking ownership" is what we call **borrowing**. References and borrowing are two sides of one coin: the reference is the "IOU slip," and borrowing is the act of "taking something to look at." From here on, "reference" always means a value borrowed with `&`.
+The thing `&p` produces (that is, `r`) is called a **reference**, with the type written `&Point`. And "looking at someone's data through a reference without taking ownership" is what we call **borrowing**. Borrowing and references are two sides of one coin: **borrowing** is the act of "taking something for a look," and a **reference** is the pass that act hands you — holding it lets you go look at the data. From here on, the word "reference" usually means a value borrowed with `&`.
 
 ### Function Parameters with `&` Don't Move
 
@@ -103,7 +103,7 @@ Note: the `&[T]` and `&str` we met earlier are special — you can't use `*` on 
 
 ### Every `&T` Is `Copy`
 
-Last episode we learned Copy — some types copy automatically on assignment rather than moving. Whatever `T` is, `&T` is Copy. After all, a reference is just a borrow — copying a reference doesn't affect the original data; it just means one more onlooker:
+Last episode we learned `Copy` — some types copy automatically on assignment rather than moving. Whatever `T` is, `&T` is `Copy`. After all, a reference is just a borrow — copying a reference doesn't affect the original data; it just means one more onlooker:
 
 ```rust,editable
 #[derive(Debug)]

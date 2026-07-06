@@ -50,7 +50,7 @@ fn sum(nums: &[i32]) -> i32 {
 
 fn main() {
     let v = vec![1, 2, 3, 4, 5];
-    let total = sum(&v); // &Vec 自動轉成 &[i32]
+    let total = sum(&v); // &i32 的 Vec 自動轉成 &[i32]
     println!("v 還在：{:?}", v);
 }
 ```
@@ -94,7 +94,7 @@ fn main() {
 ## 範例程式碼
 
 ```rust,editable
-// 參數用切片：&Vec 自動轉 &[i32]
+// 參數用切片：i32 的 &Vec 自動轉 &[i32]
 fn sum(nums: &[i32]) -> i32 {
     let mut total = 0;
     for x in nums {
@@ -155,18 +155,18 @@ fn main() {
     // Vec     ↔ &[T]     （擁有 ↔ 借用 一組值）
     println!("--- 對稱關係 ---");
     let s = String::from("hello");
-    let s_ref: &str = &s;     // &String → &str
+    let s_ref: &str = &s; // &String → &str
     println!("String: {}, &str: {}", s, s_ref);
 
     let v = vec![1, 2, 3];
-    let v_ref: &[i32] = &v;   // &Vec → &[i32]
+    let v_ref: &[i32] = &v; // i32 的 &Vec → &[i32]
     println!("Vec: {:?}, slice: {:?}", v, v_ref);
 }
 ```
 
-## `Vec` 的元素只能是 `i32` 嗎？
+## 「裝 `i32` 的 `Vec`」的型別怎麼寫？
 
-讀到這裡你可能有個疑問：`Vec` 的元素只能是 `i32` 嗎？當然不是！下一章將會花大量篇幅討論相關內容。
+這一集我們一直說「`i32` 的 `Vec`」，但你可能已經注意到：程式碼裡從來沒把這個型別寫出來過——變數的型別都靠 Rust 自己推導，函數參數也只寫了切片 `&[i32]`。如果哪天你需要親手寫出它（比如當函數的參數或回傳值型別），該怎麼寫？還有上面表格裡 `&[T]` 的那個 `T`，到底可以是什麼？這兩個問題的答案是同一個機制——下一章會花大量篇幅討論。
 
 ## 重點整理
 
@@ -177,6 +177,6 @@ fn main() {
 - `for x in v`：**move**，消耗整個 `Vec`。
 - `for x in &v`：**borrow**，只是借用，`Vec` 還在。
 - 大部分情況用 `for x in &v`，除非你確定不再需要這個 `Vec`。
-- `Vec` 的元素不只能放 `i32`——下一章會學到怎麼讓它放其他型別。
+- 我們始終沒把「裝 `i32` 的 `Vec`」的型別親手寫出來——怎麼寫，以及 `&[T]` 的 `T` 是什麼，下一章揭曉。
 
 恭喜你完成了第 4 章！🎉 這一章你學會了 Rust 最核心的概念——所有權、move、`clone`、`Copy`、borrowing，還有 `String` 和 `Vec` 這兩個最常用的非 `Copy` 型別。這些概念是 Rust 和其他語言最大的不同，也是 Rust 能在不需要犧牲效能的情況下保證記憶體安全的關鍵。下一章我們將進入泛型、`trait` bound 和生命週期——讓你的程式碼能處理任意型別，同時保持型別安全！

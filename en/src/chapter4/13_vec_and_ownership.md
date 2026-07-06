@@ -50,7 +50,7 @@ fn sum(nums: &[i32]) -> i32 {
 
 fn main() {
     let v = vec![1, 2, 3, 4, 5];
-    let total = sum(&v); // &Vec auto-converts to &[i32]
+    let total = sum(&v); // &Vec of i32 auto-converts to &[i32]
     println!("v is still here: {:?}", v);
 }
 ```
@@ -94,7 +94,7 @@ Most of the time you should use `for x in &v`, unless you're certain you won't n
 ## Example Code
 
 ```rust,editable
-// Slice parameters: &Vec auto-converts to &[i32]
+// Slice parameters: &Vec of i32 auto-converts to &[i32]
 fn sum(nums: &[i32]) -> i32 {
     let mut total = 0;
     for x in nums {
@@ -155,18 +155,18 @@ fn main() {
     // Vec     ↔ &[T]     (own ↔ borrow, a set of values)
     println!("--- The symmetry ---");
     let s = String::from("hello");
-    let s_ref: &str = &s;     // &String → &str
+    let s_ref: &str = &s; // &String → &str
     println!("String: {}, &str: {}", s, s_ref);
 
     let v = vec![1, 2, 3];
-    let v_ref: &[i32] = &v;   // &Vec → &[i32]
+    let v_ref: &[i32] = &v; // & of i32 → &[i32]
     println!("Vec: {:?}, slice: {:?}", v, v_ref);
 }
 ```
 
-## Can a `Vec` Only Hold `i32`?
+## How Do You Write the Type of "a `Vec` of `i32`"?
 
-By now you might be wondering: can a `Vec`'s elements only be `i32`? Of course not! The next chapter spends a great deal of time on exactly that.
+Throughout this episode we kept saying "a `Vec` of `i32`" — but you may have noticed the code never once spelled that type out. Variable types were all inferred by Rust, and function parameters only used the slice `&[i32]`. What if you someday need to write it by hand (say, as a parameter or return type)? And what exactly can that `T` in `&[T]` from the table above be? Both questions have the same answer — and the next chapter spends a great deal of time on it.
 
 ## Recap
 
@@ -177,6 +177,6 @@ By now you might be wondering: can a `Vec`'s elements only be `i32`? Of course n
 - `for x in v`: **move** — consumes the whole `Vec`.
 - `for x in &v`: **borrow** — the `Vec` survives.
 - Mostly use `for x in &v`, unless you're sure you're done with the `Vec`.
-- A `Vec`'s elements aren't limited to `i32` — next chapter shows how to hold other types.
+- We never wrote out the type of "a `Vec` of `i32`" by hand — how to write it, and what the `T` in `&[T]` is, gets revealed next chapter.
 
 Congratulations on finishing Chapter 4! 🎉 In this chapter you learned Rust's most central concepts — ownership, moves, `clone`, `Copy`, borrowing — plus `String` and `Vec`, the two most commonly used non-`Copy` types. These concepts are Rust's biggest departure from other languages, and the key to how Rust guarantees memory safety without sacrificing performance. Next chapter, we move into generics, `trait` bounds, and lifetimes — letting your code handle arbitrary types while staying type-safe!

@@ -196,6 +196,6 @@ fn main() {
 - **`&` and `&mut` can't coexist** — either everyone reads, or exactly one person modifies.
 - **Multiple `&`s can coexist** — many simultaneous readers are fine.
 - **Dangling references**: a reference must point to a valid value — during a borrow you can't move the original, nor move a non-`Copy` value out from behind a reference.
-- A borrow ends after the reference's last use; afterward you can borrow again or move the original.
+- A borrow ends after the reference's last use; afterward you can move the original.
 - A reference can't outlive the value it points to — whether the value left its scope or a function returned a reference to a local.
 - These rules let Rust prevent data races at compile time; later we'll learn lifetimes for tracking reference validity more precisely.
