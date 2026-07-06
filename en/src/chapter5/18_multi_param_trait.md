@@ -117,5 +117,5 @@ fn main() {
 
 - A `trait` can take extra type parameters: `trait Convert<T> { ... }`.
 - One type can implement the same `trait` for different `T`s (e.g. `Convert<String>` and `Convert<(i32,)>`).
-- Unlike parameter-less `trait`s, which a type can implement only once.
+- Unlike `trait`s without extra parameters, which a type can implement only once.
 - Multi-parameter `trait`s give a unified home to "behavior involving another type."
