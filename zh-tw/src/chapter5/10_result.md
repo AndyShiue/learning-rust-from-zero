@@ -26,7 +26,7 @@ enum Result<T, E> {
 
 和 `Option` 一樣，`Result`、`Ok`、`Err` 也是 Rust 預設就引入到每個檔案裡的。
 
-### `Result` 和 `Option` 的對稱
+### `Option` 和 `Result` 的對稱
 
 | `Option` | `Result` |
 |----------|----------|

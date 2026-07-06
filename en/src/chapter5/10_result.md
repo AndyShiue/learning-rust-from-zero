@@ -26,7 +26,7 @@ enum Result<T, E> {
 
 Like `Option`, `Result`, `Ok`, and `Err` are imported into every file by default.
 
-### The Symmetry between `Result` and `Option`
+### The Symmetry between `Option` and `Result`
 
 | `Option` | `Result` |
 |----------|----------|
