@@ -103,8 +103,9 @@ Rust treats the `*p` part roughly like this:
 
 ```rust,noplayground
 # use std::ops::Deref;
+#
 # fn main() {
-# let p = Box::new(10);
+#     let p = Box::new(10);
     let n = *Deref::deref(&p);
 # }
 ```
@@ -124,6 +125,7 @@ The mutable version is `DerefMut`. In simplified form, it looks like this:
 #     type Target;
 #     fn deref(&self) -> &Self::Target;
 # }
+#
 trait DerefMut: Deref {
     fn deref_mut(&mut self) -> &mut Self::Target;
 }
@@ -139,7 +141,7 @@ For example:
 
 ```rust,noplayground
 # fn main() {
-# let mut p = Box::new(String::from("hello"));
+#     let mut p = Box::new(String::from("hello"));
     *p = String::from("world");
 # }
 ```
@@ -148,8 +150,9 @@ Since the left side is `*p`, Rust needs mutable access to the inner value. It tr
 
 ```rust,noplayground
 # use std::ops::DerefMut;
+#
 # fn main() {
-# let mut p = Box::new(String::from("hello"));
+#     let mut p = Box::new(String::from("hello"));
     *DerefMut::deref_mut(&mut p) = String::from("world");
 # }
 ```
