@@ -23,7 +23,7 @@ fn main() {
 
 `Rc<i32>` is not an `i32`, but Rust can use the key to reach the `i32` inside. Here, `i32` is `Copy`, so assigning `*value` into `number` creates another `i32` value.
 
-This does **not** mean `*` can always move the inner value out:
+If the inner value isn't `Copy` — say a `String` — you can't move it out this way, just as you'd expect from how borrowing worked in Chapter 4:
 
 ```rust,compile_fail
 use std::rc::Rc;
@@ -44,7 +44,7 @@ The mechanism behind this is the `Deref` `trait`. We do not need its exact defin
 
 That reference is the important part. `Deref` gives Rust a **reference** to the inner value. It does not, by itself, give ownership of the inner value.
 
-`Rc<T>` and `Box<T>` both implement `Deref`. Some standard collection types also implement it, but in this episode we focus on smart pointers.
+`Rc<T>` and `Box<T>` both implement `Deref`. Types like these — whose whole job is to be the key to some inner value, managing it and letting Rust reach it through `Deref` — are commonly called **smart pointers**. Some other standard library types (like `String` and `Vec<T>`) implement `Deref` too, even though being a key isn't their main job; in this episode we focus on smart pointers.
 
 ### What Happens behind `*v`
 
@@ -257,8 +257,8 @@ fn main() {
 
     // Method-name priority: Rc's .clone() wins over String's .clone().
     let a = Rc::new(String::from("shared"));
-    let b = a.clone();       // Rc .clone(): bumps the count
-    let c = (*a).clone();    // String .clone(): creates a new String
+    let b = a.clone();    // Rc .clone(): bumps the count
+    let c = (*a).clone(); // String .clone(): creates a new String
     println!("a = {}, b = {}, c = {}", a, b, c);
     println!("Rc count = {}", Rc::strong_count(&a)); // 2, not 3
 
@@ -278,3 +278,4 @@ fn main() {
 - `DerefMut` gives mutable access to the inner value; `Box<T>` supports it, while `Rc<T>` does not.
 - On method-name collisions, the outer type wins; `Rc`'s `.clone()` is chosen before the inner value's `.clone()`.
 - Moving a non-`Copy` value out with `*box_value` is special support for `Box<T>`, not ordinary `Deref` behavior.
+      
