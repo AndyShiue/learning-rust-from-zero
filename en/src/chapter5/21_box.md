@@ -8,7 +8,7 @@ Learn to put data on the heap with `Box<T>`, and understand why it's necessary f
 
 Remember Chapter 4's safe analogy? A key hangs on the keychain, the key opens a safe, and the safe holds the real goods.
 
-`Box<T>` is that safe — it puts the data on the heap, leaving a key (a pointer) on the stack.
+`Box<T>` is the key to that safe — the data lives on the heap, and the `Box` value on the stack lets Rust reach it.
 
 ### Why Do We Need `Box`?
 
@@ -95,7 +95,7 @@ fn main() {
 
     print_list(&list);
 
-    // A Box is the sole owner — the key isn't Copy, so let b = a is a move
+    // A Box is a single key — the key isn't Copy, so let b = a is a move
     let a = Box::new(String::from("hello"));
     let b = a; // The key passes from a to b, leaving a empty
     // println!("{}", a); // Compile error! a has been moved
@@ -108,4 +108,4 @@ fn main() {
 - `Box<T>` puts data on the heap, leaving only a pointer on the stack (the "key" from the safe analogy).
 - Its most important use: **recursive types** (like linked lists) need `Box` to break the infinite-size problem.
 - `Box::new(value)` creates the `Box`; it's released automatically at scope exit.
-- A `Box` is the sole owner; its move semantics match every other non-`Copy` type.
+- A `Box` is a single key; moving it follows the same rules as moving other non-`Copy` values.
