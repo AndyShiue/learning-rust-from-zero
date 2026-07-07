@@ -103,8 +103,9 @@ Rust 大致上會把 `*p` 這部分當成：
 
 ```rust,noplayground
 # use std::ops::Deref;
+#
 # fn main() {
-# let p = Box::new(10);
+#     let p = Box::new(10);
     let n = *Deref::deref(&p);
 # }
 ```
@@ -124,6 +125,7 @@ Rust 大致上會把 `*p` 這部分當成：
 #     type Target;
 #     fn deref(&self) -> &Self::Target;
 # }
+#
 trait DerefMut: Deref {
     fn deref_mut(&mut self) -> &mut Self::Target;
 }
@@ -139,7 +141,7 @@ trait DerefMut: Deref {
 
 ```rust,noplayground
 # fn main() {
-# let mut p = Box::new(String::from("hello"));
+#     let mut p = Box::new(String::from("hello"));
     *p = String::from("world");
 # }
 ```
@@ -148,8 +150,9 @@ trait DerefMut: Deref {
 
 ```rust,noplayground
 # use std::ops::DerefMut;
+#
 # fn main() {
-# let mut p = Box::new(String::from("hello"));
+#     let mut p = Box::new(String::from("hello"));
     *DerefMut::deref_mut(&mut p) = String::from("world");
 # }
 ```
