@@ -278,4 +278,3 @@ fn main() {
 - `DerefMut` gives mutable access to the inner value; `Box<T>` supports it, while `Rc<T>` does not.
 - On method-name collisions, the outer type wins; `Rc`'s `.clone()` is chosen before the inner value's `.clone()`.
 - Moving a non-`Copy` value out with `*box_value` is special support for `Box<T>`, not ordinary `Deref` behavior.
-      
