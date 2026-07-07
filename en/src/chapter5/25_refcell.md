@@ -56,7 +56,7 @@ fn main() {
 }
 ```
 
-Now multiple `Rc`s share one piece of data, and `borrow_mut()` allows modifying it.
+Now several `Rc` values share the same data, and `borrow_mut()` allows modifying it.
 
 ## Example Code
 
