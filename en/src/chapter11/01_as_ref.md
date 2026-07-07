@@ -79,7 +79,7 @@ Meaning: if `T` implements `AsMut<U>`, then `&mut T` automatically implements `A
 
 ### How It Differs from `Deref`
 
-`Deref` is used automatically in places like deref coercion and method calls: Rust borrows through the value for you. `AsRef` is a manual `.as_ref()` call.
+`Deref` is used automatically in places like `deref` coercion and method calls: Rust borrows through the value for you. `AsRef` is a manual `.as_ref()` call.
 
 The more important difference: each type can have only one `Deref` target (`String`'s target is `str`), but it can implement multiple `AsRef`s (`String` is both `AsRef<str>` and `AsRef<[u8]>`). Same for `AsMut`.
 
