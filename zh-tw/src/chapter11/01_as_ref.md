@@ -79,9 +79,9 @@ where
 
 ### 跟 `Deref` 的差別
 
-`Deref` 是自動的——編譯器幫你加 `*`，你不用寫任何東西。`AsRef` 是手動呼叫 `.as_ref()`。
+`Deref` 是在 `deref` coercion 和 method call 這些地方被自動使用的：Rust 幫你穿過值去借用。`AsRef` 則是手動呼叫 `.as_ref()`。
 
-更重要的差別：每個型別只能有一個 `Deref` 目標（`String` `deref` 成 `str`），但可以實作多個 `AsRef`（`String` 同時是 `AsRef<str>` 和 `AsRef<[u8]>`）。`AsMut` 同理。
+更重要的差別：每個型別只能有一個 `Deref` 目標（`String` 的 target 是 `str`），但可以實作多個 `AsRef`（`String` 同時是 `AsRef<str>` 和 `AsRef<[u8]>`）。`AsMut` 同理。
 
 ### 什麼時候用
 

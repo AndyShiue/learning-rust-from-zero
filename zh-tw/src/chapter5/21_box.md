@@ -8,7 +8,7 @@
 
 還記得第 4 章的保險箱比喻嗎？鑰匙圈上掛著鑰匙，鑰匙可以打開保險箱，保險箱裡放著真正的東西。
 
-`Box<T>` 就是那個保險箱——它把資料放在 heap 上，然後在 stack 上留一把鑰匙（指標）。
+`Box<T>` 就是那個保險箱的鑰匙——資料住在 heap 上，而 stack 上的 `Box` 值讓 Rust 能找到它。
 
 ### 為什麼需要 `Box`？
 
@@ -95,7 +95,7 @@ fn main() {
 
     print_list(&list);
 
-    // Box 是唯一擁有者——鑰匙不是 Copy，所以 let b = a 是 move
+    // Box 是單獨的一把鑰匙——鑰匙不是 Copy，所以 let b = a 是 move
     let a = Box::new(String::from("hello"));
     let b = a; // 鑰匙從 a 交給 b，a 就空了
     // println!("{}", a); // 編譯錯誤！a 已經被 move 了
@@ -108,4 +108,4 @@ fn main() {
 - `Box<T>` 把資料放在 heap 上，stack 上只留一個指標（保險箱比喻的「鑰匙」）。
 - 最重要的用途：**遞迴型別**（如連結串列）需要 `Box` 來打破無限大小的問題。
 - `Box::new(value)` 建立 `Box`，離開作用域時自動釋放。
-- `Box` 是唯一擁有者，move 語義和其他非 `Copy` 的型別一樣。
+- `Box` 是單獨的一把鑰匙；move 它的規則和 move 其他非 `Copy` 的值一樣。

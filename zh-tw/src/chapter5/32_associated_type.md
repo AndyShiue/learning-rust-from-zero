@@ -88,7 +88,73 @@ trait Deref {
 # fn main() {}
 ```
 
-`type Target` 決定了解參考後得到什麼型別。例如 `Box<T>` 的實作是 `type Target = T`——解參考 `Box<i32>` 得到 `i32`。這跟 `Container` 的 `type Item` 是同樣的道理：一個 `Box<i32>` 解參考後只會得到 `i32`，不會得到別的東西，所以用 associated type 而不是泛型參數。
+`type Target` 就是解參考所觸及的型別。
+
+舉例來說，如果 `p` 是 `Box<i32>`，而我們寫：
+
+```rust,noplayground
+# fn main() {
+# let p = Box::new(10);
+    let n = *p;
+# }
+```
+
+Rust 大致上會把 `*p` 這部分當成：
+
+```rust,noplayground
+# use std::ops::Deref;
+# fn main() {
+# let p = Box::new(10);
+    let n = *Deref::deref(&p);
+# }
+```
+
+首先，Rust 借用這個智慧指標：`&p`。接著 `Deref::deref(&p)` 回傳一個指向內部值的參考：`&Self::Target`。最後，外面的 `*` 沿著這個參考走過去。
+
+對 `Box<i32>` 來說，`Self::Target` 是 `i32`，所以 `deref()` 回傳 `&i32`。因為 `i32` 是 `Copy`，`let n = *p;` 能產生出另一個 `i32`。
+
+這跟 `Container` 的 `type Item` 是同樣的道理：一旦 `Self` 定為 `Box<i32>`，`Target` 就只有一個答案——`i32`。這正是 `Target` 用 associated type 而不是泛型參數的原因。
+
+### `DerefMut` 用的是同一個 `Target`
+
+可變的版本是 `DerefMut`。簡化之後長這樣：
+
+```rust,noplayground
+# trait Deref {
+#     type Target;
+#     fn deref(&self) -> &Self::Target;
+# }
+trait DerefMut: Deref {
+    fn deref_mut(&mut self) -> &mut Self::Target;
+}
+#
+# fn main() {}
+```
+
+`DerefMut` 沒有另外宣告一個 associated type，它用的就是 `Deref` 的 `Self::Target`。
+
+這件事是有道理的：不可變解參考和可變解參考，必須觸及同一種內部值。如果 `Box<String>` 的 `Target = String`，那 `deref()` 回傳 `&String`，`deref_mut()` 就回傳 `&mut String`。
+
+舉例來說：
+
+```rust,noplayground
+# fn main() {
+# let mut p = Box::new(String::from("hello"));
+    *p = String::from("world");
+# }
+```
+
+因為等號左邊是 `*p`，Rust 需要對內部值的可變存取。它大致上會把這部分當成：
+
+```rust,noplayground
+# use std::ops::DerefMut;
+# fn main() {
+# let mut p = Box::new(String::from("hello"));
+    *DerefMut::deref_mut(&mut p) = String::from("world");
+# }
+```
+
+首先，Rust 可變地借用這個智慧指標：`&mut p`。接著 `DerefMut::deref_mut(&mut p)` 回傳一個指向內部值的可變參考：`&mut Self::Target`。最後，外面的 `*` 沿著這個可變參考走過去，賦值就能把內部的 `String` 換掉。
 
 ### 在 `trait` bound 中指定 associated type
 
@@ -207,6 +273,7 @@ fn main() {
 - 用 `Self::Item` 的語法可以在 `trait` 定義中讀取 `Self` 的 associated type。
 - 實作時用 `type Item = i32;` 指定具體型別。
 - **input vs output**：`Self` 和角括號參數是 input，associated type 是 output。input 決定 output。
-- `Deref` 的 `type Target` 也是 associated type——`Box<T>` 的 `Target = T`，代表解參考後得到 `T`。
+- `Deref` 的 `type Target` 也是 associated type——`Box<T>` 的 `Target = T`，代表解參考觸及的是 `T`。
+- `DerefMut` 用的是同一個 `Self::Target`，回傳 `&mut Self::Target`。
 - 在 `trait` bound 中用 `Container<Item = i32>` 指定 associated type。
 - 在 `trait` bound 中也可以用 `Container<Item: Display>` 限制 associated type 必須實作某個 `trait`。
