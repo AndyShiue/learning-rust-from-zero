@@ -88,7 +88,73 @@ trait Deref {
 # fn main() {}
 ```
 
-`type Target` determines what type dereferencing yields. For instance, `Box<T>`'s implementation is `type Target = T` — dereferencing a `Box<i32>` yields an `i32`. Same reasoning as `Container`'s `type Item`: a `Box<i32>` dereferences to an `i32` and nothing else, hence an associated type rather than a generic parameter.
+`type Target` is the type reached by dereferencing.
+
+For example, if `p` is a `Box<i32>` and we write:
+
+```rust,noplayground
+# fn main() {
+# let p = Box::new(10);
+    let n = *p;
+# }
+```
+
+Rust treats the `*p` part roughly like this:
+
+```rust,noplayground
+# use std::ops::Deref;
+# fn main() {
+# let p = Box::new(10);
+    let n = *Deref::deref(&p);
+# }
+```
+
+First, Rust borrows the smart pointer: `&p`. Then `Deref::deref(&p)` returns a reference to the inner value: `&Self::Target`. Finally, the outer `*` follows that reference.
+
+For `Box<i32>`, `Self::Target` is `i32`, so `deref()` returns `&i32`. Since `i32` is `Copy`, `let n = *p;` can create another `i32`.
+
+This is the same reasoning as `Container`'s `type Item`: once `Self` is fixed as `Box<i32>`, `Target` has only one answer — `i32`. That is why `Target` is an associated type rather than a generic parameter.
+
+### `DerefMut` Uses the Same `Target`
+
+The mutable version is `DerefMut`. In simplified form, it looks like this:
+
+```rust,noplayground
+# trait Deref {
+#     type Target;
+#     fn deref(&self) -> &Self::Target;
+# }
+trait DerefMut: Deref {
+    fn deref_mut(&mut self) -> &mut Self::Target;
+}
+#
+# fn main() {}
+```
+
+`DerefMut` does not declare another associated type. It uses `Self::Target` from `Deref`.
+
+That matters because immutable dereferencing and mutable dereferencing must reach the same kind of inner value. If `Box<String>` has `Target = String`, then `deref()` returns `&String`, and `deref_mut()` returns `&mut String`.
+
+For example:
+
+```rust,noplayground
+# fn main() {
+# let mut p = Box::new(String::from("hello"));
+    *p = String::from("world");
+# }
+```
+
+Since the left side is `*p`, Rust needs mutable access to the inner value. It treats that part roughly like this:
+
+```rust,noplayground
+# use std::ops::DerefMut;
+# fn main() {
+# let mut p = Box::new(String::from("hello"));
+    *DerefMut::deref_mut(&mut p) = String::from("world");
+# }
+```
+
+First, Rust mutably borrows the smart pointer: `&mut p`. Then `DerefMut::deref_mut(&mut p)` returns a mutable reference to the inner value: `&mut Self::Target`. Finally, the outer `*` follows that mutable reference, so the assignment can replace the inner `String`.
 
 ### Specifying Associated Types in `trait` Bounds
 
@@ -207,6 +273,7 @@ fn main() {
 - The `Self::Item` syntax reads `Self`'s associated type within the `trait` definition.
 - Implementations specify the concrete type with `type Item = i32;`.
 - **Input vs output**: `Self` and the angle-bracket parameters are inputs; associated types are outputs. Inputs determine outputs.
-- `Deref`'s `type Target` is an associated type too — `Box<T>` has `Target = T`, meaning dereferencing yields `T`.
+- `Deref`'s `type Target` is an associated type too — `Box<T>` has `Target = T`, meaning dereferencing reaches `T`.
+- `DerefMut` uses the same `Self::Target` and returns `&mut Self::Target`.
 - In a `trait` bound, `Container<Item = i32>` pins the associated type.
 - A `trait` bound can also require the associated type to implement a `trait`: `Container<Item: Display>`.

@@ -147,7 +147,7 @@ This is why smart pointers often feel like the value inside them: method calls c
 
 `DerefMut` is the mutable version of `Deref`. It tells Rust how to borrow through a value mutably: from a mutable smart pointer to a mutable reference of the inner value.
 
-`Rc<T>` does not implement `DerefMut`, because there may be other `Rc` values that open the same heap data. Ordinary `Rc<T>` provides shared read access, not unrestricted mutable access.
+`Rc<T>` does not implement `DerefMut`, because there may be other `Rc` values that open the same heap data. Ordinary `Rc<T>` provides shared read access, not unrestricted mutable access. `Rc<T>` cannot prove that it is the only key to the heap data; if `DerefMut` were allowed, the same heap data could end up with several `&mut T` references at the same time.
 
 `Box<T>`, however, has one key and no reference counter, so a mutable `Box<T>` can provide mutable access to the inner value:
 

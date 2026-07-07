@@ -146,12 +146,12 @@ Hence the standard library's methods on `&mut str` are pitifully few — basical
 
 ### DSTs and `Deref`
 
-Chapter 5 also introduced the `Deref` `trait`. `String` and `Vec<T>` implement `Deref` too, and dereferencing them yields exactly DSTs:
+Chapter 5 also introduced the `Deref` `trait`. `String` and `Vec<T>` implement `Deref` too, and their `Deref` targets are exactly DSTs:
 
 - `String` implements `Deref`; `Deref::deref(&String)` returns `&str`.
 - `Vec<T>` implements `Deref`; `Deref::deref(&Vec<T>)` returns `&[T]`.
 
-That is, dereferencing a `String` yields `str`, and dereferencing a `Vec<T>` yields `[T]`. DSTs can't live in variables directly, but `deref` coercion happens at the **reference level**: `&String` becomes `&str`, `&Vec<T>` becomes `&[T]`. The result of the conversion is a fat pointer carrying address and length — no need to know the DST's actual size.
+That is, `String`'s target is `str`, and `Vec<T>`'s target is `[T]`. DSTs can't live in variables directly, but `deref` coercion happens at the **reference level**: `&String` becomes `&str`, `&Vec<T>` becomes `&[T]`. The result of the conversion is a fat pointer carrying address and length — no need to know the DST's actual size.
 
 That's why a function accepting `&str` takes an `&String` directly, and one accepting `&[T]` takes an `&Vec<T>` — the mechanism underneath is exactly DSTs + `Deref` combined.
 
@@ -224,4 +224,4 @@ fn main() {
 - **`?Sized`**: loosens the bound so generics can accept DSTs (used through references).
 - A `trait`'s `Self` defaults to `?Sized`; methods returning `Self` require `: Sized` on the `trait` (as in `Clone: Sized`).
 - The `B: ?Sized` in `Cow<'a, B>` exists precisely so `B` can be a DST like `str` or `[T]`.
-- `String`'s and `Vec<T>`'s `Deref` yield the DSTs `str` and `[T]`; `deref` coercion makes `&String` → `&str` and `&Vec<T>` → `&[T]` possible.
+- `String`'s and `Vec<T>`'s `Deref` targets are the DSTs `str` and `[T]`; `deref` coercion makes `&String` → `&str` and `&Vec<T>` → `&[T]` possible.
