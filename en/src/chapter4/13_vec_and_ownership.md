@@ -51,6 +51,7 @@ fn sum(nums: &[i32]) -> i32 {
 fn main() {
     let v = vec![1, 2, 3, 4, 5];
     let total = sum(&v); // &Vec of i32 auto-converts to &[i32]
+    println!("Total: {}", total);
     println!("v is still here: {:?}", v);
 }
 ```

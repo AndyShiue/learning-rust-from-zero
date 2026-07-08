@@ -13,8 +13,8 @@ Some things you don't want happening "all together without limit." For instance:
 `tokio::sync::Semaphore` manages exactly this. Its core is a fixed number of **permits**: you set how many exist in total; whoever wants to work must first take one, returning it when done. When permits run out, latecomers wait until someone returns one.
 
 ```rust,editable
-# extern crate tokio;
-#
+extern crate tokio;
+
 use std::sync::Arc;
 use tokio::sync::Semaphore;
 use tokio::time::{sleep, Duration};

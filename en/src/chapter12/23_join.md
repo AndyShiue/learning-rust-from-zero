@@ -11,8 +11,8 @@ Learn to wait on multiple `Future`s at once within a single `Task` using `join!`
 In Episode 9 we hand-wrote `JoinAll`, advancing several `Future`s together. Tokio provides a ready-made `join!` that does the same thing:
 
 ```rust,editable
-# extern crate tokio;
-#
+extern crate tokio;
+
 use tokio::time::{sleep, Duration};
 
 async fn fetch_a() -> i32 {

@@ -51,6 +51,7 @@ fn sum(nums: &[i32]) -> i32 {
 fn main() {
     let v = vec![1, 2, 3, 4, 5];
     let total = sum(&v); // &i32 的 Vec 自動轉成 &[i32]
+    println!("總和：{}", total);
     println!("v 還在：{:?}", v);
 }
 ```
