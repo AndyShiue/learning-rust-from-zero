@@ -116,7 +116,7 @@
     - [`Drop`](chapter5/20_drop.md)
     - [`Box<T>`](chapter5/21_box.md)
     - [`Rc<T>`](chapter5/22_rc.md)
-    - [`Deref` 與自動解參考](chapter5/23_deref.md)
+    - [`Deref`](chapter5/23_deref.md)
     - [`Cell<T>`](chapter5/24_cell.md)
     - [`RefCell<T>`](chapter5/25_refcell.md)
     - [生命週期基礎](chapter5/26_lifetime_basics.md)

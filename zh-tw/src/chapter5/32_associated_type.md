@@ -94,7 +94,7 @@ trait Deref {
 
 ```rust,noplayground
 # fn main() {
-# let p = Box::new(10);
+#     let p = Box::new(10);
     let n = *p;
 # }
 ```

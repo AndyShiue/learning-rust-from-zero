@@ -1,4 +1,4 @@
-# `Deref` and Auto-dereferencing
+# Deref
 
 ## Goal of This Episode
 

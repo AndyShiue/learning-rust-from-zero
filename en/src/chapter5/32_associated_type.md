@@ -94,7 +94,7 @@ For example, if `p` is a `Box<i32>` and we write:
 
 ```rust,noplayground
 # fn main() {
-# let p = Box::new(10);
+#     let p = Box::new(10);
     let n = *p;
 # }
 ```
