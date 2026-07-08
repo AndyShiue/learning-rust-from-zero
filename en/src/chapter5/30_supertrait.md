@@ -20,7 +20,7 @@ trait Summarize: std::fmt::Display {
 
 `Summarize: Display` means: "To implement `Summarize`, you must first implement `Display`." `Display` is `Summarize`'s **supertrait**; conversely, `Summarize` is `Display`'s **subtrait**.
 
-The benefit: inside `Summarize`'s default implementations, or in user code, you can be sure `self` has `Display`'s capabilities.
+The benefit: inside `Summarize`'s default implementations, or in user code, you can rely on `self` implementing `Display`.
 
 Note: **implementing `Summarize` does not implement `Display` for you automatically**. You must implement `Display` by hand before you can implement `Summarize`. A supertrait is a "prerequisite," not a "free bonus."
 
@@ -36,7 +36,7 @@ trait Copy: Clone { }
 
 This says: **to implement `Copy`, you must first implement `Clone`.**
 
-Why? Because `Copy` is an "automatic copying" ability, while `Clone` is "manual copying." Logically, if you can copy automatically, you can surely copy manually. So `Copy` demands `Clone` as its prerequisite.
+Why? Because `Copy` is an "automatic copying" ability, while `Clone` is "manual cloning." Logically, if you can copy automatically, you can surely clone manually. So `Copy` demands `Clone` as its prerequisite.
 
 That's why `#[derive(Copy, Clone)]` lists both — writing only `derive(Copy)` errors, since `Copy` requires `Clone`.
 
@@ -53,10 +53,11 @@ use std::fmt::Formatter;
 // Defining a supertrait: Summarize requires Display
 trait Summarize: Display {
     fn summary(&self) -> String {
-        // Thanks to the Display supertrait, to_string() is available
+        // Display is required by the supertrait bound,
+        // so Rust also provides .to_string() through ToString
         let full = self.to_string();
         // Collect the chars into a Vec so we measure length in characters
-        // (len() on a string counts bytes)
+        // (.len() on a string counts bytes)
         let mut chars = Vec::new();
         for c in full.chars() {
             chars.push(c);
@@ -106,7 +107,8 @@ fn main() {
     // Using Display (the supertrait)
     println!("Full: {}", article);
 
-    // Using Summarize (its default implementation uses Display)
+    // Using Summarize's default implementation:
+    // .to_string() comes from ToString, made available by Display
     println!("Summary: {}", article.summary());
 
     // Demonstrating that Copy requires Clone
@@ -123,4 +125,4 @@ fn main() {
 - `Copy: Clone` — `Copy` requires `Clone`, hence both must appear in the `derive`.
 - `DerefMut: Deref` — mutable dereferencing presupposes immutable dereferencing.
 - Implementing a subtrait doesn't auto-implement the supertrait — you must write `impl Supertrait` yourself first.
-- A subtrait's default implementations may use the supertrait's methods.
+- A subtrait's default implementations may rely on capabilities guaranteed by the supertrait.

@@ -20,7 +20,7 @@ trait Summarize: std::fmt::Display {
 
 `Summarize: Display` 的意思是：「要實作 `Summarize`，你必須先實作 `Display`。」`Display` 就是 `Summarize` 的 **supertrait**，反過來說，`Summarize` 是 `Display` 的 **subtrait**。
 
-好處是在 `Summarize` 的預設實作或使用者程式碼裡，可以確定 `self` 一定有 `Display` 的功能。
+好處是在 `Summarize` 的預設實作或使用者程式碼裡，可以確定 `self` 一定實作了 `Display`。
 
 注意：**實作 `Summarize` 不會自動幫你實作 `Display`**。你必須自己手動實作 `Display`，然後才能實作 `Summarize`。supertrait 只是一個「前提條件」，不是「自動贈送」。
 
@@ -53,9 +53,11 @@ use std::fmt::Formatter;
 // 定義一個 supertrait：Summarize 要求 Display
 trait Summarize: Display {
     fn summary(&self) -> String {
-        // 因為有 Display supertrait，可以用 to_string()
+        // supertrait bound 要求 Display，
+        // 所以 Rust 也會透過 ToString 提供 .to_string()
         let full = self.to_string();
-        // 把字元收進 Vec，用「字元數」判斷長度（len() 算的是 byte 數）
+        // 把字元收進 Vec，用「字元數」判斷長度
+        // （字串的 .len() 算的是 byte 數）
         let mut chars = Vec::new();
         for c in full.chars() {
             chars.push(c);
@@ -105,7 +107,8 @@ fn main() {
     // 用 Display（supertrait）
     println!("完整：{}", article);
 
-    // 用 Summarize（預設實作會用到 Display）
+    // 使用 Summarize 的預設實作：
+    // .to_string() 來自 ToString，而 Display 讓它可以使用。
     println!("摘要：{}", article.summary());
 
     // Copy 需要 Clone 的示範
@@ -122,5 +125,4 @@ fn main() {
 - `Copy: Clone`——`Copy` 要求 `Clone`，所以 `derive` 時必須同時寫兩個。
 - `DerefMut: Deref`——要能可變解參考，必須先能不可變解參考。
 - 實作 subtrait 不會自動實作 supertrait——你必須自己先寫 `impl Supertrait`。
-- subtrait 的預設實作裡可以使用 supertrait 的方法。
-
+- subtrait 的預設實作裡，可以依賴 supertrait 保證的能力。
