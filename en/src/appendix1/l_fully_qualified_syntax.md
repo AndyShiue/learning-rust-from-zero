@@ -142,7 +142,7 @@ type MyItem = <Vec<i32> as IntoIterator>::Item; // i32
 # fn main() {}
 ```
 
-Some places allow plain `Type::TypeName`, but under ambiguity or failed inference, fully qualified syntax pins it down.
+Some places allow plain `Type::TypeName`, but under ambiguity or failed inference, fully qualified syntax makes the type explicit.
 
 ## Example Code
 

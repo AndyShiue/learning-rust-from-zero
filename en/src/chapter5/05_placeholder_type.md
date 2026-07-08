@@ -44,7 +44,7 @@ fn main() {
 
     // _ works in a turbofish too
     let v2 = Vec::<_>::new(); // Same as Vec::new(); _ lets Rust infer
-    let v2: Vec<i32> = v2;    // The type gets pinned down by later usage
+    let v2: Vec<i32> = v2;    // The type is inferred from later usage
     println!("{:?}", v2);
 
     // Comparison: no annotation at all vs partial annotation with _

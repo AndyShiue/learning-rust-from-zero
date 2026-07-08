@@ -118,5 +118,5 @@ fn main() {
 - `edition` is the Rust language specification's version (2015, 2018, 2021, 2024); crates on different editions interoperate.
 - `cargo add <package>` is the fastest way to add an external package.
 - [crates.io](https://crates.io) is Rust's official registry; [docs.rs](https://docs.rs) hosts auto-generated docs.
-- The version `"1.0"` equals `"^1.0"`, allowing compatible upgrades; `"=1.0.0"` pins an exact version.
+- The version `"1.0"` equals `"^1.0"`, allowing compatible upgrades; `"=1.0.0"` requires exactly that version.
 - `features` switch on a package's optional functionality.

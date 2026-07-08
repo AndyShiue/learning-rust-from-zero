@@ -135,7 +135,7 @@ trait DerefMut: Deref {
 
 `DerefMut` 沒有另外宣告一個 associated type，它用的就是 `Deref` 的 `Self::Target`。
 
-這件事是有道理的：不可變解參考和可變解參考，必須觸及同一種內部值。如果 `Box<String>` 的 `Target = String`，那 `deref()` 回傳 `&String`，`deref_mut()` 就回傳 `&mut String`。
+這件事是有道理的：不可變解參考和可變解參考，必須觸及同一種內部值。如果 `Box<String>` 的 `Target = String`，那 `.deref()` 回傳 `&String`，`.deref_mut()` 就回傳 `&mut String`。
 
 舉例來說：
 

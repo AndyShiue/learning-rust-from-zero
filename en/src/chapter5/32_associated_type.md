@@ -135,7 +135,7 @@ trait DerefMut: Deref {
 
 `DerefMut` does not declare another associated type. It uses `Self::Target` from `Deref`.
 
-That matters because immutable dereferencing and mutable dereferencing must reach the same kind of inner value. If `Box<String>` has `Target = String`, then `deref()` returns `&String`, and `deref_mut()` returns `&mut String`.
+That matters because immutable dereferencing and mutable dereferencing must reach the same kind of inner value. If `Box<String>` has `Target = String`, then `.deref()` returns `&String`, and `.deref_mut()` returns `&mut String`.
 
 For example:
 
@@ -161,7 +161,7 @@ First, Rust mutably borrows the smart pointer: `&mut p`. Then `DerefMut::deref_m
 
 ### Specifying Associated Types in `trait` Bounds
 
-You can pin down an associated type's concrete type inside a `trait` bound:
+You can specify an associated type's concrete type inside a `trait` bound:
 
 ```rust,ignore
 fn print_first<C: Container<Item = i32>>(c: &C) { ... }
@@ -278,5 +278,5 @@ fn main() {
 - **Input vs output**: `Self` and the angle-bracket parameters are inputs; associated types are outputs. Inputs determine outputs.
 - `Deref`'s `type Target` is an associated type too — `Box<T>` has `Target = T`, meaning dereferencing reaches `T`.
 - `DerefMut` uses the same `Self::Target` and returns `&mut Self::Target`.
-- In a `trait` bound, `Container<Item = i32>` pins the associated type.
+- In a `trait` bound, `Container<Item = i32>` specifies the associated type.
 - A `trait` bound can also require the associated type to implement a `trait`: `Container<Item: Display>`.
