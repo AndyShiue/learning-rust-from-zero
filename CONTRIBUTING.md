@@ -1,12 +1,36 @@
+# Contributing Guide
+
+Thanks for your interest in helping improve this tutorial!
+
+## How to contribute
+
+- **Report errors**: Open an issue describing the problem you found (typos, code errors, conceptual mistakes, etc.).
+- **Make suggestions**: Open an issue explaining what you think could be improved.
+- **Send a PR**: Fixing errors, improving the writing, and adding explanations are all welcome.
+
+## Licensing
+
+Unless otherwise noted, the text, images, and other non-code content of this tutorial are licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+
+The code examples in this tutorial are released under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/). You are free to copy, modify, and use them in personal or commercial projects, with no attribution required.
+
+By submitting an issue, pull request, or any other contribution, you confirm that you have the right to provide that contribution, and you grant the author and maintainers of this project a perpetual, worldwide, royalty-free, non-exclusive license to use, reproduce, modify, arrange, combine, and publish your contribution, and to incorporate it into this project, derivative teaching materials, publications, courses, or other related works, whether for non-commercial or commercial purposes.
+
+Once merged, your contribution will be published under this project's licenses: CC BY-NC-ND 4.0 for text and non-code content, and CC0 1.0 for code examples.
+
+Please do not submit content that you do not have the right to license.
+
+---
+
 # 貢獻指南
 
 感謝你有興趣幫忙改善這份教學！
 
 ## 怎麼貢獻
 
-- **回報錯誤**：開 issue 描述你發現的問題（錯字、程式碼錯誤、觀念錯誤等）
-- **提出建議**：開 issue 說明你覺得哪裡可以改善
-- **送 PR**：修正錯誤、改善文字、補充說明都歡迎
+- **回報錯誤**：開 issue 描述你發現的問題（錯字、程式碼錯誤、觀念錯誤等）。
+- **提出建議**：開 issue 說明你覺得哪裡可以改善。
+- **送 PR**：修正錯誤、改善文字、補充說明都歡迎。
 
 ## 授權條款
 
