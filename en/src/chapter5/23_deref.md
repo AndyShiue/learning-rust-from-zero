@@ -2,7 +2,7 @@
 
 ## Goal of This Episode
 
-Understand the `Deref` `trait`, the `DerefMut` `trait`, Rust's `deref` coercion, and why smart pointers can often be used like the values they protect.
+Understand the `Deref` `trait`, the `DerefMut` `trait`, Rust's `deref` coercion, and why smart pointers can often be used like the values inside them.
 
 ## Concept
 

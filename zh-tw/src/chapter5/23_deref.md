@@ -2,7 +2,7 @@
 
 ## 本集目標
 
-理解 `Deref` `trait`、`DerefMut` `trait` 和 Rust 的 `deref` coercion，以及智慧指標為什麼常常能當成它們所保護的值來用。
+理解 `Deref` `trait`、`DerefMut` `trait` 和 Rust 的 `deref` coercion，以及智慧指標為什麼常常能當成它們裡面的值來用。
 
 ## 概念說明
 
