@@ -36,7 +36,7 @@ Sometimes getting a `&mut` isn't convenient. Say a `struct` is shared by referen
 
 ### `Rc` Is Built on `Cell`
 
-Last episode's `Rc<T>` needs a reference counter — +1 on every `clone`, -1 on every `drop`. Yet `Rc` exposes only `&self` (immutable references), while the counter needs modification. How? With `Cell`! The counter inside `Rc` is a `Cell<usize>`, so the count can update even through `&self`.
+Last episode's `Rc<T>` needs a reference counter — +1 on every `clone`, -1 on every `drop`. But look at `Clone`'s signature: `fn clone(&self) -> Self`. It only gets `&self` (an immutable reference), yet it must bump the count. How? With `Cell`! The counter inside `Rc` is a `Cell<usize>`, so the count can update even through `&self`.
 
 ## Example Code
 
