@@ -253,7 +253,7 @@
     - [Graceful Shutdown](chapter12/32_graceful_shutdown.md)
     - [Testing `async` Code](chapter12/33_testing_async.md)
     - [Runtimes Other Than Tokio](chapter12/34_other_runtimes.md)
-- [`Appendix II`]()
+- [Appendix II]()
     - [`'a: 'b`]()
     - [HRTB]()
     - [variance]()

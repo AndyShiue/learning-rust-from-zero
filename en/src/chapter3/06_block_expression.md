@@ -44,7 +44,7 @@ This concept is especially useful in `match`. Our `match` arms so far were all o
 
 Inside the block you can declare variables and do calculations; the last line without a semicolon is the return value.
 
-Note: if a `match` arm uses a block `{}`, the comma after it can be omitted. The `}` is already an unambiguous end marker, so Rust doesn't need the comma as a separator. But if the arm is a single line (no block), the comma can't be dropped.
+Note: if a `match` arm uses a block `{}`, the comma after it can be omitted. The `}` is already an unambiguous end marker, so Rust doesn't need the comma as a separator. But if the arm is a single line (no block), the comma can't be dropped — with one exception: the very last arm of the `match` is at the end, with nothing after it to separate, so its trailing comma is optional.
 
 ```rust,noplayground
 # enum Season {

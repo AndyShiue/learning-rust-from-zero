@@ -55,16 +55,17 @@ trait Summarize: Display {
     fn summary(&self) -> String {
         // Thanks to the Display supertrait, to_string() is available
         let full = self.to_string();
-        if full.len() > 10 {
+        // Collect the chars into a Vec so we measure length in characters
+        // (len() on a string counts bytes)
+        let mut chars = Vec::new();
+        for c in full.chars() {
+            chars.push(c);
+        }
+        if chars.len() > 10 {
             let mut s = String::new();
             // Take the first 10 characters
-            let mut count = 0;
-            for c in full.chars() {
-                if count >= 10 {
-                    break;
-                }
-                s.push(c);
-                count += 1;
+            for c in &chars[..10] {
+                s.push(*c);
             }
             s.push_str("...");
             s

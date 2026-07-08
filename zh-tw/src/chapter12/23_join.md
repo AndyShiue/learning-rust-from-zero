@@ -11,8 +11,8 @@
 第 9 集我們手寫過 `JoinAll`，把多個 `Future` 一起推進。Tokio 提供現成的 `join!`，做的是同一件事：
 
 ```rust,editable
-# extern crate tokio;
-#
+extern crate tokio;
+
 use tokio::time::{sleep, Duration};
 
 async fn fetch_a() -> i32 {

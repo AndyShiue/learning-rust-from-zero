@@ -19,7 +19,7 @@ struct Point { x: i32, y: i32 }
 # fn main() {}
 ```
 
-`Eq` 是 `PartialEq` 的 supertrait（上一集學的），它保證**自反性**——每個值都等於自己。
+`Eq` 建立在 `PartialEq` 之上——`PartialEq` 是 `Eq` 的 supertrait（上一集學的）。`Eq` 額外保證**自反性**——每個值都等於自己。
 
 「等一下，什麼值不等於自己？」——`f64::NAN`！在浮點數規範裡，`NAN != NAN`。所以 `f64` 只有 `PartialEq`，沒有 `Eq`。
 

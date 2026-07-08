@@ -47,11 +47,13 @@ fn main() {
     let a = 10.0;
     let b = 3.0;
     println!("{}", a / b); // 3.3333333333333335
-    println!("{}", a % b); // 1.0
+    println!("{}", a % b); // 1
 }
 ```
 
 Remember how `10 / 3` in Episode 5 gave `3` (integer division truncates)? Floating-point doesn't truncate: `10.0 / 3.0` gives `3.3333...`.
+
+Also note that `a % b` prints as `1`, not `1.0`. Don't be fooled — its type is still `f64`; it's just that when `{}` prints a float whose fractional part is zero, it doesn't tack on a `.0`.
 
 That said, floating-point has one classic pitfall — **precision issues**:
 

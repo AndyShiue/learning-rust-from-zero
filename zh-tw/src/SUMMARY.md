@@ -253,7 +253,7 @@
     - [graceful shutdown](chapter12/32_graceful_shutdown.md)
     - [測試 `async` 程式](chapter12/33_testing_async.md)
     - [Tokio 以外的 runtime](chapter12/34_other_runtimes.md)
-- [`附錄二`]()
+- [附錄二]()
     - [`'a: 'b`]()
     - [HRTB]()
     - [variance]()

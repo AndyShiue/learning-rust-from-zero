@@ -55,16 +55,16 @@ trait Summarize: Display {
     fn summary(&self) -> String {
         // 因為有 Display supertrait，可以用 to_string()
         let full = self.to_string();
-        if full.len() > 10 {
+        // 把字元收進 Vec，用「字元數」判斷長度（len() 算的是 byte 數）
+        let mut chars = Vec::new();
+        for c in full.chars() {
+            chars.push(c);
+        }
+        if chars.len() > 10 {
             let mut s = String::new();
             // 取前 10 個字元
-            let mut count = 0;
-            for c in full.chars() {
-                if count >= 10 {
-                    break;
-                }
-                s.push(c);
-                count += 1;
+            for c in &chars[..10] {
+                s.push(*c);
             }
             s.push_str("...");
             s

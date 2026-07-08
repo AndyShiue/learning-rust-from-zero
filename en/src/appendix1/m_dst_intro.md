@@ -132,7 +132,7 @@ DSTs can take mutable references too. `&mut [T]` is quite useful — you can mod
 
 But `&mut str` is nearly useless. Syntactically legal, yet there's almost nothing you can do with it. The reasons:
 
-**First, `&mut str`, like `&mut [T]`, can't change the length.** `str` is a DST; `&mut str` is a fat pointer (address + length), the length being part of the reference. An `&mut str` is only a borrow — you don't own that memory's allocation, so you can't grow or shrink it. Consider `&'static mut str`: it points into the program file's read-only section; you certainly can't make that memory grow. Changing length requires the memory-owning `String`.
+**First, `&mut str`, like `&mut [T]`, can't change the length.** `str` is a DST; `&mut str` is a fat pointer (address + length), the length being part of the reference. An `&mut str` is only a borrow — you don't own that memory's allocation, so you can't grow or shrink it. Changing length requires the memory-owning `String`.
 
 **Second, even changing the contents is restricted.** In UTF-8, one character may take 1~4 bytes:
 

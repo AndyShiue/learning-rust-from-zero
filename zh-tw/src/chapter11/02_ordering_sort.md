@@ -55,7 +55,7 @@ fn main() {
     let bigger = cmp::max_by(3.0_f64, 2.5, |a, b| {
         a.partial_cmp(b).unwrap()
     });
-    println!("{}", bigger); // 3.0
+    println!("{}", bigger); // 3
 }
 ```
 

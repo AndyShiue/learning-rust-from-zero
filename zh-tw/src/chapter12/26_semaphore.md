@@ -13,8 +13,8 @@
 `tokio::sync::Semaphore` 就是管這個的。它的核心是一些固定數量的 **permit（許可證）**：你設定總共有幾張 permit，誰要做事就得先拿一張，做完還回去。permit 被拿光時，後來的人就得等，直到有人還回一張。
 
 ```rust,editable
-# extern crate tokio;
-#
+extern crate tokio;
+
 use std::sync::Arc;
 use tokio::sync::Semaphore;
 use tokio::time::{sleep, Duration};

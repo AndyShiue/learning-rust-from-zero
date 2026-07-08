@@ -1985,6 +1985,7 @@ fn main() {
 批改重點：
 - 函數參數要寫成 `steps: &[i32]`，不要寫成固定長度陣列 `[i32; 7]`。
 - `count_goal_days` 裡要用 `for step in steps` 走訪切片。
+- `for step in steps` 拿到的 `step` 是元素的參考，直接寫 `step >= 8000` 會編譯錯誤；這一集先照抄 `*step >= 8000` 這個寫法，`*` 的意思第 4 章會解釋。
 - 函數內要用可變累加器計算達標天數。
 - 呼叫整週時要傳 `&steps`。
 - 呼叫平日時要傳 `&steps[..5]`，代表第 1 天到第 5 天。
@@ -1996,7 +1997,7 @@ fn main() {
 1. 先寫 `fn count_goal_days(steps: &[i32]) -> i32`。
 2. 函數裡準備 `let mut count = 0;`。
 3. 用 `for step in steps` 走訪每一天步數。
-4. 如果 `step >= 8000`，就讓 `count += 1`。
+4. 如果 `*step >= 8000`，就讓 `count += 1`。
 5. 在 `main` 裡可以用可變陣列 `[0; 7]` 搭配 `for i in 0..7` 讀取 7 天步數。
 
 參考答案：
@@ -2006,7 +2007,7 @@ fn count_goal_days(steps: &[i32]) -> i32 {
     let mut count = 0;
 
     for step in steps {
-        if step >= 8000 {
+        if *step >= 8000 {
             count += 1;
         }
     }

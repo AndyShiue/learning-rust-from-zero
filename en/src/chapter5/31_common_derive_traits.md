@@ -19,7 +19,7 @@ struct Point { x: i32, y: i32 }
 # fn main() {}
 ```
 
-`Eq` is a supertrait relationship on top of `PartialEq` (last episode's topic); it guarantees **reflexivity** — every value equals itself.
+`Eq` builds on top of `PartialEq` — `PartialEq` is `Eq`'s supertrait (last episode's topic). What `Eq` adds is a guarantee of **reflexivity** — every value equals itself.
 
 "Wait, what value doesn't equal itself?" — `f64::NAN`! In the floating-point standard, `NAN != NAN`. That's why `f64` has only `PartialEq`, not `Eq`.
 
