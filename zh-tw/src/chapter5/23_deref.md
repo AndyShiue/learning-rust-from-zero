@@ -2,7 +2,7 @@
 
 ## 本集目標
 
-理解 `Deref` `trait`、`DerefMut` `trait` 和 Rust 的 deref coercion，以及智慧指標為什麼常常能當成它們所保護的值來用。
+理解 `Deref` `trait`、`DerefMut` `trait` 和 Rust 的 `deref` coercion，以及智慧指標為什麼常常能當成它們所保護的值來用。
 
 ## 概念說明
 
@@ -68,9 +68,9 @@ let value = Rc::new(42);
 
 因為 `i32` 是 `Copy`，這能產生出另一個 `i32` 值。如果內部的值不是 `Copy`（像 `String`），一般的 `Deref` 沒辦法讓你把它搬出來。
 
-### deref coercion
+### `deref` coercion
 
-**deref coercion** 是 Rust 在需要時自動透過 `Deref` 轉換參考型別的機制。
+**`deref` coercion** 是 Rust 在需要時自動透過 `Deref` 轉換參考型別的機制。
 
 例如，這個函數要的是 `&i32`：
 
@@ -96,7 +96,7 @@ fn main() {
 
 這個轉換發生在參考層面，沒有任何所有權被移動。
 
-deref coercion 也可以連鎖：
+`deref` coercion 也可以連鎖：
 
 ```rust,editable
 use std::rc::Rc;
@@ -273,7 +273,7 @@ fn main() {
 
 - `Deref` 的主軸是「穿過一個值去借用」：它讓 Rust 拿到指向內部值的參考。
 - 對 `Deref` 型別使用 `*v`，大致上就是沿著指向內部值的參考走過去；接下來會發生什麼，取決於上下文和內部值的型別。
-- deref coercion 會自動把 `&Rc<i32>` 這類參考轉成 `&i32`，而且可以連鎖穿過多層。
+- `deref` coercion 會自動把 `&Rc<i32>` 這類參考轉成 `&i32`，而且可以連鎖穿過多層。
 - method call 的自動解參考讓智慧指標能呼叫內部值的方法。
 - `DerefMut` 提供對內部值的可變存取；`Box<T>` 支援，`Rc<T>` 不支援。
 - 方法同名時外層優先——`Rc` 的 `.clone()` 會先於內部值的 `.clone()` 被選中。

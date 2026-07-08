@@ -2,7 +2,7 @@
 
 ## Goal of This Episode
 
-Understand the `Deref` `trait`, the `DerefMut` `trait`, Rust's deref coercion, and why smart pointers can often be used like the values they protect.
+Understand the `Deref` `trait`, the `DerefMut` `trait`, Rust's `deref` coercion, and why smart pointers can often be used like the values they protect.
 
 ## Concept
 
@@ -68,9 +68,9 @@ let value = Rc::new(42);
 
 Because `i32` is `Copy`, this can produce another `i32` value. If the inner value is not `Copy`, like `String`, ordinary `Deref` does not let you move it out.
 
-### Deref Coercion
+### `deref` Coercion
 
-**Deref coercion** is Rust's mechanism for automatically converting reference types through `Deref` when needed.
+**`deref` coercion** is Rust's mechanism for automatically converting reference types through `Deref` when needed.
 
 For example, this function expects an `&i32`:
 
@@ -96,7 +96,7 @@ fn main() {
 
 This conversion happens at the reference level. No ownership moves.
 
-Deref coercion can also chain:
+`deref` coercion can also chain:
 
 ```rust,editable
 use std::rc::Rc;
@@ -273,7 +273,7 @@ fn main() {
 
 - `Deref` is mainly about borrowing through a value: it lets Rust get a reference to the inner value.
 - `*v` on a `Deref` type roughly follows a reference to the inner value; what happens next depends on the context and the inner type.
-- Deref coercion automatically converts references such as `&Rc<i32>` to `&i32`; it can chain through multiple layers.
+- `deref` coercion automatically converts references such as `&Rc<i32>` to `&i32`; it can chain through multiple layers.
 - Method-call auto-dereferencing lets smart pointers call methods of the inner value.
 - `DerefMut` gives mutable access to the inner value; `Box<T>` supports it, while `Rc<T>` does not.
 - On method-name collisions, the outer type wins; `Rc`'s `.clone()` is chosen before the inner value's `.clone()`.
