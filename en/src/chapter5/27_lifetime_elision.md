@@ -6,7 +6,7 @@ Understand Rust's lifetime elision rules, and why most of the time you needn't w
 
 ## Concept
 
-After last episode's lifetime annotations, you may worry: "Does every function with references need an `'a`? What a hassle!"
+Last episode, we only wrote `'a` by hand for cases like `longer`, where the return value might come from different reference parameters. What about other functions that return references? Do they all need annotations too?
 
 Good news: mostly not. Rust has a set of **elision rules** that fill in lifetime annotations for you automatically.
 
