@@ -1954,11 +1954,11 @@ Practice goals:
 - Confirm the reader can write a function parameter as `&[i32]`.
 - Confirm the reader knows a call can pass a slice of the whole array, e.g. `&steps`.
 - Confirm the reader knows a call can also pass part of the array, e.g. `&steps[..5]` and `&steps[5..]`.
-- Confirm the reader can iterate over the slice inside the function.
+- Confirm the reader can iterate over the slice inside the function, totaling with an accumulator.
 - Confirm the reader understands one function can handle data of different lengths.
 
 Problems:
-1. Write a function `count_goal_days(steps: &[i32]) -> i32` that counts how many days have a step count of at least `8000`. In `main`, have the user enter 7 days of step counts, stored in an array `steps`. Then call `count_goal_days(&steps)`, `count_goal_days(&steps[..5])`, and `count_goal_days(&steps[5..])`, printing how many days met the goal across the whole week, on weekdays, and on the weekend.
+1. Write a function `total_steps(steps: &[i32]) -> i32` that returns the sum of all the step counts in the slice. In `main`, have the user enter 7 days of step counts, stored in an array `steps`. The goal is 8000 steps per day, so the whole-week threshold is `7 * 8000`, the weekday threshold `5 * 8000`, and the weekend threshold `2 * 8000`. Use `total_steps(&steps)`, `total_steps(&steps[..5])`, and `total_steps(&steps[5..])` to compute the totals for the whole week, the weekdays, and the weekend, printing each total along with whether the goal was met.
 
 Sample run:
 
@@ -1977,42 +1977,39 @@ Please enter the step count for day 6:
 3000
 Please enter the step count for day 7:
 12000
-Goal-met days across the whole week: 4
-Goal-met days on weekdays: 3
-Goal-met days on the weekend: 1
+Whole week total: 55700 steps, goal not met
+Weekday total: 40700 steps, goal met
+Weekend total: 15000 steps, goal not met
 ```
 
 Grading criteria:
 - The parameter must be written as `steps: &[i32]`, not as a fixed-length array `[i32; 7]`.
-- `count_goal_days` must iterate over the slice with `for step in steps`.
-- The `step` you get from `for step in steps` is a reference to the element; writing `step >= 8000` directly is a compile error. For this episode, copy the `*step >= 8000` spelling as-is — Chapter 4 explains what the `*` means.
-- The function must count the goal days with a mutable accumulator.
-- The whole-week call must pass `&steps`.
-- The weekday call must pass `&steps[..5]`, meaning days 1 through 5.
-- The weekend call must pass `&steps[5..]`, meaning days 6 and 7.
+- `total_steps` must iterate over the slice with `for step in steps`, accumulating with `total += step` — the same spelling as this episode's `sum` in the text.
+- The goal checks must live in `main`, comparing the totals the function returns (plain `i32`s).
+- Do **not** move the goal check into the function as `step >= 8000`: the `step` you get from `for step in steps` is a reference to the element, and comparing it to a number directly is a compile error; the `*` that would fix it isn't taught until Chapter 4. If the reader writes this and gets stuck, steer them toward moving the check back into `main` and comparing totals instead.
+- The whole-week call must pass `&steps`; the weekday call `&steps[..5]` (days 1 through 5); the weekend call `&steps[5..]` (days 6 and 7).
+- The thresholds may be written as `7 * 8000`, `5 * 8000`, `2 * 8000`, or directly as `56000`, `40000`, `16000`; the multiplication spelling shows the intent better.
+- The goal verdict may be printed with an ordinary `if ... else ...`, or by picking the text first with the `if` expression from Chapter 1, Episode 27; both are fine.
 - Don't write separate functions for the week, weekdays, and weekend; the point is that one slice-parameter function accepts data of different lengths.
-- Don't use `Vec` or Iterator methods.
+- Don't use `Vec`, `.len()`, or Iterator methods.
 
 Hint directions:
-1. Start with `fn count_goal_days(steps: &[i32]) -> i32`.
-2. Prepare `let mut count = 0;` inside the function.
-3. Iterate over each day's steps with `for step in steps`.
-4. If `*step >= 8000`, do `count += 1`.
-5. In `main`, a mutable array `[0; 7]` plus `for i in 0..7` can read the 7 days of steps.
+1. Start with `fn total_steps(steps: &[i32]) -> i32`, preparing `let mut total = 0;` inside.
+2. Iterate over each day's steps with `for step in steps`, adding each into the total with `total += step` — just like this episode's `sum` in the text.
+3. In `main`, a mutable array `[0; 7]` plus `for i in 0..7` can read the 7 days of steps.
+4. The whole-week threshold is `7 * 8000`, so `if week_total >= 7 * 8000` can make the call; the weekdays and the weekend work the same way.
 
 Reference answer:
 
 ```rust
-fn count_goal_days(steps: &[i32]) -> i32 {
-    let mut count = 0;
+fn total_steps(steps: &[i32]) -> i32 {
+    let mut total = 0;
 
     for step in steps {
-        if *step >= 8000 {
-            count += 1;
-        }
+        total += step;
     }
 
-    count
+    total
 }
 
 fn main() {
@@ -2028,13 +2025,18 @@ fn main() {
         steps[i] = step;
     }
 
-    let week_count = count_goal_days(&steps);
-    let weekday_count = count_goal_days(&steps[..5]);
-    let weekend_count = count_goal_days(&steps[5..]);
+    let week_total = total_steps(&steps);
+    let weekday_total = total_steps(&steps[..5]);
+    let weekend_total = total_steps(&steps[5..]);
 
-    println!("Goal-met days across the whole week: {}", week_count);
-    println!("Goal-met days on weekdays: {}", weekday_count);
-    println!("Goal-met days on the weekend: {}", weekend_count);
+    let week_verdict = if week_total >= 7 * 8000 { "goal met" } else { "goal not met" };
+    println!("Whole week total: {} steps, {}", week_total, week_verdict);
+
+    let weekday_verdict = if weekday_total >= 5 * 8000 { "goal met" } else { "goal not met" };
+    println!("Weekday total: {} steps, {}", weekday_total, weekday_verdict);
+
+    let weekend_verdict = if weekend_total >= 2 * 8000 { "goal met" } else { "goal not met" };
+    println!("Weekend total: {} steps, {}", weekend_total, weekend_verdict);
 }
 ```
 

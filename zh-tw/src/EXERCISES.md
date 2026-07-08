@@ -1954,11 +1954,11 @@ fn main() {
 - 確認讀者會把函數參數寫成 `&[i32]`。
 - 確認讀者知道呼叫時可以傳整個陣列的切片，例如 `&steps`。
 - 確認讀者知道呼叫時也可以傳陣列的一部分，例如 `&steps[..5]` 和 `&steps[5..]`。
-- 確認讀者能在函數裡走訪切片。
+- 確認讀者能在函數裡走訪切片，用累加器計算總和。
 - 確認讀者理解同一個函數可以處理不同長度的資料。
 
 題目：
-1. 寫一個函數 `count_goal_days(steps: &[i32]) -> i32`，計算有幾天步數大於或等於 `8000`。在 `main` 裡讓使用者輸入 7 天步數，存成陣列 `steps`。接著分別呼叫 `count_goal_days(&steps)`、`count_goal_days(&steps[..5])`、`count_goal_days(&steps[5..])`，印出一整週、平日、週末各有幾天達標。
+1. 寫一個函數 `total_steps(steps: &[i32]) -> i32`，回傳切片裡所有步數的總和。在 `main` 裡讓使用者輸入 7 天步數，存成陣列 `steps`。每天的目標是 8000 步，所以一整週的門檻是 `7 * 8000`、平日是 `5 * 8000`、週末是 `2 * 8000`。請分別用 `total_steps(&steps)`、`total_steps(&steps[..5])`、`total_steps(&steps[5..])` 算出一整週、平日、週末的總步數，各自印出總步數並判斷有沒有達標。
 
 執行範例：
 
@@ -1977,42 +1977,39 @@ fn main() {
 3000
 請輸入第 7 天步數：
 12000
-一整週達標 4 天
-平日達標 3 天
-週末達標 1 天
+一整週總步數 55700，未達標
+平日總步數 40700，達標
+週末總步數 15000，未達標
 ```
 
 批改重點：
 - 函數參數要寫成 `steps: &[i32]`，不要寫成固定長度陣列 `[i32; 7]`。
-- `count_goal_days` 裡要用 `for step in steps` 走訪切片。
-- `for step in steps` 拿到的 `step` 是元素的參考，直接寫 `step >= 8000` 會編譯錯誤；這一集先照抄 `*step >= 8000` 這個寫法，`*` 的意思第 4 章會解釋。
-- 函數內要用可變累加器計算達標天數。
-- 呼叫整週時要傳 `&steps`。
-- 呼叫平日時要傳 `&steps[..5]`，代表第 1 天到第 5 天。
-- 呼叫週末時要傳 `&steps[5..]`，代表第 6 天到第 7 天。
+- `total_steps` 裡要用 `for step in steps` 走訪切片，用 `total += step` 累加——和本集正文的 `sum` 是同一種寫法。
+- 達標判斷要放在 `main` 裡，比較的是函數回傳的總和（普通的 `i32`）。
+- **不要**把達標判斷搬進函數裡寫成 `step >= 8000`：`for step in steps` 拿到的 `step` 是元素的參考，直接和數字比較會編譯錯誤，解決它需要的 `*` 要到第 4 章才教。如果讀者這樣寫而卡住，引導他把判斷移回 `main`，改用總和來比。
+- 呼叫整週時要傳 `&steps`，平日要傳 `&steps[..5]`（第 1 天到第 5 天），週末要傳 `&steps[5..]`（第 6 天到第 7 天）。
+- 門檻寫 `7 * 8000`、`5 * 8000`、`2 * 8000` 或直接寫 `56000`、`40000`、`16000` 都可以；乘法的寫法比較能看出意圖。
+- 達標與否可以用一般的 `if ... else ...` 印出，也可以用第 1 章第 27 集的 `if` 表達式先選出文字再印，兩種都可以。
 - 不要為整週、平日、週末各寫一個函數；這題重點是同一個切片參數函數可以接受不同長度資料。
-- 不要使用 `Vec` 或 Iterator 方法。
+- 不要使用 `Vec`、`.len()` 或 Iterator 方法。
 
 提示方向：
-1. 先寫 `fn count_goal_days(steps: &[i32]) -> i32`。
-2. 函數裡準備 `let mut count = 0;`。
-3. 用 `for step in steps` 走訪每一天步數。
-4. 如果 `*step >= 8000`，就讓 `count += 1`。
-5. 在 `main` 裡可以用可變陣列 `[0; 7]` 搭配 `for i in 0..7` 讀取 7 天步數。
+1. 先寫 `fn total_steps(steps: &[i32]) -> i32`，函數裡準備 `let mut total = 0;`。
+2. 用 `for step in steps` 走訪每一天步數，`total += step` 把它加進總和——跟本集正文的 `sum` 一樣。
+3. 在 `main` 裡可以用可變陣列 `[0; 7]` 搭配 `for i in 0..7` 讀取 7 天步數。
+4. 一整週的門檻是 `7 * 8000`，可以寫 `if week_total >= 7 * 8000` 判斷；平日和週末同理。
 
 參考答案：
 
 ```rust
-fn count_goal_days(steps: &[i32]) -> i32 {
-    let mut count = 0;
+fn total_steps(steps: &[i32]) -> i32 {
+    let mut total = 0;
 
     for step in steps {
-        if *step >= 8000 {
-            count += 1;
-        }
+        total += step;
     }
 
-    count
+    total
 }
 
 fn main() {
@@ -2028,13 +2025,18 @@ fn main() {
         steps[i] = step;
     }
 
-    let week_count = count_goal_days(&steps);
-    let weekday_count = count_goal_days(&steps[..5]);
-    let weekend_count = count_goal_days(&steps[5..]);
+    let week_total = total_steps(&steps);
+    let weekday_total = total_steps(&steps[..5]);
+    let weekend_total = total_steps(&steps[5..]);
 
-    println!("一整週達標 {} 天", week_count);
-    println!("平日達標 {} 天", weekday_count);
-    println!("週末達標 {} 天", weekend_count);
+    let week_verdict = if week_total >= 7 * 8000 { "達標" } else { "未達標" };
+    println!("一整週總步數 {}，{}", week_total, week_verdict);
+
+    let weekday_verdict = if weekday_total >= 5 * 8000 { "達標" } else { "未達標" };
+    println!("平日總步數 {}，{}", weekday_total, weekday_verdict);
+
+    let weekend_verdict = if weekend_total >= 2 * 8000 { "達標" } else { "未達標" };
+    println!("週末總步數 {}，{}", weekend_total, weekend_verdict);
 }
 ```
 
