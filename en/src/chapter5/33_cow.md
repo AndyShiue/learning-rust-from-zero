@@ -16,7 +16,7 @@ Should the return type be `&str` or `String`? Neither is quite right.
 
 ### `Cow` to the Rescue
 
-`Cow` stands for **`Clone` on write**. It lives in the `std::borrow` module. Here's its definition (omitting a few parts we haven't learned):
+`Cow` stands for **`Clone` on write**. It lives in the `std::borrow` module. Here's a simplified definition to show the core structure; it omits pieces needed by the full standard-library type, so this sketch is not a drop-in working implementation:
 
 ```rust,noplayground
 enum Cow<'a, B>
@@ -67,8 +67,8 @@ Thanks to `Deref`, callers usually needn't care whether the inside is borrowed o
 
 ### Common Methods
 
-- **`to_mut()`**: if it's `Borrowed`, first `clone`s into `Owned`, then returns a mutable reference. If already `Owned`, returns its mutable reference directly. This is the heart of "clone on write."
-- **`into_owned()`**: converts either variant into an owned value. `Borrowed` gets `clone`d; `Owned` is taken as-is.
+- **`.to_mut()`**: if it's `Borrowed`, first `clone`s into `Owned`, then returns a mutable reference. If already `Owned`, returns its mutable reference directly. This is the heart of "clone on write."
+- **`.into_owned()`**: converts either variant into an owned value. `Borrowed` gets `clone`d; `Owned` is taken as-is.
 
 ## Example Code
 
@@ -129,8 +129,8 @@ fn main() {
 - `Cow<'a, str>` can be borrowed (`&str`) or owned (`String`), as circumstances demand.
 - `Cow` uses the `ToOwned` `trait`'s associated type to decide the owning version's type (`str` → `String`, `[T]` → `Vec<T>`).
 - `Cow` implements `Deref`: whether `Borrowed` or `Owned`, a `Cow<'a, str>` can be used directly as an `&str` — its greatest strength.
-- `to_mut()`: clone on write (Borrowed → `clone` into `Owned` → return a mutable reference).
-- `into_owned()`: converts either variant into an owned value.
+- `.to_mut()`: clone on write (Borrowed → `clone` into `Owned` → return a mutable reference).
+- `.into_owned()`: converts either variant into an owned value.
 - Suited to "mostly no modification, occasional modification" scenarios.
 
 Congratulations on finishing Chapter 5! 🎉 This chapter was truly packed — from generics, `trait` bounds, and lifetimes, through smart pointers like `Box` and `Rc` and the `Deref` machinery, to the interior mutability of `Cell` and `RefCell`, plus `Display`, associated types, and `Cow`. These are the most powerful weapons in Rust's type system, and the foundation for reading the standard library's source. Next chapter, we enter closures and iterators — Rust's most elegant style of functional programming!

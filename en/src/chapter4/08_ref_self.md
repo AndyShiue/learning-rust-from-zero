@@ -56,7 +56,7 @@ fn main() {}
 
 `clone` takes `&self` — merely borrowing itself, not consuming — then returns a new `Self` (capital `Self`, taught in Chapter 3's last episode: the type implementing this `trait`). This explains why you can call `.clone()` on the same variable over and over — `clone` only borrows, never moving the original value.
 
-If clone's signature were `fn clone(self) -> Self`, every `clone` would consume the original — defeating the whole point of `clone`.
+If `clone`'s signature were `fn clone(self) -> Self`, every `clone` would consume the original — defeating the whole point of `clone`.
 
 ### Function Parameters Follow the Same Logic
 

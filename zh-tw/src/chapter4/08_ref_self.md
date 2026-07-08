@@ -56,7 +56,7 @@ fn main() {}
 
 `clone` 接收 `&self`——只是借用自己，不消耗——然後回傳一個新的 `Self`（大寫 `Self`，第 3 章最後一集教過，代表實作這個 `trait` 的型別）。這解釋為什麼你可以對同一個變數連續呼叫好幾次 `.clone()`——因為 `clone` 只是借用，不會 move 原本的值。
 
-如果 clone 的簽名是 `fn clone(self) -> Self`，那每次 `clone` 都會消耗原本的值，那就違反 `clone` 的本意了。
+如果 `clone` 的簽名是 `fn clone(self) -> Self`，那每次 `clone` 都會消耗原本的值，那就違反 `clone` 的本意了。
 
 ### 函數參數也一樣
 
