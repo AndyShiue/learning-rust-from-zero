@@ -272,7 +272,7 @@ fn main() {
 ## Recap
 
 - `Deref` is mainly about borrowing through a value: it lets Rust get a reference to the inner value.
-- `*v` on a `Deref` type roughly follows a reference to the inner value; what happens next depends on the context and the inner type.
+- `*v` on a `Deref` type is "borrow, then follow the reference"; whether you can copy, mutate, or move afterward is decided by the inner type and how the expression is used.
 - `deref` coercion automatically converts references such as `&Rc<i32>` to `&i32`; it can chain through multiple layers.
 - Method-call auto-dereferencing lets smart pointers call methods of the inner value.
 - `DerefMut` gives mutable access to the inner value; `Box<T>` supports it, while `Rc<T>` does not.
