@@ -28,7 +28,7 @@ fn make_greeter(name: String) -> impl Fn() {
 # fn main() {}
 ```
 
-Why? The closure captures `name` by borrow (`&name`) by default, but `name` is a local variable of the function, discarded when the function ends. The borrow inside the closure becomes a dangling reference — our old friend from Chapter 4.
+This does not compile because the closure captures `name` by borrow (`&name`) by default, but `name` is a local variable of the function, discarded when the function ends. The borrow inside the closure becomes a dangling reference — our old friend from Chapter 4.
 
 ### The move Keyword
 
