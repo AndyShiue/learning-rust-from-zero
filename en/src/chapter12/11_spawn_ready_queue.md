@@ -151,7 +151,7 @@ impl Executor {
                 let mut future = task.future.lock().expect("failed to take the lock");
 
                 if future.as_mut().poll(&mut cx).is_ready() {
-                    task.done.store(true, Ordering::SeqCst); // from now on, every wakeup is void
+                    task.done.store(true, Ordering::SeqCst); // all later wakeups are ignored
                     self.remaining -= 1; // finished
                 }
             }

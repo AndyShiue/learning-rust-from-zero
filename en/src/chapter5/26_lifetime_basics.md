@@ -98,7 +98,7 @@ fn main() {
         result = longer(&s1, &s2);
         println!("{}", result);           // ✅ Both s1 and s2 are alive here
     } // s2 is released here
-    // println!("{}", result);            // ❌ No! 'a is the intersection of s1 and s2, and s2 is dead
+    // println!("{}", result);            // ❌ No! 'a also ends when s2 dies
 }
 ```
 

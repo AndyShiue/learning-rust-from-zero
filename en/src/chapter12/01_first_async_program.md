@@ -49,7 +49,7 @@ async fn main() {
     let counter = Arc::new(AtomicU64::new(0));
 
     // listen on local port 8080
-    let listener = TcpListener::bind("127.0.0.1:8080").await.expect("couldn't listen on the port");
+    let listener = TcpListener::bind("127.0.0.1:8080").await.expect("bind failed");
     println!("server started — open http://127.0.0.1:8080 in your browser");
 
     loop {

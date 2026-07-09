@@ -170,7 +170,7 @@ impl Future for TwoDelays {
         loop {
             match this {
                 TwoDelays::Start => {
-                    // 進入第一段：建立第一個 Delay，切到下一個狀態
+                    // 進入第一段：建立第一個 Delay，切換狀態
                     *this = TwoDelays::FirstDelay(Delay::new(Duration::from_secs(1)));
                 }
                 TwoDelays::FirstDelay(delay) => match Pin::new(delay).poll(cx) {

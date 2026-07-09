@@ -143,7 +143,7 @@ fn main() {
             for _ in 0..limit {
                 counter_clone.fetch_add(1, Ordering::Relaxed);
             }
-            println!("加了 {} 次，目前值：{}", limit, counter_clone.load(Ordering::Relaxed));
+            println!("加了 {} 次，目前：{}", limit, counter_clone.load(Ordering::Relaxed));
         });
         handles.push(handle);
     }

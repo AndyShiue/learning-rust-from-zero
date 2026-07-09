@@ -113,7 +113,7 @@ fn main() {
     // greeting's type is `impl Display`, not `String`
     // So you can't use it as a String:
     // greeting.push_str("!!!"); // Compile error! impl Display has no push_str method
-    // Even though we know it's really a String inside, the compiler sees only the Display trait
+    // We know it is a String, but the compiler sees only Display
 }
 ```
 

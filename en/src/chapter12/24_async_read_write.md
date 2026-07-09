@@ -29,10 +29,10 @@ use tokio::net::TcpStream;
 async fn main() {
     let mut stream = TcpStream::connect("127.0.0.1:8080").await.expect("failed to connect");
 
-    // write_all: guarantees the whole buffer gets written (may call the underlying poll_write several times)
+    // write_all: writes the whole buffer (may call poll_write more than once)
     stream.write_all(b"GET / HTTP/1.0\r\n\r\n").await.expect("failed to write");
 
-    // read_exact: guarantees 16 bytes get read (may call the underlying poll_read several times)
+    // read_exact: reads 16 bytes (may call poll_read more than once)
     let mut buf = [0u8; 16];
     stream.read_exact(&mut buf).await.expect("failed to read");
     println!("read 16 bytes: {:?}", buf);

@@ -72,7 +72,7 @@ fn main() {
         for event in events.iter() {
             match event.token() {
                 SERVER => {
-                    // the name tag matches — the listener is readable, so accept the new connection
+                    // token matches: listener is readable, so accept the connection
                     let (_stream, addr) = listener.accept().expect("accept failed");
                     println!("someone connected: {}", addr);
                     return; // it's an example, so call it a day

@@ -27,7 +27,7 @@ async fn do_io() {}
 async fn main() {
     let data = Arc::new(Mutex::new(0));
     tokio::spawn(async move {
-        let mut guard = data.lock().expect("failed to take the lock"); // std's MutexGuard — not Send
+        let mut guard = data.lock().expect("lock failed"); // std's MutexGuard is not Send
         do_io().await; // holding the guard across the .await
         *guard += 1;
     }); // compile error: the future isn't Send and can't be spawned

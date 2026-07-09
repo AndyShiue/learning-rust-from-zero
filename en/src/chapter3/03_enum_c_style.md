@@ -62,7 +62,7 @@ fn main() {
     let _d3 = Direction::Right;
 
     println!("Direction is set!");
-    println!("(Once we learn match next episode, we can act differently based on the direction)");
+    println!("(Next episode, match lets us act based on the direction)");
 }
 ```
 

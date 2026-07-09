@@ -98,7 +98,7 @@ fn main() {
         result = longer(&s1, &s2);
         println!("{}", result);           // ✅ 這裡 s1 和 s2 都還活著
     } // s2 在這裡被釋放
-    // println!("{}", result);            // ❌ 不行！'a 是取 s1 和 s2 的交集，s2 已經死了
+    // println!("{}", result);            // ❌ 不行！'a 也會隨 s2 結束
 }
 ```
 

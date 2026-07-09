@@ -64,7 +64,7 @@ fn block_on<F: Future>(future: F) -> F::Output {
         match future.as_mut().poll(&mut cx) {
             Poll::Ready(value) => return value, // done — return the result
             Poll::Pending => {
-                // not yet; this dumbest executor just goes back and polls again (busy-spinning)
+                // not ready; this dumbest executor just polls again (busy-spins)
             }
         }
     }

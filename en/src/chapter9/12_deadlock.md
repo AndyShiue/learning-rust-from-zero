@@ -54,7 +54,7 @@ Thread A takes lock 1 first, then wants lock 2. But lock 2 belongs to thread B, 
 
 ### One Thread Can Deadlock Alone
 
-Even with a single thread, calling `lock` twice on the same `Mutex` can deadlock — if the first `lock` hasn't been released, the second waits forever:
+Even with a single thread, calling `lock` twice on the same `Mutex` can deadlock — if the first `lock` hasn't been released, the second may wait forever:
 
 ```rust,ignore,mdbook-runnable
 use std::sync::Mutex;
@@ -62,7 +62,7 @@ use std::sync::Mutex;
 fn main() {
     let m = Mutex::new(42);
     let _g1 = m.lock().expect("Failed to acquire the lock");
-    let _g2 = m.lock().expect("Failed to acquire the lock"); // Possible deadlock! The first lock isn't released; the second waits forever
+    let _g2 = m.lock().expect("lock failed"); // Possible deadlock: _g1 still holds the lock
 }
 ```
 

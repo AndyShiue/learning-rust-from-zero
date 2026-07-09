@@ -65,7 +65,7 @@ async fn worker(id: u32, mut shutdown: watch::Receiver<bool>) {
             }
         };
 
-        // actual processing goes outside the select!, so the shutdown branch can't drop it midway
+        // process outside select!, so shutdown cannot drop it midway
         process_job(id, job).await;
     }
 }

@@ -125,7 +125,7 @@ async fn add(a: i32, b: i32) -> i32 {
 
 fn main() {
     let runtime = tokio::runtime::Runtime::new().expect("couldn't create the runtime");
-    let sum = runtime.block_on(add(3, 4)); // settle the Future into an ordinary value on the spot
+    let sum = runtime.block_on(add(3, 4)); // run the Future into a plain value now
     println!("the result is {}", sum);
 }
 ```

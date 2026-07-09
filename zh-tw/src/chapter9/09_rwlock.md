@@ -26,7 +26,7 @@ fn main() {
     // 多個讀者可以同時讀
     {
         let r1 = lock.read().expect("取得讀鎖失敗");
-        let r2 = lock.read().expect("取得讀鎖失敗"); // OK，可以同時持有多個讀鎖
+        let r2 = lock.read().expect("讀鎖失敗"); // OK，可有多個讀者
         println!("r1 = {}, r2 = {}", *r1, *r2);
     }
 

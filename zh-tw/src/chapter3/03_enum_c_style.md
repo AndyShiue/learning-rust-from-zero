@@ -62,7 +62,7 @@ fn main() {
     let _d3 = Direction::Right;
 
     println!("方向已經設定好了！");
-    println!("（下一集學 match 之後，就能根據方向做不同的事）");
+    println!("（下一集，match 會讓我們根據方向行動）");
 }
 ```
 

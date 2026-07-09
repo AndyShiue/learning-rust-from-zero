@@ -49,7 +49,7 @@ async fn main() {
     let counter = Arc::new(AtomicU64::new(0));
 
     // 監聽本機的 8080 連接埠
-    let listener = TcpListener::bind("127.0.0.1:8080").await.expect("無法監聽連接埠");
+    let listener = TcpListener::bind("127.0.0.1:8080").await.expect("綁定失敗");
     println!("伺服器啟動了，請用瀏覽器打開 http://127.0.0.1:8080");
 
     loop {

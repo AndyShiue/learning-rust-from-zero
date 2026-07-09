@@ -240,16 +240,16 @@ mod app {
 // app::api::internal::secret_key() is invisible here,
 // since pub(in crate::app::api) restricts access to app::api only
 
-// Note: pub(in path)'s path must be a mod that "contains you" (some layer counting outward from you).
-// Writing an unrelated mod path, such as:
+// Note: pub(in path) must name a mod that contains you
+// (one of the layers outward), not an unrelated path:
 //     pub(in crate::some_unrelated_mod) fn foo() {}
-// makes the compiler error outright — you can't grant visibility to a mod that doesn't contain you.
+// The compiler errors; you cannot open visibility to a mod that does not contain you.
 
 fn main() {
     let conn = database::connect();          // OK, we're in the same crate
     let q = database::queries::safe_query(); // OK, pub
     println!("{}, {}", conn, q);
-    database::queries::raw_query();          // Compile error! pub(super) is for the parent mod only
+    database::queries::raw_query();          // Error: pub(super) is parent-only
 }
 ```
 

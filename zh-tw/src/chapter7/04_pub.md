@@ -240,10 +240,10 @@ mod app {
 // app::api::internal::secret_key() 在這裡看不到
 // 因為 pub(in crate::app::api) 限制了只有 app::api 能存取
 
-// 注意：pub(in path) 的 path 必須是「包含你的」mod（從你往外數的某一層）。
-// 如果你寫了一個跟你無關的 mod 路徑，例如：
+// 注意：pub(in path) 必須指定「包含你的」mod
+// （從你往外數的某一層），不能是無關的路徑：
 //     pub(in crate::some_unrelated_mod) fn foo() {}
-// 編譯器會直接報錯——你不能對一個「不包含你」的 mod 開放可見性。
+// 編譯器會報錯；你不能對不包含你的 mod 開放可見性。
 
 fn main() {
     let conn = database::connect();          // OK，我們在同一個 crate

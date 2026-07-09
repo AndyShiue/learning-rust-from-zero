@@ -143,7 +143,7 @@ fn main() {
             for _ in 0..limit {
                 counter_clone.fetch_add(1, Ordering::Relaxed);
             }
-            println!("Added {} times; current value: {}", limit, counter_clone.load(Ordering::Relaxed));
+            println!("Added {} times; now: {}", limit, counter_clone.load(Ordering::Relaxed));
         });
         handles.push(handle);
     }

@@ -54,7 +54,7 @@ fn main() {
 
 ### 同一個執行緒也會死鎖
 
-就算只有一個執行緒，對同一個 `Mutex` `lock` 兩次也有可能會死鎖——如果第一次 `lock` 還沒放開，第二次 `lock` 就永遠等不到：
+就算只有一個執行緒，對同一個 `Mutex` `lock` 兩次也有可能會死鎖——如果第一次 `lock` 還沒放開，第二次 `lock` 可能永遠等不到：
 
 ```rust,ignore,mdbook-runnable
 use std::sync::Mutex;
@@ -62,7 +62,7 @@ use std::sync::Mutex;
 fn main() {
     let m = Mutex::new(42);
     let _g1 = m.lock().expect("取得鎖失敗");
-    let _g2 = m.lock().expect("取得鎖失敗"); // 可能死鎖！第一個鎖還沒放，第二次 lock 永遠等不到
+    let _g2 = m.lock().expect("鎖定失敗"); // 可能死鎖：_g1 還握著鎖
 }
 ```
 

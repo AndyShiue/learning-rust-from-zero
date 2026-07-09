@@ -21,7 +21,7 @@ use std::sync::Arc;
 
 fn main() {
     let a = Arc::new(String::from("hello"));
-    let b = Arc::clone(&a); // Same as Rc: cuts an extra key, count +1, no second set of the data
+    let b = Arc::clone(&a); // Like Rc: clone the pointer; data is shared
     println!("Count = {}", Arc::strong_count(&a)); // 2
 }
 ```

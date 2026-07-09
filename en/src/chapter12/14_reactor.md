@@ -156,7 +156,7 @@ impl Executor {
             }
         }
 
-        handle.shared.state.lock().expect("failed to take the lock").0.take().expect("the result should be ready by now")
+        handle.shared.state.lock().expect("lock failed").0.take().expect("result not ready")
     }
 }
 
@@ -244,13 +244,13 @@ impl Future for Accept {
         let this = self.get_mut();
         // the order is deliberately "register the Waker first, then try accept".
         // if we tried accept first, got WouldBlock, and only then went to register the Waker,
-        // the connection might arrive right in between; the reactor would find no Waker to wake,
+        // a connection might arrive in between; the reactor would find no Waker to wake,
         // and the executor could oversleep.
         this.reactor.set_waker(this.listener_token, cx.waker().clone());
         match this.listener.accept() {
             Ok((stream, _addr)) => {
                 // this poll may have "registered first, then immediately succeeded".
-                // after success there's no more I/O event to wait on, so clear the Waker we just stored.
+                // after success there is no I/O event to wait for; clear the stored Waker.
                 this.reactor.clear_waker(this.listener_token);
                 this.reactor.deregister(&mut this.listener);
                 Poll::Ready(stream)
@@ -286,7 +286,7 @@ impl<'a> Future for Read<'a> {
     }
 }
 
-// accept one connection, read a few requests and print them (simplified: one connection, no timeout)
+// accept one connection; read/print requests (simplified, no timeout)
 async fn serve(reactor: Arc<Reactor>, listener: TcpListener) {
     let mut stream = Accept::new(reactor.clone(), listener).await;
 

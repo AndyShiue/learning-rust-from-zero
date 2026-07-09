@@ -26,7 +26,7 @@ fn main() {
     // Several readers may read at once
     {
         let r1 = lock.read().expect("Failed to acquire the read lock");
-        let r2 = lock.read().expect("Failed to acquire the read lock"); // OK — multiple read locks may coexist
+        let r2 = lock.read().expect("read lock failed"); // OK: many readers
         println!("r1 = {}, r2 = {}", *r1, *r2);
     }
 

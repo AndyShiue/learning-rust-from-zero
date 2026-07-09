@@ -27,7 +27,7 @@ async fn do_io() {}
 async fn main() {
     let data = Arc::new(Mutex::new(0));
     tokio::spawn(async move {
-        let mut guard = data.lock().expect("取得鎖失敗"); // 標準庫的 MutexGuard，不是 Send
+        let mut guard = data.lock().expect("鎖定失敗"); // 標準庫的 MutexGuard 不是 Send
         do_io().await; // 抓著 guard 跨 .await
         *guard += 1;
     }); // 編譯錯誤：future 不是 Send，不能 spawn

@@ -113,7 +113,7 @@ fn main() {
     // greeting 的型別是 `impl Display`，不是 `String`
     // 所以你不能把它當 String 用：
     // greeting.push_str("!!!"); // 編譯錯誤！impl Display 沒有 push_str 方法
-    // 即使我們知道裡面其實是 String，編譯器只認 Display 這個 trait
+    // 我們知道裡面其實是 String，但編譯器只看到 Display
 }
 ```
 

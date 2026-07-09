@@ -170,7 +170,7 @@ impl Future for TwoDelays {
         loop {
             match this {
                 TwoDelays::Start => {
-                    // enter the first segment: create the first Delay, switch to the next state
+                    // enter first segment: create first Delay and switch state
                     *this = TwoDelays::FirstDelay(Delay::new(Duration::from_secs(1)));
                 }
                 TwoDelays::FirstDelay(delay) => match Pin::new(delay).poll(cx) {

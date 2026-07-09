@@ -52,7 +52,8 @@ fn main() {
     let addr = "127.0.0.1:8080".parse().expect("位址解析失敗");
     let mut listener = TcpListener::bind(addr).expect("綁定失敗");
 
-    // 把 listener 登記給 Poll：名牌是 SERVER，我們關心「可讀」事件（有人連進來就算可讀）
+    // 把 listener 登記給 Poll：名牌是 SERVER，我們關心「可讀」事件
+    // （有人連進來就算可讀）
     poll.registry()
         .register(&mut listener, SERVER, Interest::READABLE)
         .expect("登記失敗");
@@ -71,7 +72,7 @@ fn main() {
         for event in events.iter() {
             match event.token() {
                 SERVER => {
-                    // 名牌對上了，表示 listener 可讀，可以 accept 出新連線
+                    // 名牌對上了，表示 listener 可讀，可以 accept 這條連線
                     let (_stream, addr) = listener.accept().expect("accept 失敗");
                     println!("有人連進來了：{}", addr);
                     return; // 因為是範例直接收工

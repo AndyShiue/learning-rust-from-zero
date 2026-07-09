@@ -64,7 +64,7 @@ shadowing 最常見的用途是「轉換型別但保留名字」：
 ```rust,editable
 fn main() {
     let input = "42"; // 這是字串
-    let input = input.trim().parse::<i32>().expect("請輸入數字"); // 轉成數字，還是叫 input
+    let input = input.trim().parse::<i32>().expect("不是數字"); // 現在是 i32，名字相同
     println!("input + 1 = {}", input + 1);
 }
 ```

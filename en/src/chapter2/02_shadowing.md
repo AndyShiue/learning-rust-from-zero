@@ -64,7 +64,7 @@ The most common use of shadowing is "converting the type while keeping the name"
 ```rust,editable
 fn main() {
     let input = "42"; // This is a string
-    let input = input.trim().parse::<i32>().expect("Please enter a number"); // Converted to a number, still called input
+    let input = input.trim().parse::<i32>().expect("not a number"); // now i32, same name
     println!("input + 1 = {}", input + 1);
 }
 ```

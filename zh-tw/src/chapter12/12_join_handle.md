@@ -172,7 +172,7 @@ impl Executor {
         F: Future<Output = T> + Send + 'static,
         T: Send + 'static,
     {
-        let handle = self.spawn(future); // 傳進來的 Future 也 spawn 成 Task，留著它的 JoinHandle
+        let handle = self.spawn(future); // 也 spawn 成 Task，保留 JoinHandle
 
         // 跑到所有 Task 完成（迴圈和上一集一模一樣）
         while self.remaining > 0 {
@@ -201,7 +201,7 @@ impl Executor {
         }
 
         // 從 Shared 取出結果回傳
-        handle.shared.state.lock().expect("取得鎖失敗").0.take().expect("結果應該已經算好了")
+        handle.shared.state.lock().expect("鎖定失敗").0.take().expect("結果還沒好")
     }
 }
 

@@ -65,7 +65,7 @@ async fn worker(id: u32, mut shutdown: watch::Receiver<bool>) {
             }
         };
 
-        // 真正處理工作放在 select! 外面，避免被 shutdown branch 直接 drop 在半路
+        // 在 select! 外面處理，避免被 shutdown 直接 drop 在半路
         process_job(id, job).await;
     }
 }
@@ -135,6 +135,8 @@ graceful 不代表**無限期**等。萬一某個 worker 卡死了，你不能�
 [dependencies]
 tokio-util = "0.7"
 ```
+
+（和第 30 集的 `tokio-stream` 一樣，crate 名稱裡的 `-` 在程式碼中會變成 `_`：`use tokio_util::...`。）
 
 把上面的 `watch` 換成它：
 

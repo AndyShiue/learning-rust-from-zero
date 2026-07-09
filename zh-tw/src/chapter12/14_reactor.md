@@ -156,7 +156,7 @@ impl Executor {
             }
         }
 
-        handle.shared.state.lock().expect("取得鎖失敗").0.take().expect("結果應該已經算好了")
+        handle.shared.state.lock().expect("鎖定失敗").0.take().expect("結果還沒好")
     }
 }
 
@@ -286,7 +286,7 @@ impl<'a> Future for Read<'a> {
     }
 }
 
-// 接一條連線，讀幾個 request 印出來（簡化：單一連線、不設逾時）
+// 接一條連線，讀取並印出 request（簡化、不設逾時）
 async fn serve(reactor: Arc<Reactor>, listener: TcpListener) {
     let mut stream = Accept::new(reactor.clone(), listener).await;
 

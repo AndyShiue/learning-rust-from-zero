@@ -172,7 +172,7 @@ impl Executor {
         F: Future<Output = T> + Send + 'static,
         T: Send + 'static,
     {
-        let handle = self.spawn(future); // spawn the incoming Future as a Task too, keeping its JoinHandle
+        let handle = self.spawn(future); // spawn it as a Task; keep its JoinHandle
 
         // run until every Task completes (the loop is identical to last episode)
         while self.remaining > 0 {
@@ -201,7 +201,7 @@ impl Executor {
         }
 
         // pull the result out of the Shared and return it
-        handle.shared.state.lock().expect("failed to take the lock").0.take().expect("the result should be ready by now")
+        handle.shared.state.lock().expect("lock failed").0.take().expect("result not ready")
     }
 }
 
