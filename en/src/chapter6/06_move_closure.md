@@ -83,7 +83,9 @@ fn main() {
 
 ### The `trait`s Closures Implement Automatically
 
-Whether a closure can `clone` or copy depends on its captured variables — much like a tuple: if everything inside is copyable, the whole is:
+Until now, we've mostly treated closures as things you call. There wasn't a good place to ask a different ownership question: can the closure value itself be moved, copied, or `clone`d?
+
+This episode is finally about ownership around closures, so this is the right place to answer that. Moving a closure value is allowed like moving other values, but whether it can be copied or `clone`d depends on what it captures — much like a tuple: if everything inside is copyable, the whole is:
 
 - All captured variables `Copy` → the closure is `Copy` too.
 - All captured variables `Clone` → the closure is `Clone` too.
