@@ -16,7 +16,7 @@ fn duplicate<T>(x: &T) -> (T, T) {
 # fn main() {}
 ```
 
-編譯器會報錯：「不是所有 `T` 都有 `clone()` 方法。」
+編譯器會報錯：「不是所有 `T` 都有 `.clone()` 方法。」
 
 這很合理——`T` 可以是任何型別，萬一有個型別沒有實作 `Clone` 呢？
 
@@ -95,7 +95,7 @@ impl<T: Clone> Pair<T> {
 # }
 ```
 
-`Pair<Pair<i32>>` 不能呼叫 `to_tuple()`，因為 `Pair<i32>` 沒有實作 `Clone`（我們沒有幫它 `derive` `Clone`）。
+`Pair<Pair<i32>>` 不能呼叫 `.to_tuple()`，因為 `Pair<i32>` 沒有實作 `Clone`（我們沒有幫它 `derive` `Clone`）。
 
 ## 範例程式碼
 

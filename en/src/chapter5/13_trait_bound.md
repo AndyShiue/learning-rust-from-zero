@@ -16,7 +16,7 @@ fn duplicate<T>(x: &T) -> (T, T) {
 # fn main() {}
 ```
 
-The compiler complains: "Not every `T` has a `clone()` method."
+The compiler complains: "Not every `T` has a `.clone()` method."
 
 Fair enough — `T` could be any type. What if some type doesn't implement `Clone`?
 
@@ -95,7 +95,7 @@ This says: only when `T` implements `Clone` does `Pair<T>` have the `to_tuple` m
 # }
 ```
 
-`Pair<Pair<i32>>` can't call `to_tuple()`, because `Pair<i32>` doesn't implement `Clone` (we never `derive`d `Clone` for it).
+`Pair<Pair<i32>>` can't call `.to_tuple()`, because `Pair<i32>` doesn't implement `Clone` (we never `derive`d `Clone` for it).
 
 ## Example Code
 
