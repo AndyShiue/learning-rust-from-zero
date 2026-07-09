@@ -21,7 +21,7 @@ fn main() {
 
 Looks simple, right? But what's actually happening underneath?
 
-### Desugaring the Loop
+### What the Compiler Turns It Into
 
 The compiler actually transforms the `for` loop above into this:
 
@@ -82,9 +82,9 @@ fn main() {
         println!("Fruit: {}", fruit);
     }
 
-    // Manually desugared into while let (fully equivalent)
+    // Manually rewritten as while let (fully equivalent)
     let fruits = vec!["apple", "banana", "orange"];
-    println!("\n--- Desugared by hand ---");
+    println!("\n--- Rewritten by hand ---");
     let mut iter = fruits.into_iter();
     while let Some(fruit) = iter.next() {
         println!("Fruit: {}", fruit);
@@ -137,7 +137,7 @@ impl Iterator for Countdown {
 
 ## Recap
 
-- `for x in v` is shorthand; desugared, it's `v.into_iter()` + `while let Some(x) = iter.next()`.
+- `for x in v` is shorthand; the compiler rewrites it as `v.into_iter()` + `while let Some(x) = iter.next()`.
 - The `IntoIterator` `trait` defines "how to turn oneself into an iterator."
 - Any type implementing `IntoIterator` works with `for` loops.
 - Every `Iterator` implements `IntoIterator` automatically.

@@ -2,7 +2,7 @@
 
 ## Goal of This Episode
 
-By hand-desugaring closures into `struct`s + methods, understand what the compiler does behind the scenes. You'll see which kind of `struct` each of the three closure kinds corresponds to, and why calling a closure is really calling a method.
+We'll manually model closures as `struct`s + methods, so you can understand what the compiler does behind the scenes. You'll see which kind of `struct` each of the three closure kinds corresponds to, and why calling a closure is really calling a method.
 
 ## Concept
 

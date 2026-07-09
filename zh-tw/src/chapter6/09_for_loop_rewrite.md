@@ -21,9 +21,9 @@ fn main() {
 
 看起來很簡單對吧？但這背後到底發生了什麼事？
 
-### 迴圈展開
+### 編譯器會把它改寫成什麼
 
-上面的 `for` 迴圈，編譯器其實會轉換成這樣：
+上面的 `for` 迴圈，編譯器其實會把它改寫成這樣：
 
 ```rust,editable
 fn main() {
@@ -82,9 +82,9 @@ fn main() {
         println!("水果：{}", fruit);
     }
 
-    // 手動展開成 while let（完全等價）
+    // 手動改寫成 while let（完全等價）
     let fruits = vec!["蘋果", "香蕉", "橘子"];
-    println!("\n--- 手動展開 ---");
+    println!("\n--- 手動改寫 ---");
     let mut iter = fruits.into_iter();
     while let Some(fruit) = iter.next() {
         println!("水果：{}", fruit);
@@ -137,7 +137,7 @@ impl Iterator for Countdown {
 
 ## 重點整理
 
-- `for x in v` 是簡寫，展開後是 `v.into_iter()` + `while let Some(x) = iter.next()`。
+- `for x in v` 是簡寫；編譯器會把它改寫成 `v.into_iter()` + `while let Some(x) = iter.next()`。
 - `IntoIterator` `trait` 定義了「如何把自己轉成迭代器」。
 - 任何實作了 `IntoIterator` 的型別都能用 `for` 迴圈。
 - 每個 `Iterator` 自動實作了 `IntoIterator`。

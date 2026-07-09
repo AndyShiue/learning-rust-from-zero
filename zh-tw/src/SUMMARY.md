@@ -136,7 +136,7 @@
     - [`move` 閉包](chapter6/06_move_closure.md)
     - [`Option` / `Result` 的閉包方法](chapter6/07_option_result_closure_methods.md)
     - [`Iterator` `trait`](chapter6/08_iterator_trait.md)
-    - [`for` 迴圈的真面目](chapter6/09_for_loop_desugar.md)
+    - [`for` 迴圈的真面目](chapter6/09_for_loop_rewrite.md)
     - [`iter` / `into_iter` / `iter_mut`](chapter6/10_iter_into_iter_iter_mut.md)
     - [收集](chapter6/11_collect.md)
     - [聚合](chapter6/12_aggregation.md)
