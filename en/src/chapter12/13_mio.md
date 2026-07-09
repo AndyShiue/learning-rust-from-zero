@@ -46,17 +46,17 @@ use std::time::Duration;
 const SERVER: Token = Token(0);
 
 fn main() {
-    let mut poll = Poll::new().expect("failed to create the Poll");
+    let mut poll = Poll::new().expect("Poll creation failed");
     let mut events = Events::with_capacity(128); // receive at most 128 events at a time
 
     let addr = "127.0.0.1:8080".parse().expect("failed to parse the address");
-    let mut listener = TcpListener::bind(addr).expect("failed to bind");
+    let mut listener = TcpListener::bind(addr).expect("bind failed");
 
     // register the listener with the Poll: name tag SERVER, interested in "readable" events
     // (someone connecting counts as readable)
     poll.registry()
         .register(&mut listener, SERVER, Interest::READABLE)
-        .expect("failed to register");
+        .expect("register failed");
 
     // another thread connects after one second
     std::thread::spawn(|| {

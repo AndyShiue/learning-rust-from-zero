@@ -586,7 +586,7 @@ fn main() {
     println!("Please enter your favorite food:");
 
     let mut input = String::new();
-    std::io::stdin().read_line(&mut input).expect("Failed to read input");
+    std::io::stdin().read_line(&mut input).expect("failed to read input");
 
     println!("You like {}!", input.trim());
 }
@@ -599,7 +599,7 @@ Status: available
 Practice goals:
 - Confirm the reader can convert the user's text input into an `i32`.
 - Confirm the reader can use the converted number in arithmetic.
-- Confirm the reader keeps using `.expect("Please enter a number")`, not error handling that hasn't been taught yet.
+- Confirm the reader keeps using `.expect("not a number")`, not error handling that hasn't been taught yet.
 
 Problems:
 1. Write a program that asks the user for a number, then prints that number plus `10`.
@@ -613,14 +613,14 @@ Please enter a number:
 ```
 
 Grading criteria:
-- Must use `input.trim().parse::<i32>().expect("Please enter a number")`.
+- Must use `input.trim().parse::<i32>().expect("not a number")`.
 - The addition must use the converted number variable; don't handle the input as text.
 - Don't use `.unwrap()` or `?`.
 - Don't unfold turbofish, generics, or `Result`; for now, treat `.parse::<i32>()` as fixed boilerplate, the way the book does.
 
 Hint directions:
 1. Copy the fixed stdin input-reading boilerplate first.
-2. Convert the text to a number with `let num = input.trim().parse::<i32>().expect("Please enter a number");`.
+2. Convert the text to a number with `let num = input.trim().parse::<i32>().expect("not a number");`.
 3. `num + 10` is the result after adding 10.
 
 Reference answer:
@@ -630,9 +630,9 @@ fn main() {
     println!("Please enter a number:");
 
     let mut input = String::new();
-    std::io::stdin().read_line(&mut input).expect("Failed to read input");
+    std::io::stdin().read_line(&mut input).expect("failed to read input");
 
-    let num = input.trim().parse::<i32>().expect("Please enter a number");
+    let num = input.trim().parse::<i32>().expect("not a number");
 
     println!("{} plus 10 is {}", num, num + 10);
 }
@@ -676,9 +676,9 @@ fn main() {
     println!("Please enter your score:");
 
     let mut input = String::new();
-    std::io::stdin().read_line(&mut input).expect("Failed to read input");
+    std::io::stdin().read_line(&mut input).expect("failed to read input");
 
-    let score = input.trim().parse::<i32>().expect("Please enter a number");
+    let score = input.trim().parse::<i32>().expect("not a number");
 
     if score >= 90 {
         println!("Your grade is A");
@@ -723,7 +723,7 @@ Got a positive number!
 Grading criteria:
 - `loop` must wrap the whole prompt–read–parse–check flow.
 - Each iteration must create a fresh `input`; don't reuse the previous round's.
-- Must use `.parse::<i32>().expect("Please enter a number")`.
+- Must use `.parse::<i32>().expect("not a number")`.
 - When `num > 0`, print `Got a positive number!` and `break`.
 - When `num <= 0`, print `Try again`, without `break`ing.
 - Don't switch to `while` or `for`; those are taught later.
@@ -741,9 +741,9 @@ fn main() {
         println!("Please enter a positive number:");
 
         let mut input = String::new();
-        std::io::stdin().read_line(&mut input).expect("Failed to read input");
+        std::io::stdin().read_line(&mut input).expect("failed to read input");
 
-        let num = input.trim().parse::<i32>().expect("Please enter a number");
+        let num = input.trim().parse::<i32>().expect("not a number");
 
         if num > 0 {
             println!("Got a positive number!");
@@ -782,7 +782,7 @@ Goal reached!
 Grading criteria:
 - Two inputs must be read: one for `goal`, one for `money`.
 - `goal` may stay immutable; `money` must be `let mut`, since the loop changes it.
-- Both inputs must use `.parse::<i32>().expect("Please enter a number")`.
+- Both inputs must use `.parse::<i32>().expect("not a number")`.
 - Must use `while money < goal`.
 - Inside the loop, first `money += 30;`, then print the current amount.
 - After the loop ends, print `Goal reached!`.
@@ -801,16 +801,16 @@ fn main() {
     println!("Please enter the target amount:");
 
     let mut goal_input = String::new();
-    std::io::stdin().read_line(&mut goal_input).expect("Failed to read input");
+    std::io::stdin().read_line(&mut goal_input).expect("failed to read input");
 
-    let goal = goal_input.trim().parse::<i32>().expect("Please enter a number");
+    let goal = goal_input.trim().parse::<i32>().expect("not a number");
 
     println!("Please enter the current amount:");
 
     let mut money_input = String::new();
-    std::io::stdin().read_line(&mut money_input).expect("Failed to read input");
+    std::io::stdin().read_line(&mut money_input).expect("failed to read input");
 
-    let mut money = money_input.trim().parse::<i32>().expect("Please enter a number");
+    let mut money = money_input.trim().parse::<i32>().expect("not a number");
 
     while money < goal {
         money += 30;
@@ -867,7 +867,7 @@ FizzBuzz
 ```
 
 Grading criteria:
-- Must use the stdin boilerplate and `.parse::<i32>().expect("Please enter a number")`.
+- Must use the stdin boilerplate and `.parse::<i32>().expect("not a number")`.
 - Problem 1 must use `for seat in 1..=last`, because the last seat is included.
 - Problem 1 must not use `1..last` — that would skip the final seat.
 - Problem 2 must use `for i in 1..=n`, printing from 1 to n.
@@ -890,9 +890,9 @@ fn main() {
     println!("Please enter the last seat number:");
 
     let mut input = String::new();
-    std::io::stdin().read_line(&mut input).expect("Failed to read input");
+    std::io::stdin().read_line(&mut input).expect("failed to read input");
 
-    let last = input.trim().parse::<i32>().expect("Please enter a number");
+    let last = input.trim().parse::<i32>().expect("not a number");
 
     for seat in 1..=last {
         println!("Seat No. {}", seat);
@@ -905,9 +905,9 @@ fn main() {
     println!("Please enter a positive integer:");
 
     let mut input = String::new();
-    std::io::stdin().read_line(&mut input).expect("Failed to read input");
+    std::io::stdin().read_line(&mut input).expect("failed to read input");
 
-    let n = input.trim().parse::<i32>().expect("Please enter a number");
+    let n = input.trim().parse::<i32>().expect("not a number");
 
     for i in 1..=n {
         if i % 3 == 0 && i % 5 == 0 {
@@ -965,7 +965,7 @@ a = 3, b = 7
 ```
 
 Grading criteria:
-- All three problems must use the stdin boilerplate and `.parse::<i32>().expect("Please enter a number")`.
+- All three problems must use the stdin boilerplate and `.parse::<i32>().expect("not a number")`.
 - Problem 1 needs two `for` loops: the outer one controls the height, the inner one the width.
 - In problems 1 and 2, the inner loop should use `print!("*");`, and each outer pass should end with `println!();` for the newline.
 - Problem 2's inner range must depend on the outer variable, e.g. `1..=row`.
@@ -987,16 +987,16 @@ fn main() {
     println!("Please enter the height:");
 
     let mut height_input = String::new();
-    std::io::stdin().read_line(&mut height_input).expect("Failed to read input");
+    std::io::stdin().read_line(&mut height_input).expect("failed to read input");
 
-    let height = height_input.trim().parse::<i32>().expect("Please enter a number");
+    let height = height_input.trim().parse::<i32>().expect("not a number");
 
     println!("Please enter the width:");
 
     let mut width_input = String::new();
-    std::io::stdin().read_line(&mut width_input).expect("Failed to read input");
+    std::io::stdin().read_line(&mut width_input).expect("failed to read input");
 
-    let width = width_input.trim().parse::<i32>().expect("Please enter a number");
+    let width = width_input.trim().parse::<i32>().expect("not a number");
 
     for row in 1..=height {
         for col in 1..=width {
@@ -1012,9 +1012,9 @@ fn main() {
     println!("Please enter the number of levels:");
 
     let mut input = String::new();
-    std::io::stdin().read_line(&mut input).expect("Failed to read input");
+    std::io::stdin().read_line(&mut input).expect("failed to read input");
 
-    let levels = input.trim().parse::<i32>().expect("Please enter a number");
+    let levels = input.trim().parse::<i32>().expect("not a number");
 
     for row in 1..=levels {
         for col in 1..=row {
@@ -1030,9 +1030,9 @@ fn main() {
     println!("Please enter the target number:");
 
     let mut input = String::new();
-    std::io::stdin().read_line(&mut input).expect("Failed to read input");
+    std::io::stdin().read_line(&mut input).expect("failed to read input");
 
-    let target = input.trim().parse::<i32>().expect("Please enter a number");
+    let target = input.trim().parse::<i32>().expect("not a number");
 
     'outer: for a in 1..=9 {
         for b in 1..=9 {
@@ -1073,7 +1073,7 @@ Please enter the upper limit:
 ```
 
 Grading criteria:
-- Must use the stdin boilerplate and `.parse::<i32>().expect("Please enter a number")`.
+- Must use the stdin boilerplate and `.parse::<i32>().expect("not a number")`.
 - The outer loop can be written as `'outer: for num in 2..=n`.
 - The inner loop can be written as `for divisor in 2..num`, checking whether anything divides `num`.
 - If `num % divisor == 0`, `num` isn't prime — use `continue 'outer;`.
@@ -1095,9 +1095,9 @@ fn main() {
     println!("Please enter the upper limit:");
 
     let mut input = String::new();
-    std::io::stdin().read_line(&mut input).expect("Failed to read input");
+    std::io::stdin().read_line(&mut input).expect("failed to read input");
 
-    let n = input.trim().parse::<i32>().expect("Please enter a number");
+    let n = input.trim().parse::<i32>().expect("not a number");
 
     'outer: for num in 2..=n {
         for divisor in 2..num {
@@ -1218,7 +1218,7 @@ The ticket price is 50 dollars
 ```
 
 Grading criteria:
-- Must use the stdin boilerplate and `.parse::<i32>().expect("Please enter a number")`.
+- Must use the stdin boilerplate and `.parse::<i32>().expect("not a number")`.
 - It should read `let ticket_price = if age < 18 { 50 } else { 100 };`.
 - No `let mut ticket_price` needed.
 - No semicolons after the `50` and `100`.
@@ -1237,9 +1237,9 @@ fn main() {
     println!("Please enter your age:");
 
     let mut input = String::new();
-    std::io::stdin().read_line(&mut input).expect("Failed to read input");
+    std::io::stdin().read_line(&mut input).expect("failed to read input");
 
-    let age = input.trim().parse::<i32>().expect("Please enter a number");
+    let age = input.trim().parse::<i32>().expect("not a number");
 
     let ticket_price = if age < 18 { 50 } else { 100 };
 
@@ -1292,9 +1292,9 @@ fn main() {
     println!("Please enter a score:");
 
     let mut input = String::new();
-    std::io::stdin().read_line(&mut input).expect("Failed to read input");
+    std::io::stdin().read_line(&mut input).expect("failed to read input");
 
-    let score = input.trim().parse::<i32>().expect("Please enter a number");
+    let score = input.trim().parse::<i32>().expect("not a number");
 
     if score >= PASS_SCORE {
         println!("Pass");
@@ -1356,7 +1356,7 @@ fn main() {
         println!("Please enter the password:");
 
         let mut input = String::new();
-        std::io::stdin().read_line(&mut input).expect("Failed to read input");
+        std::io::stdin().read_line(&mut input).expect("failed to read input");
 
         if input.trim() == "rust" {
             println!("Login successful");
@@ -1483,16 +1483,16 @@ fn main() {
     println!("Please enter the unit price:");
 
     let mut price_input = String::new();
-    std::io::stdin().read_line(&mut price_input).expect("Failed to read input");
+    std::io::stdin().read_line(&mut price_input).expect("failed to read input");
 
-    let price = price_input.trim().parse::<i32>().expect("Please enter a number");
+    let price = price_input.trim().parse::<i32>().expect("not a number");
 
     println!("Please enter the quantity:");
 
     let mut count_input = String::new();
-    std::io::stdin().read_line(&mut count_input).expect("Failed to read input");
+    std::io::stdin().read_line(&mut count_input).expect("failed to read input");
 
-    let count = count_input.trim().parse::<i32>().expect("Please enter a number");
+    let count = count_input.trim().parse::<i32>().expect("not a number");
 
     print_total(price, count);
 }
@@ -1555,14 +1555,14 @@ fn main() {
     println!("Please enter the unit price:");
 
     let mut price_input = String::new();
-    std::io::stdin().read_line(&mut price_input).expect("Failed to read input");
-    let price = price_input.trim().parse::<i32>().expect("Please enter a number");
+    std::io::stdin().read_line(&mut price_input).expect("failed to read input");
+    let price = price_input.trim().parse::<i32>().expect("not a number");
 
     println!("Please enter the quantity:");
 
     let mut count_input = String::new();
-    std::io::stdin().read_line(&mut count_input).expect("Failed to read input");
-    let count = count_input.trim().parse::<i32>().expect("Please enter a number");
+    std::io::stdin().read_line(&mut count_input).expect("failed to read input");
+    let count = count_input.trim().parse::<i32>().expect("not a number");
 
     let total = calculate_total(price, count);
 
@@ -1582,14 +1582,14 @@ fn main() {
     println!("Please enter how much money you have:");
 
     let mut money_input = String::new();
-    std::io::stdin().read_line(&mut money_input).expect("Failed to read input");
-    let money = money_input.trim().parse::<i32>().expect("Please enter a number");
+    std::io::stdin().read_line(&mut money_input).expect("failed to read input");
+    let money = money_input.trim().parse::<i32>().expect("not a number");
 
     println!("Please enter the ticket price:");
 
     let mut price_input = String::new();
-    std::io::stdin().read_line(&mut price_input).expect("Failed to read input");
-    let price = price_input.trim().parse::<i32>().expect("Please enter a number");
+    std::io::stdin().read_line(&mut price_input).expect("failed to read input");
+    let price = price_input.trim().parse::<i32>().expect("not a number");
 
     let result = buy_ticket(money, price);
 
@@ -1650,9 +1650,9 @@ fn main() {
     println!("Please enter the price:");
 
     let mut input = String::new();
-    std::io::stdin().read_line(&mut input).expect("Failed to read input");
+    std::io::stdin().read_line(&mut input).expect("failed to read input");
 
-    let price = input.trim().parse::<i32>().expect("Please enter a number");
+    let price = input.trim().parse::<i32>().expect("not a number");
 
     let is_member = true;
     let final_price = discount_price(price, is_member);
@@ -1731,9 +1731,9 @@ fn main() {
     println!("Please enter a number:");
 
     let mut input = String::new();
-    std::io::stdin().read_line(&mut input).expect("Failed to read input");
+    std::io::stdin().read_line(&mut input).expect("failed to read input");
 
-    let n = input.trim().parse::<i32>().expect("Please enter a number");
+    let n = input.trim().parse::<i32>().expect("not a number");
 
     if is_power_of_two(n) {
         println!("It's a power of two");
@@ -1762,9 +1762,9 @@ fn main() {
     println!("Please enter the starting number:");
 
     let mut input = String::new();
-    std::io::stdin().read_line(&mut input).expect("Failed to read input");
+    std::io::stdin().read_line(&mut input).expect("failed to read input");
 
-    let n = input.trim().parse::<i32>().expect("Please enter a number");
+    let n = input.trim().parse::<i32>().expect("not a number");
 
     print_collatz(n);
 }
@@ -1821,20 +1821,20 @@ fn main() {
     println!("Please enter day 1's temperature:");
 
     let mut day1_input = String::new();
-    std::io::stdin().read_line(&mut day1_input).expect("Failed to read input");
-    let day1 = day1_input.trim().parse::<i32>().expect("Please enter a number");
+    std::io::stdin().read_line(&mut day1_input).expect("failed to read input");
+    let day1 = day1_input.trim().parse::<i32>().expect("not a number");
 
     println!("Please enter day 2's temperature:");
 
     let mut day2_input = String::new();
-    std::io::stdin().read_line(&mut day2_input).expect("Failed to read input");
-    let day2 = day2_input.trim().parse::<i32>().expect("Please enter a number");
+    std::io::stdin().read_line(&mut day2_input).expect("failed to read input");
+    let day2 = day2_input.trim().parse::<i32>().expect("not a number");
 
     println!("Please enter day 3's temperature:");
 
     let mut day3_input = String::new();
-    std::io::stdin().read_line(&mut day3_input).expect("Failed to read input");
-    let day3 = day3_input.trim().parse::<i32>().expect("Please enter a number");
+    std::io::stdin().read_line(&mut day3_input).expect("failed to read input");
+    let day3 = day3_input.trim().parse::<i32>().expect("not a number");
 
     let temperatures = [day1, day2, day3];
 
@@ -1914,9 +1914,9 @@ fn main() {
         println!("Please enter expense No. {}:", i + 1);
 
         let mut input = String::new();
-        std::io::stdin().read_line(&mut input).expect("Failed to read input");
+        std::io::stdin().read_line(&mut input).expect("failed to read input");
 
-        let expense = input.trim().parse::<i32>().expect("Please enter a number");
+        let expense = input.trim().parse::<i32>().expect("not a number");
         expenses[i] = expense;
     }
 
@@ -2019,9 +2019,9 @@ fn main() {
         println!("Please enter the step count for day {}:", i + 1);
 
         let mut input = String::new();
-        std::io::stdin().read_line(&mut input).expect("Failed to read input");
+        std::io::stdin().read_line(&mut input).expect("failed to read input");
 
-        let step = input.trim().parse::<i32>().expect("Please enter a number");
+        let step = input.trim().parse::<i32>().expect("not a number");
         steps[i] = step;
     }
 

@@ -25,14 +25,14 @@ fn main() {
 
     // Several readers may read at once
     {
-        let r1 = lock.read().expect("Failed to acquire the read lock");
+        let r1 = lock.read().expect("read lock failed");
         let r2 = lock.read().expect("read lock failed"); // OK: many readers
         println!("r1 = {}, r2 = {}", *r1, *r2);
     }
 
     // Writing is exclusive
     {
-        let mut w = lock.write().expect("Failed to acquire the write lock");
+        let mut w = lock.write().expect("write lock failed");
         *w += 1;
     }
 }
@@ -74,7 +74,7 @@ fn main() {
     for i in 0..3 {
         let data = Arc::clone(&data);
         let handle = thread::spawn(move || {
-            let read_guard = data.read().expect("Failed to acquire the read lock");
+            let read_guard = data.read().expect("read lock failed");
             println!("Reader {}: {:?}", i, *read_guard);
             // Several readers may hold read locks at once
         });
@@ -85,7 +85,7 @@ fn main() {
     {
         let data = Arc::clone(&data);
         let handle = thread::spawn(move || {
-            let mut write_guard = data.write().expect("Failed to acquire the write lock");
+            let mut write_guard = data.write().expect("write lock failed");
             write_guard.push(4);
             println!("Writer: write complete; it's now {:?}", *write_guard);
         });
@@ -93,10 +93,10 @@ fn main() {
     }
 
     for handle in handles {
-        handle.join().expect("The thread hit an error");
+        handle.join().expect("thread panicked");
     }
 
-    println!("Final result: {:?}", *data.read().expect("Failed to acquire the read lock"));
+    println!("Final result: {:?}", *data.read().expect("read lock failed"));
 }
 ```
 

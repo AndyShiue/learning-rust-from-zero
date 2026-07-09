@@ -53,7 +53,7 @@ fn main() {
         println!("{:?}", data_clone);
     });
 
-    handle.join().expect("The thread hit an error");
+    handle.join().expect("thread panicked");
  }
 ```
 
@@ -92,19 +92,19 @@ fn main() {
         });
 
         let h2 = s.spawn(|| {
-            let max = input.iter().max().expect("Empty input");
+            let max = input.iter().max().expect("empty input");
             *max
         });
 
         let h3 = s.spawn(|| {
-            let min = input.iter().min().expect("Empty input");
+            let min = input.iter().min().expect("empty input");
             *min
         });
 
         // Inside the scope, join retrieves return values too
-        results.push(h1.join().expect("The thread hit an error"));
-        results.push(h2.join().expect("The thread hit an error"));
-        results.push(h3.join().expect("The thread hit an error"));
+        results.push(h1.join().expect("thread panicked"));
+        results.push(h2.join().expect("thread panicked"));
+        results.push(h3.join().expect("thread panicked"));
     });
 
     println!("input is still usable: {:?}", input);

@@ -19,7 +19,7 @@ Last episode's atomics apply only to simple types like integers and booleans. Wh
 
 ### `lock` and `MutexGuard`
 
-Acquire the lock with `mutex.lock().expect("Failed to acquire the lock")`. It returns a `MutexGuard`:
+Acquire the lock with `mutex.lock().expect("lock failed")`. It returns a `MutexGuard`:
 
 ```rust,editable
 use std::sync::Mutex;
@@ -27,7 +27,7 @@ use std::sync::Mutex;
 fn main() {
     let m = Mutex::new(42);
     {
-        let mut guard = m.lock().expect("Failed to acquire the lock");
+        let mut guard = m.lock().expect("lock failed");
         *guard += 1; // Modify the value through the guard
         println!("{}", *guard); // 43
     } // The guard is dropped; automatic unlock
@@ -53,17 +53,17 @@ fn main() {
     for _ in 0..10 {
         let counter = Arc::clone(&counter);
         let handle = thread::spawn(move || {
-            let mut num = counter.lock().expect("Failed to acquire the lock");
+            let mut num = counter.lock().expect("lock failed");
             *num += 1;
         });
         handles.push(handle);
     }
 
     for handle in handles {
-        handle.join().expect("The thread hit an error");
+        handle.join().expect("thread panicked");
     }
 
-    println!("Result: {}", *counter.lock().expect("Failed to acquire the lock")); // 10
+    println!("Result: {}", *counter.lock().expect("lock failed")); // 10
 }
 ```
 
@@ -73,14 +73,14 @@ While the guard lives, the lock stays held, and every other thread waits. So kee
 
 ```rust,ignore
 // Bad: the guard lives to scope's end; the lock is held too long
-let mut guard = mutex.lock().expect("Failed to acquire the lock");
+let mut guard = mutex.lock().expect("lock failed");
 *guard += 1;
 // ... lots of work that doesn't need the lock ...
 // The guard only drops way down here
 
 // Good: release when done
 {
-    let mut guard = mutex.lock().expect("Failed to acquire the lock");
+    let mut guard = mutex.lock().expect("lock failed");
     *guard += 1;
 } // The guard drops immediately; the lock releases immediately
 // ... other work ...
@@ -109,7 +109,7 @@ fn main() {
         let handle = thread::spawn(move || {
             // Shrinking the guard's scope
             {
-                let mut num = counter.lock().expect("Failed to acquire the lock");
+                let mut num = counter.lock().expect("lock failed");
                 *num += 1;
                 println!("Thread {} set the counter to {}", i, *num);
             } // The guard drops right here
@@ -121,10 +121,10 @@ fn main() {
     }
 
     for handle in handles {
-        handle.join().expect("The thread hit an error");
+        handle.join().expect("thread panicked");
     }
 
-    println!("Final result: {}", *counter.lock().expect("Failed to acquire the lock"));
+    println!("Final result: {}", *counter.lock().expect("lock failed"));
 }
 ```
 

@@ -82,7 +82,7 @@ async fn main() {
     }
 
     // 1. 等訊號
-    tokio::signal::ctrl_c().await.expect("無法監聽 Ctrl-C");
+    tokio::signal::ctrl_c().await.expect("監聽 Ctrl-C 失敗");
     println!("收到 Ctrl-C，開始 graceful shutdown");
 
     // 2. 廣播收工
@@ -187,7 +187,7 @@ async fn main() {
         workers.spawn(worker(id, token.clone())); // 每個 worker 拿一份 clone
     }
 
-    tokio::signal::ctrl_c().await.expect("無法監聽 Ctrl-C");
+    tokio::signal::ctrl_c().await.expect("監聽 Ctrl-C 失敗");
     token.cancel(); // 一聲令下，全部取消
 
     match timeout(Duration::from_secs(5), async {

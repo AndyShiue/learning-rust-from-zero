@@ -96,7 +96,7 @@ impl Wake for Task {
     fn wake(self: Arc<Self>) {
         // 拿到舊的 queued 值，同時把新的 true 留回去
         if !self.queued.swap(true, Ordering::SeqCst) {
-            self.queue.lock().expect("取得鎖失敗").push_back(self.clone());
+            self.queue.lock().expect("鎖失敗").push_back(self.clone());
             self.executor_thread.unpark(); // 叫醒 executor
         }
     }
@@ -138,7 +138,7 @@ impl Executor {
         while self.remaining > 0 {
             // 先把 ready queue 清空
             loop {
-                let task = self.queue.lock().expect("取得鎖失敗").pop_front();
+                let task = self.queue.lock().expect("鎖失敗").pop_front();
                 let Some(task) = task else { break };
 
                 if task.done.load(Ordering::SeqCst) {
@@ -148,7 +148,7 @@ impl Executor {
                 task.queued.store(false, Ordering::SeqCst); // poll 前先放掉旗標
                 let waker = Waker::from(task.clone());
                 let mut cx = Context::from_waker(&waker);
-                let mut future = task.future.lock().expect("取得鎖失敗");
+                let mut future = task.future.lock().expect("鎖失敗");
 
                 if future.as_mut().poll(&mut cx).is_ready() {
                     task.done.store(true, Ordering::SeqCst); // 從此所有喚醒都失效

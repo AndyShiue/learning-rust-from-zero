@@ -90,7 +90,7 @@ struct Task {
 impl Wake for Task {
     fn wake(self: Arc<Self>) {
         if !self.queued.swap(true, Ordering::SeqCst) {
-            self.queue.lock().expect("failed to take the lock").push_back(self.clone());
+            self.queue.lock().expect("lock failed").push_back(self.clone());
             self.executor_thread.unpark();
         }
     }
@@ -109,7 +109,7 @@ impl<T> Future for JoinHandle<T> {
     type Output = T;
 
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<T> {
-        let mut state = self.shared.state.lock().expect("failed to take the lock");
+        let mut state = self.shared.state.lock().expect("lock failed");
         if let Some(value) = state.0.take() {
             Poll::Ready(value) // the result is ready
         } else {
@@ -146,7 +146,7 @@ impl Executor {
         // wrap the Future<Output = T> into a Future<Output = ()> the executor understands
         let task_future = async move {
             let value = future.await; // actually run the job
-            let mut state = shared_for_task.state.lock().expect("failed to take the lock");
+            let mut state = shared_for_task.state.lock().expect("lock failed");
             state.0 = Some(value); // deposit the result
             if let Some(waker) = state.1.take() {
                 waker.wake(); // wake whoever is waiting
@@ -177,7 +177,7 @@ impl Executor {
         // run until every Task completes (the loop is identical to last episode)
         while self.remaining > 0 {
             loop {
-                let task = self.queue.lock().expect("failed to take the lock").pop_front();
+                let task = self.queue.lock().expect("lock failed").pop_front();
                 let Some(task) = task else { break };
 
                 if task.done.load(Ordering::SeqCst) {
@@ -187,7 +187,7 @@ impl Executor {
                 task.queued.store(false, Ordering::SeqCst);
                 let waker = Waker::from(task.clone());
                 let mut cx = Context::from_waker(&waker);
-                let mut future = task.future.lock().expect("failed to take the lock");
+                let mut future = task.future.lock().expect("lock failed");
 
                 if future.as_mut().poll(&mut cx).is_ready() {
                     task.done.store(true, Ordering::SeqCst);
@@ -263,4 +263,4 @@ At this point, our hand-written executor is looking respectable: it can `spawn`,
 - When the executor `poll`s a `Task`, the `Context` flows down to the inner `Future`s; so the `cx.waker()` an inner `Future` sees is the current `Task`'s `Waker`.
 - A `JoinHandle` has no independent `Waker`; at `.await` time it stores **the waiter's own** `Waker` into `Shared<T>`.
 - On completion, the background `Task` deposits the result into `Shared<T>`, then takes out that `Waker` and `wake()`s it, rousing the waiter.
-- Waking is not `Future` notifying `Future` directly — the finisher wakes the waiter through shared state.
+- Waking is not `Future` notifying `Future` directly — the finisher wakes the waiter through shared sta

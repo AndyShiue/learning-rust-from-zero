@@ -26,18 +26,18 @@ fn main() {
     let l2 = Arc::clone(&lock2);
 
     let a = thread::spawn(move || {
-        let _g1 = l1.lock().expect("取得鎖失敗"); // 拿到鎖 1
+        let _g1 = l1.lock().expect("鎖失敗"); // 拿到鎖 1
         // 假設這裡有一些延遲...
-        let _g2 = l2.lock().expect("取得鎖失敗"); // 等待鎖 2
+        let _g2 = l2.lock().expect("鎖失敗"); // 等待鎖 2
     });
 
     let l1 = Arc::clone(&lock1);
     let l2 = Arc::clone(&lock2);
 
     let b = thread::spawn(move || {
-        let _g2 = l2.lock().expect("取得鎖失敗"); // 拿到鎖 2
+        let _g2 = l2.lock().expect("鎖失敗"); // 拿到鎖 2
         // 假設這裡有一些延遲...
-        let _g1 = l1.lock().expect("取得鎖失敗"); // 等待鎖 1
+        let _g1 = l1.lock().expect("鎖失敗"); // 等待鎖 1
     });
 
     // 如果時機剛好，程式會永遠卡在這裡
@@ -61,8 +61,8 @@ use std::sync::Mutex;
 
 fn main() {
     let m = Mutex::new(42);
-    let _g1 = m.lock().expect("取得鎖失敗");
-    let _g2 = m.lock().expect("鎖定失敗"); // 可能死鎖：_g1 還握著鎖
+    let _g1 = m.lock().expect("鎖失敗");
+    let _g2 = m.lock().expect("鎖失敗"); // 可能死鎖：_g1 還握著鎖
 }
 ```
 
@@ -87,16 +87,16 @@ fn main() {
     let l1 = Arc::clone(&lock1);
     let l2 = Arc::clone(&lock2);
     let a = thread::spawn(move || {
-        let g1 = l1.lock().expect("取得鎖失敗"); // 先鎖 1
-        let g2 = l2.lock().expect("取得鎖失敗"); // 再鎖 2
+        let g1 = l1.lock().expect("鎖失敗"); // 先鎖 1
+        let g2 = l2.lock().expect("鎖失敗"); // 再鎖 2
         println!("執行緒 A：{} 和 {}", *g1, *g2);
     });
 
     let l1 = Arc::clone(&lock1);
     let l2 = Arc::clone(&lock2);
     let b = thread::spawn(move || {
-        let g1 = l1.lock().expect("取得鎖失敗"); // 也是先鎖 1
-        let g2 = l2.lock().expect("取得鎖失敗"); // 再鎖 2
+        let g1 = l1.lock().expect("鎖失敗"); // 也是先鎖 1
+        let g2 = l2.lock().expect("鎖失敗"); // 再鎖 2
         println!("執行緒 B：{} 和 {}", *g1, *g2);
     });
 

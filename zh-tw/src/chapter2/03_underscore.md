@@ -86,7 +86,7 @@ fn main() {
     for _ in 0..5 {
         let mut input = String::new();
         std::io::stdin().read_line(&mut input).expect("讀取失敗");
-        let guess = input.trim().parse::<i32>().expect("請輸入數字");
+        let guess = input.trim().parse::<i32>().expect("不是數字");
 
         if guess == secret {
             success = true;

@@ -15,7 +15,7 @@ fn main() {
     println!("Please enter your name:");
 
     let mut input = String::new();
-    std::io::stdin().read_line(&mut input).expect("Failed to read input");
+    std::io::stdin().read_line(&mut input).expect("failed to read input");
 
     println!("Hello, {}!", input.trim());
 }
@@ -36,7 +36,7 @@ I know this looks a bit intimidating, but don't worry — for now, treat it as a
 Roughly speaking:
 
 1. `let mut input = String::new();` → Create an empty text variable, ready to receive input.
-2. `std::io::stdin().read_line(&mut input).expect("Failed to read input");` → Read one line of text from the keyboard and store it in `input`.
+2. `std::io::stdin().read_line(&mut input).expect("failed to read input");` → Read one line of text from the keyboard and store it in `input`.
 3. `input.trim()` → Strip off the extra whitespace and the newline character.
 
 As for what `String::new()`, `&mut`, and `.expect()` mean — we'll get to those gradually. For now, just copy them as-is.
@@ -54,7 +54,7 @@ Whenever you need to read user input, grab these three lines:
 ```rust,noplayground
 # fn main() {
     let mut input = String::new();
-    std::io::stdin().read_line(&mut input).expect("Failed to read input");
+    std::io::stdin().read_line(&mut input).expect("failed to read input");
     let name = input.trim(); // Strip the trailing newline
 # }
 ```

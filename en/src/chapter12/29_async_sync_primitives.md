@@ -50,7 +50,7 @@ async fn main() {
     let data = Arc::new(Mutex::new(0));
     tokio::spawn(async move {
         {
-            let mut guard = data.lock().expect("failed to take the lock");
+            let mut guard = data.lock().expect("lock failed");
             *guard += 1;
         } // the guard drops right here — it never crosses the .await
         do_io().await; // no lock in hand while waiting on I/O

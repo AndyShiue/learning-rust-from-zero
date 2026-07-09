@@ -96,7 +96,7 @@ impl Wake for Task {
     fn wake(self: Arc<Self>) {
         // grab the old queued value while leaving true in its place
         if !self.queued.swap(true, Ordering::SeqCst) {
-            self.queue.lock().expect("failed to take the lock").push_back(self.clone());
+            self.queue.lock().expect("lock failed").push_back(self.clone());
             self.executor_thread.unpark(); // wake the executor
         }
     }
@@ -138,7 +138,7 @@ impl Executor {
         while self.remaining > 0 {
             // first, drain the ready queue
             loop {
-                let task = self.queue.lock().expect("failed to take the lock").pop_front();
+                let task = self.queue.lock().expect("lock failed").pop_front();
                 let Some(task) = task else { break };
 
                 if task.done.load(Ordering::SeqCst) {
@@ -148,7 +148,7 @@ impl Executor {
                 task.queued.store(false, Ordering::SeqCst); // release the flag before polling
                 let waker = Waker::from(task.clone());
                 let mut cx = Context::from_waker(&waker);
-                let mut future = task.future.lock().expect("failed to take the lock");
+                let mut future = task.future.lock().expect("lock failed");
 
                 if future.as_mut().poll(&mut cx).is_ready() {
                     task.done.store(true, Ordering::SeqCst); // all later wakeups are ignored

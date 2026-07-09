@@ -599,7 +599,7 @@ fn main() {
 練習目標：
 - 確認讀者能把使用者輸入的文字轉成 `i32`。
 - 確認讀者會把轉換後的數字拿來做運算。
-- 確認讀者繼續使用 `.expect("請輸入數字")`，不要用還沒學到的錯誤處理方式。
+- 確認讀者繼續使用 `.expect("不是數字")`，不要用還沒學到的錯誤處理方式。
 
 題目：
 1. 寫一個程式，請使用者輸入一個數字，然後印出這個數字加 `10` 的結果。
@@ -613,14 +613,14 @@ fn main() {
 ```
 
 批改重點：
-- 要使用 `input.trim().parse::<i32>().expect("請輸入數字")`。
+- 要使用 `input.trim().parse::<i32>().expect("不是數字")`。
 - 加法要用轉換後的數字變數，不要直接把輸入當文字處理。
 - 不要使用 `.unwrap()` 或 `?`。
 - 不要展開解釋 turbofish、泛型或 `Result`；這裡先照書的方式把 `.parse::<i32>()` 當固定寫法。
 
 提示方向：
 1. 先照抄 stdin 讀取輸入的固定寫法。
-2. 用 `let num = input.trim().parse::<i32>().expect("請輸入數字");` 把文字轉成數字。
+2. 用 `let num = input.trim().parse::<i32>().expect("不是數字");` 把文字轉成數字。
 3. `num + 10` 就是加 10 後的結果。
 
 參考答案：
@@ -632,7 +632,7 @@ fn main() {
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).expect("讀取失敗");
 
-    let num = input.trim().parse::<i32>().expect("請輸入數字");
+    let num = input.trim().parse::<i32>().expect("不是數字");
 
     println!("{} 加 10 等於 {}", num, num + 10);
 }
@@ -678,7 +678,7 @@ fn main() {
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).expect("讀取失敗");
 
-    let score = input.trim().parse::<i32>().expect("請輸入數字");
+    let score = input.trim().parse::<i32>().expect("不是數字");
 
     if score >= 90 {
         println!("你的成績是 A");
@@ -723,7 +723,7 @@ fn main() {
 批改重點：
 - 要使用 `loop` 包住「提示、讀取、parse、判斷」這整段流程。
 - 每次迴圈裡都要建立新的 `input`，避免沿用上一輪輸入。
-- 要使用 `.parse::<i32>().expect("請輸入數字")`。
+- 要使用 `.parse::<i32>().expect("不是數字")`。
 - 當 `num > 0` 時，要印出 `收到正數！` 並 `break`。
 - 當 `num <= 0` 時，要印出 `請再試一次`，但不要 `break`。
 - 不要改用 `while` 或 `for`，那是後面才教。
@@ -743,7 +743,7 @@ fn main() {
         let mut input = String::new();
         std::io::stdin().read_line(&mut input).expect("讀取失敗");
 
-        let num = input.trim().parse::<i32>().expect("請輸入數字");
+        let num = input.trim().parse::<i32>().expect("不是數字");
 
         if num > 0 {
             println!("收到正數！");
@@ -782,7 +782,7 @@ fn main() {
 批改重點：
 - 要讀取兩次輸入：一次給 `goal`，一次給 `money`。
 - `goal` 可以不可變，`money` 必須是 `let mut`，因為迴圈中會改它。
-- 兩次輸入都要用 `.parse::<i32>().expect("請輸入數字")`。
+- 兩次輸入都要用 `.parse::<i32>().expect("不是數字")`。
 - 要使用 `while money < goal`。
 - 迴圈裡要先讓 `money += 30;`，再印出目前金額。
 - 迴圈結束後要印出 `達標！`。
@@ -803,14 +803,14 @@ fn main() {
     let mut goal_input = String::new();
     std::io::stdin().read_line(&mut goal_input).expect("讀取失敗");
 
-    let goal = goal_input.trim().parse::<i32>().expect("請輸入數字");
+    let goal = goal_input.trim().parse::<i32>().expect("不是數字");
 
     println!("請輸入目前金額：");
 
     let mut money_input = String::new();
     std::io::stdin().read_line(&mut money_input).expect("讀取失敗");
 
-    let mut money = money_input.trim().parse::<i32>().expect("請輸入數字");
+    let mut money = money_input.trim().parse::<i32>().expect("不是數字");
 
     while money < goal {
         money += 30;
@@ -867,7 +867,7 @@ FizzBuzz
 ```
 
 批改重點：
-- 要使用 stdin 固定寫法和 `.parse::<i32>().expect("請輸入數字")`。
+- 要使用 stdin 固定寫法和 `.parse::<i32>().expect("不是數字")`。
 - 第 1 題要使用 `for seat in 1..=last`，因為題目要包含最後一個座位。
 - 第 1 題不要寫成 `1..last`，那會少印最後一號。
 - 第 2 題要使用 `for i in 1..=n`，因為題目要從 1 印到 n。
@@ -892,7 +892,7 @@ fn main() {
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).expect("讀取失敗");
 
-    let last = input.trim().parse::<i32>().expect("請輸入數字");
+    let last = input.trim().parse::<i32>().expect("不是數字");
 
     for seat in 1..=last {
         println!("座位 {} 號", seat);
@@ -907,7 +907,7 @@ fn main() {
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).expect("讀取失敗");
 
-    let n = input.trim().parse::<i32>().expect("請輸入數字");
+    let n = input.trim().parse::<i32>().expect("不是數字");
 
     for i in 1..=n {
         if i % 3 == 0 && i % 5 == 0 {
@@ -965,7 +965,7 @@ a = 3, b = 7
 ```
 
 批改重點：
-- 三題都要使用 stdin 固定寫法和 `.parse::<i32>().expect("請輸入數字")`。
+- 三題都要使用 stdin 固定寫法和 `.parse::<i32>().expect("不是數字")`。
 - 第 1 題要用兩層 `for`：外層控制高度，內層控制寬度。
 - 第 1 題與第 2 題內層應該用 `print!("*");`，外層每一輪結束後用 `println!();` 換行。
 - 第 2 題內層範圍要依照外層變數改變，例如 `1..=row`。
@@ -989,14 +989,14 @@ fn main() {
     let mut height_input = String::new();
     std::io::stdin().read_line(&mut height_input).expect("讀取失敗");
 
-    let height = height_input.trim().parse::<i32>().expect("請輸入數字");
+    let height = height_input.trim().parse::<i32>().expect("不是數字");
 
     println!("請輸入寬度：");
 
     let mut width_input = String::new();
     std::io::stdin().read_line(&mut width_input).expect("讀取失敗");
 
-    let width = width_input.trim().parse::<i32>().expect("請輸入數字");
+    let width = width_input.trim().parse::<i32>().expect("不是數字");
 
     for row in 1..=height {
         for col in 1..=width {
@@ -1014,7 +1014,7 @@ fn main() {
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).expect("讀取失敗");
 
-    let levels = input.trim().parse::<i32>().expect("請輸入數字");
+    let levels = input.trim().parse::<i32>().expect("不是數字");
 
     for row in 1..=levels {
         for col in 1..=row {
@@ -1032,7 +1032,7 @@ fn main() {
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).expect("讀取失敗");
 
-    let target = input.trim().parse::<i32>().expect("請輸入數字");
+    let target = input.trim().parse::<i32>().expect("不是數字");
 
     'outer: for a in 1..=9 {
         for b in 1..=9 {
@@ -1073,7 +1073,7 @@ fn main() {
 ```
 
 批改重點：
-- 要使用 stdin 固定寫法和 `.parse::<i32>().expect("請輸入數字")`。
+- 要使用 stdin 固定寫法和 `.parse::<i32>().expect("不是數字")`。
 - 外層迴圈可以寫成 `'outer: for num in 2..=n`。
 - 內層迴圈可以寫成 `for divisor in 2..num`，檢查有沒有數字可以整除 `num`。
 - 如果 `num % divisor == 0`，代表 `num` 不是質數，要使用 `continue 'outer;`。
@@ -1097,7 +1097,7 @@ fn main() {
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).expect("讀取失敗");
 
-    let n = input.trim().parse::<i32>().expect("請輸入數字");
+    let n = input.trim().parse::<i32>().expect("不是數字");
 
     'outer: for num in 2..=n {
         for divisor in 2..num {
@@ -1218,7 +1218,7 @@ fn main() {
 ```
 
 批改重點：
-- 要使用 stdin 固定寫法和 `.parse::<i32>().expect("請輸入數字")`。
+- 要使用 stdin 固定寫法和 `.parse::<i32>().expect("不是數字")`。
 - 應該寫成 `let ticket_price = if age < 18 { 50 } else { 100 };`。
 - 不需要 `let mut ticket_price`。
 - `50` 和 `100` 後面不要加分號。
@@ -1239,7 +1239,7 @@ fn main() {
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).expect("讀取失敗");
 
-    let age = input.trim().parse::<i32>().expect("請輸入數字");
+    let age = input.trim().parse::<i32>().expect("不是數字");
 
     let ticket_price = if age < 18 { 50 } else { 100 };
 
@@ -1294,7 +1294,7 @@ fn main() {
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).expect("讀取失敗");
 
-    let score = input.trim().parse::<i32>().expect("請輸入數字");
+    let score = input.trim().parse::<i32>().expect("不是數字");
 
     if score >= PASS_SCORE {
         println!("及格");
@@ -1485,14 +1485,14 @@ fn main() {
     let mut price_input = String::new();
     std::io::stdin().read_line(&mut price_input).expect("讀取失敗");
 
-    let price = price_input.trim().parse::<i32>().expect("請輸入數字");
+    let price = price_input.trim().parse::<i32>().expect("不是數字");
 
     println!("請輸入數量：");
 
     let mut count_input = String::new();
     std::io::stdin().read_line(&mut count_input).expect("讀取失敗");
 
-    let count = count_input.trim().parse::<i32>().expect("請輸入數字");
+    let count = count_input.trim().parse::<i32>().expect("不是數字");
 
     print_total(price, count);
 }
@@ -1556,13 +1556,13 @@ fn main() {
 
     let mut price_input = String::new();
     std::io::stdin().read_line(&mut price_input).expect("讀取失敗");
-    let price = price_input.trim().parse::<i32>().expect("請輸入數字");
+    let price = price_input.trim().parse::<i32>().expect("不是數字");
 
     println!("請輸入數量：");
 
     let mut count_input = String::new();
     std::io::stdin().read_line(&mut count_input).expect("讀取失敗");
-    let count = count_input.trim().parse::<i32>().expect("請輸入數字");
+    let count = count_input.trim().parse::<i32>().expect("不是數字");
 
     let total = calculate_total(price, count);
 
@@ -1583,13 +1583,13 @@ fn main() {
 
     let mut money_input = String::new();
     std::io::stdin().read_line(&mut money_input).expect("讀取失敗");
-    let money = money_input.trim().parse::<i32>().expect("請輸入數字");
+    let money = money_input.trim().parse::<i32>().expect("不是數字");
 
     println!("請輸入票價：");
 
     let mut price_input = String::new();
     std::io::stdin().read_line(&mut price_input).expect("讀取失敗");
-    let price = price_input.trim().parse::<i32>().expect("請輸入數字");
+    let price = price_input.trim().parse::<i32>().expect("不是數字");
 
     let result = buy_ticket(money, price);
 
@@ -1652,7 +1652,7 @@ fn main() {
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).expect("讀取失敗");
 
-    let price = input.trim().parse::<i32>().expect("請輸入數字");
+    let price = input.trim().parse::<i32>().expect("不是數字");
 
     let is_member = true;
     let final_price = discount_price(price, is_member);
@@ -1733,7 +1733,7 @@ fn main() {
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).expect("讀取失敗");
 
-    let n = input.trim().parse::<i32>().expect("請輸入數字");
+    let n = input.trim().parse::<i32>().expect("不是數字");
 
     if is_power_of_two(n) {
         println!("是 2 的次方");
@@ -1764,7 +1764,7 @@ fn main() {
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).expect("讀取失敗");
 
-    let n = input.trim().parse::<i32>().expect("請輸入數字");
+    let n = input.trim().parse::<i32>().expect("不是數字");
 
     print_collatz(n);
 }
@@ -1822,19 +1822,19 @@ fn main() {
 
     let mut day1_input = String::new();
     std::io::stdin().read_line(&mut day1_input).expect("讀取失敗");
-    let day1 = day1_input.trim().parse::<i32>().expect("請輸入數字");
+    let day1 = day1_input.trim().parse::<i32>().expect("不是數字");
 
     println!("請輸入第二天溫度：");
 
     let mut day2_input = String::new();
     std::io::stdin().read_line(&mut day2_input).expect("讀取失敗");
-    let day2 = day2_input.trim().parse::<i32>().expect("請輸入數字");
+    let day2 = day2_input.trim().parse::<i32>().expect("不是數字");
 
     println!("請輸入第三天溫度：");
 
     let mut day3_input = String::new();
     std::io::stdin().read_line(&mut day3_input).expect("讀取失敗");
-    let day3 = day3_input.trim().parse::<i32>().expect("請輸入數字");
+    let day3 = day3_input.trim().parse::<i32>().expect("不是數字");
 
     let temperatures = [day1, day2, day3];
 
@@ -1916,7 +1916,7 @@ fn main() {
         let mut input = String::new();
         std::io::stdin().read_line(&mut input).expect("讀取失敗");
 
-        let expense = input.trim().parse::<i32>().expect("請輸入數字");
+        let expense = input.trim().parse::<i32>().expect("不是數字");
         expenses[i] = expense;
     }
 
@@ -2021,7 +2021,7 @@ fn main() {
         let mut input = String::new();
         std::io::stdin().read_line(&mut input).expect("讀取失敗");
 
-        let step = input.trim().parse::<i32>().expect("請輸入數字");
+        let step = input.trim().parse::<i32>().expect("不是數字");
         steps[i] = step;
     }
 

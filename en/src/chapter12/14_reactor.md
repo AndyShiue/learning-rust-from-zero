@@ -50,7 +50,7 @@ struct Task {
 impl Wake for Task {
     fn wake(self: Arc<Self>) {
         if !self.queued.swap(true, Ordering::SeqCst) {
-            self.queue.lock().expect("failed to take the lock").push_back(self.clone());
+            self.queue.lock().expect("lock failed").push_back(self.clone());
             self.executor_thread.unpark();
         }
     }
@@ -68,7 +68,7 @@ impl<T> Future for JoinHandle<T> {
     type Output = T;
 
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<T> {
-        let mut state = self.shared.state.lock().expect("failed to take the lock");
+        let mut state = self.shared.state.lock().expect("lock failed");
         if let Some(value) = state.0.take() {
             Poll::Ready(value)
         } else {
@@ -103,7 +103,7 @@ impl Executor {
 
         let task_future = async move {
             let value = future.await;
-            let mut state = shared_for_task.state.lock().expect("failed to take the lock");
+            let mut state = shared_for_task.state.lock().expect("lock failed");
             state.0 = Some(value);
             if let Some(waker) = state.1.take() {
                 waker.wake();
@@ -133,7 +133,7 @@ impl Executor {
 
         while self.remaining > 0 {
             loop {
-                let task = self.queue.lock().expect("failed to take the lock").pop_front();
+                let task = self.queue.lock().expect("lock failed").pop_front();
                 let Some(task) = task else { break };
 
                 if task.done.load(Ordering::SeqCst) {
@@ -143,7 +143,7 @@ impl Executor {
                 task.queued.store(false, Ordering::SeqCst);
                 let waker = Waker::from(task.clone());
                 let mut cx = Context::from_waker(&waker);
-                let mut future = task.future.lock().expect("failed to take the lock");
+                let mut future = task.future.lock().expect("lock failed");
 
                 if future.as_mut().poll(&mut cx).is_ready() {
                     task.done.store(true, Ordering::SeqCst);
@@ -172,19 +172,19 @@ impl Reactor {
     }
 
     fn register(&self, source: &mut impl Source, token: Token, interest: Interest) {
-        self.registry.register(source, token, interest).expect("failed to register");
+        self.registry.register(source, token, interest).expect("register failed");
     }
 
     fn deregister(&self, source: &mut impl Source) {
-        self.registry.deregister(source).expect("failed to deregister");
+        self.registry.deregister(source).expect("deregister failed");
     }
 
     fn set_waker(&self, token: Token, waker: Waker) {
-        self.wakers.lock().expect("failed to take the lock").insert(token, waker);
+        self.wakers.lock().expect("lock failed").insert(token, waker);
     }
 
     fn clear_waker(&self, token: Token) {
-        self.wakers.lock().expect("failed to take the lock").remove(&token);
+        self.wakers.lock().expect("lock failed").remove(&token);
     }
 
     // runs on its own Thread: sleeps on poll, wakes and looks up Wakers by Token
@@ -196,7 +196,7 @@ impl Reactor {
                 let waker = self
                     .wakers
                     .lock()
-                    .expect("failed to take the lock")
+                    .expect("lock failed")
                     .remove(&event.token());
 
                 if let Some(waker) = waker {
@@ -208,7 +208,7 @@ impl Reactor {
 }
 
 fn start_reactor() -> Arc<Reactor> {
-    let poll = MioPoll::new().expect("failed to create the Poll");
+    let poll = MioPoll::new().expect("Poll creation failed");
     let registry = poll.registry().try_clone().expect("failed to clone the Registry");
     let reactor = Arc::new(Reactor {
         registry,
@@ -316,7 +316,7 @@ async fn serve(reactor: Arc<Reactor>, listener: TcpListener) {
 fn main() {
     let reactor = start_reactor();
     let addr = "127.0.0.1:8080".parse().expect("failed to parse the address");
-    let listener = TcpListener::bind(addr).expect("failed to bind");
+    let listener = TcpListener::bind(addr).expect("bind failed");
 
     let mut executor = Executor::new();
     executor.block_on(serve(reactor, listener));
@@ -367,4 +367,4 @@ And with that, our from-scratch, hand-written runtime is complete! It can `spawn
 - A `Token` is an I/O source's name tag: the listener has its `listener_token`, the stream its `stream_token`; in our code, multiple `Read`s on one stream can share the same stream `Token`.
 - `WouldBlock` is the normal state of non-blocking I/O — "can't `accept` / `read` yet, try later" — mapping to `Poll::Pending` in a `Future`.
 - I/O `Future`s' `poll` always "**`set_waker` first, then try the I/O**" to avoid missed wakeups; on immediate success, `clear_waker` before returning `Ready`.
-- Whether the wakeup comes from a timer or I/O, it takes the same road: "requeue onto the ready queue + `unpark`."
+- Whether the wakeup comes from a timer or I/O, it takes the same road: "requeue onto the ready queue + `unpark

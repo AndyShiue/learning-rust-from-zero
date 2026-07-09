@@ -20,10 +20,10 @@ fn main() {
 
     // Read user input
     let mut input = String::new();
-    std::io::stdin().read_line(&mut input).expect("Failed to read input");
+    std::io::stdin().read_line(&mut input).expect("failed to read input");
 
     // Convert the text into a number
-    let score = input.trim().parse::<i32>().expect("Please enter a number");
+    let score = input.trim().parse::<i32>().expect("not a number");
 
     // Determine the grade
     if score >= 90 {

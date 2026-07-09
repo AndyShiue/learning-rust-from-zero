@@ -44,7 +44,7 @@ fn main() {
         println!("{:?}", data.borrow());
     });
 
-    handle.join().expect("The thread hit an error");
+    handle.join().expect("thread panicked");
 }
 ```
 
@@ -64,7 +64,7 @@ fn main() {
         println!("Child thread: {}", data.borrow());
     });
 
-    handle.join().expect("The thread hit an error");
+    handle.join().expect("thread panicked");
 
     // But &RefCell can't be shared among threads (not Sync)
     // Try to have two threads share one RefCell, and the compiler stops you.

@@ -113,7 +113,7 @@ fn main() {
         println!("Max retries: {}", config.max_retries);
     });
 
-    handle.join().expect("The thread hit an error");
+    handle.join().expect("thread panicked");
 }
 ```
 

@@ -37,7 +37,7 @@ enum Result<T, E> {
 
 ### 回顧第 1 章的黑盒子
 
-還記得第 1 章的 `.expect("讀取失敗")` 和 `.parse::<i32>().expect("請輸入數字")` 嗎？
+還記得第 1 章的 `.expect("讀取失敗")` 和 `.parse::<i32>().expect("不是數字")` 嗎？
 
 `.parse()` 回傳的就是 `Result`。`expect` 的行為和 `Option` 的 `expect` 一模一樣——成功就取出 `Ok` 的值，失敗就 panic 並印出你的訊息。
 

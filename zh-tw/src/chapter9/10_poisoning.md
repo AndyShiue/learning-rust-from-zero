@@ -8,7 +8,7 @@
 
 ### `.lock()` 為什麼回傳 `Result`
 
-前面幾集學 `Mutex` 和 `RwLock` 的時候，我們都寫 `.lock().expect("取得鎖失敗")`。但什麼時候取鎖會「失敗」？答案就是 **poisoning**。
+前面幾集學 `Mutex` 和 `RwLock` 的時候，我們都寫 `.lock().expect("鎖失敗")`。但什麼時候取鎖會「失敗」？答案就是 **poisoning**。
 
 ### 什麼是 poisoning
 
@@ -23,7 +23,7 @@ fn main() {
     let data2 = Arc::clone(&data);
 
     let handle = thread::spawn(move || {
-        let mut guard = data2.lock().expect("取得鎖失敗");
+        let mut guard = data2.lock().expect("鎖失敗");
         guard.push(4);
         panic!("哎呀！"); // panic 的時候 guard 還活著 → 鎖中毒
     });
@@ -51,7 +51,7 @@ use std::sync::Mutex;
 
 fn main() {
     let data = Mutex::new(Vec::<i32>::new());
-    let guard = data.lock().expect("取得鎖失敗");
+    let guard = data.lock().expect("鎖失敗");
 }
 ```
 
@@ -112,7 +112,7 @@ fn main() {
     // 啟動一個會 panic 的執行緒
     let counter2 = Arc::clone(&counter);
     let handle = thread::spawn(move || {
-        let mut guard = counter2.lock().expect("取得鎖失敗");
+        let mut guard = counter2.lock().expect("鎖失敗");
         *guard += 1;
         panic!("糟糕，出事了！");
     });

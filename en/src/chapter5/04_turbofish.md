@@ -15,7 +15,7 @@ Remember writing this back in Chapter 1 when learning `parse`?
 ```rust,editable
 fn main() {
     let input = "1";
-    let num = input.trim().parse::<i32>().expect("Please enter a number");
+    let num = input.trim().parse::<i32>().expect("not a number");
 }
 ```
 
@@ -68,10 +68,10 @@ fn main() {
 
     // Turbofish on parse — echoing Chapter 1's black box
     let input = "42";
-    let num = input.parse::<i32>().expect("Not a number");
+    let num = input.parse::<i32>().expect("not a number");
     println!("{}", num);
 
-    let pi = "3.14".parse::<f64>().expect("Not a number");
+    let pi = "3.14".parse::<f64>().expect("not a number");
     println!("{}", pi);
 }
 ```

@@ -15,7 +15,7 @@
 ```rust,editable
 fn main() {
     let input = "1";
-    let num = input.trim().parse::<i32>().expect("請輸入數字");
+    let num = input.trim().parse::<i32>().expect("不是數字");
 }
 ```
 

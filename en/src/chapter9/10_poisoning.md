@@ -8,7 +8,7 @@ Understand what lock poisoning is, and how to handle it.
 
 ### Why `.lock()` Returns a `Result`
 
-Learning `Mutex` and `RwLock` in recent episodes, we always wrote `.lock().expect("Failed to acquire the lock")`. But when can acquiring the lock "fail"? The answer: **poisoning**.
+Learning `Mutex` and `RwLock` in recent episodes, we always wrote `.lock().expect("lock failed")`. But when can acquiring the lock "fail"? The answer: **poisoning**.
 
 ### What Is Poisoning
 
@@ -23,7 +23,7 @@ fn main() {
     let data2 = Arc::clone(&data);
 
     let handle = thread::spawn(move || {
-        let mut guard = data2.lock().expect("Failed to acquire the lock");
+        let mut guard = data2.lock().expect("lock failed");
         guard.push(4);
         panic!("Oops!"); // The guard is alive at the panic → the lock is poisoned
     });
@@ -51,7 +51,7 @@ use std::sync::Mutex;
 
 fn main() {
     let data = Mutex::new(Vec::<i32>::new());
-    let guard = data.lock().expect("Failed to acquire the lock");
+    let guard = data.lock().expect("lock failed");
 }
 ```
 
@@ -112,7 +112,7 @@ fn main() {
     // Launch a thread that panics
     let counter2 = Arc::clone(&counter);
     let handle = thread::spawn(move || {
-        let mut guard = counter2.lock().expect("Failed to acquire the lock");
+        let mut guard = counter2.lock().expect("lock failed");
         *guard += 1;
         panic!("Uh-oh, something broke!");
     });

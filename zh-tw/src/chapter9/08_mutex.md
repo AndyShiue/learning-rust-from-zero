@@ -19,7 +19,7 @@
 
 ### `lock` 和 `MutexGuard`
 
-用 `mutex.lock().expect("取得鎖失敗")` 取得鎖。它會回傳一個 `MutexGuard`：
+用 `mutex.lock().expect("鎖失敗")` 取得鎖。它會回傳一個 `MutexGuard`：
 
 ```rust,editable
 use std::sync::Mutex;
@@ -27,7 +27,7 @@ use std::sync::Mutex;
 fn main() {
     let m = Mutex::new(42);
     {
-        let mut guard = m.lock().expect("取得鎖失敗");
+        let mut guard = m.lock().expect("鎖失敗");
         *guard += 1; // 透過 guard 修改值
         println!("{}", *guard); // 43
     } // guard 被 drop，自動解鎖
@@ -53,7 +53,7 @@ fn main() {
     for _ in 0..10 {
         let counter = Arc::clone(&counter);
         let handle = thread::spawn(move || {
-            let mut num = counter.lock().expect("取得鎖失敗");
+            let mut num = counter.lock().expect("鎖失敗");
             *num += 1;
         });
         handles.push(handle);
@@ -63,7 +63,7 @@ fn main() {
         handle.join().expect("執行緒發生錯誤");
     }
 
-    println!("結果：{}", *counter.lock().expect("取得鎖失敗")); // 10
+    println!("結果：{}", *counter.lock().expect("鎖失敗")); // 10
 }
 ```
 
@@ -73,14 +73,14 @@ guard 活著的期間，鎖都不會放開，其他執行緒全部在等。所�
 
 ```rust,ignore
 // 不好：guard 活到作用域結束，鎖持有太久
-let mut guard = mutex.lock().expect("取得鎖失敗");
+let mut guard = mutex.lock().expect("鎖失敗");
 *guard += 1;
 // ... 做了很多不需要鎖的事情 ...
 // guard 到後面才被 drop
 
 // 好：用完就放
 {
-    let mut guard = mutex.lock().expect("取得鎖失敗");
+    let mut guard = mutex.lock().expect("鎖失敗");
     *guard += 1;
 } // guard 立刻被 drop，鎖立刻釋放
 // ... 做其他事情 ...
@@ -109,7 +109,7 @@ fn main() {
         let handle = thread::spawn(move || {
             // 縮小 guard 的作用域
             {
-                let mut num = counter.lock().expect("取得鎖失敗");
+                let mut num = counter.lock().expect("鎖失敗");
                 *num += 1;
                 println!("執行緒 {} 把計數器改成 {}", i, *num);
             } // guard 在這裡就被 drop 了
@@ -124,7 +124,7 @@ fn main() {
         handle.join().expect("執行緒發生錯誤");
     }
 
-    println!("最終結果：{}", *counter.lock().expect("取得鎖失敗"));
+    println!("最終結果：{}", *counter.lock().expect("鎖失敗"));
 }
 ```
 

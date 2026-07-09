@@ -23,7 +23,7 @@ fn main() {
     std::io::stdin().read_line(&mut input).expect("讀取失敗");
 
     // 把文字轉成數字
-    let score = input.trim().parse::<i32>().expect("請輸入數字");
+    let score = input.trim().parse::<i32>().expect("不是數字");
 
     // 判斷等第
     if score >= 90 {

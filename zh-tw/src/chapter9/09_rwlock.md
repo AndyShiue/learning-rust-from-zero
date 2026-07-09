@@ -25,14 +25,14 @@ fn main() {
 
     // 多個讀者可以同時讀
     {
-        let r1 = lock.read().expect("取得讀鎖失敗");
+        let r1 = lock.read().expect("讀鎖失敗");
         let r2 = lock.read().expect("讀鎖失敗"); // OK，可有多個讀者
         println!("r1 = {}, r2 = {}", *r1, *r2);
     }
 
     // 寫入時獨佔
     {
-        let mut w = lock.write().expect("取得寫鎖失敗");
+        let mut w = lock.write().expect("寫鎖失敗");
         *w += 1;
     }
 }
@@ -74,7 +74,7 @@ fn main() {
     for i in 0..3 {
         let data = Arc::clone(&data);
         let handle = thread::spawn(move || {
-            let read_guard = data.read().expect("取得讀鎖失敗");
+            let read_guard = data.read().expect("讀鎖失敗");
             println!("讀者 {}：{:?}", i, *read_guard);
             // 多個讀者可以同時持有讀鎖
         });
@@ -85,7 +85,7 @@ fn main() {
     {
         let data = Arc::clone(&data);
         let handle = thread::spawn(move || {
-            let mut write_guard = data.write().expect("取得寫鎖失敗");
+            let mut write_guard = data.write().expect("寫鎖失敗");
             write_guard.push(4);
             println!("寫者：寫入完成，現在是 {:?}", *write_guard);
         });
@@ -96,7 +96,7 @@ fn main() {
         handle.join().expect("執行緒發生錯誤");
     }
 
-    println!("最終結果：{:?}", *data.read().expect("取得讀鎖失敗"));
+    println!("最終結果：{:?}", *data.read().expect("讀鎖失敗"));
 }
 ```
 

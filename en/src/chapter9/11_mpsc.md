@@ -37,10 +37,10 @@ fn main() {
     let (tx, rx) = mpsc::channel();
 
     thread::spawn(move || {
-        tx.send(String::from("hello")).expect("Send failed");
+        tx.send(String::from("hello")).expect("send failed");
     });
 
-    let received = rx.recv().expect("Receive failed");
+    let received = rx.recv().expect("receive failed");
     println!("Received: {}", received);
 }
 ```
@@ -59,7 +59,7 @@ fn main() {
     for i in 0..3 {
         let tx = tx.clone();
         thread::spawn(move || {
-            tx.send(format!("From thread {}", i)).expect("Send failed");
+            tx.send(format!("From thread {}", i)).expect("send failed");
         });
     }
 
@@ -99,7 +99,7 @@ fn main() {
         thread::spawn(move || {
             let result = i * i;
             println!("Thread {} finished computing: {}", i, result);
-            tx.send((i, result)).expect("Send failed");
+            tx.send((i, result)).expect("send failed");
         });
     }
 

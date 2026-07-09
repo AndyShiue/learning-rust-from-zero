@@ -55,12 +55,12 @@ fn main() {
         }
     });
 
-    handle.join().expect("The thread hit an error"); // Wait for the child thread
+    handle.join().expect("thread panicked"); // Wait for the child thread
     println!("All done");
 }
 ```
 
-`.join()` isn't only waiting — it also retrieves the closure's return value. Whatever the closure returns, `.join().expect("The thread hit an error")` receives:
+`.join()` isn't only waiting — it also retrieves the closure's return value. Whatever the closure returns, `.join().expect("thread panicked")` receives:
 
 ```rust,editable
 use std::thread;
@@ -71,7 +71,7 @@ fn main() {
         answer // The closure's return value
     });
 
-    let result = handle.join().expect("The thread hit an error");
+    let result = handle.join().expect("thread panicked");
     println!("The result received from the other thread: {}", result); // 42
 }
 ```
@@ -94,7 +94,7 @@ fn main() {
 
     println!("{}", name); // Compile error! name was moved into the closure
 
-    handle.join().expect("The thread hit an error");
+    handle.join().expect("thread panicked");
 }
 ```
 
@@ -120,8 +120,8 @@ fn main() {
         }
     });
 
-    h1.join().expect("The thread hit an error");
-    h2.join().expect("The thread hit an error");
+    h1.join().expect("thread panicked");
+    h2.join().expect("thread panicked");
 }
 ```
 
@@ -144,7 +144,7 @@ fn main() {
     // data has been moved; unusable here
     // println!("{:?}", data); // Compile error
 
-    let result = handle.join().expect("The thread hit an error");
+    let result = handle.join().expect("thread panicked");
     println!("The main thread received the result: {}", result);
 }
 ```

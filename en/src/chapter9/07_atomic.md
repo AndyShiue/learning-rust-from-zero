@@ -109,7 +109,7 @@ fn main() {
     }
 
     for handle in handles {
-        handle.join().expect("The thread hit an error");
+        handle.join().expect("thread panicked");
     }
 
     println!("Final result: {}", counter.load(Ordering::Relaxed)); // Always 10000
@@ -149,7 +149,7 @@ fn main() {
     }
 
     for handle in handles {
-        handle.join().expect("The thread hit an error");
+        handle.join().expect("thread panicked");
     }
 
     // 100 + 200 + 300 = 600, whatever the execution order

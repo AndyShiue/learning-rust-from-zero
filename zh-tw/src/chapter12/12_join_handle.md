@@ -90,7 +90,7 @@ struct Task {
 impl Wake for Task {
     fn wake(self: Arc<Self>) {
         if !self.queued.swap(true, Ordering::SeqCst) {
-            self.queue.lock().expect("取得鎖失敗").push_back(self.clone());
+            self.queue.lock().expect("鎖失敗").push_back(self.clone());
             self.executor_thread.unpark();
         }
     }
@@ -109,7 +109,7 @@ impl<T> Future for JoinHandle<T> {
     type Output = T;
 
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<T> {
-        let mut state = self.shared.state.lock().expect("取得鎖失敗");
+        let mut state = self.shared.state.lock().expect("鎖失敗");
         if let Some(value) = state.0.take() {
             Poll::Ready(value) // 結果好了
         } else {
@@ -146,7 +146,7 @@ impl Executor {
         // 把 Future<Output = T> 包成 executor 看得懂的 Future<Output = ()>
         let task_future = async move {
             let value = future.await; // 真正跑那個工作
-            let mut state = shared_for_task.state.lock().expect("取得鎖失敗");
+            let mut state = shared_for_task.state.lock().expect("鎖失敗");
             state.0 = Some(value); // 放進結果
             if let Some(waker) = state.1.take() {
                 waker.wake(); // 叫醒在等的人
@@ -177,7 +177,7 @@ impl Executor {
         // 跑到所有 Task 完成（迴圈和上一集一模一樣）
         while self.remaining > 0 {
             loop {
-                let task = self.queue.lock().expect("取得鎖失敗").pop_front();
+                let task = self.queue.lock().expect("鎖失敗").pop_front();
                 let Some(task) = task else { break };
 
                 if task.done.load(Ordering::SeqCst) {
@@ -187,7 +187,7 @@ impl Executor {
                 task.queued.store(false, Ordering::SeqCst);
                 let waker = Waker::from(task.clone());
                 let mut cx = Context::from_waker(&waker);
-                let mut future = task.future.lock().expect("取得鎖失敗");
+                let mut future = task.future.lock().expect("鎖失敗");
 
                 if future.as_mut().poll(&mut cx).is_ready() {
                     task.done.store(true, Ordering::SeqCst);
@@ -201,7 +201,7 @@ impl Executor {
         }
 
         // 從 Shared 取出結果回傳
-        handle.shared.state.lock().expect("鎖定失敗").0.take().expect("結果還沒好")
+        handle.shared.state.lock().expect("鎖失敗").0.take().expect("結果還沒好")
     }
 }
 

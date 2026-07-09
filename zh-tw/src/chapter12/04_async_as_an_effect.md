@@ -124,7 +124,7 @@ async fn add(a: i32, b: i32) -> i32 {
 }
 
 fn main() {
-    let runtime = tokio::runtime::Runtime::new().expect("無法建立 runtime");
+    let runtime = tokio::runtime::Runtime::new().expect("建立 runtime 失敗");
     let sum = runtime.block_on(add(3, 4)); // 當場把 Future 結算成普通值
     println!("結果是 {}", sum);
 }

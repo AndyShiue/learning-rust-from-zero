@@ -50,7 +50,7 @@ struct Task {
 impl Wake for Task {
     fn wake(self: Arc<Self>) {
         if !self.queued.swap(true, Ordering::SeqCst) {
-            self.queue.lock().expect("取得鎖失敗").push_back(self.clone());
+            self.queue.lock().expect("鎖失敗").push_back(self.clone());
             self.executor_thread.unpark();
         }
     }
@@ -68,7 +68,7 @@ impl<T> Future for JoinHandle<T> {
     type Output = T;
 
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<T> {
-        let mut state = self.shared.state.lock().expect("取得鎖失敗");
+        let mut state = self.shared.state.lock().expect("鎖失敗");
         if let Some(value) = state.0.take() {
             Poll::Ready(value)
         } else {
@@ -103,7 +103,7 @@ impl Executor {
 
         let task_future = async move {
             let value = future.await;
-            let mut state = shared_for_task.state.lock().expect("取得鎖失敗");
+            let mut state = shared_for_task.state.lock().expect("鎖失敗");
             state.0 = Some(value);
             if let Some(waker) = state.1.take() {
                 waker.wake();
@@ -133,7 +133,7 @@ impl Executor {
 
         while self.remaining > 0 {
             loop {
-                let task = self.queue.lock().expect("取得鎖失敗").pop_front();
+                let task = self.queue.lock().expect("鎖失敗").pop_front();
                 let Some(task) = task else { break };
 
                 if task.done.load(Ordering::SeqCst) {
@@ -143,7 +143,7 @@ impl Executor {
                 task.queued.store(false, Ordering::SeqCst);
                 let waker = Waker::from(task.clone());
                 let mut cx = Context::from_waker(&waker);
-                let mut future = task.future.lock().expect("取得鎖失敗");
+                let mut future = task.future.lock().expect("鎖失敗");
 
                 if future.as_mut().poll(&mut cx).is_ready() {
                     task.done.store(true, Ordering::SeqCst);
@@ -156,7 +156,7 @@ impl Executor {
             }
         }
 
-        handle.shared.state.lock().expect("鎖定失敗").0.take().expect("結果還沒好")
+        handle.shared.state.lock().expect("鎖失敗").0.take().expect("結果還沒好")
     }
 }
 
@@ -180,11 +180,11 @@ impl Reactor {
     }
 
     fn set_waker(&self, token: Token, waker: Waker) {
-        self.wakers.lock().expect("取得鎖失敗").insert(token, waker);
+        self.wakers.lock().expect("鎖失敗").insert(token, waker);
     }
 
     fn clear_waker(&self, token: Token) {
-        self.wakers.lock().expect("取得鎖失敗").remove(&token);
+        self.wakers.lock().expect("鎖失敗").remove(&token);
     }
 
     // 跑在自己的 Thread 上：睡在 poll 上，醒來照 Token 找 Waker 來 wake
@@ -196,7 +196,7 @@ impl Reactor {
                 let waker = self
                     .wakers
                     .lock()
-                    .expect("取得鎖失敗")
+                    .expect("鎖失敗")
                     .remove(&event.token());
 
                 if let Some(waker) = waker {

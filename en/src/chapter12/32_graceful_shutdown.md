@@ -82,7 +82,7 @@ async fn main() {
     }
 
     // 1. wait for the signal
-    tokio::signal::ctrl_c().await.expect("couldn't listen for Ctrl-C");
+    tokio::signal::ctrl_c().await.expect("failed to listen for Ctrl-C");
     println!("got Ctrl-C, starting graceful shutdown");
 
     // 2. broadcast the wrap-up
@@ -187,7 +187,7 @@ async fn main() {
         workers.spawn(worker(id, token.clone())); // each worker gets a clone
     }
 
-    tokio::signal::ctrl_c().await.expect("couldn't listen for Ctrl-C");
+    tokio::signal::ctrl_c().await.expect("failed to listen for Ctrl-C");
     token.cancel(); // one command, everyone cancelled
 
     match timeout(Duration::from_secs(5), async {

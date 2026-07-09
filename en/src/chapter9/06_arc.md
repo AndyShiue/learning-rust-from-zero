@@ -43,7 +43,7 @@ fn main() {
     });
 
     println!("Main thread: {:?}", data);
-    handle.join().expect("The thread hit an error");
+    handle.join().expect("thread panicked");
 }
 ```
 
@@ -76,7 +76,7 @@ fn main() {
     }
 
     for handle in handles {
-        handle.join().expect("The thread hit an error");
+        handle.join().expect("thread panicked");
     }
 
     println!("Final count = {}", Arc::strong_count(&data)); // 1

@@ -26,7 +26,7 @@ If it's `Some`, you get the value inside directly. But if it's `None`, the progr
 #
 # fn main() {
     let x: Option<i32> = None;
-    let value = x.expect("This shouldn't be None"); // Panics, printing your message
+    let value = x.expect("this shouldn't be None"); // Panics, printing your message
 # }
 ```
 
@@ -77,7 +77,7 @@ fn main() {
     println!("Even number (0 if not found): {}", result);
 
     // expect: for when you're sure there's a value
-    let result2 = find_even(&has_even).expect("There should be an even number");
+    let result2 = find_even(&has_even).expect("there should be an even number");
     println!("Found an even number: {}", result2);
 
     // if let: the syntax from Chapter 3

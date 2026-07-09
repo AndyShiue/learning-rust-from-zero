@@ -54,7 +54,7 @@ async fn main() {
 
     loop {
         // wait for the next connection to come in
-        let (mut socket, _) = listener.accept().await.expect("failed to accept a connection");
+        let (mut socket, _) = listener.accept().await.expect("accept failed");
 
         // hand a share of the counter's ownership to the upcoming background job
         let counter = Arc::clone(&counter);

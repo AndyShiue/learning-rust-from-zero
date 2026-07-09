@@ -21,7 +21,7 @@ fn main() {
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).expect("讀取失敗");
 
-    let num = input.trim().parse::<i32>().expect("請輸入數字");
+    let num = input.trim().parse::<i32>().expect("不是數字");
 
     println!("你輸入的數字是 {}", num);
 }
@@ -41,7 +41,7 @@ fn main() {
 # fn main() {
 #     let mut input = String::new();
 #     std::io::stdin().read_line(&mut input).expect("讀取失敗");
-    let num = input.trim().parse::<i32>().expect("請輸入數字");
+    let num = input.trim().parse::<i32>().expect("不是數字");
 # }
 ```
 
@@ -49,7 +49,7 @@ fn main() {
 
 1. `input.trim()` → 去掉頭尾的空白和換行。
 2. `.parse::<i32>()` → 把文字**解析**成整數（`i32` 就是一種整數型別）。
-3. `.expect("請輸入數字")` → 如果轉換失敗（比如使用者輸入了 "abc"），就印這個錯誤訊息然後結束程式。
+3. `.expect("不是數字")` → 如果轉換失敗（比如使用者輸入了 "abc"），就印這個錯誤訊息然後結束程式。
 
 ### 完整的互動範例
 
@@ -60,7 +60,7 @@ fn main() {
     let mut input = String::new();
     std::io::stdin().read_line(&mut input).expect("讀取失敗");
 
-    let num = input.trim().parse::<i32>().expect("請輸入數字");
+    let num = input.trim().parse::<i32>().expect("不是數字");
 
     println!("{} 乘以 2 等於 {}", num, num * 2);
 }
@@ -78,4 +78,4 @@ fn main() {
 
 - 使用者輸入的東西是文字，要用 `.parse::<i32>()` 轉成整數才能做運算。
 - `.expect("錯誤訊息")` 在轉換失敗時會印出訊息並結束程式。
-- 完整流程：`input.trim().parse::<i32>().expect("請輸入數字")`。
+- 完整流程：`input.trim().parse::<i32>().expect("不是數字")`。

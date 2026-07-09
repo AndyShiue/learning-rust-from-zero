@@ -37,7 +37,7 @@ Like `Option`, `Result`, `Ok`, and `Err` are imported into every file by default
 
 ### Revisiting Chapter 1's Black Box
 
-Remember Chapter 1's `.expect("Failed to read input")` and `.parse::<i32>().expect("Please enter a number")`?
+Remember Chapter 1's `.expect("failed to read input")` and `.parse::<i32>().expect("not a number")`?
 
 What `.parse()` returns is a `Result`. And `expect` behaves exactly like `Option`'s `expect` — on success, extract the `Ok` value; on failure, panic and print your message.
 
@@ -90,7 +90,7 @@ fn main() {
     }
 
     // expect: for when you're sure it won't fail
-    let num2 = "100".parse::<i32>().expect("This shouldn't fail");
+    let num2 = "100".parse::<i32>().expect("this shouldn't fail");
     println!("{}", num2);
 }
 ```

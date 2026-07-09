@@ -26,23 +26,23 @@ fn main() {
     let l2 = Arc::clone(&lock2);
 
     let a = thread::spawn(move || {
-        let _g1 = l1.lock().expect("Failed to acquire the lock"); // Takes lock 1
+        let _g1 = l1.lock().expect("lock failed"); // Takes lock 1
         // Imagine some delay here...
-        let _g2 = l2.lock().expect("Failed to acquire the lock"); // Waits for lock 2
+        let _g2 = l2.lock().expect("lock failed"); // Waits for lock 2
     });
 
     let l1 = Arc::clone(&lock1);
     let l2 = Arc::clone(&lock2);
 
     let b = thread::spawn(move || {
-        let _g2 = l2.lock().expect("Failed to acquire the lock"); // Takes lock 2
+        let _g2 = l2.lock().expect("lock failed"); // Takes lock 2
         // Imagine some delay here...
-        let _g1 = l1.lock().expect("Failed to acquire the lock"); // Waits for lock 1
+        let _g1 = l1.lock().expect("lock failed"); // Waits for lock 1
     });
 
     // With unlucky timing, the program hangs here forever
-    a.join().expect("The thread hit an error");
-    b.join().expect("The thread hit an error");
+    a.join().expect("thread panicked");
+    b.join().expect("thread panicked");
 }
 ```
 
@@ -61,7 +61,7 @@ use std::sync::Mutex;
 
 fn main() {
     let m = Mutex::new(42);
-    let _g1 = m.lock().expect("Failed to acquire the lock");
+    let _g1 = m.lock().expect("lock failed");
     let _g2 = m.lock().expect("lock failed"); // Possible deadlock: _g1 still holds the lock
 }
 ```
@@ -87,21 +87,21 @@ fn main() {
     let l1 = Arc::clone(&lock1);
     let l2 = Arc::clone(&lock2);
     let a = thread::spawn(move || {
-        let g1 = l1.lock().expect("Failed to acquire the lock"); // Lock 1 first
-        let g2 = l2.lock().expect("Failed to acquire the lock"); // Then lock 2
+        let g1 = l1.lock().expect("lock failed"); // Lock 1 first
+        let g2 = l2.lock().expect("lock failed"); // Then lock 2
         println!("Thread A: {} and {}", *g1, *g2);
     });
 
     let l1 = Arc::clone(&lock1);
     let l2 = Arc::clone(&lock2);
     let b = thread::spawn(move || {
-        let g1 = l1.lock().expect("Failed to acquire the lock"); // Also lock 1 first
-        let g2 = l2.lock().expect("Failed to acquire the lock"); // Then lock 2
+        let g1 = l1.lock().expect("lock failed"); // Also lock 1 first
+        let g2 = l2.lock().expect("lock failed"); // Then lock 2
         println!("Thread B: {} and {}", *g1, *g2);
     });
 
-    a.join().expect("The thread hit an error");
-    b.join().expect("The thread hit an error");
+    a.join().expect("thread panicked");
+    b.join().expect("thread panicked");
     println!("No deadlock!");
 }
 ```

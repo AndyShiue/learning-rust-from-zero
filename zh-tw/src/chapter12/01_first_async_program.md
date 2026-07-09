@@ -54,7 +54,7 @@ async fn main() {
 
     loop {
         // 等待下一個連線進來
-        let (mut socket, _) = listener.accept().await.expect("接受連線失敗");
+        let (mut socket, _) = listener.accept().await.expect("accept 失敗");
 
         // 把計數器的所有權分一份給待會的背景工作
         let counter = Arc::clone(&counter);
