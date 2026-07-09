@@ -27,7 +27,7 @@ When you write `f()` to call a closure, the compiler actually turns it into a me
 - **`FnMut`**: `f()` → `f.call_mut()` — takes `&mut self`, mutably borrowing the `struct`.
 - **`Fn`**: `f()` → `f.call()` — takes `&self`, immutably borrowing the `struct`.
 
-See it? These are the three method receivers from Chapter 4: `self`, `&mut self`, `&self`. The three closure kinds are, at bottom, the three ways a method can receive `self`.
+See it? These are the three `self` parameter forms from Chapter 4: `self`, `&mut self`, `&self`. The three closure kinds are, at bottom, the three ways a method can receive `self`.
 
 Last episode introduced `FnOnce` (consumes captured values, one call only) and `FnMut` (modifies captured values, repeatable calls). **`Fn` didn't appear last episode** — it's the third kind: reads captured values only, neither consuming nor modifying, callable any number of times.
 
@@ -178,7 +178,7 @@ Having grasped that "the closure body is just a method's content," here's a bonu
 
 ## Example Code
 
-The complete code below simulates all three closure kinds by hand. Each `struct` corresponds to one kind, with different field types and method receivers:
+The complete code below simulates all three closure kinds by hand. Each `struct` corresponds to one kind, with different field types and `self` parameter forms:
 
 ```rust,editable
 // === Simulating FnOnce ===
