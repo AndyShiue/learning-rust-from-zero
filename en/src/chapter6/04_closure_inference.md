@@ -13,10 +13,10 @@ Last episode we hand-simulated the three closure kinds with `struct`s, correspon
 Rust looks at **what the closure body does with the captured variables**:
 
 1. **If the body moves a captured variable** (e.g. `let s = captured_string;`) → the closure is **`FnOnce`** — once moved, it's gone; one call only.
-2. **If the body modifies a captured variable** (e.g. `count += 1;`) → the closure is **`FnMut`** — repeatable calls, but needing `&mut`.
-3. **If the body only reads captured variables** (e.g. `println!("{}", name);`) → the closure is **`Fn`** — only `&self` needed.
+2. **If the body needs mutable access to its captured state** (e.g. `count += 1;`) → the closure is **`FnMut`** — repeatable calls, but needing `&mut`.
+3. **If the body only needs shared access to its captured state** (e.g. `println!("{}", name);`) → the closure is **`Fn`** — only `&self` needed.
 
-Rust picks **the kind permitting the most usage patterns** — read-only gets `Fn` (an `Fn` closure also works as `FnMut` and `FnOnce`). Modification makes it `FnMut`. A move makes it `FnOnce`.
+Rust picks **the kind permitting the most usage patterns** — shared access gets `Fn` (an `Fn` closure also works as `FnMut` and `FnOnce`). Needing mutable access makes it `FnMut`. A move makes it `FnOnce`.
 
 ### Examples Side by Side
 
@@ -89,7 +89,7 @@ Episode 2's note that "capture-free closures convert to function pointers" follo
 
 ## Recap
 
-- Rust infers a closure's kind from its body: move → `FnOnce`, modify → `FnMut`, read-only → `Fn`.
+- Rust infers a closure's kind from its body: move → `FnOnce`, mutable access → `FnMut`, shared access → `Fn`.
 - No manual markers; the compiler picks the kind permitting the most usage patterns.
 - Capture-free closures are `Fn`, convertible to function pointers.
 - An `Fn` closure can go where `FnMut` or `FnOnce` is wanted; `FnMut` can go where `FnOnce` is wanted; never the reverse.

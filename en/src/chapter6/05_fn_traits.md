@@ -13,7 +13,7 @@ So what do these `trait`s look like?
 
 - `FnOnce(Args) -> Ret`: callable at least once (may consume itself).
 - `FnMut(Args) -> Ret`: callable repeatedly (may modify internal state).
-- `Fn(Args) -> Ret`: callable repeatedly (modifies nothing).
+- `Fn(Args) -> Ret`: callable repeatedly through a shared reference to itself.
 
 Watch out! `fn(i32) -> i32` (lowercase) is the function pointer **type**, while `Fn(i32) -> i32` (capitalized) is a **`trait`**. Two entirely different things.
 
@@ -32,7 +32,7 @@ Meaning:
 
 Why this direction?
 
-- **`Fn` → `FnMut`**: if a closure runs with just `&self`, handing it `&mut self` certainly works too (it's merely granted modification rights it doesn't need).
+- **`Fn` → `FnMut`**: if a closure runs with just `&self`, using `&mut self` certainly works too (it simply uses a mutable reference where a shared one would have sufficed).
 - **`FnMut` → `FnOnce`**: if a closure runs with `&mut self`, handing it `self` (full ownership) certainly works — owning a thing includes being able to modify it. It's just that after the call the struct is consumed, so no second call.
 
 The reverse doesn't hold — a closure that must consume itself (`FnOnce`) can't promise repeated calls (`FnMut`).
@@ -52,7 +52,7 @@ fn call_many_times(mut f: impl FnMut()) {
     f();
 }
 
-fn call_readonly(f: impl Fn() -> i32) -> i32 {
+fn call_twice(f: impl Fn() -> i32) -> i32 {
     f() + f()
 }
 #
@@ -67,11 +67,11 @@ When designing a function that takes a closure, choose the `trait` bound **accep
 
 1. Try `FnOnce` first — if you only call it once.
 2. Move to `FnMut` — if you need repeated calls.
-3. Only then `Fn` — if you need repeated calls and must forbid modification.
+3. Only then `Fn` — if you need repeated calls without a mutable reference to the closure value.
 
-Why? Because `FnOnce` accepts every closure (all closures are at least `FnOnce`), while `Fn` accepts only state-untouching ones. The widest bound gives callers maximum freedom.
+Why? Because `FnOnce` accepts every closure (all closures are at least `FnOnce`), while `Fn` accepts only closures callable through a shared reference. The widest bound gives callers maximum freedom.
 
-In practice `Fn` is rarely needed — most functions calling a closure repeatedly do fine with `FnMut` (which also accepts `Fn` closures). Only the few scenarios that must **guarantee the closure doesn't modify state** call for `Fn`.
+In practice `Fn` is rarely needed — most functions calling a closure repeatedly do fine with `FnMut` (which also accepts `Fn` closures). Use `Fn` when the function needs to call the closure without a mutable reference to the closure value.
 
 ### Function Pointers Implement All Three `trait`s Too
 
@@ -93,7 +93,7 @@ fn repeat_three_times(mut f: impl FnMut()) {
     f();
 }
 
-// Repeated calls without modification → Fn
+// Repeated calls without a mutable reference to the closure value → Fn
 fn sum_two_calls(f: impl Fn(i32) -> i32, x: i32) -> i32 {
     f(x) + f(x)
 }
@@ -139,8 +139,8 @@ fn main() {
 ## Recap
 
 - `Fn`, `FnMut`, `FnOnce` are **`trait`s**, not types; `fn` is the function pointer type.
-- The inheritance: `Fn` ⊂ `FnMut` ⊂ `FnOnce` (`FnOnce` accepts every closure; `Fn` only the non-modifying ones).
+- The inheritance: `Fn` ⊂ `FnMut` ⊂ `FnOnce` (`FnOnce` accepts every closure).
 - Accept closure parameters with `impl FnOnce()` / `impl FnMut()` / `impl Fn()`.
 - `FnMut` parameters need `mut`.
-- Design principle for closure-taking functions: **start with `FnOnce`**, switch to `FnMut` for repeated calls, use `Fn` only to guarantee no modification.
+- Design principle for closure-taking functions: **start with `FnOnce`**, switch to `FnMut` for repeated calls, and use `Fn` when calls must not require a mutable reference to the closure value.
 - Function pointers automatically implement `Fn` + `FnMut` + `FnOnce`.

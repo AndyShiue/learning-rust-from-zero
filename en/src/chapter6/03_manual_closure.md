@@ -29,7 +29,7 @@ When you write `f()` to call a closure, the compiler actually turns it into a me
 
 See it? These are the three `self` parameter forms from Chapter 4: `self`, `&mut self`, `&self`. The three closure kinds are, at bottom, the three ways a method can receive `self`.
 
-Last episode introduced `FnOnce` (consumes captured values, one call only) and `FnMut` (modifies captured values, repeatable calls). **`Fn` didn't appear last episode** — it's the third kind: reads captured values only, neither consuming nor modifying, callable any number of times.
+Last episode introduced `FnOnce` (consumes captured values, one call only) and `FnMut` (modifies captured values, repeatable calls). **`Fn` didn't appear last episode** — it's the third kind: calling it neither consumes the closure nor requires a mutable reference to it, so it can be called any number of times.
 
 Next we'll simulate all three by hand with `struct`s. Note: **the three examples below use different field types**. These are the field types used in these examples, not fixed requirements of the three closure kinds.
 
@@ -255,6 +255,6 @@ fn main() {
 - **The three closure kinds differ in how the method receives `self`**: `self` (`FnOnce`), `&mut self` (`FnMut`), `&self` (`Fn`).
 - The closure body is the implementation of the `struct`'s method.
 - `f()` gets compiled into a method call: `f.call_once()` / `f.call_mut()` / `f.call()`.
-- `Fn`: reads only, neither modifying nor consuming — infinitely callable.
+- `Fn`: calling it only requires a shared reference to the closure value, so it can be called repeatedly.
 - Since a closure body is just a method's content, a `return` inside a closure exits only the innermost closure, not the enclosing function — like `break` exiting only the innermost loop by default.
 - Next episode: how the compiler **automatically decides** whether a closure counts as `FnOnce`, `FnMut`, or `Fn`.
