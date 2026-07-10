@@ -59,7 +59,7 @@ You can't do everything inside a `const fn`. The basic principle: **the compiler
 
 What you can do:
 - Arithmetic, comparison, and logical operations
-- `if`, `match`, `loop`, `while`, `for`.
+- `if`, `match`, `loop`, `while`.
 - `let` bindings (including `let mut`).
 - Creating tuples, `struct`s, `enum`s.
 - Calling other `const fn`s.

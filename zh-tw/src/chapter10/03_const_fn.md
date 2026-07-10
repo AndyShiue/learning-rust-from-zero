@@ -59,7 +59,7 @@ fn main() {
 
 能做的：
 - 算術、比較、邏輯運算
-- `if`、`match`、`loop`、`while`、`for`。
+- `if`、`match`、`loop`、`while`。
 - `let` 綁定（包括 `let mut`）。
 - 建立 tuple、`struct`、`enum`。
 - 呼叫其他 `const fn`。
