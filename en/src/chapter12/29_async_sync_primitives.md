@@ -107,14 +107,14 @@ async fn main() {
 }
 ```
 
-`Notify` usually pairs with **shared state you manage yourself under a `Mutex`**: after changing the shared state, give a `notify`, and the awakened `Task` checks the state itself. It is **not a queue** — multiple `notify`s may merge into one (if no one is waiting yet, only a single notification may be recorded).
+`Notify` usually pairs with **shared state you manage yourself under a `Mutex`**: after changing the shared state, give a `notify`, and the awakened `Task` checks the state itself. It is **not a queue** — multiple calls to `.notify_one()` may merge into one. If no one is waiting, `Notify` stores at most one permit.
 
 ### `Notify` vs `watch`
 
 `Notify` is easily confused with last episode's `watch`, but their roles differ:
 
-- **`Notify`**: **no data, stateless**. It only handles "poking people awake"; what to look at upon waking is yours to manage with a `Mutex` or similar.
-- **`watch`**: **carries the "latest value," stateful**. It stores the latest state itself, and receivers read it directly upon waking.
+- **`Notify`**: **carries no data and stores at most one permit**. It only handles "poking people awake"; what to look at upon waking is yours to manage with a `Mutex` or similar.
+- **`watch`**: **carries the "latest value"**. It stores the latest state itself, and receivers read it directly upon waking.
 
 ## Recap
 
@@ -122,4 +122,4 @@ async fn main() {
 - That compile error is a useful warning: keep `Mutex` lock scopes short; don't hold a lock while waiting on I/O — usually just shorten the scope (`drop` the guard before the `.await`).
 - Use `tokio::sync::Mutex` only when holding a lock across an `.await` is a must (its guard is `Send`; `.lock().await`), but prefer the faster std locks.
 - Tokio's `RwLock` splits reads and writes: `.read().await` for many readers, `.write().await` for one writer.
-- `Notify` is a data-free wakeup tool paired with self-managed shared state, not a queue (notifications may merge); versus `watch`: `Notify` is stateless (pokes you to look), `watch` is stateful (carries the latest value).
+- `Notify` is a data-free wakeup tool that stores at most one permit; multiple calls to `.notify_one()` may merge, while `watch` stores the latest value.
