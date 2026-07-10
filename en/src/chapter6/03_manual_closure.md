@@ -2,7 +2,7 @@
 
 ## Goal of This Episode
 
-We'll manually model closures as `struct`s + methods, so you can understand what the compiler does behind the scenes. You'll see which kind of `struct` each of the three closure kinds corresponds to, and why calling a closure is really calling a method.
+We'll manually model closures as `struct`s + methods, so you can understand what the compiler does behind the scenes. You'll see one `struct`-based example for each of the three closure kinds, and why calling a closure is really calling a method.
 
 ## Concept
 
@@ -31,9 +31,9 @@ See it? These are the three `self` parameter forms from Chapter 4: `self`, `&mut
 
 Last episode introduced `FnOnce` (consumes captured values, one call only) and `FnMut` (modifies captured values, repeatable calls). **`Fn` didn't appear last episode** — it's the third kind: reads captured values only, neither consuming nor modifying, callable any number of times.
 
-Next we'll simulate all three by hand with `struct`s. Note: **the three closures' `struct`s differ in field types** — it's not one `struct` with three different methods.
+Next we'll simulate all three by hand with `struct`s. Note: **the three examples below use different field types**. These are the field types used in these examples, not fixed requirements of the three closure kinds.
 
-### `FnOnce`: the `struct` Stores Owned Values, the Method Takes `self`
+### An `FnOnce` Example: the `struct` Stores Owned Values, the Method Takes `self`
 
 Suppose we have this closure:
 
@@ -72,7 +72,7 @@ impl GreetOnce {
 
 Since the method takes `self`, the whole `struct` is consumed on the call — hence one call only. That's `FnOnce`.
 
-### `FnMut`: the `struct` Stores Mutable References, the Method Takes `&mut self`
+### An `FnMut` Example: the `struct` Stores Mutable References, the Method Takes `&mut self`
 
 Suppose the closure modifies a captured variable:
 
@@ -121,7 +121,7 @@ struct SomeClosure<'a> {
 
 The method takes `&mut self` rather than `self` because `self` would consume it in one call — making it `FnOnce`. `FnMut` needs repeated calls, so it can only take a mutable reference to the `struct`.
 
-### `Fn`: the `struct` Stores Shared References, the Method Takes `&self`
+### An `Fn` Example: the `struct` Stores Shared References, the Method Takes `&self`
 
 If the closure only reads captured variables, never modifying:
 
@@ -158,7 +158,7 @@ Since the method takes `&self`, the `struct` is neither consumed nor modified �
 
 ### The Comparison Table
 
-| `self` kind | Corresponding kind | What the `struct` fields hold | What it can do |
+| `self` kind | Corresponding kind | What the fields hold in this example | What it can do |
 |----------|----------|-----------------|---------|
 | `self` | `FnOnce` | Owned values (like `String`) | Consumes captures; one call only |
 | `&mut self` | `FnMut` | Mutable references (like `&mut String`) | Modifies captures; repeatable calls |
@@ -178,7 +178,7 @@ Having grasped that "the closure body is just a method's content," here's a bonu
 
 ## Example Code
 
-The complete code below simulates all three closure kinds by hand. Each `struct` corresponds to one kind, with different field types and `self` parameter forms:
+The complete code below collects the three examples above. Each `struct` simulates one closure kind with the field types and `self` parameter form used in that example:
 
 ```rust,editable
 // === Simulating FnOnce ===
