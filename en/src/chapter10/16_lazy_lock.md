@@ -65,6 +65,6 @@ fn main() {
 
 ## Recap
 
-- A `static`'s value must be known at compile time, which `Vec` / `String` and friends can't satisfy.
+- A `static` initializer must be computable at compile time; operations such as building a populated `Vec` or calling `String::from` require runtime initialization.
 - `LazyLock` postpones initialization to the first access and caches afterwards.
 - `LazyLock` is thread-safe and can be used safely in a `static`.

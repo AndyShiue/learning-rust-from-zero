@@ -17,11 +17,6 @@ static MAX_SIZE: usize = 1024;
 # fn main() {}
 ```
 
-| | `const` | `static` |
-|--|--|--|
-| Memory | No fixed address; value embedded at use sites | Fixed address; one copy shared by the whole program |
-| Taking an address | Can't take `&` | Can take `&`, guaranteed valid forever |
-
 Most of the time `const` is enough. Use `static` only when you need a fixed memory address (e.g. to hand to a C function).
 
 ### static mut

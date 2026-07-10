@@ -65,6 +65,6 @@ fn main() {
 
 ## 重點整理
 
-- `static` 的值必須編譯期確定，但 `Vec` / `String` 等做不到。
+- `static` 的初始值必須能在編譯期求值；建立有內容的 `Vec`、呼叫 `String::from` 等操作需要在執行期執行。
 - `LazyLock` 延遲到第一次存取才初始化，之後用快取。
 - `LazyLock` 是 thread-safe 的，可以安全地用在 `static`。
