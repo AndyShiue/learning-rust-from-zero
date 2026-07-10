@@ -24,8 +24,8 @@
 當你寫 `f()` 呼叫一個閉包，編譯器其實把它轉換成 `struct` 上的方法呼叫：
 
 - **`FnOnce`**：`f()` → `f.call_once()` — 傳 `self`，消耗整個 `struct`。
-- **`FnMut`**：`f()` → `f.call_mut()` — 傳 `&mut self`，可變借用 `struct`。
-- **`Fn`**：`f()` → `f.call()` — 傳 `&self`，唯讀借用 `struct`。
+- **`FnMut`**：`f()` → `f.call_mut()` — 傳 `&mut self`，也就是 `struct` 的可變參考。
+- **`Fn`**：`f()` → `f.call()` — 傳 `&self`，也就是 `struct` 的共享參考。
 
 看出來了嗎？這就是第 4 章學過的三種 `self` 參數寫法：`self`、`&mut self`、`&self`。閉包的三種分類，本質上就是方法接收 `self` 的三種方式。
 
@@ -72,7 +72,7 @@ impl GreetOnce {
 
 因為方法接收 `self`，呼叫的時候整個 `struct` 被消耗掉了，所以只能呼叫一次。這就是 `FnOnce`。
 
-### `FnMut`：`struct` 存可變借用，方法接 `&mut self`
+### `FnMut`：`struct` 存可變參考，方法接 `&mut self`
 
 假設閉包修改了捕捉的變數：
 
@@ -92,7 +92,7 @@ fn main() {
 
 ```rust,noplayground
 struct GreetMut<'a> {
-    name: &'a mut String, // 可變借用 name
+    name: &'a mut String, // name 的可變參考
 }
 
 // let mut greet = GreetMut { name: &mut name };
@@ -119,9 +119,9 @@ struct SomeClosure<'a> {
 # fn main() {}
 ```
 
-方法用 `&mut self` 而不是 `self`，因為用 `self` 的話呼叫一次就消耗掉了——那就變成 `FnOnce` 了。`FnMut` 需要多次呼叫，所以只能借用整個 `struct`。
+方法用 `&mut self` 而不是 `self`，因為用 `self` 的話呼叫一次就消耗掉了——那就變成 `FnOnce` 了。`FnMut` 需要多次呼叫，所以只能取得整個 `struct` 的可變參考。
 
-### `Fn`：`struct` 存唯讀借用，方法接 `&self`
+### `Fn`：`struct` 存共享參考，方法接 `&self`
 
 如果閉包只是讀取捕捉的變數，完全不修改：
 
@@ -140,7 +140,7 @@ fn main() {
 
 ```rust,noplayground
 struct GreetRef<'a> {
-    name: &'a String, // 唯讀借用 name
+    name: &'a String, // name 的共享參考
 }
 
 // let greet = GreetRef { name: &name };
@@ -161,8 +161,8 @@ impl<'a> GreetRef<'a> {
 | `self` 類型 | 對應類型 | `struct` 欄位存什麼 | 能做什麼 |
 |----------|----------|-----------------|---------|
 | `self` | `FnOnce` | 擁有的值（如 `String`） | 消耗捕捉的值，只能呼叫一次 |
-| `&mut self` | `FnMut` | 可變借用（如 `&mut String`） | 修改捕捉的值，可以多次呼叫 |
-| `&self` | `Fn` | 唯讀借用（如 `&String`） | 只讀取，可以多次呼叫 |
+| `&mut self` | `FnMut` | 可變參考（如 `&mut String`） | 修改捕捉的值，可以多次呼叫 |
+| `&self` | `Fn` | 共享參考（如 `&String`） | 只讀取，可以多次呼叫 |
 
 ### 小結：閉包到底是什麼？
 
@@ -197,7 +197,7 @@ impl GreetOnce {
 }
 
 // === FnMut 模擬 ===
-// struct 存可變借用，方法接 &mut self
+// struct 存可變參考，方法接 &mut self
 struct GreetMut<'a> {
     name: &'a mut String,
 }
@@ -211,7 +211,7 @@ impl<'a> GreetMut<'a> {
 }
 
 // === Fn 模擬 ===
-// struct 存唯讀借用，方法接 &self
+// struct 存共享參考，方法接 &self
 struct GreetRef<'a> {
     name: &'a String,
 }
@@ -237,7 +237,7 @@ fn main() {
         greet_mut.call_mut(); // Bob!
         greet_mut.call_mut(); // Bob!!
         greet_mut.call_mut(); // Bob!!!
-    } // greet_mut 離開作用域，借用結束
+    } // greet_mut 離開作用域，它的可變參考不再被使用
     println!("name2 現在是：{}", name2);
 
     // --- Fn：只讀取，呼叫幾次都行 ---

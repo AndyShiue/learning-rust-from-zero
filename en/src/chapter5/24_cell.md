@@ -2,11 +2,11 @@
 
 ## Goal of This Episode
 
-Learn to modify values through immutable references with `Cell<T>`, and understand its limitations.
+Learn to modify values through shared references with `Cell<T>`, and understand its limitations.
 
 ## Concept
 
-Chapter 4 taught the borrowing rules: either one `&mut` or many `&`s, never both at once. Safe — but sometimes, holding only a `&` (immutable reference), you still want to modify a value.
+Chapter 4 taught the borrowing rules: either one `&mut` or many `&`s, never both at once. Safe — but sometimes, holding only a `&` (shared reference), you still want to modify a value.
 
 ### The Idea of `Cell`
 
@@ -36,7 +36,7 @@ Sometimes getting a `&mut` isn't convenient. Say a `struct` is shared by referen
 
 ### `Rc` Is Built on `Cell`
 
-Last episode's `Rc<T>` needs a reference counter — +1 on every `clone`, -1 on every `drop`. But look at `Clone`'s signature: `fn clone(&self) -> Self`. It only gets `&self` (an immutable reference), yet it must bump the count. How? With `Cell`! The counter inside `Rc` is a `Cell<usize>`, so the count can update even through `&self`.
+Last episode's `Rc<T>` needs a reference counter — +1 on every `clone`, -1 on every `drop`. But look at `Clone`'s signature: `fn clone(&self) -> Self`. It only gets `&self` (a shared reference), yet it must bump the count. How? With `Cell`! The counter inside `Rc` is a `Cell<usize>`, so the count can update even through `&self`.
 
 ## Example Code
 
@@ -78,7 +78,7 @@ fn main() {
     // Using Cell inside a struct
     let counter = Counter::new(String::from("visit count"));
 
-    // Only &counter (an immutable reference), yet count can be modified
+    // Only &counter (a shared reference), yet count can be modified
     counter.increment();
     counter.increment();
     counter.increment();

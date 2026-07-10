@@ -8,7 +8,7 @@ Understand why interior mutability is dangerous under multithreading, and `RefCe
 
 ### Interior Mutability Is a Major Multithreading Threat
 
-Chapter 5 taught that `RefCell` can modify its inner value through `&T` (an immutable reference). In the single-threaded world, `RefCell` checks the borrowing rules at runtime and stays out of trouble.
+Chapter 5 taught that `RefCell` can modify its inner value through `&T` (a shared reference). In the single-threaded world, `RefCell` checks the borrowing rules at runtime and stays out of trouble.
 
 The multithreaded world is different. `&T` looks "read-only," and `Sync`'s very definition is that `&T` can safely be shared among threads. If a type can sneak modifications through `&T`, several threads doing so at once can go wrong.
 

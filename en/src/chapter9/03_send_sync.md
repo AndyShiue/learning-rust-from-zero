@@ -33,7 +33,7 @@ A type implementing `Send` means its values can safely move to another thread. M
 
 ### `Sync`
 
-A type implementing `Sync` means its `&T` (immutable reference) can safely be shared among threads. In other words:
+A type implementing `Sync` means its `&T` (shared reference) can safely be shared among threads. In other words:
 
 > `T: Sync` is equivalent to `&T: Send`
 

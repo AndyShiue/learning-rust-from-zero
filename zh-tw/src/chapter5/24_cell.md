@@ -2,11 +2,11 @@
 
 ## 本集目標
 
-學會用 `Cell<T>` 在不可變參考的情況下修改值，理解它的限制。
+學會用 `Cell<T>` 在共享參考的情況下修改值，理解它的限制。
 
 ## 概念說明
 
-第 4 章學了借用規則：要嘛一個 `&mut`，要嘛多個 `&`，不能同時。這很安全，但有時候你在只有 `&`（不可變參考）的情況下，還是想修改值。
+第 4 章學了借用規則：要嘛一個 `&mut`，要嘛多個 `&`，不能同時。這很安全，但有時候你在只有 `&`（共享參考）的情況下，還是想修改值。
 
 ### `Cell` 的概念
 
@@ -36,7 +36,7 @@ fn main() {
 
 ### `Rc` 就是用 `Cell` 實作的
 
-上一集學的 `Rc<T>` 需要一個參考計數器——每次 `clone` 時計數 +1，`drop` 時計數 -1。但看看 `Clone` 的簽名：`fn clone(&self) -> Self`，它只拿得到 `&self`（不可變參考），卻必須把計數 +1。怎麼辦？答案就是用 `Cell`！`Rc` 內部的計數器就是 `Cell<usize>`，所以即使只有 `&self` 也能更新計數。
+上一集學的 `Rc<T>` 需要一個參考計數器——每次 `clone` 時計數 +1，`drop` 時計數 -1。但看看 `Clone` 的簽名：`fn clone(&self) -> Self`，它只拿得到 `&self`（共享參考），卻必須把計數 +1。怎麼辦？答案就是用 `Cell`！`Rc` 內部的計數器就是 `Cell<usize>`，所以即使只有 `&self` 也能更新計數。
 
 ## 範例程式碼
 
@@ -78,7 +78,7 @@ fn main() {
     // 在 struct 裡使用 Cell
     let counter = Counter::new(String::from("訪問次數"));
 
-    // 只有 &counter（不可變參考），但可以修改 count
+    // 只有 &counter（共享參考），但可以修改 count
     counter.increment();
     counter.increment();
     counter.increment();

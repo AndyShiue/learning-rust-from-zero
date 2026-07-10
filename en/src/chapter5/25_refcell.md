@@ -113,7 +113,7 @@ fn main() {
 
 - `RefCell<T>` is like `Cell` — modifying values without needing `&mut`.
 - `RefCell<T>` moves the borrowing-rule check from compile time to runtime.
-- `.borrow()` obtains an immutable reference; `.borrow_mut()` a mutable one.
+- `.borrow()` obtains a shared reference; `.borrow_mut()` a mutable one.
 - `T` **doesn't need** `Copy` (the difference from `Cell`).
 - `Cell` is zero-cost; `RefCell` pays a runtime check on every borrow.
 - Violating the borrowing rules **panics** (not a compile error).

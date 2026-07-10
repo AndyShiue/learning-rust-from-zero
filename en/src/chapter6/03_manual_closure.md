@@ -24,8 +24,8 @@ Today we'll do the compiler's job by hand, simulating each of the three closure 
 When you write `f()` to call a closure, the compiler actually turns it into a method call on the `struct`:
 
 - **`FnOnce`**: `f()` → `f.call_once()` — takes `self`, consuming the whole `struct`.
-- **`FnMut`**: `f()` → `f.call_mut()` — takes `&mut self`, mutably borrowing the `struct`.
-- **`Fn`**: `f()` → `f.call()` — takes `&self`, immutably borrowing the `struct`.
+- **`FnMut`**: `f()` → `f.call_mut()` — takes `&mut self`, a mutable reference to the `struct`.
+- **`Fn`**: `f()` → `f.call()` — takes `&self`, a shared reference to the `struct`.
 
 See it? These are the three `self` parameter forms from Chapter 4: `self`, `&mut self`, `&self`. The three closure kinds are, at bottom, the three ways a method can receive `self`.
 
@@ -72,7 +72,7 @@ impl GreetOnce {
 
 Since the method takes `self`, the whole `struct` is consumed on the call — hence one call only. That's `FnOnce`.
 
-### `FnMut`: the `struct` Stores Mutable Borrows, the Method Takes `&mut self`
+### `FnMut`: the `struct` Stores Mutable References, the Method Takes `&mut self`
 
 Suppose the closure modifies a captured variable:
 
@@ -92,7 +92,7 @@ The compiler's product:
 
 ```rust,noplayground
 struct GreetMut<'a> {
-    name: &'a mut String, // Mutably borrows name
+    name: &'a mut String, // A mutable reference to name
 }
 
 // let mut greet = GreetMut { name: &mut name };
@@ -119,9 +119,9 @@ struct SomeClosure<'a> {
 # fn main() {}
 ```
 
-The method takes `&mut self` rather than `self` because `self` would consume it in one call — making it `FnOnce`. `FnMut` needs repeated calls, so it can only borrow the `struct`.
+The method takes `&mut self` rather than `self` because `self` would consume it in one call — making it `FnOnce`. `FnMut` needs repeated calls, so it can only take a mutable reference to the `struct`.
 
-### `Fn`: the `struct` Stores Immutable Borrows, the Method Takes `&self`
+### `Fn`: the `struct` Stores Shared References, the Method Takes `&self`
 
 If the closure only reads captured variables, never modifying:
 
@@ -140,7 +140,7 @@ The compiler's product:
 
 ```rust,noplayground
 struct GreetRef<'a> {
-    name: &'a String, // Immutably borrows name
+    name: &'a String, // A shared reference to name
 }
 
 // let greet = GreetRef { name: &name };
@@ -161,8 +161,8 @@ Since the method takes `&self`, the `struct` is neither consumed nor modified �
 | `self` kind | Corresponding kind | What the `struct` fields hold | What it can do |
 |----------|----------|-----------------|---------|
 | `self` | `FnOnce` | Owned values (like `String`) | Consumes captures; one call only |
-| `&mut self` | `FnMut` | Mutable borrows (like `&mut String`) | Modifies captures; repeatable calls |
-| `&self` | `Fn` | Immutable borrows (like `&String`) | Reads only; repeatable calls |
+| `&mut self` | `FnMut` | Mutable references (like `&mut String`) | Modifies captures; repeatable calls |
+| `&self` | `Fn` | Shared references (like `&String`) | Reads only; repeatable calls |
 
 ### Wrapping Up: What Is a Closure, Really?
 
@@ -197,7 +197,7 @@ impl GreetOnce {
 }
 
 // === Simulating FnMut ===
-// The struct stores a mutable borrow; the method takes &mut self
+// The struct stores a mutable reference; the method takes &mut self
 struct GreetMut<'a> {
     name: &'a mut String,
 }
@@ -211,7 +211,7 @@ impl<'a> GreetMut<'a> {
 }
 
 // === Simulating Fn ===
-// The struct stores an immutable borrow; the method takes &self
+// The struct stores a shared reference; the method takes &self
 struct GreetRef<'a> {
     name: &'a String,
 }
@@ -237,7 +237,7 @@ fn main() {
         greet_mut.call_mut(); // Bob!
         greet_mut.call_mut(); // Bob!!
         greet_mut.call_mut(); // Bob!!!
-    } // greet_mut leaves scope; the borrow ends
+    } // greet_mut leaves scope; its mutable reference is no longer in use
     println!("name2 is now: {}", name2);
 
     // --- Fn: read-only; call as many times as you like ---
