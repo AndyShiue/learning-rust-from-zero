@@ -19,7 +19,7 @@ union IntOrBool {
 # fn main() {}
 ```
 
-The size of `IntOrBool` is the size of its largest field (4 bytes). `i` and `b` occupy the same memory — writing to `i` overwrites the contents of `b`.
+`IntOrBool` is 4 bytes, enough to hold either its 4-byte `i32` or its 1-byte `bool`. `i` and `b` occupy the same memory — writing to `i` overwrites the contents of `b`.
 
 ### Writing Needs No `unsafe`; Reading Does
 
@@ -43,7 +43,6 @@ Why does reading require `unsafe`? Because Rust doesn't know which field you las
 |--|--|--|
 | Knows the current variant | Has a discriminant | Doesn't know; you track it yourself |
 | Reading | Safe | Requires `unsafe` |
-| Size | Largest variant + discriminant | Largest field (no extra overhead) |
 
 ### The Use Case: FFI
 
@@ -75,7 +74,7 @@ fn main() {
         // a bool must be 0 or 1, but this memory holds 42 → undefined behavior!
     }
 
-    // a union's size = the size of its largest field
+    // IntOrBool is 4 bytes
     println!("size: {} bytes", std::mem::size_of::<IntOrBool>()); // 4
 }
 ```

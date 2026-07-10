@@ -19,7 +19,7 @@ union IntOrBool {
 # fn main() {}
 ```
 
-`IntOrBool` 的大小是最大欄位的大小（4 bytes）。`i` 和 `b` 佔的是同一塊記憶體——寫入 `i` 會覆蓋 `b` 的內容。
+`IntOrBool` 的大小是 4 bytes，足以容納 4 bytes 的 `i32` 或 1 byte 的 `bool`。`i` 和 `b` 佔的是同一塊記憶體——寫入 `i` 會覆蓋 `b` 的內容。
 
 ### 寫入不需要 `unsafe`，讀取需要
 
@@ -43,7 +43,6 @@ union IntOrBool {
 |--|--|--|
 | 知道目前是哪個 variant | 有 discriminant | 不知道，你自己追蹤 |
 | 讀取 | 安全 | 需要 `unsafe` |
-| 大小 | 最大 variant + discriminant | 最大欄位（沒有額外開銷） |
 
 ### 用途：FFI
 
@@ -75,7 +74,7 @@ fn main() {
         // bool 必須是 0 或 1，但這塊記憶體是 42 → 未定義行為！
     }
 
-    // union 的大小 = 最大欄位的大小
+    // IntOrBool 的大小是 4 bytes
     println!("size: {} bytes", std::mem::size_of::<IntOrBool>()); // 4
 }
 ```
