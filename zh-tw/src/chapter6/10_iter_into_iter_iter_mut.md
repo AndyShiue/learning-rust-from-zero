@@ -95,7 +95,7 @@ impl<'a, T> IntoIterator for &'a mut Vec<T> {
 
 所以 `for x in &v` 其實是對 `&v`（型別是 `&Vec<T>`）呼叫 `into_iter()`，走到 `&Vec<T>` 的那個 impl，最終拿到 `&T`。
 
-大部分集合型別（`Vec`、`String`、陣列等）都遵循這個模式——為自己、`&self`、`&mut self` 三種各實作一次 `IntoIterator`。
+大部分集合型別（`Vec`、陣列等）都遵循這個模式——為自己、`&self`、`&mut self` 三種各實作一次 `IntoIterator`。
 
 ### 選哪一個？
 
