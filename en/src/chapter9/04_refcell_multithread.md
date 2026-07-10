@@ -14,7 +14,7 @@ The multithreaded world is different. `&T` looks "read-only," and `Sync`'s very 
 
 ### `RefCell`'s Borrow Count Isn't Atomic
 
-`RefCell` tracks its current borrow state (how many immutable borrows; any mutable borrow) with an ordinary integer. Operations on that counter aren't **atomic** — atomic meaning "indivisible": an atomic operation either completes fully or never happens, never interrupted midway by another thread. `RefCell`'s counter reads and writes aren't atomic, meaning one thread mid-read can have another thread cut in and change the value. If two threads call `borrow_mut()` through `&RefCell<T>` simultaneously, this can happen:
+`RefCell` tracks its current borrow state (how many immutable borrows; any mutable borrow) with an ordinary integer. Operations on that counter aren't **atomic**. An atomic operation is indivisible — no other thread can ever see a halfway state. `RefCell`'s counter doesn't provide this guarantee, so two threads could both read the same old value before either updates it. If two threads call `borrow_mut()` through `&RefCell<T>` simultaneously, this can happen:
 
 1. Thread A calls `borrow_mut()`, reads the counter, sees 0 (nobody borrowing).
 2. Thread B calls `borrow_mut()` too, reads the counter, also sees 0.
@@ -74,7 +74,7 @@ fn main() {
 ## Recap
 
 - Interior mutability lets `&T` modify contents — dangerous under multithreading.
-- Atomic operation = an indivisible operation: fully completed or never happened, never interrupted midway.
+- Atomic operation = an indivisible operation: no other thread can see a halfway state.
 - `RefCell`'s `borrow` count is an ordinary integer, not atomic; simultaneous multithreaded operations can bypass the check.
 - `RefCell` is not `Sync` — `&RefCell<T>` can't be shared among threads.
 - `RefCell` is `Send` — it can move to another thread, which then owns it alone.
