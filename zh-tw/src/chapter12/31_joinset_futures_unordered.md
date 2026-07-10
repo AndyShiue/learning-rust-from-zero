@@ -14,7 +14,7 @@
 
 ### 路線一：`JoinSet`（`spawn` 的動態版）
 
-`tokio::task::JoinSet` 可以想成「**`spawn` 的動態版**」。你往裡面 `spawn` 任意多個工作，每一個都是**獨立的 `Task`**，所以可以被分到不同 `Thread` 上**真平行**地跑（也因此和 `spawn` 一樣需要 `Send + 'static`）。然後用 `join_next().await` 把完成的結果一個一個收回來——**誰先完成就先拿到誰**：
+`tokio::task::JoinSet` 可以想成「**`spawn` 的動態版**」。你往裡面 `spawn` 任意多個工作，每一個都是**獨立的 `Task`**。在多執行緒 runtime 上，Tokio 可以把它們排到不同的 worker `Thread`，因此能夠平行執行（而且和 `spawn` 一樣需要 `Send + 'static`）。然後用 `join_next().await` 把完成的結果一個一個收回來——**誰先完成就先拿到誰**：
 
 ```rust,editable
 # extern crate tokio;
@@ -55,7 +55,7 @@ async fn main() {
 `futures::stream::FuturesUnordered` 則是「**`join!` 的動態版**」。它在**同一個 `Task` 內**輪流推進一堆 `Future`，**不**把它們變成獨立 `Task`、**不**跨 `Thread`。代價和好處都從這裡來：
 
 - 因為不跨 `Thread`，所以**不需要 `Send + 'static`**——它可以放借用了區域變數的 `Future`（`JoinSet` 因為要 `spawn` 就做不到）。
-- 但因為大家在同一個 `Task` 上輪流，**一個 branch 卡住會拖累其他**（又是「不要 block 住執行緒」那條鐵律）。
+- 但因為大家在同一個 `Task` 上輪流，如果一個 `Future` 的 `poll` 阻塞或執行太久，就會延後其他 `Future` 被 `poll`（又是「不要 block 住執行緒」那條鐵律）。
 
 `FuturesUnordered` 定義在 `futures` 這個套件裡，使用前要加上依賴（上一集加過的 `tokio-stream` 這裡也會用到）：
 
@@ -95,14 +95,14 @@ async fn main() {
 
 兩者都是「誰先完成就先產生結果」，都很適合爬蟲、批次請求這類工作。差別在：
 
-- 要**真平行、各工作互不影響**（一個卡住不拖累別人）→ 用 **`JoinSet`**（每個是獨立 `Task`，但要 `Send + 'static`、綁 Tokio）。
-- 想**就地借用區域變數、工作輕量、不想依賴特定 runtime** → 用 **`FuturesUnordered`**（同一個 `Task` 內多工，不需 `Send`，但一個卡住會拖累其他）。
+- 想讓每個工作成為**能夠平行執行的獨立 `Task`，並有較高的排程隔離** → 用 **`JoinSet`**（但要 `Send + 'static`、綁 Tokio）。
+- 想**就地借用區域變數、工作輕量、不想依賴特定 runtime** → 用 **`FuturesUnordered`**（同一個 `Task` 內多工，不需 `Send`，但一個 `Future` 的 `poll` 阻塞或執行太久，就會延後其他 `Future` 被 `poll`）。
 
 下一集，我們把目前學的這些工具——`select!`、channel、`JoinSet`——兜成一個完整的 graceful shutdown 流程。
 
 ## 重點整理
 
 - 處理「大量、動態、誰先好先處理」的工作，`join!` 不夠用，改用 `JoinSet` 或 `FuturesUnordered`。
-- **`JoinSet`**（`spawn` 的動態版）：每個工作是獨立 `Task`、可真平行、需 `Send + 'static`、綁 Tokio；`join_next()` 回 `Option<Result<T, JoinError>>`，支援 `.abort_all()` 與 `drop` 時自動 abort。
-- **`FuturesUnordered`**（`join!` 的動態版）：同一個 `Task` 內多工、不跨 `Thread`、不需 `Send`（可借用區域變數），但一個 branch 卡住會拖累其他；本身是個不綁 runtime 的 `Stream`。
-- 要真平行互不影響用 `JoinSet`；要就地借用、工作輕量、不綁 runtime 用 `FuturesUnordered`。
+- **`JoinSet`**（`spawn` 的動態版）：每個工作是獨立 `Task`、在多執行緒 runtime 上能夠平行執行、需 `Send + 'static`、綁 Tokio；`join_next()` 回 `Option<Result<T, JoinError>>`，支援 `.abort_all()` 與 `drop` 時自動 abort。
+- **`FuturesUnordered`**（`join!` 的動態版）：同一個 `Task` 內多工、不跨 `Thread`、不需 `Send`（可借用區域變數），但一個 `Future` 的 `poll` 阻塞或執行太久，就會延後其他 `Future` 被 `poll`；本身是個不綁 runtime 的 `Stream`。
+- 要獨立 `Task`、可以平行執行並有較高的排程隔離，用 `JoinSet`；要就地借用、工作輕量、不綁 runtime，用 `FuturesUnordered`。

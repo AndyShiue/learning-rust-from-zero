@@ -14,7 +14,7 @@ Yet often your work is "**a large amount, generated dynamically, and whoever fin
 
 ### Route 1: `JoinSet` (the Dynamic Version of `spawn`)
 
-Think of `tokio::task::JoinSet` as "**the dynamic version of `spawn`**." You `spawn` any number of jobs into it, each an **independent `Task`**, so they can be spread across `Thread`s and run **truly in parallel** (which also means, like `spawn`, they need `Send + 'static`). Then collect the finished results one by one with `join_next().await` — **whoever finishes first is received first**:
+Think of `tokio::task::JoinSet` as "**the dynamic version of `spawn`**." You `spawn` any number of jobs into it, each an **independent `Task`**. On a multi-thread runtime, Tokio can schedule them on different worker `Thread`s, allowing them to run in parallel (and, like `spawn`, they need `Send + 'static`). Then collect the finished results one by one with `join_next().await` — **whoever finishes first is received first**:
 
 ```rust,editable
 # extern crate tokio;
@@ -55,7 +55,7 @@ async fn main() {
 `futures::stream::FuturesUnordered` is "**the dynamic version of `join!`**." It advances a pile of `Future`s in turn **within a single `Task`** — it does **not** make them independent `Task`s and does **not** cross `Thread`s. Both the cost and the benefit flow from that:
 
 - Since it doesn't cross `Thread`s, it **doesn't need `Send + 'static`** — it can hold `Future`s that borrow local variables (`JoinSet` can't, because it has to `spawn`).
-- But since everyone takes turns on the same `Task`, **one stuck branch drags down the others** (that "don't block the thread" iron rule again).
+- But since everyone takes turns on the same `Task`, if one `Future`'s `poll` blocks or runs for too long, `poll`ing the others is delayed (that "don't block the thread" iron rule again).
 
 `FuturesUnordered` is defined in the `futures` crate, so add the dependency first (last episode's `tokio-stream` is used here too):
 
@@ -95,14 +95,14 @@ async fn main() {
 
 Both produce results in completion order, and both suit crawlers, batch requests, and the like. The differences:
 
-- Want **true parallelism, jobs isolated from each other** (one stuck job doesn't drag down the rest) → use **`JoinSet`** (each is an independent `Task`, but needs `Send + 'static` and is tied to Tokio).
-- Want to **borrow local variables in place, keep jobs lightweight, avoid depending on a particular runtime** → use **`FuturesUnordered`** (multiplexed within one `Task`, no `Send` needed, but one stuck branch drags down the others).
+- Want **independent `Task`s that can run in parallel, with greater scheduling isolation** → use **`JoinSet`** (but it needs `Send + 'static` and is tied to Tokio).
+- Want to **borrow local variables in place, keep jobs lightweight, avoid depending on a particular runtime** → use **`FuturesUnordered`** (multiplexed within one `Task`, no `Send` needed, but one `Future`'s blocking or long-running `poll` delays `poll`ing the others).
 
 Next episode, we assemble the tools learned so far — `select!`, channels, `JoinSet` — into a complete graceful shutdown flow.
 
 ## Recap
 
 - For "large, dynamic, first-done-first-served" work, `join!` isn't enough; use `JoinSet` or `FuturesUnordered`.
-- **`JoinSet`** (dynamic `spawn`): each job is an independent `Task`, truly parallel, needs `Send + 'static`, tied to Tokio; `join_next()` returns `Option<Result<T, JoinError>>`, supports `.abort_all()` and auto-abort on `drop`.
-- **`FuturesUnordered`** (dynamic `join!`): multiplexes within one `Task`, no `Thread` crossing, no `Send` needed (can borrow local variables), but one stuck branch drags down the rest; it's itself a runtime-agnostic `Stream`.
-- True parallelism and isolation → `JoinSet`; in-place borrowing, lightweight work, runtime-agnostic → `FuturesUnordered`.
+- **`JoinSet`** (dynamic `spawn`): each job is an independent `Task`, can run in parallel on a multi-thread runtime, needs `Send + 'static`, tied to Tokio; `join_next()` returns `Option<Result<T, JoinError>>`, supports `.abort_all()` and auto-abort on `drop`.
+- **`FuturesUnordered`** (dynamic `join!`): multiplexes within one `Task`, no `Thread` crossing, no `Send` needed (can borrow local variables), but one `Future`'s blocking or long-running `poll` delays polling the others; it's itself a runtime-agnostic `Stream`.
+- Independent `Task`s, possible parallel execution, and greater scheduling isolation → `JoinSet`; in-place borrowing, lightweight work, runtime-agnostic → `FuturesUnordered`.
