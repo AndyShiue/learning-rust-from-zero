@@ -22,13 +22,13 @@ fn main() {
 }
 ```
 
-But `Cell` comes with one important restriction:
+But `.get()` comes with one important restriction:
 
-### `T` Must Be `Copy`
+### `T` Must Be `Copy` to Use `.get()`
 
-`Cell<T>`'s `.get()` **copies** the value out (rather than borrowing). So `T` must implement `Copy`.
+`Cell<T>`'s `.get()` **copies** the value out (rather than borrowing). So `T` must implement `Copy` to use `.get()`.
 
-You can't have a `Cell<String>`, since `String` isn't `Copy`. Only `Copy` types work (`i32`, `f64`, `bool`, etc.).
+You can't call `.get()` on a `Cell<String>`, since `String` isn't `Copy`. Only `Copy` types work with `.get()` (`i32`, `f64`, `bool`, etc.).
 
 ### Why Not Just Use mut?
 
@@ -91,5 +91,5 @@ fn main() {
 
 - `Cell<T>` lets you modify a value without needing `&mut`.
 - `.get()` copies the value out; `.set(v)` writes a new one.
-- **T must be `Copy`** — because `get` copies rather than borrows.
+- **`T` must be `Copy` to use `.get()`** — because `get` copies rather than borrows.
 - Great for "I only have `&self` but want to modify a field" scenarios.
