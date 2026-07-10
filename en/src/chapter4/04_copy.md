@@ -24,7 +24,7 @@ Why? The answer is the **`Copy` `trait`**.
 
 `Copy` is a special trait. If a type implements `Copy`, then on assignment or when passed into a function, Rust automatically makes a copy instead of moving.
 
-You can think of Copy as: "This thing is so small and simple that copying it costs nothing, so Rust copies it for you — no need to write `.clone()`."
+`Copy` means copying the value is a simple, mechanical operation, so Rust can do it automatically on assignment or when passing the value into a function — no need to write `.clone()`.
 
 ### Which Types Have `Copy` Automatically?
 
@@ -93,7 +93,7 @@ fn main() {
 | | copy | `clone` |
 |---|---|---|
 | Triggered by | Automatic (assignment, passing into functions) | Manual (`.clone()`) |
-| Suited to | Small, simple data | Virtually all data |
+| Can customize its behavior | No | Yes, through the implementation of `.clone()` |
 | Prerequisite to implement | All contents must be `Copy` | None |
 
 In short: **copy is automatic duplication; `clone` is manual duplication.**
@@ -148,7 +148,7 @@ Having read this episode, you might think: "So why don't I just add `#[derive(Co
 
 And then the trouble starts: with `Copy` gone, every `let p2 = p1;` flips from "automatic copy" to "move," and `p1` stops being usable. All the code using this type may break — potentially in many, scattered places.
 
-So the good habit is: **only add `Copy` when you're sure the type will always stay small and simple and never gain a non-`Copy` field.** Something like `Point { x: i32, y: i32 }` is a great fit. When unsure, add only `Clone` — write `.clone()` manually when you need it, and future changes won't ripple through other code.
+So the good habit is: **only add `Copy` when you're sure the type will never gain a non-`Copy` field.** Something like `Point { x: i32, y: i32 }` is a great fit. When unsure, add only `Clone` — write `.clone()` manually when you need it, and future changes won't ripple through other code.
 
 ## Recap
 
