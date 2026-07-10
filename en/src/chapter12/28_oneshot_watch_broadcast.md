@@ -36,7 +36,7 @@ Note that `oneshot`'s receiving end `rx` is itself a `Future`; just `rx.await`.
 
 ### `watch`: Only the "Latest State" Matters
 
-`watch` is "**one sender, many receivers, but receivers only see the latest value**." It's not a queue delivering every message — it's more like a "bulletin board": the sender updates what's on it at any time, and receivers only care about "what does the board say now." Old values missed in between are not made up to you.
+`watch` is "**many senders, many receivers, with only the latest value retained**." Its `Sender` can be cloned, so multiple tasks can update the same channel. It's not a queue delivering every message — it's more like a "bulletin board": senders can update what's on it at any time, and receivers only care about "what does the board say now." Old values missed in between are not made up to you.
 
 It's best for broadcasting state like "what's the current configuration."
 
@@ -106,6 +106,6 @@ So, more precisely: `broadcast` broadcasts messages to all receivers, but each r
 
 - Channels differ in their "number of senders / receivers."
 - `oneshot`: one-to-one, a single value once; the receiver is itself a `Future` (`rx.await`) — good for returning results.
-- `watch`: one-to-many, latest value only — good for broadcasting current state; use `.changed().await` + `.borrow()`.
+- `watch`: many-to-many, latest value only — good for broadcasting current state; use `.changed().await` + `.borrow()`.
 - `broadcast`: many-to-many, notifying every subscriber of each event; each receiver keeps its own progress, but falling behind the capacity yields `Lagged`.
 - Contrast with last episode's `mpsc` (many-to-one, every message, a queue).
