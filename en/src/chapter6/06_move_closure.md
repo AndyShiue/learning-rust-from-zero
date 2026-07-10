@@ -2,7 +2,7 @@
 
 ## Goal of This Episode
 
-Learn to force a closure to capture outer variables by move with the `move` keyword, and understand why that fixes lifetime problems.
+Learn to force a closure to capture outer variables by value with the `move` keyword, and understand when that fixes lifetime problems.
 
 ## Concept
 
@@ -42,11 +42,11 @@ fn make_greeter(name: String) -> impl Fn() {
 fn main() {}
 ```
 
-`move` tells Rust: "Don't borrow — **move** every captured variable into the closure." Now `name` belongs to the closure; however the original scope ends, the closure keeps its `name`.
+`move` tells Rust to capture every used outer variable **by value**. Here, the closure captures the `String` itself, so `name` now belongs to the closure; however the original scope ends, the closure keeps its `name`.
 
 ### The Anonymous struct of a move Closure
 
-Recall recent episodes — a closure is an anonymous `struct`. Without `move`, the `struct`'s fields may be references (`&T` or `&mut T`); with `move`, **every field becomes an owned value** (`T`):
+Recall recent episodes — a closure is an anonymous `struct`. Without `move`, the `struct`'s fields may be references to outer variables (`&T` or `&mut T`); with `move`, the closure captures those variables **by value**:
 
 ```rust,noplayground
 # fn main() {
@@ -62,7 +62,24 @@ Recall recent episodes — a closure is an anonymous `struct`. Without `move`, t
 # }
 ```
 
-With every field owned, the `struct` borrows nothing, so there's no lifetime issue — it can be returned from functions and stored in `struct`s safely.
+In this example, the captured variable is a `String`, so the closure owns the string and no longer borrows the local variable `name`. That is why it can be returned from the function safely.
+
+But capturing by value does not turn a reference into an owned version of the data it points to. If the captured variable is itself a reference, the closure stores that reference unchanged:
+
+```rust,editable
+fn make_printer<'a>(text: &'a str) -> impl Fn() + 'a {
+    // text itself is an &'a str; move captures that reference by value
+    move || println!("{}", text)
+}
+
+fn main() {
+    let message = String::from("hello");
+    let print = make_printer(&message);
+    print();
+}
+```
+
+Here `text` is an `&'a str`. Since shared references are `Copy`, `move` copies that reference value into the closure; it does not give the closure ownership of the string data. In the `struct` analogy, the closure's field is still `text: &'a str`. The `+ 'a` on the return type makes this lifetime relationship explicit: when `text` refers to a local string, the returned closure cannot be used after that string is dropped. In other words, `move` does not automatically make a closure `'static`.
 
 ### `move` Doesn't Affect Which `Fn` `trait` the Closure Gets
 
@@ -156,7 +173,7 @@ fn main() {
 
 ## Recap
 
-- `move` forces the closure to take ownership of every capture, independent of outside borrows — suited to long-lived scenarios.
-- Returning a closure usually requires `move`, avoiding dangling references.
+- `move` forces the closure to capture every used outer variable by value. If a captured variable is itself a reference, it remains a reference and keeps its lifetime.
+- Returning a closure often requires `move` so it captures local variables by value, but any references captured by value must still live long enough.
 - `move` **does not affect** whether the closure is `Fn` / `FnMut` / `FnOnce` — that depends on **how it uses** the captured values.
 - Whether a closure can `clone` / copy depends on whether all its captures are `Clone` / `Copy`.
