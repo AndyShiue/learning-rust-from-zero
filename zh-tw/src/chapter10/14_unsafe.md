@@ -97,7 +97,7 @@ unsafe impl MyGuarantee for i32 {
 
 `unsafe trait` 的意思是：「實作這個 `trait` 必須滿足某些編譯器沒辦法檢查的條件。」實作時用 `unsafe impl`，表示你保證那些條件成立。
 
-`Send` 和 `Sync` 就是 `unsafe trait`——編譯器自動推導的時候沒問題，但如果你手動實作（覆蓋自動推導），你就必須自己保證多執行緒下的安全性。
+`Send` 和 `Sync` 就是 `unsafe trait`——適合的情況下，編譯器會自動實作；但如果你手動實作，就必須自己保證多執行緒下的安全性。
 
 注意：**呼叫** `unsafe trait` 的方法不需要 `unsafe`——危險的是實作，不是使用。
 

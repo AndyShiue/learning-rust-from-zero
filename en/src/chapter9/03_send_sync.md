@@ -45,7 +45,7 @@ If something can be read by many threads at once without trouble (`Sync`), then 
 
 ### `auto trait`s: `trait`s the Compiler Implements for You
 
-You never implement `Send` or `Sync` by hand. They're **`auto trait`s** — the compiler implements them for your types automatically. The rule is simple: if everything a type stores is `Send`, the type itself defaults to `Send`. Same for `Sync`.
+You normally don't need to implement `Send` or `Sync` by hand. They're **`auto trait`s** — the compiler implements them for your types automatically. The rule is simple: if everything a type stores is `Send`, the type itself defaults to `Send`. Same for `Sync`.
 
 ```rust,noplayground
 struct MyData {
@@ -124,4 +124,4 @@ fn main() {
 - `Send` = the value can safely move to another thread.
 - `Sync` = `&T` can safely be shared among threads (`T: Sync` equals `&T: Send`).
 - `Sync` usually implies `Send` — what many threads may read at once is only safer moved.
-- The compiler derives `Send` / `Sync` automatically; no manual marking.
+- The compiler usually implements `Send` / `Sync` automatically; no manual marking is normally needed.

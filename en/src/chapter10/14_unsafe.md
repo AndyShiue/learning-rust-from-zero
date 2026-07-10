@@ -97,7 +97,7 @@ unsafe impl MyGuarantee for i32 {
 
 An `unsafe trait` means: "implementing this `trait` requires satisfying conditions the compiler cannot check." You implement it with `unsafe impl`, signaling that you guarantee those conditions hold.
 
-`Send` and `Sync` are `unsafe trait`s — the compiler's automatic derivation is fine, but if you implement them manually (overriding the auto-derivation), you must guarantee thread safety yourself.
+`Send` and `Sync` are `unsafe trait`s — the compiler implements them automatically when appropriate, but if you implement them manually, you must guarantee thread safety yourself.
 
 Note: **calling** an `unsafe trait`'s methods doesn't require `unsafe` — the danger lies in the implementation, not the use.
 

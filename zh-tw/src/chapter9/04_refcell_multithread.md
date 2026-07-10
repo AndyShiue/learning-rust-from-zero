@@ -27,9 +27,9 @@
 
 因為上面的原因，`RefCell` 不是 `Sync`——`&RefCell<T>` 不能在多個執行緒之間共享。如果你試著這樣做，編譯器會擋住你。
 
-### `RefCell` 是 `Send`
+### 當 `T: Send` 時，`RefCell<T>` 是 `Send`
 
-但 `RefCell` 可以被 **move** 到另一個執行緒。為什麼？因為 move 之後，只有那一個執行緒擁有這個 `RefCell`，不存在多個執行緒同時操作的問題。
+只要 `T` 本身是 `Send`，`RefCell<T>` 就可以被 **move** 到另一個執行緒。move 之後，只有那一個執行緒擁有這個 `RefCell`，不存在多個執行緒同時操作的問題。
 
 ```rust,editable
 use std::cell::RefCell;
@@ -38,7 +38,7 @@ use std::thread;
 fn main() {
     let data = RefCell::new(vec![1, 2, 3]);
 
-    // OK：RefCell 是 Send，可以 move 到另一個執行緒
+    // OK：RefCell<Vec<i32>> 是 Send，可以 move 到另一個執行緒
     let handle = thread::spawn(move || {
         data.borrow_mut().push(4);
         println!("{:?}", data.borrow());
@@ -55,7 +55,7 @@ use std::cell::RefCell;
 use std::thread;
 
 fn main() {
-    // RefCell 可以 move 到另一個執行緒（Send）
+    // RefCell<String> 可以 move 到另一個執行緒（Send）
     let data = RefCell::new(String::from("hello"));
 
     let handle = thread::spawn(move || {
@@ -77,4 +77,4 @@ fn main() {
 - atomic 操作 = 不可分割的操作，其他執行緒不可能看到做到一半的狀態。
 - `RefCell` 的 `borrow` 計數是普通整數，不是 atomic，多執行緒同時操作可能繞過檢查。
 - `RefCell` 不是 `Sync`——不能在多個執行緒之間共享 `&RefCell<T>`。
-- `RefCell` 是 `Send`——可以 move 到另一個執行緒，因為 move 後只有一個執行緒擁有。
+- 當 `T: Send` 時，`RefCell<T>` 是 `Send`——可以 move 到另一個執行緒，因為 move 後只有一個執行緒擁有。

@@ -27,9 +27,9 @@ Result: two threads holding mutable borrows at once. `RefCell`'s runtime check w
 
 For the reason above, `RefCell` isn't `Sync` — `&RefCell<T>` can't be shared among threads. Try, and the compiler blocks you.
 
-### `RefCell` Is `Send`
+### `RefCell<T>` Is `Send` When `T: Send`
 
-But a `RefCell` can be **moved** to another thread. Why? Because after the move, that one thread alone owns the `RefCell` — no multiple threads operating simultaneously.
+`RefCell<T>` can be **moved** to another thread as long as `T` itself is `Send`. After the move, that one thread alone owns the `RefCell` — no multiple threads operating simultaneously.
 
 ```rust,editable
 use std::cell::RefCell;
@@ -38,7 +38,7 @@ use std::thread;
 fn main() {
     let data = RefCell::new(vec![1, 2, 3]);
 
-    // OK: RefCell is Send; it can move to another thread
+    // OK: RefCell<Vec<i32>> is Send; it can move to another thread
     let handle = thread::spawn(move || {
         data.borrow_mut().push(4);
         println!("{:?}", data.borrow());
@@ -55,7 +55,7 @@ use std::cell::RefCell;
 use std::thread;
 
 fn main() {
-    // A RefCell can move to another thread (Send)
+    // RefCell<String> can move to another thread (Send)
     let data = RefCell::new(String::from("hello"));
 
     let handle = thread::spawn(move || {
@@ -77,4 +77,4 @@ fn main() {
 - Atomic operation = an indivisible operation: no other thread can see a halfway state.
 - `RefCell`'s `borrow` count is an ordinary integer, not atomic; simultaneous multithreaded operations can bypass the check.
 - `RefCell` is not `Sync` — `&RefCell<T>` can't be shared among threads.
-- `RefCell` is `Send` — it can move to another thread, which then owns it alone.
+- `RefCell<T>` is `Send` when `T: Send` — it can then move to another thread, which owns it alone.
