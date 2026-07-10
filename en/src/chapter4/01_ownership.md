@@ -32,7 +32,7 @@ Here's the problem: if two people each hold a key to the same safe, things can g
 - B opens the safe at the same time and takes something out.
 - A turns around: "Huh? Where did my stuff go?"
 
-This is what's called a "data race." Rust's ownership rules exist to **prevent this problem at the root**.
+This illustrates conflicting access to the same data. When such a conflict happens across multiple threads without synchronization, it is called a **data race**. Rust's ownership rules exist to **prevent this kind of problem at the root**.
 
 ### `clone` = Get a New Keychain That Works Just Like the Original, and Make Sure It Causes No Trouble
 
@@ -54,6 +54,6 @@ That's Rust's core philosophy: **prevent errors at compile time, rather than wai
 
 - Every value has one "owner," just as every keychain is in exactly one person's hands.
 - **Move**: hand the keychain to someone else, and you no longer have it.
-- You can't simply copy a key to open the same safe — that risks data races.
+- You can't simply copy a key to open the same safe — that risks conflicting access to the same data.
 - **`clone`**: get a new keychain that works just like the original, while making sure it causes no trouble — usually by buying a new safe + `clone`-ing the contents + cutting a new key; in the simplest case, two fully independent sets.
-- Rust enforces ownership rules at compile time, preventing data races.
+- Rust enforces ownership rules at compile time, preventing this kind of conflicting access.

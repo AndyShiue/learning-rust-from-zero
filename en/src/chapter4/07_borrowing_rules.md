@@ -12,7 +12,7 @@ Last episode we learned `&mut` mutable borrowing. But what would happen if Rust 
 
 Imagine your keychain. Lending it to many people **to look at** (`&`) is fine — everyone just looks; nothing on the keychain changes. But lend it to two people **to modify** at once (`&mut`) — A is adding a new key while B is removing it — and the result becomes unpredictable.
 
-That, too, is a **data race**, and it leads to all kinds of weird bugs. So Rust lays down strict borrowing rules.
+That is conflicting access to the same data, and it can lead to all kinds of weird bugs. So Rust lays down strict borrowing rules.
 
 ### Rule 1: Only One `&mut` at a Time
 
@@ -191,11 +191,11 @@ fn main() {
 
 ## Recap
 
-- Unrestricted borrowing would also cause **data races**, so Rust lays down borrowing rules.
+- Unrestricted borrowing would also allow conflicting access to the same data, so Rust lays down borrowing rules.
 - **Only one `&mut` at a time** — two simultaneous mutable references are forbidden.
 - **`&` and `&mut` can't coexist** — either everyone reads, or exactly one person modifies.
 - **Multiple `&`s can coexist** — many simultaneous readers are fine.
 - **Dangling references**: a reference must point to a valid value — during a borrow you can't move the original, nor move a non-`Copy` value out from behind a reference.
 - A borrow ends after the reference's last use; afterward you can move the original.
 - A reference can't outlive the value it points to — whether the value left its scope or a function returned a reference to a local.
-- These rules let Rust prevent data races at compile time; later we'll learn lifetimes for tracking reference validity more precisely.
+- These rules let Rust prevent conflicting access at compile time; later we'll learn lifetimes for tracking reference validity more precisely.
