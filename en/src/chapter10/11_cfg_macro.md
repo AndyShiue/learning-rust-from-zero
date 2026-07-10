@@ -2,7 +2,7 @@
 
 ## Goal of This Episode
 
-Learn to use `cfg!` to choose logic at runtime based on conditions, and how it differs from `#[cfg]`.
+Learn to use `cfg!` to evaluate a condition at compile time and obtain a `bool` result, and how it differs from `#[cfg]`.
 
 ## Concept
 
@@ -24,10 +24,12 @@ fn main() {
 
 | | `#[cfg(...)]` | `cfg!(...)` |
 |--|--|--|
-| Effect | Conditional compilation: whole block kept or removed | Returns a `bool` |
-| Timing | Non-matching code disappears, never compiled | Both sides are compiled; the branch is picked at runtime |
+| Effect | Conditional compilation: whole block kept or removed | Expands to `true` or `false` at compile time |
+| Code checking | Non-matching code is removed and not checked | Both branches remain and are checked |
 
-An important difference: with `#[cfg]`, the non-matching block doesn't exist at all — even calls to nonexistent functions inside it won't error. But `cfg!` compiles both sides — if one side has a compile error, it errors regardless of whether the condition holds.
+`cfg!` is often used inside an ordinary `if`, but its condition is already determined at compile time rather than waiting until runtime. Both branches remain and must pass the compiler's checks.
+
+This is an important difference: with `#[cfg]`, the non-matching block doesn't exist at all — even calls to nonexistent functions inside it won't error. But with `cfg!`, if one side has a compile error, it errors regardless of whether the condition holds.
 
 ```rust,ignore
 // #[cfg] version: on Windows, linux_only() isn't compiled — no error
@@ -75,6 +77,6 @@ fn main() {
 
 ## Recap
 
-- `cfg!(...)` returns a `bool`; both sides of the code are compiled, and the choice happens at runtime.
+- `cfg!(...)` expands to a constant `bool` at compile time; both branches remain and are checked.
 - `#[cfg(...)]` is conditional compilation; non-matching code is removed wholesale.
 - Both accept the same conditions: `target_os`, `debug_assertions`, `feature`, `test`, etc.
