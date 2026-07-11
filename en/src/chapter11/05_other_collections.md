@@ -61,7 +61,7 @@ All of `HashSet`'s set operations (intersection, union, etc.) exist on `BTreeSet
 
 A `Vec` can only `push` / `pop` efficiently at the tail. `insert` or `remove` at the head means shifting every later element over by one — the more data, the slower.
 
-`VecDeque` (a double-ended queue) is efficient at both the head and the tail, with constant speed no matter the size:
+`VecDeque` (a double-ended queue) is efficient at both the head and the tail, with nearly constant speed no matter the size:
 
 ```rust,editable
 use std::collections::VecDeque;

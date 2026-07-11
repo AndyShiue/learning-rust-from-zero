@@ -61,7 +61,7 @@ fn main() {
 
 `Vec` 只能在尾巴高效地 `push` / `pop`。如果在頭 `insert` 或 `remove`，要把後面所有元素往後搬一格，資料越多越慢。
 
-`VecDeque`（雙端佇列）在頭和尾都能高效操作，不管資料量多大速度都是固定的：
+`VecDeque`（雙端佇列）在頭和尾都能高效操作，不管資料量多大，速度都幾乎不變：
 
 ```rust,editable
 use std::collections::VecDeque;
