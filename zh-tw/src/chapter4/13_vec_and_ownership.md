@@ -24,7 +24,7 @@
 
 ### `Vec` 會 move
 
-`Vec` 的資料在 heap 上，所以它不是 `Copy`。賦值和傳入函數都會 move：
+`Vec` 的資料主要在 heap 上，所以它不是 `Copy`。賦值和傳入函數都會 move：
 
 ```rust,noplayground
 # fn main() {
@@ -171,7 +171,7 @@ fn main() {
 
 ## 重點整理
 
-- **`Vec` 和 `String` 的所有權行為完全對稱**：都在 heap 上，都會 move，都可以 `clone`。
+- **`Vec` 和 `String` 的所有權行為完全對稱**：資料都主要在 heap 上、都會 move、都可以 `clone`。
 - `String` ↔ `&str` 就像 `Vec` ↔ `&[T]`（擁有 ↔ 借用）。
 - `&Vec` 會自動轉成 `&[T]`（跟 `&String` 自動轉 `&str` 一樣）。
 - 函數參數偏好用切片 `&[T]` 而不是 `&Vec`。

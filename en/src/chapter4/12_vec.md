@@ -12,7 +12,7 @@ In Chapter 2 we learned arrays, `[i32; 5]` — but an array's size is fixed, set
 
 What if we need a collection whose **size can change**? Say, a user entering data record by record, or a program accumulating results as it runs.
 
-That calls for **`Vec`**. A `Vec` is like a **stretchable array**, with its data on the heap.
+That calls for **`Vec`**. A `Vec` is like a **stretchable array**, with its data mainly on the heap.
 
 ### Creating a `Vec`
 
@@ -136,7 +136,7 @@ fn main() {
 
 ## Recap
 
-- **`Vec`** is a dynamically growable array whose data lives on the heap.
+- **`Vec`** is a dynamically growable array whose data lives mainly on the heap.
 - `vec![1, 2, 3]` creates a `Vec` with initial values; `vec![0; 10]` creates ten 0s (like the array's `[0; 10]`).
 - `Vec::new()` creates an empty `Vec`.
 - `push` appends an element at the end (requires `let mut`).

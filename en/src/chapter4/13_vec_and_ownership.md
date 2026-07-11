@@ -24,7 +24,7 @@ A `String` owns a piece of text; an `&str` borrows a piece of text. A `Vec` owns
 
 ### `Vec` Moves
 
-A `Vec`'s data lives on the heap, so it's not `Copy`. Assignment and passing into functions both move:
+A `Vec`'s data lives mainly on the heap, so it's not `Copy`. Assignment and passing into functions both move:
 
 ```rust,noplayground
 # fn main() {
@@ -171,7 +171,7 @@ Throughout this episode we kept saying "a `Vec` of `i32`" — but you may have n
 
 ## Recap
 
-- **`Vec` and `String` have perfectly symmetric ownership behavior**: both on the heap, both move, both can `clone`.
+- **`Vec` and `String` have perfectly symmetric ownership behavior**: both keep their data mainly on the heap, both move, both can `clone`.
 - `String` ↔ `&str` mirrors `Vec` ↔ `&[T]` (own ↔ borrow).
 - `&Vec` auto-converts to `&[T]` (just like `&String` to `&str`).
 - Prefer slice parameters `&[T]` over `&Vec`.

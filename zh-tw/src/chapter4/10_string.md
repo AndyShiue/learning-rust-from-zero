@@ -20,7 +20,7 @@
 
 ### `String`：你擁有的字串
 
-`String` 是一個你可以擁有、可以修改的字串型別。它的資料存在 heap 上。
+`String` 是一個你可以擁有、可以修改的字串型別。它的資料主要存在 heap 上。
 
 用 `String::from()` 來建立：
 
@@ -61,7 +61,7 @@ fn main() {
 
 ### `String` 也適用所有權規則
 
-因為 `String` 的資料在 heap 上，所以它**不是 `Copy`**。賦值和傳入函數都會 move：
+因為 `String` 的資料主要在 heap 上，所以它**不是 `Copy`**。賦值和傳入函數都會 move：
 
 ```rust,noplayground
 # fn main() {
@@ -115,7 +115,7 @@ fn print_string(s: &String) {
 
 ## 重點整理
 
-- `String` 是擁有資料的字串型別，資料存在 heap 上。
+- `String` 是擁有資料的字串型別，資料主要存在 heap 上。
 - `String::from("...")` 建立新的 `String`。
 - `push_str` 在字串後面接上更多文字（需要 `let mut`）。
 - `format!` 跟 `println!` 語法一樣，但回傳 `String` 而不是印出來。

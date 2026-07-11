@@ -6,41 +6,42 @@ Understand the difference between the stack and the heap, and unveil what Episod
 
 ## Concept
 
-### The Two Regions of Memory
+### Two Common Places in Memory
 
-While a program runs, its data lives in memory. Memory has two main regions:
+While a program runs, its data lives in memory. For now, let's look at two common places where data can be stored: the stack and the heap.
 
 **The stack**:
 
-- Fast.
-- Sizes are determined at compile time.
-- Function-local variables, integers, floats, booleans, and `char`s live here.
-- When a function ends, these variables are cleaned up automatically.
+- When a function is called, the stack is commonly used to store local variables whose sizes are known at compile time.
+- The types we've learned so far — integers, floats, booleans, `char`s, fixed-length arrays, tuples, and `struct`s containing only these kinds of data — are commonly stored directly on the stack when used as local variables.
+- Data whose size is known at compile time is not necessarily small; what matters is that the compiler already knows how much space it needs.
+- When the function ends, the stack space used by that call is reclaimed together.
 
 **The heap**:
 
-- Slower, but more flexible.
-- Sizes can be decided while the program runs (e.g. a piece of text — you don't know how much the user will type).
-- Requires manual management (in other languages), or automatic management via the ownership system (in Rust).
+- A program can request additional heap space as needed while it runs.
+- Data is often stored separately on the heap when its amount is known only at runtime or may grow while the program runs. For example, if a program needs to store every number a user enters, it may not know beforehand how many there will be.
+- The program remembers how to find the data stored there later.
+- Rust's ownership system determines when that space can be returned.
 
 ### The Keychain Analogy, Unveiled!
 
 Remember Episode 1's keychain analogy? Time to reveal what it really meant:
 
-- **The charms on the keychain** = data on the stack (small and fixed, traveling with the keychain).
-- **The safe** = data on the heap (large and flexible, stored elsewhere).
-- **The key** = a pointer, recording where in memory the safe sits.
+- **The key** = the information that lets the program find the safe later.
+- **The safe** = data stored separately on the heap.
+- **The charms on the keychain** = data carried directly on the keychain.
 
 So when we said "a move is handing over the keychain":
 
-- If the keychain carries only charms (stack data), handing it over is cheap — you can even duplicate it outright (that's `Copy`!)
-- If the keychain carries a key (a pointer), what's handed over is the pointer; the safe (heap data) is never copied.
+- The key and the charms are handed to the new owner together.
+- The safe itself stays where it is; it doesn't need to be moved or recreated.
 
 ### Why Are Integers `Copy`?
 
-Now it should click: integers (`i32` etc.) are like the little charms on the keychain — entirely on the stack, tiny, zero-cost to copy. So Rust makes them `Copy` automatically.
+Integers (`i32` and so on) are like the charms on the keychain. Copying an integer is a simple, mechanical operation, so integers implement `Copy`.
 
-Types like `String` (coming soon) keep their data on the heap. Replicating that freely would mean replicating everything in the safe — expensive. So Rust uses moves, and full replication requires an explicit `.clone()`.
+Some types are also responsible for managing data stored separately on the heap, so they can't be copied automatically in the same way. Assigning such a value moves it; creating a clone requires an explicit `.clone()`. The next few episodes will show concrete examples.
 
 ## Example Code
 
@@ -53,36 +54,33 @@ struct StackData {
 }
 
 fn main() {
-    // All of these live on the stack
-    let a = 42;    // i32, 4 bytes, stack
-    let b = 3.14;  // f64, 8 bytes, stack
-    let c = true;  // bool, 1 byte, stack
-    let ch = '🦀'; // char, 4 bytes, stack
+    // These local variables have sizes known at compile time, so they can be stored directly on the stack
+    let a = 42;    // i32, 4 bytes
+    let b = 3.14;  // f64, 8 bytes
+    let c = true;  // bool, 1 byte
+    let ch = '🦀'; // char, 4 bytes
     println!("Integer: {}, float: {}, boolean: {}, character: {}", a, b, c, ch);
 
-    // The struct holds nothing but stack data, so the whole struct is on the stack too
+    // The struct stores all its fields directly, so it can be stored on the stack too
     let data = StackData { x: 10, y: 20, active: true };
     let data2 = data; // Copy! data stays usable
     println!("data = {:?}", data);
     println!("data2 = {:?}", data2);
 
-    // Arrays live on the stack too (fixed size)
+    // A fixed-length array can be stored directly on the stack too
     let arr = [1, 2, 3, 4, 5];
     println!("Array: {:?}", arr);
 
-    // Tuples as well
+    // A tuple can be stored directly on the stack too
     let t = (42, true, 'A');
     println!("tuple: {:?}", t);
-
-    // Later we'll learn String and Vec, whose data lives on the heap
-    // That's when moves and borrowing really show their importance!
 }
 ```
 
 ## Recap
 
-- **Stack**: fast, fixed sizes. Integers, floats, booleans, `char`s, and small `struct`s live here.
-- **Heap**: flexible, variable sizes. Large or dynamically sized data goes here.
-- Keychain analogy unveiled: charms = stack data, safe = heap data, key = pointer.
-- Integers are `Copy` because they live entirely on the stack — copying costs practically nothing.
-- Heap data moves by default (only the key is transferred); for types like `String`, `clone` ensures safety by basically replicating the safe's entire contents.
+- **Stack**: local variables whose sizes are known at compile time — such as integers, fixed-length arrays, tuples, and `struct`s made from these kinds of data — are commonly stored directly here; the space used by a function call is reclaimed when the function ends.
+- **Heap**: commonly stores data whose amount is known only at runtime or may grow; the program remembers how to find the data stored there.
+- Keychain analogy unveiled: key = the information used to find the data, safe = separately stored heap data, charms = directly carried data.
+- Integers implement `Copy` because copying them is a simple, mechanical operation.
+- Types that manage separately stored heap data move on assignment; creating a clone requires an explicit `.clone()`.

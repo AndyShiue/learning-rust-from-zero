@@ -20,7 +20,7 @@ The string `"Hello"` is written directly in the code; its data gets compiled int
 
 ### `String`: a String You Own
 
-`String` is a string type you can own and modify. Its data lives on the heap.
+`String` is a string type you can own and modify. Its data lives mainly on the heap.
 
 Create one with `String::from()`:
 
@@ -61,7 +61,7 @@ fn main() {
 
 ### `String` Follows the Ownership Rules Too
 
-Because a `String`'s data lives on the heap, it is **not `Copy`**. Assignment and passing into functions both move:
+Because a `String`'s data lives mainly on the heap, it is **not `Copy`**. Assignment and passing into functions both move:
 
 ```rust,noplayground
 # fn main() {
@@ -115,7 +115,7 @@ fn print_string(s: &String) {
 
 ## Recap
 
-- `String` is a string type that owns its data, which lives on the heap.
+- `String` is a string type that owns its data, which lives mainly on the heap.
 - `String::from("...")` creates a new `String`.
 - `push_str` appends more text to the string (requires `let mut`).
 - `format!` shares `println!`'s syntax but returns a `String` instead of printing.

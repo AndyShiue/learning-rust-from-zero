@@ -11,7 +11,7 @@ Get the difference between `String` and `&str` straight, and figure out which on
 | | `String` | `&str` |
 |---|---|---|
 | Owns the data? | ✅ Yes | ❌ Just borrowing |
-| Where's the data? | On the heap | Possibly in the code itself, or borrowing a `String`'s data |
+| Where's the data? | Mainly on the heap | Possibly in the code itself, or borrowing a `String`'s data |
 | Modifiable? | ✅ Yes (`push_str`, etc.) | ❌ No |
 | Moves? | ✅ Yes | ❌ No (it's just a reference) |
 
@@ -113,7 +113,7 @@ fn main() {
 
 ## Recap
 
-- **`String`** owns its data (on the heap), can be modified, and moves.
+- **`String`** owns its data (mainly on the heap), can be modified, and moves.
 - **`&str`** is a reference — owns nothing, can't be modified, doesn't move.
 - `&String` converts to `&str` automatically.
 - Prefer `&str` for function parameters — it accepts more (both `&str` and `&String` can be passed).
