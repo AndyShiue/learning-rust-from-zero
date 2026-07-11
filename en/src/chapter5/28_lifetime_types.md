@@ -114,8 +114,6 @@ fn into_text(e: Excerpt<'_>) -> &str {
 # fn main() {}
 ```
 
-Note you can't just write `Excerpt` with nothing attached — `Excerpt` has a mandatory lifetime parameter, just as `Vec` has a mandatory type parameter; it can't be omitted. But `'_` lets the compiler infer it.
-
 Written out in full:
 
 ```rust,noplayground

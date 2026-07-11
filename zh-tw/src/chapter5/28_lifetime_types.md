@@ -114,8 +114,6 @@ fn into_text(e: Excerpt<'_>) -> &str {
 # fn main() {}
 ```
 
-注意這裡不能直接寫 `Excerpt` 不加任何東西——`Excerpt` 有一個必要的生命週期參數，就像 `Vec` 有一個必要的型別參數一樣，不能省略。但我們可以用 `'_` 讓編譯器推斷。
-
 完整寫出來是：
 
 ```rust,noplayground
