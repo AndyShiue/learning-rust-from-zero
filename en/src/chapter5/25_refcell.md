@@ -13,7 +13,7 @@ Last episode's `Cell<T>` had the restriction that `T` must be `Copy`. What if yo
 `RefCell<T>` is like `Cell` — letting you modify values without needing `&mut`. The differences:
 
 - `Cell<T>`: uses `get` / `set`, `T` must be `Copy`, **zero cost** (compiles down to the same as direct access).
-- `RefCell<T>`: uses `.borrow()` and `.borrow_mut()` to obtain references, `T` **doesn't need** `Copy`, but there's a **runtime cost** (every borrow gets checked against the rules).
+- `RefCell<T>`: uses `.borrow()` and `.borrow_mut()` to obtain values that behave like shared and mutable references, `T` **doesn't need** `Copy`, but there's a **runtime cost** (every borrow gets checked against the rules).
 
 ```rust,editable
 use std::cell::RefCell;
@@ -113,7 +113,7 @@ fn main() {
 
 - `RefCell<T>` is like `Cell` — modifying values without needing `&mut`.
 - `RefCell<T>` moves the borrowing-rule check from compile time to runtime.
-- `.borrow()` obtains a shared reference; `.borrow_mut()` a mutable one.
+- `.borrow()` obtains a value that behaves like a shared reference; `.borrow_mut()` obtains one that behaves like a mutable reference.
 - `T` **doesn't need** `Copy` (the difference from `Cell`).
 - `Cell` is zero-cost; `RefCell` pays a runtime check on every borrow.
 - Violating the borrowing rules **panics** (not a compile error).
