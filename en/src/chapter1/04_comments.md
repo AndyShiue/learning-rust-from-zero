@@ -30,7 +30,7 @@ If you want to write a longer note, you can wrap it in `/* */`:
 
 ```rust,editable
 fn main() {
-    /* 
+    /*
         This is a multi-line comment
         It can span several lines
         The computer ignores all of it

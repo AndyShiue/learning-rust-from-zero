@@ -367,4 +367,4 @@ And with that, our from-scratch, hand-written runtime is complete! It can `spawn
 - A `Token` is an I/O source's name tag: the listener has its `listener_token`, the stream its `stream_token`; in our code, multiple `Read`s on one stream can share the same stream `Token`.
 - `WouldBlock` is the normal state of non-blocking I/O — "can't `accept` / `read` yet, try later" — mapping to `Poll::Pending` in a `Future`.
 - I/O `Future`s' `poll` always "**`set_waker` first, then try the I/O**" to avoid missed wakeups; on immediate success, `clear_waker` before returning `Ready`.
-- Whether the wakeup comes from a timer or I/O, it takes the same road: "requeue onto the ready queue + `unpark
+- Whether the wakeup comes from a timer or I/O, it takes the same road: "requeue onto the ready queue + `unpark` the executor."

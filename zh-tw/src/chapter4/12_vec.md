@@ -37,7 +37,7 @@
 你也可以建立空的 `Vec`，然後一個一個加：
 
 ```rust,noplayground
-# fn main() {   
+# fn main() {
     let mut nums = Vec::new();
     nums.push(10);
     nums.push(20);

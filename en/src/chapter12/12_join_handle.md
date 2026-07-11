@@ -263,4 +263,4 @@ At this point, our hand-written executor is looking respectable: it can `spawn`,
 - When the executor `poll`s a `Task`, the `Context` flows down to the inner `Future`s; so the `cx.waker()` an inner `Future` sees is the current `Task`'s `Waker`.
 - A `JoinHandle` has no independent `Waker`; at `.await` time it stores **the waiter's own** `Waker` into `Shared<T>`.
 - On completion, the background `Task` deposits the result into `Shared<T>`, then takes out that `Waker` and `wake()`s it, rousing the waiter.
-- Waking is not `Future` notifying `Future` directly — the finisher wakes the waiter through shared sta
+- Waking is not `Future` notifying `Future` directly — the finisher wakes the waiter through shared state.

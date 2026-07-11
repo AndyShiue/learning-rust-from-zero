@@ -43,16 +43,16 @@ fn main() {
 ```rust,editable
 fn main() {
     let mut a = 20;
-    
+
     a -= 3;
     println!("20 - 3 = {}", a); // 17
-    
+
     a *= 2;
     println!("17 * 2 = {}", a); // 34
-    
+
     a /= 4;
     println!("34 / 4 = {}", a); // 8（整數除法）
-    
+
     a %= 3;
     println!("8 % 3 = {}", a);  // 2
 }

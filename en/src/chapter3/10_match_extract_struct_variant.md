@@ -16,7 +16,7 @@ The syntax uses `field_name: variable_name` inside the pattern:
 #     Rectangle { width: i32, height: i32 },
 # }
 # fn main() {
-#     let s = Shape::Circle { radius: 42.0 }; 
+#     let s = Shape::Circle { radius: 42.0 };
     match s {
         Shape::Circle { radius: r } => println!("Radius {}", r),
         Shape::Rectangle { width: w, height: h } => println!("{}x{}", w, h),

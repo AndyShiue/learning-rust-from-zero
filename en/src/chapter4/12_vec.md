@@ -37,7 +37,7 @@ Like the array's `[0; 5]`, `vec!` supports the "repeat N times" form too:
 You can also create an empty `Vec` and add items one by one:
 
 ```rust,noplayground
-# fn main() {   
+# fn main() {
     let mut nums = Vec::new();
     nums.push(10);
     nums.push(20);

@@ -31,7 +31,7 @@ struct Pair<T> {
 #     second: T,
 # }
 #
-# fn main() {   
+# fn main() {
     let p = Pair { first: 1, second: 2 };       // T = i32
     let q = Pair { first: "hi", second: "yo" }; // T = &str
 # }

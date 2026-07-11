@@ -30,7 +30,7 @@ fn main() {
 
 ```rust,editable
 fn main() {
-    /* 
+    /*
         這是多行註解
         可以寫好幾行
         電腦通通會忽略

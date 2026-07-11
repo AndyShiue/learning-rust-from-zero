@@ -63,7 +63,7 @@ fn main() {
 fn main() {
     let arr = [10, 20, 30, 40, 50];
     let slice = &arr[1..4];
-    
+
     println!("陣列：{:?}", arr);
     println!("切片：{:?}", slice);
 }

@@ -16,7 +16,7 @@ Inside a `match` pattern, you can use a variable name to "catch" the data inside
 #     Rectangle(i32, i32),
 # }
 # fn main() {
-#     let s = Shape::Circle(42.0); 
+#     let s = Shape::Circle(42.0);
     match s {
         Shape::Circle(r) => println!("The radius is {}", r),
         Shape::Rectangle(w, h) => println!("Width {}, height {}", w, h),

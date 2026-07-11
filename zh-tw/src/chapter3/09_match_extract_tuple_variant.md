@@ -16,7 +16,7 @@
 #     Rectangle(i32, i32),
 # }
 # fn main() {
-#     let s = Shape::Circle(42.0); 
+#     let s = Shape::Circle(42.0);
     match s {
         Shape::Circle(r) => println!("半徑是 {}", r),
         Shape::Rectangle(w, h) => println!("寬 {}，高 {}", w, h),
