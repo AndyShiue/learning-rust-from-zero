@@ -16,7 +16,7 @@ Most of the time, Rust putting data straight on the stack is fine. But two situa
 
 **1. The data is too big**
 
-If a `struct` has many fields and takes lots of space, the stack may not be a great place for it (stack space is limited). `Box` moves it to the heap, leaving just a pointer on the stack.
+If a `struct` has many fields and takes lots of space, the stack may not be a great place for it (stack space is limited). `Box` moves it to the heap, leaving only the "key" on the stack. This kind of information used to find data stored elsewhere is called a pointer.
 
 **2. Recursive types**
 
