@@ -40,7 +40,7 @@ async fn main() {
 `spawn` 和 `join!` 兩者都能並行，但作法不同：
 
 - `tokio::spawn` 把每個工作變成**獨立的 `Task`** 交給 runtime，可能被分到不同的 `Thread` 上跑，所以要 `Send + 'static`。
-- `join!` 是在**同一個 `Task`** 裡輪流 `poll` 那幾個 branch，它們**不會**變成獨立 `Task`，也不會被搬到別條 `Thread`。
+- `join!` 是在**同一個 `Task`** 裡輪流 `poll` 那幾個 branch，它們**不會**變成獨立 `Task`。
 
 正因為 branch 的生命週期就綁在目前這個函數裡（不會被丟出去獨立存在），`join!` 適合「**固定數量**、生命週期就在當下」的並行 I/O——例如同時呼叫三個 API、同時讀兩個檔案。
 
@@ -65,7 +65,7 @@ Rust 的函式做不到這些：函式不能接收任意個參數，更不可能
 ## 重點整理
 
 - `join!` 在**同一個 `Task`** 裡同時等多個 `Future`，等全部完成後把結果包成 tuple 回傳。
-- 和 `spawn` 不同：`join!` 的 branch 不變成獨立 `Task`、不跨 `Thread`，適合固定數量、生命週期就在當下的並行 I/O。
+- 和 `spawn` 不同：`join!` 的 branch 不變成獨立 `Task`，適合固定數量、生命週期就在當下的並行 I/O。
 - `join!` 的並行不是 CPU 平行：branch 在同一個 `Task` 上輪流 `poll`，某個 branch 卡住會害其他 branch 都得不到 `poll`。
 - `join!` 是巨集，因為它要吃「任意數量 + 各自不同型別」的 `Future` 並回傳對應型別的 tuple，這是函式做不到的。
 - 對照我們自己寫的 `JoinAll`（同型別、動態數量），`join!` 是異型別、固定數量。
