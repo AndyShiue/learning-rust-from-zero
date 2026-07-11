@@ -113,7 +113,7 @@ fn main() {
 # }
 ```
 
-答案是：**tuple 和 `struct` 的解構不會失敗**。一個 `(i32, i32)` 一定有兩個值，一個 `Point` 一定有 `x` 和 `y`——沒有其他可能。
+答案是：**本集使用的 tuple 和 `struct` pattern 都不會比對失敗**。任何 `(i32, i32)` 都能符合 `(x, y)`，任何 `Point` 都能符合 `Point { x, y }`。
 
 但 `enum` 不一樣。一個 `Shape` 可能是 `Circle` 或 `Rectangle`。如果你寫 `let Shape::Circle { radius } = s;`，但 `s` 其實是 `Rectangle` 呢？這就失敗了。Rust 不允許 `let` 裡出現可能失敗的模式。
 
@@ -138,4 +138,4 @@ fn main() {
 - 函數參數也可以直接用模式解構：`fn foo((x, y): (i32, i32))`。
 - tuple 和 `struct` 都可以在參數位置解構。
 - 呼叫時和平常一樣傳值，解構是函數內部的事。
-- `let`、`for` 和函數參數只接受不會失敗的模式（irrefutable pattern），所以 tuple 和 `struct` 可以，`enum` 會有問題。
+- `let`、`for` 和函數參數只接受不會比對失敗的 pattern（irrefutable pattern），所以本集的 `(x, y)` 和 `Point { x, y }` 可以使用，`Shape::Circle { radius }` 則不行。

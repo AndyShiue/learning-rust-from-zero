@@ -113,7 +113,7 @@ You might wonder: why is it that tuples and `struct`s can be destructured direct
 # }
 ```
 
-The answer: **destructuring tuples and `struct`s cannot fail**. An `(i32, i32)` always has two values; a `Point` always has an `x` and a `y` — there's no other possibility.
+The answer: **the tuple and `struct` patterns used in this episode cannot fail to match**. Any `(i32, i32)` matches `(x, y)`, and any `Point` matches `Point { x, y }`.
 
 `enum`s are different. A `Shape` might be a `Circle` or a `Rectangle`. If you write `let Shape::Circle { radius } = s;` but `s` is actually a `Rectangle`, it fails. Rust doesn't allow patterns that can fail in a `let`.
 
@@ -138,4 +138,4 @@ Want to handle refutable patterns? Next episode covers `if let`.
 - Function parameters can destructure with patterns directly: `fn foo((x, y): (i32, i32))`.
 - Both tuples and `struct`s can be destructured in the parameter position.
 - Calls look the same as always; destructuring is the function's internal business.
-- `let`, `for`, and function parameters accept only patterns that can't fail (irrefutable patterns) — so tuples and `struct`s are fine, but `enum`s are trouble.
+- `let`, `for`, and function parameters accept only patterns that can't fail (irrefutable patterns), so this episode's `(x, y)` and `Point { x, y }` work, but `Shape::Circle { radius }` doesn't.
