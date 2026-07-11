@@ -2,7 +2,7 @@
 
 ## Goal of This Episode
 
-Meet the four macros that immediately terminate a program, and when each is appropriate.
+Meet four macros that trigger a panic, and learn when each is appropriate.
 
 > This episode is a general supplement, tied to no particular chapter.
 
@@ -10,11 +10,11 @@ Meet the four macros that immediately terminate a program, and when each is appr
 
 You've probably noticed the `!` after names like `println!()` and `format!()`. In Rust, things with a `!` in their name are **macros** — not quite functions, though for now knowing how to use them is enough; how macros work comes later.
 
-This episode introduces four commonly used "kill the program on the spot" macros. All cause a panic (program termination), but their semantics differ — and so does the message they send to whoever reads the code.
+This episode introduces four commonly used macros that trigger a panic as soon as execution reaches them. A panic interrupts normal execution; in the programs we've written so far, an unhandled panic ends the program. All four panic, but their semantics differ — and so does the message they send to whoever reads the code.
 
 ### `panic!("message")`
 
-The most basic "something went wrong; stop now." For errors you can't handle:
+The most basic "something went wrong; panic now." For errors you can't handle:
 
 ```rust,should_panic
 # fn main() {
@@ -154,7 +154,7 @@ fn main() {
     storage.save("hello");
     // storage.load(); // Uncommenting panics: not implemented
 
-    // panic! — terminate outright
+    // panic! — trigger a panic
     // panic!("Panicking on purpose!");
     println!("The program ended normally");
 }
@@ -162,7 +162,7 @@ fn main() {
 
 ## Recap
 
-- `panic!("msg")` is the basic termination, for unhandleable errors.
+- `panic!("msg")` is the basic way to trigger a panic, for unhandleable errors.
 - `todo!()` is the development placeholder, clearly saying "will implement later."
 - `unimplemented!()` says "not implemented," promising nothing — maybe unneeded, maybe `trait`-required but meaningless for the type.
 - `unreachable!()` marks logically unreachable code paths.
