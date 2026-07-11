@@ -64,7 +64,7 @@ Later we'll cover more convenient ways to handle this situation, without hand-co
 
 ### `main` Can Return a `Result` Too
 
-If the `main` function returns `Result<(), String>`, you can use `?` inside main.
+If the `main` function returns `Result<(), String>`, you can use `?` inside `main`.
 
 ## Example Code
 

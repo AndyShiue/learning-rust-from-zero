@@ -6,7 +6,7 @@ Meet the `char` type — the type for holding "a single character."
 
 ## Main Text
 
-We've used strings before (text wrapped in double quotes `"`). Today let's meet a smaller unit — the **character** (char).
+We've used strings before (text wrapped in double quotes `"`). Today let's meet a smaller unit — the **character** (`char`).
 
 ### What Is a `char`?
 

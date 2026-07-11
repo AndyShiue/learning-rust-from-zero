@@ -19,7 +19,7 @@ static MAX_SIZE: usize = 1024;
 
 大部分情況 `const` 就夠了。需要固定記憶體位址（例如傳給 C 函數）的時候才用 `static`。
 
-### static mut
+### `static mut`
 
 Rust 允許可變的 `static`——但讀寫都需要 `unsafe`：
 

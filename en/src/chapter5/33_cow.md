@@ -129,7 +129,7 @@ fn main() {
 - `Cow<'a, str>` can be borrowed (`&str`) or owned (`String`), as circumstances demand.
 - `Cow` uses the `ToOwned` `trait`'s associated type to decide the owning version's type (`str` → `String`, `[T]` → `Vec<T>`).
 - `Cow` implements `Deref`: whether `Borrowed` or `Owned`, a `Cow<'a, str>` can be used directly as an `&str` — its greatest strength.
-- `.to_mut()`: clone on write (Borrowed → `clone` into `Owned` → return a mutable reference).
+- `.to_mut()`: clone on write (`Borrowed` → `clone` into `Owned` → return a mutable reference).
 - `.into_owned()`: converts either variant into an owned value.
 - Suited to "mostly no modification, occasional modification" scenarios.
 

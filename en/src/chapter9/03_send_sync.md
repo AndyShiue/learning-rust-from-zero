@@ -23,7 +23,7 @@ Note the crux: two threads reading and writing the same data simultaneously — 
 
 Rust's ownership and borrowing rules prevent many problems — no two `&mut`s at once, no `&` alongside `&mut`. But under multithreading, they alone don't suffice. Take the example above: merely passing an `i32`'s value to another thread is fine — `i32` is `Copy`, a duplicate goes over, and each side works on its own copy. But some types aren't so simple — after moving one over, the original thread might still hold shared data. Which types can cross threads safely? Which can't? Rust answers with two `trait`s — `Send` and `Sync`.
 
-### What spawn Actually Does
+### What `spawn` Actually Does
 
 Last episode, creating threads with `thread::spawn`, we passed a closure. Closures capture outside variables — and `spawn` in effect **ships those captured variables to another thread**. That's the real question: what can be shipped safely?
 

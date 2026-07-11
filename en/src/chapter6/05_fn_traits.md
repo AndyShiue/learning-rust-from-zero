@@ -33,7 +33,7 @@ Meaning:
 Why this direction?
 
 - **`Fn` → `FnMut`**: if a closure runs with just `&self`, using `&mut self` certainly works too (it simply uses a mutable reference where a shared one would have sufficed).
-- **`FnMut` → `FnOnce`**: if a closure runs with `&mut self`, handing it `self` (full ownership) certainly works — owning a thing includes being able to modify it. It's just that after the call the struct is consumed, so no second call.
+- **`FnMut` → `FnOnce`**: if a closure runs with `&mut self`, handing it `self` (full ownership) certainly works — owning a thing includes being able to modify it. It's just that after the call the `struct` is consumed, so no second call.
 
 The reverse doesn't hold — a closure that must consume itself (`FnOnce`) can't promise repeated calls (`FnMut`).
 

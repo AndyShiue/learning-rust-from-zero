@@ -325,7 +325,7 @@ fn main() {
 
 > Note: this program listens on `127.0.0.1:8080` locally; you need a tool like `nc` to connect to it (e.g. `nc 127.0.0.1 8080`) to see the effect. The web sandbox isn't suited to this kind of interactive network program; to experience the full result, run the code on your own machine.
 
-### Tokens Are Bound to I/O Sources
+### `Token`s Are Bound to I/O Sources
 
 `Accept` and `Read` don't share one `Token`. The `listener_token` inside `Accept` belongs to the `TcpListener`; after a connection is accepted, `serve` creates a separate `stream_token` and registers it for that `TcpStream`.
 

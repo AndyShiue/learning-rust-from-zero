@@ -8,7 +8,7 @@ Learn to collect an iterator into various collection types with `.collect()`.
 
 We wouldn't ordinarily spend this many episodes introducing methods, but iterators are simply too important — among the tools most used in everyday Rust — so the next few episodes take their time. Even then, plenty of methods will inevitably be missed. When you need more, consult [the official documentation's `Iterator` `trait` page](https://doc.rust-lang.org/std/iter/trait.Iterator.html).
 
-### `.collect()` — the Iterator's Terminus
+### `.collect()` — the `Iterator`'s Terminus
 
 We've been building iterators, but an iterator is itself **lazy** (Episode 15 goes deep on this) — nothing actually runs until someone "pulls" on it. `.collect()` is the most common pull: gather all the iterator's elements into a collection.
 

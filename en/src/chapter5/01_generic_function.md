@@ -36,7 +36,7 @@ fn first<T>(a: T, b: T) -> T {
 # fn main() {}
 ```
 
-The `<T>` after the function name says "this function has a type parameter named T." The parameters `a` and `b` both have type `T`, and so does the return value.
+The `<T>` after the function name says "this function has a type parameter named `T`." The parameters `a` and `b` both have type `T`, and so does the return value.
 
 When you call `first(10, 20)`, Rust sees `10` is an `i32` and knows `T = i32`. Calling `first(3.14, 2.71)` makes `T = f64`. One function definition, automatically fitting different types.
 

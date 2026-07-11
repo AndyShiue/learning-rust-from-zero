@@ -32,7 +32,7 @@ You've certainly seen this:
 
 That's `String` implementing `From<&str>` — converting from `&str` to `String`.
 
-### Into
+### `Into`
 
 `Into<T>` is `From` in the opposite direction:
 

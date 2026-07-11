@@ -48,7 +48,7 @@ struct Wrapper<T: Clone> {
 
 ### Conditional `impl`
 
-The most practical spot is on an `impl` block. This is a **conditional impl** — providing certain methods only when the type parameter meets certain conditions.
+The most practical spot is on an `impl` block. This is a **conditional `impl`** — providing certain methods only when the type parameter meets certain conditions.
 
 ```rust,noplayground
 # #[derive(Debug)]

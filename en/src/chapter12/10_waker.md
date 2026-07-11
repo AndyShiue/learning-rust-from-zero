@@ -175,7 +175,7 @@ No. `unpark` is designed so that if the `Thread` isn't parked yet, it **leaves a
 
 With this `poll` / `wake` logic freshly assembled, let's spell out the standard library's two important contracts on `Future::poll`:
 
-**Contract one: only the `Waker` from the most recent poll counts.** On each `poll`, the `Waker` from `cx.waker()` **may differ** (e.g. the `Task` got moved to another thread). So a correct `Future` should re-store the latest `Waker` on every `poll` and wake with the newest one.
+**Contract one: only the `Waker` from the most recent `poll` counts.** On each `poll`, the `Waker` from `cx.waker()` **may differ** (e.g. the `Task` got moved to another thread). So a correct `Future` should re-store the latest `Waker` on every `poll` and wake with the newest one.
 
 Our `Delay` cheats — thanks to the `started` flag, it grabs the `Waker` once on the first `poll` and never again. That causes no harm here purely because our executor uses **the same** `Waker` throughout, so the stale one happens to still work. Swap in an executor that hands out a different `Waker` each time, and this `Delay` would fail to wake it. In practice you must honestly re-store it each time; the serious versions later in this chapter all do.
 

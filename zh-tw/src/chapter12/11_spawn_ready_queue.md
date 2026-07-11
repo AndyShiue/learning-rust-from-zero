@@ -220,9 +220,9 @@ fn main() {
 ## 重點整理
 
 - 把每個 `Future` 包成 **`Task`**（`Future` ＋ 排程隨身資料），executor 從此管 `Task` 而非裸 `Future`。
-- **ready queue** 排著該被 poll 的 `Task`；`Task` 被 `wake` 時把自己排回 queue 再 `unpark` executor。
+- **ready queue** 排著該被 `poll` 的 `Task`；`Task` 被 `wake` 時把自己排回 queue 再 `unpark` executor。
 - `unpark` 只是「起床」的鬧鈴，不說哪個 `Task` 好了；那資訊在 ready queue 裡。
 - `spawn` 是 `Executor` 的方法：把 `Future` 包成 `Task`，排進自己的 ready queue。
 - `queued.swap(true, ...)` 像 `Option::take`：拿到舊值、留下新值，且是一次 atomic 操作，避免同一個 `Task` 重複入列。
-- `Task` 完成後可能還有收不回來的 `Waker` 複本帶來**過期的喚醒**；`done` 旗標守住契約二——executor pop 出 `Task` 先檢查 `done`，poll 到 `Ready` 就把它設起來，之後的喚醒全部失效。
+- `Task` 完成後可能還有收不回來的 `Waker` 複本帶來**過期的喚醒**；`done` 旗標守住契約二——executor pop 出 `Task` 先檢查 `done`，`poll` 到 `Ready` 就把它設起來，之後的喚醒全部失效。
 - `Task` 自己當 `Waker`，`Waker::from(Arc<Task>)` 要求 `Task: Send + Sync + 'static`，所以 `Future` 欄位要 `+ Send` 並用 `Mutex` 包起來。

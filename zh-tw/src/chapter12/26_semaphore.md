@@ -42,7 +42,7 @@ async fn main() {
 }
 ```
 
-雖然我們 spawn 了 10 個 task，但因為只有 3 張 permit，任何時刻最多只有 3 個在工作，其餘的乖乖排隊等 permit。
+雖然我們 `spawn` 了 10 個 `Task`，但因為只有 3 張 permit，任何時刻最多只有 3 個在工作，其餘的乖乖排隊等 permit。
 
 ### permit 靠 `Drop` 自動歸還
 

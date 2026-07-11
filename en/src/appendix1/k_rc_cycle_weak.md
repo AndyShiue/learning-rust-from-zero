@@ -21,7 +21,7 @@ Picture two nodes A and B: A holds an `Rc` to B, and B holds an `Rc` to A. When 
 
 Result: A and B are **never released** — a memory leak. A ring invisible from outside, holding itself up — that's the essence of the cycle problem.
 
-### What Is Weak
+### What Is `Weak`
 
 `Weak<T>` is a "weak reference" — it points at the same data but **doesn't increase the strong count**.
 

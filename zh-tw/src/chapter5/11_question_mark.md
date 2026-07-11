@@ -64,7 +64,7 @@ fn do_stuff() -> Result<i32, String> {
 
 ### `main` 也能回傳 `Result`
 
-如果 `main` 函數回傳 `Result<(), String>`，你就可以在 main 裡使用 `?`。
+如果 `main` 函數回傳 `Result<(), String>`，你就可以在 `main` 裡使用 `?`。
 
 ## 範例程式碼
 

@@ -24,7 +24,7 @@ By default it starts at 0 and increments by 1 per variant.
 
 ### Getting the Discriminant with `as`
 
-Last episode covered `as`. A C-style enum can be converted to an integer with `as` to reveal its discriminant:
+Last episode covered `as`. A C-style `enum` can be converted to an integer with `as` to reveal its discriminant:
 
 ```rust,editable
 enum Color {

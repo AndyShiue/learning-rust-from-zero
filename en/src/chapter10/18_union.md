@@ -35,7 +35,7 @@ union IntOrBool {
 # }
 ```
 
-Why does reading require `unsafe`? Because Rust doesn't know which field you last wrote. A `bool` in memory **must be 0 or 1**. If you write 42 through `i` and read it back through `b`, that memory contains 42 — not a valid value for a `bool`. That's **undefined behavior**. When reading a union field, you must guarantee yourself that the memory's contents are valid for the type you're reading — the compiler can't check this, hence the `unsafe`.
+Why does reading require `unsafe`? Because Rust doesn't know which field you last wrote. A `bool` in memory **must be 0 or 1**. If you write 42 through `i` and read it back through `b`, that memory contains 42 — not a valid value for a `bool`. That's **undefined behavior**. When reading a `union` field, you must guarantee yourself that the memory's contents are valid for the type you're reading — the compiler can't check this, hence the `unsafe`.
 
 ### How It Differs from `enum`
 

@@ -33,7 +33,7 @@ fn main() {
 
 「等等，這跟 `mut` 有什麼不一樣？不都是改值嗎？」
 
-最大的差別是：**shadowing 可以換型別，mut 不行。**
+最大的差別是：**shadowing 可以換型別，`mut` 不行。**
 
 ```rust,editable
 fn main() {

@@ -12,7 +12,7 @@ Last episode we learned `dyn Trait`. But if you try to write `dyn Clone`, you ge
 
 ### The Core Idea: `impl Trait for dyn Trait`
 
-To understand dyn compatibility, first think about how `dyn Trait` works. The compiler automatically generates an:
+To understand `dyn` compatibility, first think about how `dyn Trait` works. The compiler automatically generates an:
 
 ```rust,ignore
 impl Trait for dyn Trait {
@@ -74,7 +74,7 @@ trait Clone: Sized {
 # fn main() {}
 ```
 
-`Clone: Sized` means "any type implementing Clone must be Sized." But `dyn Clone` is a DST — not `Sized`. So `impl Clone for dyn Clone` can't even exist, and therefore neither can `dyn Clone`.
+`Clone: Sized` means "any type implementing `Clone` must be `Sized`." But `dyn Clone` is a DST — not `Sized`. So `impl Clone for dyn Clone` can't even exist, and therefore neither can `dyn Clone`.
 
 ### The Escape Hatch: `where Self: Sized`
 

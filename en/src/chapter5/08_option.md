@@ -2,7 +2,7 @@
 
 ## Goal of This Episode
 
-Meet the most important generic enum in Rust's standard library — `Option<T>` — and understand how it replaces null and prevents runtime errors.
+Meet the most important generic `enum` in Rust's standard library — `Option<T>` — and understand how it replaces null and prevents runtime errors.
 
 ## Concept
 
@@ -12,7 +12,7 @@ In some programming languages, any variable can be null (empty). This causes a c
 
 Rust's solution is simple: **there is no null.**
 
-In its place stands a generic enum: `Option<T>`.
+In its place stands a generic `enum`: `Option<T>`.
 
 ### The Definition of `Option`
 

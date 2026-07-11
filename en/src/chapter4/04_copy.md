@@ -28,7 +28,7 @@ Why? The answer is the **`Copy` `trait`**.
 
 ### Which Types Have `Copy` Automatically?
 
-These types are born with Copy:
+These types are born with `Copy`:
 
 - Integers: `i8`, `i16`, `i32`, `i64`, `i128`, `u8`, `u16`, `u32`, `u64`, `u128`, `isize`, `usize`.
 - Floats: `f32`, `f64`.

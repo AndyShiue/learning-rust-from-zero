@@ -32,7 +32,7 @@ fn main() {
 }
 ```
 
-### Building from an Iterator
+### Building from an `Iterator`
 
 ```rust,editable
 use std::collections::HashSet;

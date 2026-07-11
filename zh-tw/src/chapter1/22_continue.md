@@ -55,7 +55,7 @@ fn main() {
 
 5 被跳過了，其他都正常印出來。
 
-### continue + loop label
+### `continue` + loop label
 
 上一集學過 `break 'outer` 可以跳出指定層迴圈，`continue` 也可以搭配 label：
 

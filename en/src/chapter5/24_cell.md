@@ -30,7 +30,7 @@ But `.get()` comes with one important restriction:
 
 You can't call `.get()` on a `Cell<String>`, since `String` isn't `Copy`. Only `Copy` types work with `.get()` (`i32`, `f64`, `bool`, etc.).
 
-### Why Not Just Use mut?
+### Why Not Just Use `mut`?
 
 Sometimes getting a `&mut` isn't convenient. Say a `struct` is shared by reference in several places (`&self`), but you want to bump a counter inside it. `Cell` fits that scenario nicely.
 

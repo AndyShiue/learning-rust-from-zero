@@ -93,7 +93,7 @@ impl<'a, T> IntoIterator for &'a mut Vec<T> {
 }
 ```
 
-So `for x in &v` actually calls `into_iter()` on `&v` (of type `&Vec<T>`), hitting the `&Vec<T>` impl and ultimately yielding `&T`.
+So `for x in &v` actually calls `into_iter()` on `&v` (of type `&Vec<T>`), hitting the `&Vec<T>` `impl` and ultimately yielding `&T`.
 
 Most collection types (`Vec`, arrays...) follow this pattern — implementing `IntoIterator` three times, for themselves, `&self`, and `&mut self`.
 

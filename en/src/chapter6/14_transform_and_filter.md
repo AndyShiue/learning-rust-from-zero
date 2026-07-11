@@ -87,7 +87,7 @@ When an iterator produces references (`&T`) but you want values (`T`), these two
 
 ### The Power of Chaining
 
-Iterator methods chain freely into data-processing pipelines:
+`Iterator` methods chain freely into data-processing pipelines:
 
 ```rust,noplayground
 # fn main() {

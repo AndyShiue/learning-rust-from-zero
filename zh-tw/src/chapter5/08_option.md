@@ -2,7 +2,7 @@
 
 ## 本集目標
 
-認識 Rust 標準庫最重要的泛型 enum——`Option<T>`，理解它如何取代 null 並防止執行時期錯誤。
+認識 Rust 標準庫最重要的泛型 `enum`——`Option<T>`，理解它如何取代 null 並防止執行時期錯誤。
 
 ## 概念說明
 
@@ -12,7 +12,7 @@
 
 Rust 的解法很簡單：**沒有 null。**
 
-取而代之的是一個泛型 enum：`Option<T>`。
+取而代之的是一個泛型 `enum`：`Option<T>`。
 
 ### `Option` 的定義
 

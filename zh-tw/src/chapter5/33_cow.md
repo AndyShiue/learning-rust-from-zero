@@ -129,7 +129,7 @@ fn main() {
 - `Cow<'a, str>` 可以是借用（`&str`）或擁有（`String`），視情況而定。
 - `Cow` 利用 `ToOwned` `trait` 的 associated type 來決定擁有版本的型別（`str` → `String`、`[T]` → `Vec<T>`）。
 - `Cow` 實作了 `Deref`，`Cow<'a, str>` 不管是 `Borrowed` 還是 `Owned` 都能直接當 `&str` 用——這是它最大的優點。
-- `.to_mut()`：寫入時才複製（Borrowed → `clone` 成 `Owned` → 回傳可變參考）。
+- `.to_mut()`：寫入時才複製（`Borrowed` → `clone` 成 `Owned` → 回傳可變參考）。
 - `.into_owned()`：不管哪種都轉成擁有所有權的值。
 - 適合用在「大部分時候不修改，偶爾需要修改」的場景。
 

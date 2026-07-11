@@ -175,11 +175,11 @@ fn main() {
 
 趁這套 `poll` / `wake` 邏輯剛兜好，把標準庫對 `Future::poll` 的兩條重要契約講清楚：
 
-**契約一：只有最近一次 poll 給的 `Waker` 算數。** 每次 `poll`，`cx.waker()` 拿到的 `Waker` **可能不一樣**（例如 `Task` 被搬到別條 thread 上跑）。所以一個正確的 `Future`，每次 `poll` 都該把最新的 `Waker` 重新存一份，喚醒時用最新的那個。
+**契約一：只有最近一次 `poll` 給的 `Waker` 算數。** 每次 `poll`，`cx.waker()` 拿到的 `Waker` **可能不一樣**（例如 `Task` 被搬到別條 `Thread` 上跑）。所以一個正確的 `Future`，每次 `poll` 都該把最新的 `Waker` 重新存一份，喚醒時用最新的那個。
 
 我們的 `Delay` 卻偷懶了——靠 `started` 旗標，它只在第一次 `poll` 抓一次 `Waker` 就不管了。這之所以沒出事，純粹是因為我們的 executor 從頭到尾用**同一個** `Waker`，所以舊的剛好還能用。如果換一個每次給不同 `Waker` 的 executor，這個 `Delay` 就會叫醒失敗。實務上必須老實地每次重存，本章後面動真格時都會這麼做。
 
-**契約二：`Ready` 之後不可以再 `poll`。** 一個 `Future` 一旦回了 `Ready`，就**不准**再被 poll，否則行為沒有保證（可能 panic、可能卡死）。所以 executor 必須記得：哪個 `Future` 做完了，就要把它移除、別再碰。我們現在的 `block_on` 拿到 `Ready` 就直接 `return`，自然不會犯規；但等到要同時管很多個 `Future` 時，這件事就得認真處理了（下一集就會做）。
+**契約二：`Ready` 之後不可以再 `poll`。** 一個 `Future` 一旦回了 `Ready`，就**不准**再被 `poll`，否則行為沒有保證（可能 panic、可能卡死）。所以 executor 必須記得：哪個 `Future` 做完了，就要把它移除、別再碰。我們現在的 `block_on` 拿到 `Ready` 就直接 `return`，自然不會犯規；但等到要同時管很多個 `Future` 時，這件事就得認真處理了（下一集就會做）。
 
 ### 一個 `Future` 一條 `Thread`？這不行
 

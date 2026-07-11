@@ -10,7 +10,7 @@
 
 這集有件事能讓人安心：**executor 完全沿用第 12 集**。`Task`、`Executor::spawn<T>`、`JoinHandle<T>`、`Shared<T>`、`Executor::block_on` 一行都不用改。
 
-我們唯一要換掉的是「誰來 `wake`」。前面是 `Delay` 自己開一條計時 `Thread` 來 `wake`；現在改成一條 **reactor thread**，它睡在 `mio::Poll` 上等真實的 I/O，醒來後找到對應的 `Waker` 把它 `wake()`。
+我們唯一要換掉的是「誰來 `wake`」。前面是 `Delay` 自己開一條計時 `Thread` 來 `wake`；現在改成一條 **reactor `Thread`**，它睡在 `mio::Poll` 上等真實的 I/O，醒來後找到對應的 `Waker` 把它 `wake()`。
 
 要加的東西是一個 `Reactor`，以及兩個 I/O `Future`（`Accept` 和 `Read`）。
 
@@ -325,7 +325,7 @@ fn main() {
 
 > 注意：這段程式會在本機監聽 `127.0.0.1:8080`，需要另外用 `nc` 之類的工具連進來（例如 `nc 127.0.0.1 8080`）才看得到效果。網頁版沙盒不適合體驗這種互動式網路程式；如果想體驗完整成果，請在自己的電腦上執行上面的程式碼。
 
-### Token 跟 I/O 來源綁在一起
+### `Token` 跟 I/O 來源綁在一起
 
 `Accept` 和 `Read` 沒有共用同一個 `Token`。`Accept` 裡的 `listener_token` 是給 `TcpListener` 用的；接到連線後，`serve` 另外建立 `stream_token`，登記給那條 `TcpStream`。
 

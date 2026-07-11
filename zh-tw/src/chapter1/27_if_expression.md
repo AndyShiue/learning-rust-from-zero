@@ -29,7 +29,7 @@ fn main() {
 
 這樣沒問題，但 Rust 有一個更簡潔的寫法。
 
-### if 當表達式
+### `if` 當表達式
 
 ```rust,editable
 fn main() {

@@ -6,7 +6,7 @@ Meet the heart of the `Iterator` `trait` — implement just the `next` method, a
 
 ## Concept
 
-### The Definition of Iterator
+### The Definition of `Iterator`
 
 The core of the `Iterator` `trait` couldn't be simpler:
 
@@ -76,7 +76,7 @@ impl Iterator for Countdown {
 
 With `next` implemented, `map`, `filter`, `sum`, `collect`, and dozens more become automatically available. The coming episodes cover them one by one.
 
-### The Standard Library's Iterator Factories
+### The Standard Library's `Iterator` Factories
 
 The standard library offers convenient functions for creating iterators:
 

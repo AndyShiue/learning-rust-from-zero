@@ -24,7 +24,7 @@ enum Color {
 
 ### 用 `as` 取得 discriminant
 
-上一集學了 `as`。C-style enum 可以用 `as` 轉成整數看到它的 discriminant：
+上一集學了 `as`。C-style `enum` 可以用 `as` 轉成整數看到它的 discriminant：
 
 ```rust,editable
 enum Color {

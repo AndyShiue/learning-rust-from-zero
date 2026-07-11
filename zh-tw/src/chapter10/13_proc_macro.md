@@ -12,7 +12,7 @@
 
 proc macro 拿到你的程式碼作為輸入（一串 token），然後產生新的程式碼（也是一串 token）。
 
-### TokenStream
+### `TokenStream`
 
 proc macro 的輸入和輸出都是 `TokenStream`——Rust 程式碼的 token 序列。`struct Foo { x: i32 }` 進來的時候，proc macro 看到的是一串 token：`struct`、`Foo`、`{`、`x`、`:`、`i32`、`}`。
 

@@ -224,7 +224,7 @@ fn main() {
 
 ## Recap
 
-- Iterator methods like `.map(f)` / `.filter(pred)` are **lazy** — nothing runs immediately.
+- `Iterator` methods like `.map(f)` / `.filter(pred)` are **lazy** — nothing runs immediately.
 - Each transformation call "wraps another `struct` layer" outside (Russian nesting dolls).
 - Consumption (`.collect()`, `for`, `.sum()`, etc.) is what triggers execution.
 - Execution is **pull-based** — one element pulled at a time, passing through every layer, no intermediate `Vec`s.

@@ -6,7 +6,7 @@
 
 ## 概念說明
 
-### Iterator 的定義
+### `Iterator` 的定義
 
 `Iterator` `trait` 的核心簡單到不行：
 

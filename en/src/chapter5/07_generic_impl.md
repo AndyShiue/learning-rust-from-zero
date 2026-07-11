@@ -99,7 +99,7 @@ impl<T> SomeTrait for Pair<T> {
 # fn main() {}
 ```
 
-Again: "for any type T, implement this `trait` for `Pair<T>`."
+Again: "for any type `T`, implement this `trait` for `Pair<T>`."
 
 ## Example Code
 

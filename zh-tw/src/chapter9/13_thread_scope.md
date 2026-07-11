@@ -115,7 +115,7 @@ fn main() {
 ## 重點整理
 
 - `thread::spawn` 要求 `'static`，所以閉包不能借用局部變數。
-- `thread::scope` 保證所有 scoped thread 在 `scope` 結束前 `join`，因此可以安全借用外部資料。
+- `thread::scope` 保證所有 scoped 執行緒在 `scope` 結束前 `join`，因此可以安全借用外部資料。
 - 不需要 `move`、不需要 `Arc`、不需要手動 `join`——程式碼簡潔很多。
 - 當你只需要在一個區域內使用多執行緒，`thread::scope` 比 `thread::spawn` 方便。
 

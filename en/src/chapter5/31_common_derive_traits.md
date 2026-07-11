@@ -72,7 +72,7 @@ That's why `f64` can only walk one side (`PartialEq` + `PartialOrd`) and never r
 
 The `Default` `trait` provides a "default value." Numbers default to `0`, `bool` to `false`, `String` to the empty string, `Vec` to an empty `Vec`.
 
-If every field of a struct has `Default`, you can `derive` it:
+If every field of a `struct` has `Default`, you can `derive` it:
 
 ```rust,noplayground
 #[derive(Debug, Default)]

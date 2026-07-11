@@ -44,7 +44,7 @@ fn main() {}
 
 `move` tells Rust to capture every used outer variable **by value**. Here, the closure captures the `String` itself, so `name` now belongs to the closure; however the original scope ends, the closure keeps its `name`.
 
-### The Anonymous struct of a move Closure
+### The Anonymous `struct` of a move Closure
 
 Recall recent episodes — a closure is an anonymous `struct`. Without `move`, the `struct`'s fields may be references to outer variables (`&T` or `&mut T`); with `move`, the closure captures those variables **by value**:
 

@@ -123,7 +123,7 @@ The compiler blocks it flat:
 error[E0277]: `{async fn body of borrows()}` cannot be unpinned
 ```
 
-The code spells out the whole "poll once, move, poll again" routine, but the compiler actually stops it at the very first `Pin::new(&mut fut)`.
+The code spells out the whole "`poll` once, move, `poll` again" routine, but the compiler actually stops it at the very first `Pin::new(&mut fut)`.
 
 `Pin::new` requires the type to be `Unpin` (meaning "safe to move" — details soon). `Counter` is `Unpin`, so it passes; but this self-referential `async fn` state machine is **not** `Unpin`, so `Pin::new` bars the way **before you've actually polled it or actually moved it**.
 
@@ -134,5 +134,5 @@ Comparing the two examples, Rust's line of defense is clear: things that survive
 - Moving a value changes its address; for ordinary values that's fine, since the old variable can't be used anymore.
 - If a value stores "an address pointing into itself," a move leaves that address un-updated — a dangling pointer. Dangerous.
 - The state machines produced by `async fn` / `async` blocks can be such values: if a borrow crosses an `.await`, the machine may hold both the borrowed value and the reference — one field pointing at another.
-- The `Counter` example proves "poll → move → poll again" is achievable (two different addresses).
+- The `Counter` example proves "`poll` → move → `poll` again" is achievable (two different addresses).
 - Rust's defense is `Unpin`: `Counter` is `Unpin` and passes `Pin::new`; a self-referential `async` state machine is not `Unpin`, and `Pin::new` fails to compile.

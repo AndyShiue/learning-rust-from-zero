@@ -44,7 +44,7 @@ The first point first.
 
 For `Pin` to keep its "no move" promise, it isn't enough for `Pin` itself to be leak-free; you must also ask whether, after the `Pin` is created, the outside still holds another road to move the value away.
 
-That's what makes `Pin::new(&mut value)` suspect. A `Pin<&mut T>` is only a temporary borrow: once the borrow ends, the original variable outside still exists and can still be moved. If `Pin::new(&mut value)` were allowed for any `T`, then the `Counter`-style "poll, move, poll again" routine could be applied verbatim to a self-referential `Future`.
+That's what makes `Pin::new(&mut value)` suspect. A `Pin<&mut T>` is only a temporary borrow: once the borrow ends, the original variable outside still exists and can still be moved. If `Pin::new(&mut value)` were allowed for any `T`, then the `Counter`-style "`poll`, move, `poll` again" routine could be applied verbatim to a self-referential `Future`.
 
 So for types that "break when moved," `Pin::new(&mut value)` ought not be freely available. Right — that's the principle; it's just that some types "don't break when moved," and Rust is happy to let those take this road. Next episode explains that part.
 

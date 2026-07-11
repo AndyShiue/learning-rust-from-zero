@@ -51,7 +51,7 @@ fn main() {
 
 `Arc` requires `T: Send + Sync`. Why?
 
-**`Sync`**: multiple threads access the same `T` simultaneously through their own `Arc`s. Chapter 5 taught `Deref` — `Arc` implements it, so `T`'s contents are reachable straight through the `Arc`. That amounts to multiple threads holding shared references to `T` at once, so `T` must be Sync.
+**`Sync`**: multiple threads access the same `T` simultaneously through their own `Arc`s. Chapter 5 taught `Deref` — `Arc` implements it, so `T`'s contents are reachable straight through the `Arc`. That amounts to multiple threads holding shared references to `T` at once, so `T` must be `Sync`.
 
 **`Send`**: when the last `Arc` gets `drop`ped, `T` gets `drop`ped too. Which thread holds the last `Arc` is indeterminate, so `T`'s `drop` may happen on any thread — `T` is effectively "shipped" to that thread for destruction, so `T` must be `Send`.
 

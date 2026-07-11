@@ -19,7 +19,7 @@ static MAX_SIZE: usize = 1024;
 
 Most of the time `const` is enough. Use `static` only when you need a fixed memory address (e.g. to hand to a C function).
 
-### static mut
+### `static mut`
 
 Rust allows mutable `static`s — but both reading and writing require `unsafe`:
 

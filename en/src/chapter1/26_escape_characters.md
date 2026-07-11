@@ -68,7 +68,7 @@ fn main() {
 
 ### `\'` — Single Quote
 
-Inside a char, if you want to represent the single quote itself, you have to escape it:
+Inside a `char`, if you want to represent the single quote itself, you have to escape it:
 
 ```rust,editable
 fn main() {
@@ -77,7 +77,7 @@ fn main() {
 }
 ```
 
-Because a char is wrapped in `'`, putting a `'` inside requires `\'`.
+Because a `char` is wrapped in `'`, putting a `'` inside requires `\'`.
 
 ### When You Don't Need to Escape
 
@@ -89,7 +89,7 @@ fn main() {
 }
 ```
 
-Likewise, inside a char (`''`), double quotes don't need escaping:
+Likewise, inside a `char` (`''`), double quotes don't need escaping:
 
 ```rust,editable
 fn main() {
@@ -113,6 +113,6 @@ In short: **only the symbol doing the wrapping needs escaping; the other one doe
 ## Recap
 
 - Escape characters start with `\` and stand for special characters: `\n` (newline), `\t` (tab), `\\` (backslash).
-- `\"` represents a double quote inside a string; `\'` represents a single quote inside a char.
+- `\"` represents a double quote inside a string; `\'` represents a single quote inside a `char`.
 - Escape characters work in both strings and `char`s.
 - Rule of thumb: only the wrapping symbol needs escaping; the other one doesn't.

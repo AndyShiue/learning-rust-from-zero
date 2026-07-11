@@ -29,7 +29,7 @@ The responsibility of `unsafe` code is this: even while bypassing the compiler's
 
 Wrap code needing `unsafe` operations in `unsafe { }`. `unsafe` is not "turn off all checks" — borrowing rules and type checking still apply inside an `unsafe` block. It merely unlocks a few specific extra operations.
 
-### The Five unsafe Operations
+### The Five `unsafe` Operations
 
 1. **Dereferencing raw pointers** (`*const T`, `*mut T`)
 2. **Calling `unsafe` functions**

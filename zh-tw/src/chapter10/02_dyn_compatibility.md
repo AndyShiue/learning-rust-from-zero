@@ -12,7 +12,7 @@
 
 ### 核心概念：`impl Trait for dyn Trait`
 
-要理解 dyn compatibility，先想想 `dyn Trait` 是怎麼運作的。編譯器自動生成了一個：
+要理解 `dyn` compatibility，先想想 `dyn Trait` 是怎麼運作的。編譯器自動生成了一個：
 
 ```rust,ignore
 impl Trait for dyn Trait {
@@ -74,7 +74,7 @@ trait Clone: Sized {
 # fn main() {}
 ```
 
-`Clone: Sized` 代表「實作 Clone 的型別必須是 Sized」。但 `dyn Clone` 是 DST，不是 `Sized`。所以 `impl Clone for dyn Clone` 根本不成立，`dyn Clone` 無法存在。
+`Clone: Sized` 代表「實作 `Clone` 的型別必須是 `Sized`」。但 `dyn Clone` 是 DST，不是 `Sized`。所以 `impl Clone for dyn Clone` 根本不成立，`dyn Clone` 無法存在。
 
 ### 退出機制：`where Self: Sized`
 

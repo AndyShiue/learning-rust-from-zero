@@ -132,7 +132,7 @@ fn main() {
 ## Recap
 
 - `..` ignores multiple fields or values at once.
-- On a struct in `match`: `Player { hp, .. }` takes only `hp` and ignores the rest; same for `enum` `struct` variants.
+- On a `struct` in `match`: `Player { hp, .. }` takes only `hp` and ignores the rest; same for `enum` `struct` variants.
 - On a tuple: `(first, ..)` takes only the first, `(.., last)` only the last; tuple `struct`s and `enum` tuple variants use similar syntax.
 - In arrays and slices: `[first, ..]` takes the first; `[first, .., last]` takes head and tail.
 - `..` can appear only once per layer of a pattern.

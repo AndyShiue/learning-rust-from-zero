@@ -48,7 +48,7 @@ struct Wrapper<T: Clone> {
 
 ### 條件式 `impl`
 
-其中最實用的是在 `impl` 區塊上加 `trait` bound。這叫做**條件式 impl**——只有當型別參數符合某些條件時，才提供特定的方法。
+其中最實用的是在 `impl` 區塊上加 `trait` bound。這叫做**條件式 `impl`**——只有當型別參數符合某些條件時，才提供特定的方法。
 
 ```rust,noplayground
 # #[derive(Debug)]

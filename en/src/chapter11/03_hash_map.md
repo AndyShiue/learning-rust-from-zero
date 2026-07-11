@@ -31,7 +31,7 @@ fn main() {
 
 Calling `insert` again with the same key overwrites the old value.
 
-### Building from an Iterator with `collect`
+### Building from an `Iterator` with `collect`
 
 ```rust,noplayground
 use std::collections::HashMap;

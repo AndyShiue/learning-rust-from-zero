@@ -237,7 +237,7 @@ fn main() {
 5. B 內層的 `async` block 跑到 `handle.await`，於是 `poll` A 的 `JoinHandle`。這時 A 的結果還沒好，`JoinHandle` 把 B 的 `Waker` 存進 `Shared<T>`，回 `Pending`。這個 `Pending` 一路傳回 B 外面的 `task_future`，B 也先停住。
 6. ready queue 空了，executor 用 `thread::park()` 睡著。
 7. 約一秒後，A 的計時 `Thread` 呼叫 A 的 `Waker`，A 被排回 ready queue，executor 被 `unpark` 叫醒。
-8. executor 再 `poll` A。這次還是先 `poll` A 外面的 `task_future`，它繼續 poll 內層 A；`Delay` 已經完成，所以 A 從 `.await` 後面繼續跑，先印出 `背景 task：算好了`，再算出 `42`。
+8. executor 再 `poll` A。這次還是先 `poll` A 外面的 `task_future`，它繼續 `poll` 內層 A；`Delay` 已經完成，所以 A 從 `.await` 後面繼續跑，先印出 `背景 task：算好了`，再算出 `42`。
 9. A 外面的 `task_future` 拿到 `42`，把它放進 `Shared<T>`，再取出剛剛存著的 B 的 `Waker` 並 `wake()` 它。這不是直接繼續執行 B，而是把 B 排回 ready queue。
 10. executor 接下來 `poll` B。B 外面的 `task_future` 繼續 `poll` 內層 `async` block；這次 `handle.await` 從 `Shared<T>` 取到 `42`，印出 `main task：拿到背景結果 42`，然後 B 回傳 `142`。
 11. B 自己外面那層 `task_future` 把 `142` 寫進 B 自己的 `Shared<T>`。所有 `Task` 都完成了，`block_on` 從 B 的 `JoinHandle` 裡取出 `142` 回傳，最後印出 `block_on 回傳：142`。

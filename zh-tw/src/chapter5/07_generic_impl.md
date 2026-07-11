@@ -99,7 +99,7 @@ impl<T> SomeTrait for Pair<T> {
 # fn main() {}
 ```
 
-一樣是「對於任何型別 T，幫 `Pair<T>` 實作這個 `trait`」。
+一樣是「對於任何型別 `T`，幫 `Pair<T>` 實作這個 `trait`」。
 
 ## 範例程式碼
 

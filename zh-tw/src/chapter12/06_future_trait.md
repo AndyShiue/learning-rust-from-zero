@@ -95,7 +95,7 @@ fn main() {
 
 ### executor 有很多種設計
 
-最後提醒一個觀念：Rust 標準庫只定義了 `Future` `trait`，**怎麼實作 executor 完全留給 runtime 自由發揮**。我們這集寫的是「回 `Pending` 就忙著空轉重 poll」的笨版本——超級浪費 CPU 資源。真正的 runtime 會聰明得多：沒事做的時候去睡覺，有事了才被叫醒。
+最後提醒一個觀念：Rust 標準庫只定義了 `Future` `trait`，**怎麼實作 executor 完全留給 runtime 自由發揮**。我們這集寫的是「回 `Pending` 就忙著空轉重 `poll`」的笨版本——超級浪費 CPU 資源。真正的 runtime 會聰明得多：沒事做的時候去睡覺，有事了才被叫醒。
 
 正因為標準庫不規定 executor 怎麼寫，才會有 Tokio、smol 等各有特色的 runtime。接下來幾集，我們會從這個最笨的版本出發，一步一步讓它演進到接近真實 runtime 的樣子。
 

@@ -72,7 +72,7 @@ pub trait Ord: PartialOrd + Eq { ... }
 
 `Default` `trait` 提供一個「預設值」。數字的預設值是 `0`，`bool` 是 `false`，`String` 是空字串，`Vec` 是空 `Vec`。
 
-如果 struct 的每個欄位都有 `Default`，你就可以 `derive` 它：
+如果 `struct` 的每個欄位都有 `Default`，你就可以 `derive` 它：
 
 ```rust,noplayground
 #[derive(Debug, Default)]

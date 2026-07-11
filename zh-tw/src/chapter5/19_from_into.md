@@ -32,7 +32,7 @@ trait From<T> {
 
 這就是 `String` 實作了 `From<&str>`——從 `&str` 轉換成 `String`。
 
-### Into
+### `Into`
 
 `Into<T>` 是 `From` 的反方向：
 

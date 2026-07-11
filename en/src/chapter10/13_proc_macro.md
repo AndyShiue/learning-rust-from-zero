@@ -12,7 +12,7 @@ Last episode's `macro_rules!` expands code via pattern matching. But some things
 
 A proc macro receives your code as input (a stream of tokens) and produces new code (also a stream of tokens).
 
-### TokenStream
+### `TokenStream`
 
 A proc macro's input and output are both `TokenStream`s — sequences of Rust code tokens. When `struct Foo { x: i32 }` comes in, the proc macro sees a stream of tokens: `struct`, `Foo`, `{`, `x`, `:`, `i32`, `}`.
 

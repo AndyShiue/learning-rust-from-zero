@@ -157,7 +157,7 @@ fn main() {
 
 **Dynamic dispatch** (`dyn Trait`): the compiler generates only one copy of the code, and at runtime the function to call is looked up through the vtable. There's only one copy of the code, but every call pays an extra vtable lookup.
 
-| | Static dispatch (impl Trait / generics) | Dynamic dispatch (dyn Trait) |
+| | Static dispatch (`impl Trait` / generics) | Dynamic dispatch (`dyn Trait`) |
 |--|--|--|
 | Decided at | Compile time | Runtime |
 | Amount of code | One copy per type | Just one copy |

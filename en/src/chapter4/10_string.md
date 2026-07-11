@@ -119,5 +119,5 @@ fn print_string(s: &String) {
 - `String::from("...")` creates a new `String`.
 - `push_str` appends more text to the string (requires `let mut`).
 - `format!` shares `println!`'s syntax but returns a `String` instead of printing.
-- String is **not `Copy`** — assignment and passing into functions move it.
+- `String` is **not `Copy`** — assignment and passing into functions move it.
 - To keep the original `String`, use `.clone()` or borrow with `&`.
