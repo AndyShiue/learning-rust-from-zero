@@ -19,7 +19,7 @@ Tokio is currently the most mainstream runtime, but not the only choice. Since t
 - **monoio / glommio**: specialized runtimes on the **thread-per-core** path, often paired with Linux's io_uring, built for extreme I/O performance.
 - **Embassy**: a runtime for **embedded** devices, able to run `async` on microcontrollers with no operating system and no standard library.
 
-These runtimes can differ in every dimension: how many threads, how scheduling works, how I/O is done, how timers are implemented, the details and restrictions of `spawn`. Which to pick depends on your situation — for ordinary network services Tokio is the least hassle; for embedded you'd use Embassy.
+These runtimes can differ in every dimension: how many `Thread`s, how scheduling works, how I/O is done, how timers are implemented, the details and restrictions of `spawn`. Which to pick depends on your situation — for ordinary network services Tokio is the least hassle; for embedded you'd use Embassy.
 
 ### runtime-agnostic vs runtime-specific
 

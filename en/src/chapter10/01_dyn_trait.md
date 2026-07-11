@@ -314,4 +314,4 @@ fn main() {
 - Most of the time use static dispatch; use `dyn Trait` only when mixing different types.
 - `Box<dyn Fn()>` can unify different closures into one type.
 - `Box<dyn Trait>` implicitly defaults to `+ 'static` in some positions; `dyn Trait + 'a` reads as `dyn (Trait + 'a)` — `dyn` turns a `trait` bound into a type.
-- `dyn SubTrait` can be converted to `dyn SuperTrait` (trait upcasting).
+- `dyn SubTrait` can be converted to `dyn SuperTrait` (`trait` upcasting).

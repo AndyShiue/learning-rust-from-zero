@@ -131,17 +131,17 @@
 
 | 讀完 | 可使用的主要概念 | 仍避免主動使用 |
 | --- | --- | --- |
-| 第 1 章 | `fn main()`、`println!`、註解、變數、數字與字元、基本運算、比較與邏輯運算、`if`/`else`、scope、`let mut`、stdin 固定句型、`parse::<i32>()` 固定句型、`loop`/`while`/`for`、range、`break`、`continue`、`cargo new`/`cargo run` | 自訂函數、陣列、`Vec`、`String` 詳解、所有權、`match`、struct、enum、trait、泛型、生命週期、閉包、Iterator |
-| 第 2 章 | `const`、shadowing、底線變數、tuple、`{:?}`/`Debug`、自訂函數、參數、回傳值、early `return`、遞迴、陣列、陣列走訪、索引、切片 `&[T]`、`&str` 型別 | 完整所有權與借用規則、`Vec`、struct/enum、trait、泛型、Iterator chain |
+| 第 1 章 | `fn main()`、`println!`、註解、變數、數字與字元、基本運算、比較與邏輯運算、`if`/`else`、scope、`let mut`、stdin 固定句型、`parse::<i32>()` 固定句型、`loop`/`while`/`for`、range、`break`、`continue`、`cargo new`/`cargo run` | 自訂函數、陣列、`Vec`、`String` 詳解、所有權、`match`、struct、enum、`trait`、泛型、生命週期、閉包、Iterator |
+| 第 2 章 | `const`、shadowing、底線變數、tuple、`{:?}`/`Debug`、自訂函數、參數、回傳值、early `return`、遞迴、陣列、陣列走訪、索引、切片 `&[T]`、`&str` 型別 | 完整所有權與借用規則、`Vec`、struct/enum、`trait`、泛型、Iterator chain |
 | 第 3 章 | `struct`、tuple/unit struct、`enum`、`match`、block 表達式、各種 pattern、解構、`if let`、`while let`、`let else`、associated function、method、`Self` | 所有權細節、`&self`/`&mut self` method、對同一個 by-value method 物件連續呼叫 |
-| 第 4 章 | 所有權、move、clone、`Copy`、借用 `&T`、可變借用 `&mut T`、借用規則、`self`/`&self`/`&mut self`、stack/heap、`String`、`&str`、`Vec` | 泛型、`Option`/`Result` 正式錯誤處理、trait bound、生命週期標注、閉包、Iterator chain |
-| 第 5 章 | 泛型、`Option<T>`、`Result<T, E>`、`?`、trait、trait bound、`where`、`use` 基礎、`Display`、`From`/`Into`、`impl Trait`、`Drop`、`Box`、`Rc`、`Deref`、`Cell`/`RefCell`、生命週期、supertrait、derive、associated type、`Cow` | 閉包與 Iterator chain（到第 6 章才正式使用）、多檔案模組（到第 7 章才正式使用） |
+| 第 4 章 | 所有權、move、`clone`、`Copy`、借用 `&T`、可變借用 `&mut T`、借用規則、`self`/`&self`/`&mut self`、stack/heap、`String`、`&str`、`Vec` | 泛型、`Option`/`Result` 正式錯誤處理、`trait` bound、生命週期標注、閉包、Iterator chain |
+| 第 5 章 | 泛型、`Option<T>`、`Result<T, E>`、`?`、`trait`、`trait` bound、`where`、`use` 基礎、`Display`、`From`/`Into`、`impl Trait`、`Drop`、`Box`、`Rc`、`Deref`、`Cell`/`RefCell`、生命週期、supertrait、derive、associated type、`Cow` | 閉包與 Iterator chain（到第 6 章才正式使用）、多檔案模組（到第 7 章才正式使用） |
 | 第 6 章 | 函數指標、閉包、`Fn`/`FnMut`/`FnOnce`、`move` 閉包、`Iterator`、`iter`/`into_iter`/`iter_mut`、`map`、`filter`、`collect`、`sum`、`fold`、`zip`、`enumerate`、惰性求值 | `mod`/多檔案 crate 組織（第 7 章） |
 | 第 7 章 | Cargo 與 crates.io、`mod`、檔案模組、`pub`、`use`、`pub use`、orphan rule、文件註解、`cargo test`、`#[test]`、`cargo publish` | 第二部進階主題除非讀者主動問 |
 | 附錄一 | 數字字面值、短路求值、`break` 回傳值、多行字串與 raw string、格式化字串進階、區域 items、struct update syntax、`ref` pattern、match ergonomics、`panic!`/`todo!` 等、`let` chains、`Weak`、fully qualified syntax、DST 簡介 | 第 9 章之後的多執行緒與 unsafe 等進階主題 |
 | 第 9 章 | 指標、`thread::spawn`、`thread::scope`、`Send`/`Sync`、`Arc`、atomic、`Mutex`、`RwLock`、poisoning、`mpsc`、死鎖 | 第 10、11 章尚未讀到的進階語言與標準庫 |
 | 第 10 章 | `dyn Trait`、dyn compatibility、`const fn`、associated `const`、`const` generics、預設參數模式、運算子重載、`as`、enum discriminant、attribute、`cfg!`、macro、`unsafe`、`static`、`LazyLock`、extern blocks、union、never type | 第 11 章標準庫主題 |
-| 第 11 章 | `AsRef`/`AsMut`、`Ordering`、排序、`HashMap`、`HashSet`、其他集合、`std::env`、`std::process`、`std::path`、進階字串、檔案 I/O、`Error` trait、`thiserror`、`anyhow`、`catch_unwind` | 第 12 章非同步主題除非讀者主動問 |
+| 第 11 章 | `AsRef`/`AsMut`、`Ordering`、排序、`HashMap`、`HashSet`、其他集合、`std::env`、`std::process`、`std::path`、進階字串、檔案 I/O、`Error` `trait`、`thiserror`、`anyhow`、`catch_unwind` | 第 12 章非同步主題除非讀者主動問 |
 | 第 12 章 | 非同步：`async` / `.await`、Tokio runtime、`Future` / `poll` / `Waker`、手寫 executor / ready queue / `JoinHandle` / reactor、狀態機、`Pin` / `Unpin` / `pin!`、`async` 遞迴、Tokio 實務工具（`spawn`、`spawn_blocking`、`join!`、`select!`、I/O、channel、鎖、`Stream`、`JoinSet`、graceful shutdown、async 測試、其他 runtime） | 仍避免把書外 async 生態一次倒出來；依讀者眼前問題聚焦 |
 
 ### 精確語法門檻
@@ -197,19 +197,21 @@
 | 擁有者 | 所有者 | owner |
 | 所有權 | 擁有權 | ownership |
 | move | 移動 | move |
-| clone | 複製、深拷貝 | clone |
+| `clone` | 複製、深拷貝 | `clone` |
 | 借用 | 借出、引用 | borrow / borrowing |
 | 參考 | 引用 | reference (`&T`) |
 | 可變參考 | 可變引用 | mutable reference (`&mut T`) |
 | 模式匹配 | 模式比對 | pattern matching |
 | 生命週期 | 存活期、生存期 | lifetime |
 | 編譯時期 | 編譯期、編譯時 | compile time |
-| trait | 特徵、特質 | trait |
+| `trait` | 特徵、特質 | `trait` |
+
+排版規則：runtime 一律不加 backticks；`trait`、`clone`、`Thread` 一律加上。panic 與 move 只有在指特定 Rust 語法或程式碼時才加 backticks，描述一般概念或動作時不加。
 
 書的招牌比喻：
 
 - **所有權 = 鑰匙圈**：每個值有一個鑰匙圈，鑰匙圈只能在一個人手上；交出去就沒了。
-- **clone = 弄一個一樣好用的新鑰匙圈，並確保不會出問題**：一般型別靠「買新保險箱、內容物各自 clone、配新鑰匙」做到（遞迴定義——內容物單純時，結果就是兩份完全獨立）；`Rc`/`Arc` 例外——真的只多打一把鑰匙、計數 +1，保險箱內容不會多出一份（見 5.22）。
+- **`clone` = 弄一個一樣好用的新鑰匙圈，並確保不會出問題**：一般型別靠「買新保險箱、內容物各自 `clone`、配新鑰匙」做到（遞迴定義——內容物單純時，結果就是兩份完全獨立）；`Rc`/`Arc` 例外——真的只多打一把鑰匙、計數 +1，保險箱內容不會多出一份（見 5.22）。
 - **資料競爭**：兩個人同時動同一個保險箱的東西會出事。
 
 ---
@@ -320,7 +322,7 @@
 - [ ] 我使用繁體中文與書中的譯名。
 - [ ] 我沒有說「這很簡單」「顯然」之類會增加壓力的話。
 - [ ] 我的程式範例能編譯，且用 4 個空格縮排。
-- [ ] 我沒有為了炫技加入 closure、iterator chain、泛型、trait、生命週期等超前內容。
+- [ ] 我沒有為了炫技加入 closure、iterator chain、泛型、`trait`、生命週期等超前內容。
 - [ ] 我的回答聚焦在讀者眼前問題，而不是把 Rust 全部倒出來。
 
 ---

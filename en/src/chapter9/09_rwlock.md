@@ -8,13 +8,13 @@ Learn the read-write-separated lock `RwLock<T>`, and how it compares to `Mutex`.
 
 ### `Mutex`'s Limitation
 
-`Mutex` locks whether you're reading or writing. But often many threads only want to read — reads don't conflict with reads, so locking everything is wasteful.
+`Mutex` locks whether you're reading or writing. But often many `Thread`s only want to read — reads don't conflict with reads, so locking everything is wasteful.
 
 ### `RwLock`: Separating Reads from Writes
 
 `RwLock<T>` distinguishes read locks from write locks:
 
-- **Read lock** (`read().expect(...)`): several threads may hold read locks **simultaneously**.
+- **Read lock** (`read().expect(...)`): several `Thread`s may hold read locks **simultaneously**.
 - **Write lock** (`write().expect(...)`): exclusive — while a write lock is held, no read locks nor other write locks may exist.
 
 ```rust,editable
@@ -48,7 +48,7 @@ The same caution applies: don't let guards live long.
 
 |  | `RefCell` | `RwLock` |
 |--|-----------|----------|
-| Threads | Single-threaded | Multithreaded |
+| `Thread`s | Single-threaded | Multithreaded |
 | Rule | Many `borrow()`s or one `borrow_mut()` | Many `read()`s or one `write()` |
 | Enforcement | Runtime; violations panic | The OS's lock; violations block and wait |
 

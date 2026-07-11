@@ -33,7 +33,7 @@ fn increment() {
 # fn main() {}
 ```
 
-Why the `unsafe`? Because a `static` is globally shared — multiple threads reading and writing it at once is a data race.
+Why the `unsafe`? Because a `static` is globally shared — multiple `Thread`s reading and writing it at once is a data race.
 
 **`static mut` should almost never be used.** Modern Rust has better alternatives:
 

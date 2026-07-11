@@ -64,7 +64,7 @@ fn main() {
 
 `HashMap` 要根據 key 快速找到對應的值。它的做法是把 key 丟進一個 **hash 函數**，算出一個數字（hash value），用這個數字決定值放在記憶體的哪個位置。之後要查的時候，再對 key 算一次 hash，就能直接跳到那個位置，不用一個一個找。
 
-所以 key 的型別必須實作 `Hash` trait——告訴 `HashMap` 怎麼對這個型別算 hash。
+所以 key 的型別必須實作 `Hash` `trait`——告訴 `HashMap` 怎麼對這個型別算 hash。
 
 ### Key 的要求：`Eq + Hash`
 

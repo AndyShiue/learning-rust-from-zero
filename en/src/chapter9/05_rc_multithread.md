@@ -2,23 +2,23 @@
 
 ## Goal of This Episode
 
-Understand why `Rc` can't cross threads at all — neither `Send` nor `Sync`.
+Understand why `Rc` can't cross `Thread`s at all — neither `Send` nor `Sync`.
 
 ## Concept
 
 ### `Rc` Is Not `Sync`
 
-`Rc`'s reference count, like `RefCell`'s `borrow` count, is an ordinary integer — no atomic operations. If several threads `clone` or `drop` through `&Rc<T>` simultaneously, the count's increments and decrements can trample each other, corrupting the count — releasing the data early, or never releasing it.
+`Rc`'s reference count, like `RefCell`'s `borrow` count, is an ordinary integer — no atomic operations. If several `Thread`s `clone` or `drop` through `&Rc<T>` simultaneously, the count's increments and decrements can trample each other, corrupting the count — releasing the data early, or never releasing it.
 
 So `Rc` isn't `Sync`, for the same reason as `RefCell`.
 
 ### `Rc` Isn't Even `Send`
 
-Last episode said `RefCell` is `Send`, since after a move one thread alone owns it. `Rc` is different.
+Last episode said `RefCell` is `Send`, since after a move one `Thread` alone owns it. `Rc` is different.
 
-`Rc`'s whole design is multiple `Rc`s pointing at one piece of data. Move one `Rc` to another thread, and its `clone`s may remain on the original thread. Both sides operating on the reference count simultaneously can wreck the counter.
+`Rc`'s whole design is multiple `Rc`s pointing at one piece of data. Move one `Rc` to another `Thread`, and its `clone`s may remain on the original `Thread`. Both sides operating on the reference count simultaneously can wreck the counter.
 
-The problem isn't the move itself, but that **after the move, two threads still share one counter**.
+The problem isn't the move itself, but that **after the move, two `Thread`s still share one counter**.
 
 ```rust,compile_fail
 use std::rc::Rc;
@@ -36,9 +36,9 @@ fn main() {
 }
 ```
 
-### `Rc` Can't Cross Threads, Period
+### `Rc` Can't Cross `Thread`s, Period
 
-`Rc` is neither `Send` nor `Sync`. It can't move to other threads, nor share references among them. Sharing data across threads takes a different tool.
+`Rc` is neither `Send` nor `Sync`. It can't move to other `Thread`s, nor share references among them. Sharing data across `Thread`s takes a different tool.
 
 ## Example Code
 
@@ -68,5 +68,5 @@ fn main() {
 ## Recap
 
 - `Rc`'s reference count is an ordinary integer, not atomic — so not `Sync`.
-- `Rc` isn't even `Send`: after moving an `Rc` to another thread, its `clone`s may remain behind, and both sides touching the counter at once breaks it.
-- In short: `Rc` cannot cross threads at all.
+- `Rc` isn't even `Send`: after moving an `Rc` to another `Thread`, its `clone`s may remain behind, and both sides touching the counter at once breaks it.
+- In short: `Rc` cannot cross `Thread`s at all.

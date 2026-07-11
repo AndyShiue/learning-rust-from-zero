@@ -41,7 +41,7 @@ So when we said "a move is handing over the keychain":
 
 Integers (`i32` and so on) are like the charms on the keychain. Copying an integer is a simple, mechanical operation, so integers implement `Copy`.
 
-Some types are also responsible for managing data stored separately on the heap, so they can't be copied automatically in the same way. Assigning such a value moves it; creating a clone requires an explicit `.clone()`. The next few episodes will show concrete examples.
+Some types are also responsible for managing data stored separately on the heap, so they can't be copied automatically in the same way. Assigning such a value moves it; creating a `clone` requires an explicit `.clone()`. The next few episodes will show concrete examples.
 
 ## Example Code
 
@@ -83,4 +83,4 @@ fn main() {
 - **Heap**: commonly stores data whose amount is known only at runtime or may grow; the program remembers how to find the data stored there.
 - Keychain analogy unveiled: key = the information used to find the data, safe = separately stored heap data, charms = directly carried data.
 - Integers implement `Copy` because copying them is a simple, mechanical operation.
-- Types that manage separately stored heap data move on assignment; creating a clone requires an explicit `.clone()`.
+- Types that manage separately stored heap data move on assignment; creating a `clone` requires an explicit `.clone()`.

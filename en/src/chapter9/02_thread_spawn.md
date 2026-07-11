@@ -2,15 +2,15 @@
 
 ## Goal of This Episode
 
-Learn to create threads, letting a program do several things at once.
+Learn to create `Thread`s, letting a program do several things at once.
 
 ## Concept
 
-Until now, our programs have run top to bottom, line by line. But sometimes you want a program doing several things **at once** — downloading a file while updating a progress bar, say. That's what **threads** are for.
+Until now, our programs have run top to bottom, line by line. But sometimes you want a program doing several things **at once** — downloading a file while updating a progress bar, say. That's what **`Thread`s** are for.
 
-### Creating a Thread
+### Creating a `Thread`
 
-`std::thread::spawn` takes a closure and runs it on a new thread:
+`std::thread::spawn` takes a closure and runs it on a new `Thread`:
 
 ```rust,editable
 use std::thread;
@@ -24,7 +24,7 @@ fn main() {
 
 ### No `join`, No Survival
 
-Something important: when the `main` function ends, the whole program ends — whether or not other threads have finished.
+Something important: when the `main` function ends, the whole program ends — whether or not other `Thread`s have finished.
 
 ```rust,editable
 use std::thread;
@@ -43,7 +43,7 @@ fn main() {
 
 ### `JoinHandle`
 
-`thread::spawn` returns a `JoinHandle`. Calling `.join()` waits for that thread to finish:
+`thread::spawn` returns a `JoinHandle`. Calling `.join()` waits for that `Thread` to finish:
 
 ```rust,editable
 use std::thread;
@@ -76,7 +76,7 @@ fn main() {
 }
 ```
 
-The simplest way to pass a computation result back from another thread.
+The simplest way to pass a computation result back from another `Thread`.
 
 ### `move` Closures
 
@@ -98,11 +98,11 @@ fn main() {
 }
 ```
 
-Why is `move` needed? Because `thread::spawn` isn't only callable in `main` — any function can `spawn` threads. The new thread's lifespan is uncertain; it may outlive the function that called it. If the closure merely borrowed `name`, and that function ended first, discarding `name`, the closure would be left holding a dangling reference. With `move`, `name`'s ownership travels into the closure, and however the original scope ends, the closure keeps its `name`.
+Why is `move` needed? Because `thread::spawn` isn't only callable in `main` — any function can `spawn` `Thread`s. The new `Thread`'s lifespan is uncertain; it may outlive the function that called it. If the closure merely borrowed `name`, and that function ended first, discarding `name`, the closure would be left holding a dangling reference. With `move`, `name`'s ownership travels into the closure, and however the original scope ends, the closure keeps its `name`.
 
 ### Interleaved Output
 
-When several threads run at once, their output interleaves — differently on each run, perhaps:
+When several `Thread`s run at once, their output interleaves — differently on each run, perhaps:
 
 ```rust,editable
 use std::thread;
@@ -151,8 +151,8 @@ fn main() {
 
 ## Recap
 
-- `thread::spawn(|| { ... })` creates a new thread.
-- All threads die when `main` ends; wait for a thread with `.join()`.
+- `thread::spawn(|| { ... })` creates a new `Thread`.
+- All `Thread`s die when `main` ends; wait for a `Thread` with `.join()`.
 - `.join()` also retrieves the closure's return value — the simplest way to pass results back.
-- Closures using outside variables generally need `move`, since the new thread's lifespan is uncertain.
-- Execution order across threads is nondeterministic; output may interleave.
+- Closures using outside variables generally need `move`, since the new `Thread`'s lifespan is uncertain.
+- Execution order across `Thread`s is nondeterministic; output may interleave.

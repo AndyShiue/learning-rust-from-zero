@@ -14,7 +14,7 @@ But there are rare exceptions: the **guards** of `std::sync::Mutex` and `RwLock`
 
 ### These Exceptions Reach into `async`
 
-This non-`Send` trait turns into a bewildering compile error in `async`. Recall Episode 21: a `Future` holding something non-`Send` across an `.await` is itself non-`Send`, hence un-`tokio::spawn`-able. And the standard library's guards are exactly non-`Send` — so **holding a std guard across an `.await`** gets you hit:
+This non-`Send` property turns into a bewildering compile error in `async`. Recall Episode 21: a `Future` holding something non-`Send` across an `.await` is itself non-`Send`, hence un-`tokio::spawn`-able. And the standard library's guards are exactly non-`Send` — so **holding a std guard across an `.await`** gets you hit:
 
 ```rust,compile_fail
 # extern crate tokio;

@@ -8,7 +8,7 @@ Teach the executor to sleep: `park` when there's nothing to do, and get woken by
 
 ### No More Busy-spinning
 
-So far our executor has a nasty habit: on `Pending`, it immediately `poll`s again, burning an entire thread on a job that's still just waiting. A real runtime doesn't do this — it goes to **sleep** when idle and gets woken when there's actual progress.
+So far our executor has a nasty habit: on `Pending`, it immediately `poll`s again, burning an entire `Thread` on a job that's still just waiting. A real runtime doesn't do this — it goes to **sleep** when idle and gets woken when there's actual progress.
 
 The waking tool is the `Waker` we've been neglecting for several episodes. `cx.waker()` yields a `Waker`; before returning `Pending`, a `Future` should hand that `Waker` to "whoever is responsible for announcing it's ready." When the event completes, that party calls `waker.wake()`, rousing the sleeping executor.
 
@@ -175,7 +175,7 @@ No. `unpark` is designed so that if the `Thread` isn't parked yet, it **leaves a
 
 With this `poll` / `wake` logic freshly assembled, let's spell out the standard library's two important contracts on `Future::poll`:
 
-**Contract one: only the `Waker` from the most recent `poll` counts.** On each `poll`, the `Waker` from `cx.waker()` **may differ** (e.g. the `Task` got moved to another thread). So a correct `Future` should re-store the latest `Waker` on every `poll` and wake with the newest one.
+**Contract one: only the `Waker` from the most recent `poll` counts.** On each `poll`, the `Waker` from `cx.waker()` **may differ** (e.g. the `Task` got moved to another `Thread`). So a correct `Future` should re-store the latest `Waker` on every `poll` and wake with the newest one.
 
 Our `Delay` cheats — thanks to the `started` flag, it grabs the `Waker` once on the first `poll` and never again. That causes no harm here purely because our executor uses **the same** `Waker` throughout, so the stale one happens to still work. Swap in an executor that hands out a different `Waker` each time, and this `Delay` would fail to wake it. In practice you must honestly re-store it each time; the serious versions later in this chapter all do.
 

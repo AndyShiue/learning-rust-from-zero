@@ -48,9 +48,9 @@ Precisely because the branches' lifetimes are tied to the current function (they
 
 An important limitation to clear up. `join!`'s branches are **`poll`ed in turn** on **the same `Task`**, which means its concurrency is the "interleaved switching" kind — it **cannot** be CPU parallelism.
 
-The consequence is practical: if one branch goes a long time without `.await`ing (doing lengthy computation, or calling a synchronous blocking function), it hogs the thread — and since everyone takes turns on the same `Task`, **even the other branches within the same `join!` go un`poll`ed**. The illusion of concurrency shatters on the spot.
+The consequence is practical: if one branch goes a long time without `.await`ing (doing lengthy computation, or calling a synchronous blocking function), it hogs the `Thread` — and since everyone takes turns on the same `Task`, **even the other branches within the same `join!` go un`poll`ed**. The illusion of concurrency shatters on the spot.
 
-This is exactly last episode's "don't block the thread" iron rule playing out in `join!`. If some branch really has heavy lifting to do, use `spawn_blocking` — don't let it wedge inside the `join!`.
+This is exactly last episode's "don't block the `Thread`" iron rule playing out in `join!`. If some branch really has heavy lifting to do, use `spawn_blocking` — don't let it wedge inside the `join!`.
 
 ### Why `join!` Is a Macro
 

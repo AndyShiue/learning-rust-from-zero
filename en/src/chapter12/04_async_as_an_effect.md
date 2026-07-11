@@ -29,11 +29,11 @@ Think of it this way: some values don't live in the "ordinary world" but in a wr
 - **The `Option` / `Result` world**: the value might not be computable. This world's rule is "may fail."
 - **The `Future` world**: the value might not be ready yet; you have to wait. This world's rule is "may not be ready."
 
-When you pull values out with `?` or `.await`, your code reads just like ordinary code — line after line, using values in computations. But behind the scenes the compiler is doing something for you: **chaining** these "wrapped values" together according to each world's rules. Every `?` or `.await` is a seam where the rules get applied: the `?` seam auto-returns early on error; the `.await` seam auto-pauses when things aren't ready and yields the thread.
+When you pull values out with `?` or `.await`, your code reads just like ordinary code — line after line, using values in computations. But behind the scenes the compiler is doing something for you: **chaining** these "wrapped values" together according to each world's rules. Every `?` or `.await` is a seam where the rules get applied: the `?` seam auto-returns early on error; the `.await` seam auto-pauses when things aren't ready and yields the `Thread`.
 
 ### Why `.await` Needs Its Own `async` Syntax
 
-`?`'s rule is fairly simple — the compiler only inserts an "on error, `return` early" check. But `.await`'s rule is far more involved: when "not ready," it must **pause** the whole function, remember where it got to, hand the thread to someone else, and resume from that spot once ready.
+`?`'s rule is fairly simple — the compiler only inserts an "on error, `return` early" check. But `.await`'s rule is far more involved: when "not ready," it must **pause** the whole function, remember where it got to, hand the `Thread` to someone else, and resume from that spot once ready.
 
 To pull that off, the compiler must **heavily rewrite** your `async` function into something called a "state machine" (explained later in this chapter — just remember the term for now). It's precisely because the rewrite is so extensive that Rust needs the dedicated `async` keyword — it effectively tells the compiler: "please rewrite this part into a pausable, resumable form."
 

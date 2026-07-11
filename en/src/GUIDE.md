@@ -132,17 +132,17 @@ Use this section to quickly establish "what the reader can currently understand.
 
 | Finished | Main usable concepts | Still avoid volunteering |
 | --- | --- | --- |
-| Chapter 1 | `fn main()`, `println!`, comments, variables, numbers and chars, basic arithmetic, comparison and logical operators, `if`/`else`, scope, `let mut`, the fixed stdin boilerplate, the fixed `parse::<i32>()` boilerplate, `loop`/`while`/`for`, ranges, `break`, `continue`, `cargo new`/`cargo run` | Custom functions, arrays, `Vec`, `String` in detail, ownership, `match`, structs, enums, traits, generics, lifetimes, closures, Iterator |
-| Chapter 2 | `const`, shadowing, underscore variables, tuples, `{:?}`/`Debug`, custom functions, parameters, return values, early `return`, recursion, arrays, array iteration, indexing, slices `&[T]`, the `&str` type | Full ownership and borrowing rules, `Vec`, struct/enum, traits, generics, Iterator chains |
+| Chapter 1 | `fn main()`, `println!`, comments, variables, numbers and chars, basic arithmetic, comparison and logical operators, `if`/`else`, scope, `let mut`, the fixed stdin boilerplate, the fixed `parse::<i32>()` boilerplate, `loop`/`while`/`for`, ranges, `break`, `continue`, `cargo new`/`cargo run` | Custom functions, arrays, `Vec`, `String` in detail, ownership, `match`, structs, enums, `trait`s, generics, lifetimes, closures, Iterator |
+| Chapter 2 | `const`, shadowing, underscore variables, tuples, `{:?}`/`Debug`, custom functions, parameters, return values, early `return`, recursion, arrays, array iteration, indexing, slices `&[T]`, the `&str` type | Full ownership and borrowing rules, `Vec`, struct/enum, `trait`s, generics, Iterator chains |
 | Chapter 3 | `struct`, tuple/unit structs, `enum`, `match`, block expressions, the various patterns, destructuring, `if let`, `while let`, `let else`, associated functions, methods, `Self` | Ownership details, `&self`/`&mut self` methods, repeatedly calling by-value methods on the same object |
-| Chapter 4 | Ownership, move, clone, `Copy`, borrowing `&T`, mutable borrowing `&mut T`, the borrowing rules, `self`/`&self`/`&mut self`, stack/heap, `String`, `&str`, `Vec` | Generics, formal `Option`/`Result` error handling, trait bounds, lifetime annotations, closures, Iterator chains |
-| Chapter 5 | Generics, `Option<T>`, `Result<T, E>`, `?`, traits, trait bounds, `where`, `use` basics, `Display`, `From`/`Into`, `impl Trait`, `Drop`, `Box`, `Rc`, `Deref`, `Cell`/`RefCell`, lifetimes, supertraits, derive, associated types, `Cow` | Closures and Iterator chains (formally used in Chapter 6), multi-file modules (formally used in Chapter 7) |
+| Chapter 4 | Ownership, move, `clone`, `Copy`, borrowing `&T`, mutable borrowing `&mut T`, the borrowing rules, `self`/`&self`/`&mut self`, stack/heap, `String`, `&str`, `Vec` | Generics, formal `Option`/`Result` error handling, `trait` bounds, lifetime annotations, closures, Iterator chains |
+| Chapter 5 | Generics, `Option<T>`, `Result<T, E>`, `?`, `trait`s, `trait` bounds, `where`, `use` basics, `Display`, `From`/`Into`, `impl Trait`, `Drop`, `Box`, `Rc`, `Deref`, `Cell`/`RefCell`, lifetimes, supertraits, derive, associated types, `Cow` | Closures and Iterator chains (formally used in Chapter 6), multi-file modules (formally used in Chapter 7) |
 | Chapter 6 | Function pointers, closures, `Fn`/`FnMut`/`FnOnce`, `move` closures, `Iterator`, `iter`/`into_iter`/`iter_mut`, `map`, `filter`, `collect`, `sum`, `fold`, `zip`, `enumerate`, lazy evaluation | `mod`/multi-file crate organization (Chapter 7) |
 | Chapter 7 | Cargo and crates.io, `mod`, file modules, `pub`, `use`, `pub use`, the orphan rule, doc comments, `cargo test`, `#[test]`, `cargo publish` | Part II's advanced topics unless the reader asks |
 | Appendix I | Number literals, short-circuit evaluation, `break` with a value, multiline strings and raw strings, format strings in depth, local items, struct update syntax, `ref` patterns, match ergonomics, `panic!`/`todo!` and friends, `let` chains, `Weak`, fully qualified syntax, DST intro | Chapter 9+ topics such as multithreading and unsafe |
 | Chapter 9 | Pointers, `thread::spawn`, `thread::scope`, `Send`/`Sync`, `Arc`, atomics, `Mutex`, `RwLock`, poisoning, `mpsc`, deadlocks | Chapters 10 and 11's advanced language and standard-library topics not yet read |
 | Chapter 10 | `dyn Trait`, dyn compatibility, `const fn`, associated `const`s, `const` generics, default-parameter patterns, operator overloading, `as`, enum discriminants, attributes, `cfg!`, macros, `unsafe`, `static`, `LazyLock`, extern blocks, unions, the never type | Chapter 11's standard-library topics |
-| Chapter 11 | `AsRef`/`AsMut`, `Ordering`, sorting, `HashMap`, `HashSet`, other collections, `std::env`, `std::process`, `std::path`, advanced strings, file I/O, the `Error` trait, `thiserror`, `anyhow`, `catch_unwind` | Chapter 12's async topics unless the reader asks |
+| Chapter 11 | `AsRef`/`AsMut`, `Ordering`, sorting, `HashMap`, `HashSet`, other collections, `std::env`, `std::process`, `std::path`, advanced strings, file I/O, the `Error` `trait`, `thiserror`, `anyhow`, `catch_unwind` | Chapter 12's async topics unless the reader asks |
 | Chapter 12 | Async: `async` / `.await`, the Tokio runtime, `Future` / `poll` / `Waker`, hand-written executor / ready queue / `JoinHandle` / reactor, the state machine, `Pin` / `Unpin` / `pin!`, `async` recursion, practical Tokio tools (`spawn`, `spawn_blocking`, `join!`, `select!`, I/O, channels, locks, `Stream`, `JoinSet`, graceful shutdown, async testing, other runtimes) | Still avoid dumping the whole out-of-book async ecosystem; stay focused on the reader's immediate question |
 
 ### Precise Syntax Thresholds
@@ -193,14 +193,16 @@ Use this section to quickly establish "what the reader can currently understand.
 
 Use the book's terminology consistently:
 
-owner, ownership, move, clone, borrow / borrowing, reference (`&T`), mutable reference (`&mut T`), pattern matching, lifetime, compile time, trait.
+owner, ownership, move, `clone`, borrow / borrowing, reference (`&T`), mutable reference (`&mut T`), pattern matching, lifetime, compile time, `trait`.
 
-Avoid synonyms that the book doesn't use (e.g. say "borrowing," not "loaning"; say "reference," not "alias"; keep "trait" untranslated and unexplained rather than substituting words like "interface").
+Avoid synonyms that the book doesn't use (e.g. say "borrowing," not "loaning"; say "reference," not "alias"; keep "`trait`" untranslated and unexplained rather than substituting words like "interface").
+
+Formatting rule: runtime never takes backticks; `trait`, `clone`, and `Thread` always do. For panic and move, use backticks only when referring to specific Rust syntax or code, not when describing the general concept or action.
 
 The book's signature analogies:
 
 - **Ownership = a keychain**: every value has a keychain, and a keychain can be in only one person's hands; hand it over and it's gone.
-- **clone = get a new keychain that works just like the original, while making sure it causes no trouble**: most types do it by buying a new safe, putting a clone of the contents inside, and cutting a new key (a recursive definition — with plain contents, the result is two fully independent sets); `Rc`/`Arc` are the exception — they really just cut an extra key and bump the count, without replicating the safe's contents (see 5.22).
+- **`clone` = get a new keychain that works just like the original, while making sure it causes no trouble**: most types do it by buying a new safe, putting a `clone` of the contents inside, and cutting a new key (a recursive definition — with plain contents, the result is two fully independent sets); `Rc`/`Arc` are the exception — they really just cut an extra key and bump the count, without replicating the safe's contents (see 5.22).
 - **Data race**: two people fiddling with the contents of the same safe at the same time ends badly.
 
 ---
@@ -311,7 +313,7 @@ Before sending any answer, quickly confirm:
 - [ ] I'm using English and the book's terminology.
 - [ ] I didn't say pressure-adding things like "this is easy" or "obviously."
 - [ ] My code examples compile and use 4-space indentation.
-- [ ] I didn't show off with closures, iterator chains, generics, traits, lifetimes, or other ahead-of-schedule content.
+- [ ] I didn't show off with closures, iterator chains, generics, `trait`s, lifetimes, or other ahead-of-schedule content.
 - [ ] My answer focuses on the reader's immediate question rather than pouring out all of Rust.
 
 ---

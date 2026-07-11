@@ -58,7 +58,7 @@ use rand::Rng;
 # fn main() {}
 ```
 
-`std` is Rust's **standard library** — a built-in toolkit including the `Vec`, `String`, `Option`, `Result`, `println!` we've already used, plus much more: file operations, networking, collections, and so on. No Cargo.toml dependency is needed, since every Rust program links `std` automatically. Its paths read like an external crate's — `std::collections::HashMap`, `std::fmt::Display`, etc. And not only is `std` linked automatically — `std`'s **prelude** is imported automatically too, meaning the most common types and traits (`Vec`, `String`, `Option`, `Result`, `Clone`, `Copy`...) work with no `use` at all. That's why the early chapters never needed `use`.
+`std` is Rust's **standard library** — a built-in toolkit including the `Vec`, `String`, `Option`, `Result`, `println!` we've already used, plus much more: file operations, networking, collections, and so on. No Cargo.toml dependency is needed, since every Rust program links `std` automatically. Its paths read like an external crate's — `std::collections::HashMap`, `std::fmt::Display`, etc. And not only is `std` linked automatically — `std`'s **prelude** is imported automatically too, meaning the most common types and `trait`s (`Vec`, `String`, `Option`, `Result`, `Clone`, `Copy`...) work with no `use` at all. That's why the early chapters never needed `use`.
 
 To emphasize "this is an external crate" explicitly, start with `::`:
 

@@ -32,7 +32,7 @@ Here's the problem: if two people each hold a key to the same safe, things can g
 - B opens the safe at the same time and takes something out.
 - A turns around: "Huh? Where did my stuff go?"
 
-This illustrates conflicting access to the same data. When such a conflict happens across multiple threads without synchronization, it is called a **data race**. Rust's ownership rules exist to **prevent this kind of problem at the root**.
+This illustrates conflicting access to the same data. When such a conflict happens across multiple `Thread`s without synchronization, it is called a **data race**. Rust's ownership rules exist to **prevent this kind of problem at the root**.
 
 ### `clone` = Get a New Keychain That Works Just Like the Original, and Make Sure It Causes No Trouble
 

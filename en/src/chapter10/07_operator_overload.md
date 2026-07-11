@@ -8,7 +8,7 @@ Learn to implement operators like `+` and `-` for your own types.
 
 ### Operators Are `trait` Methods
 
-In Rust, `a + b` is really shorthand for `a.add(b)` — `+` corresponds to the `std::ops::Add` trait. Implement `Add` for your type and you can use `+`.
+In Rust, `a + b` is really shorthand for `a.add(b)` — `+` corresponds to the `std::ops::Add` `trait`. Implement `Add` for your type and you can use `+`.
 
 ### The Definition of the `Add` `trait`
 

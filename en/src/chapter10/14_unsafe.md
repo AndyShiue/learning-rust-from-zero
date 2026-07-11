@@ -17,7 +17,7 @@ But some operations are impossible for the compiler to verify. Rust doesn't forb
 Safe Rust guarantees the following things **can never happen**, no matter how your code is written:
 
 - No access to memory that has already been freed.
-- No data races (multiple threads reading and writing simultaneously with at least one writer).
+- No data races (multiple `Thread`s reading and writing simultaneously with at least one writer).
 - No dangling references.
 - No value getting `drop`ped twice.
 - No reads of uninitialized memory.
@@ -97,7 +97,7 @@ unsafe impl MyGuarantee for i32 {
 
 An `unsafe trait` means: "implementing this `trait` requires satisfying conditions the compiler cannot check." You implement it with `unsafe impl`, signaling that you guarantee those conditions hold.
 
-`Send` and `Sync` are `unsafe trait`s — the compiler implements them automatically when appropriate, but if you implement them manually, you must guarantee thread safety yourself.
+`Send` and `Sync` are `unsafe trait`s — the compiler implements them automatically when appropriate, but if you implement them manually, you must guarantee `Thread` safety yourself.
 
 Note: **calling** an `unsafe trait`'s methods doesn't require `unsafe` — the danger lies in the implementation, not the use.
 

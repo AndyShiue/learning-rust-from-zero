@@ -2,13 +2,13 @@
 
 ## Goal of This Episode
 
-Learn to create bounded-lifetime threads with `thread::scope`, borrowing outside data without `move` or `Arc`.
+Learn to create bounded-lifetime `Thread`s with `thread::scope`, borrowing outside data without `move` or `Arc`.
 
 ## Concept
 
 ### `thread::spawn`'s Limitation
 
-Using `thread::spawn` earlier, outside variables had to be `move`d into the closure or wrapped in `Arc`. That's because a `spawn`ed thread may outlive the function that called it — Rust can't guarantee the data survives until the thread finishes.
+Using `thread::spawn` earlier, outside variables had to be `move`d into the closure or wrapped in `Arc`. That's because a `spawn`ed `Thread` may outlive the function that called it — Rust can't guarantee the data survives until the `Thread` finishes.
 
 ### Why `spawn` Can't Borrow
 
@@ -16,7 +16,7 @@ Episode 3 examined `thread::spawn`'s type signature: the closure and return valu
 
 ### `thread::scope`
 
-`thread::scope` solves this. It guarantees every thread `spawn`ed inside gets `join`ed before the `scope` ends:
+`thread::scope` solves this. It guarantees every `Thread` `spawn`ed inside gets `join`ed before the `scope` ends:
 
 ```rust,editable
 use std::thread;
@@ -35,7 +35,7 @@ fn main() {
 }
 ```
 
-Since `scope` guarantees all threads finish before the `}`, `data` can't be discarded early — the closure borrows it safely, needing neither `move` nor `Arc`.
+Since `scope` guarantees all `Thread`s finish before the `}`, `data` can't be discarded early — the closure borrows it safely, needing neither `move` nor `Arc`.
 
 ### Compared with the `spawn` + `Arc` Style
 
@@ -115,8 +115,8 @@ fn main() {
 ## Recap
 
 - `thread::spawn` demands `'static`, so its closure can't borrow locals.
-- `thread::scope` guarantees every scoped thread `join`s before the `scope` ends, so outside data can be borrowed safely.
+- `thread::scope` guarantees every scoped `Thread` `join`s before the `scope` ends, so outside data can be borrowed safely.
 - No `move`, no `Arc`, no manual `join` — far cleaner code.
 - When multithreading is needed only within one region, `thread::scope` beats `thread::spawn` for convenience.
 
-Congratulations on finishing the multithreading chapter! 🎉 Starting from the low-level notion of pointers, this chapter worked through threads, `Send` / `Sync`, `Arc`, `Mutex`, `RwLock`, poisoning, channels, and `thread::scope`. In many languages, multithreaded programming is headache territory, but Rust's type system blocks data races at compile time — no relying on experience and intuition to dodge bugs; the compiler is your best teammate. Next chapter: advanced language features!
+Congratulations on finishing the multithreading chapter! 🎉 Starting from the low-level notion of pointers, this chapter worked through `Thread`s, `Send` / `Sync`, `Arc`, `Mutex`, `RwLock`, poisoning, channels, and `thread::scope`. In many languages, multithreaded programming is headache territory, but Rust's type system blocks data races at compile time — no relying on experience and intuition to dodge bugs; the compiler is your best teammate. Next chapter: advanced language features!

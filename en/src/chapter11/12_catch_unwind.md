@@ -8,7 +8,7 @@ Learn to intercept panics with `catch_unwind`, and understand when it should be 
 
 ### Basic Usage
 
-Normally, an uncaught panic eventually terminates the current thread. `catch_unwind` lets you put a boundary around a closure and catch a panic that leaves it:
+Normally, an uncaught panic eventually terminates the current `Thread`. `catch_unwind` lets you put a boundary around a closure and catch a panic that leaves it:
 
 ```rust,editable
 use std::panic;

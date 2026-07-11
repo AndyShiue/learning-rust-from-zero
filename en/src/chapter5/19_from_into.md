@@ -2,7 +2,7 @@
 
 ## Goal of This Episode
 
-Learn type conversion with the standard library's `From` and `Into` traits, and understand the "implement `From`, get `Into` free" mechanism.
+Learn type conversion with the standard library's `From` and `Into` `trait`s, and understand the "implement `From`, get `Into` free" mechanism.
 
 ## Concept
 

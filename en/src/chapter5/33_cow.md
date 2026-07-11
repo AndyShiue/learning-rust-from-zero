@@ -67,7 +67,7 @@ Thanks to `Deref`, callers usually needn't care whether the inside is borrowed o
 
 ### Common Methods
 
-- **`.to_mut()`**: if it's `Borrowed`, first `clone`s into `Owned`, then returns a mutable reference. If already `Owned`, returns its mutable reference directly. This is the heart of "clone on write."
+- **`.to_mut()`**: if it's `Borrowed`, first `clone`s into `Owned`, then returns a mutable reference. If already `Owned`, returns its mutable reference directly. This is the heart of "`clone` on write."
 - **`.into_owned()`**: converts either variant into an owned value. `Borrowed` gets `clone`d; `Owned` is taken as-is.
 
 ## Example Code
@@ -129,7 +129,7 @@ fn main() {
 - `Cow<'a, str>` can be borrowed (`&str`) or owned (`String`), as circumstances demand.
 - `Cow` uses the `ToOwned` `trait`'s associated type to decide the owning version's type (`str` → `String`, `[T]` → `Vec<T>`).
 - `Cow` implements `Deref`: whether `Borrowed` or `Owned`, a `Cow<'a, str>` can be used directly as an `&str` — its greatest strength.
-- `.to_mut()`: clone on write (`Borrowed` → `clone` into `Owned` → return a mutable reference).
+- `.to_mut()`: `clone` on write (`Borrowed` → `clone` into `Owned` → return a mutable reference).
 - `.into_owned()`: converts either variant into an owned value.
 - Suited to "mostly no modification, occasional modification" scenarios.
 

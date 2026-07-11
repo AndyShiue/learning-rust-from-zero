@@ -203,7 +203,7 @@ Last episode's contract two said: once a `Future` returns `Ready`, it must never
 
 The threat comes from the `Waker` copies scattered outside. After a `Task` completes, the executor itself certainly won't requeue it; but a copy like the one `Delay` handed to its timing `Thread` is beyond the executor's recall. If someone holding such a stale `Waker` calls `wake()` **after** the `Task` has completed, the finished `Task` gets requeued onto the ready queue and then `poll`ed again — contract two is broken, and `remaining -= 1` gets subtracted one extra time.
 
-So a `Task` also needs a `done` flag, to invalidate stale wakeups. The defense sits on the executor's side: after popping a `Task`, check `done` first — if it's `true`, just `continue` past it. That way a stale wakeup at worst puts the `Task` into the queue one extra time; it can never get it `poll`ed again. And since only the executor thread ever `poll`s the `Future`s, and only it sets `done` to `true`, "never `poll` again once `done` is set" holds strictly.
+So a `Task` also needs a `done` flag, to invalidate stale wakeups. The defense sits on the executor's side: after popping a `Task`, check `done` first — if it's `true`, just `continue` past it. That way a stale wakeup at worst puts the `Task` into the queue one extra time; it can never get it `poll`ed again. And since only the executor `Thread` ever `poll`s the `Future`s, and only it sets `done` to `true`, "never `poll` again once `done` is set" holds strictly.
 
 Honestly, this episode's examples can't actually trigger the problem — every timer fires exactly once, and always before its `Task` completes. But the executor's correctness can't rest on that kind of luck.
 

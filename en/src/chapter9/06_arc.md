@@ -2,17 +2,17 @@
 
 ## Goal of This Episode
 
-Learn to share data safely among threads with `Arc<T>`.
+Learn to share data safely among `Thread`s with `Arc<T>`.
 
 ## Concept
 
 ### The Problem, Recapped
 
-We've said `Rc` can't cross threads — its reference count isn't atomic. Yet we genuinely need shared data across threads — what now?
+We've said `Rc` can't cross `Thread`s — its reference count isn't atomic. Yet we genuinely need shared data across `Thread`s — what now?
 
 ### `Arc`: Atomic Reference Counting
 
-`Arc<T>` is `Rc` with its reference count swapped for **atomic operations**. Atomic operations guarantee that even simultaneous counter updates from multiple threads never trample each other.
+`Arc<T>` is `Rc` with its reference count swapped for **atomic operations**. Atomic operations guarantee that even simultaneous counter updates from multiple `Thread`s never trample each other.
 
 Usage is almost identical to `Rc`:
 
@@ -26,9 +26,9 @@ fn main() {
 }
 ```
 
-### Sharing across Threads
+### Sharing across `Thread`s
 
-Move an `Arc::clone` into another thread:
+Move an `Arc::clone` into another `Thread`:
 
 ```rust,editable
 use std::sync::Arc;
@@ -51,9 +51,9 @@ fn main() {
 
 `Arc` requires `T: Send + Sync`. Why?
 
-**`Sync`**: multiple threads access the same `T` simultaneously through their own `Arc`s. Chapter 5 taught `Deref` — `Arc` implements it, so `T`'s contents are reachable straight through the `Arc`. That amounts to multiple threads holding shared references to `T` at once, so `T` must be `Sync`.
+**`Sync`**: multiple `Thread`s access the same `T` simultaneously through their own `Arc`s. Chapter 5 taught `Deref` — `Arc` implements it, so `T`'s contents are reachable straight through the `Arc`. That amounts to multiple `Thread`s holding shared references to `T` at once, so `T` must be `Sync`.
 
-**`Send`**: when the last `Arc` gets `drop`ped, `T` gets `drop`ped too. Which thread holds the last `Arc` is indeterminate, so `T`'s `drop` may happen on any thread — `T` is effectively "shipped" to that thread for destruction, so `T` must be `Send`.
+**`Send`**: when the last `Arc` gets `drop`ped, `T` gets `drop`ped too. Which `Thread` holds the last `Arc` is indeterminate, so `T`'s `drop` may happen on any `Thread` — `T` is effectively "shipped" to that `Thread` for destruction, so `T` must be `Send`.
 
 ## Example Code
 
@@ -87,5 +87,5 @@ fn main() {
 
 - `Arc<T>` is `Rc<T>`'s multithreaded version, with atomic reference counting.
 - Usage nearly matches `Rc`: `Arc::new()`, `Arc::clone()`.
-- `Arc::clone` and move the clone into other threads to share data.
-- `T` must be `Send + Sync`: `Sync` for simultaneous multithreaded access, `Send` because the `drop` may happen on any thread.
+- `Arc::clone` and move the `clone` into other `Thread`s to share data.
+- `T` must be `Send + Sync`: `Sync` for simultaneous multithreaded access, `Send` because the `drop` may happen on any `Thread`.

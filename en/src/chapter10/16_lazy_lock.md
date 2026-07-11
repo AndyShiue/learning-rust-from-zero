@@ -39,7 +39,7 @@ fn main() {
 ### Why It's Called `LazyLock`
 
 - **`Lazy`**: doesn't initialize until it's needed.
-- **`Lock`**: there's a lock inside, so concurrent access from multiple threads initializes only once (thread-safe).
+- **`Lock`**: there's a lock inside, so concurrent access from multiple `Thread`s initializes only once (thread-safe).
 
 ## Example Code
 

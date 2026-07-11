@@ -314,4 +314,4 @@ fn main() {
 - 大部分情況用靜態分派，需要混合不同型別時才用 `dyn Trait`。
 - `Box<dyn Fn()>` 可以把不同閉包統一成同一個型別。
 - `Box<dyn Trait>` 在某些地方預設隱含 `+ 'static`；`dyn Trait + 'a` 讀成 `dyn (Trait + 'a)`，`dyn` 把 `trait` bound 變成型別。
-- `dyn SubTrait` 可以轉成 `dyn SuperTrait`（trait upcasting）。
+- `dyn SubTrait` 可以轉成 `dyn SuperTrait`（`trait` upcasting）。

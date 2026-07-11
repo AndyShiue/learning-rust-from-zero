@@ -77,7 +77,7 @@ Which to use? If "once all inputs are fixed, only one sensible answer remains," 
 
 ### `Deref` Has an Associated Type Too
 
-The `Deref` trait from Episode 23 uses an associated type:
+The `Deref` `trait` from Episode 23 uses an associated type:
 
 ```rust,noplayground
 trait Deref {

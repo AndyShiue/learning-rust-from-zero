@@ -10,7 +10,7 @@ Hook the waking machinery from recent episodes up to **real I/O** — build a re
 
 Here's something reassuring about this episode: **the executor carries over from Episode 12 unchanged**. `Task`, `Executor::spawn<T>`, `JoinHandle<T>`, `Shared<T>`, `Executor::block_on` — not a line needs touching.
 
-The only thing we swap out is "who does the `wake`ing." Before, each `Delay` opened its own timing `Thread` to `wake`; now we switch to a single **reactor thread**, sleeping on a `mio::Poll` waiting for real I/O, and on waking it finds the matching `Waker` and `wake()`s it.
+The only thing we swap out is "who does the `wake`ing." Before, each `Delay` opened its own timing `Thread` to `wake`; now we switch to a single **reactor `Thread`**, sleeping on a `mio::Poll` waiting for real I/O, and on waking it finds the matching `Waker` and `wake()`s it.
 
 What we add is a `Reactor`, plus two I/O `Future`s (`Accept` and `Read`).
 
@@ -341,7 +341,7 @@ So `WouldBlock` here isn't a "something broke" error; it's the normal state of n
 
 - `accept` / `read` succeeds: we truly got a connection or data — return `Poll::Ready(...)`.
 - `WouldBlock`: not ready yet — return `Poll::Pending`.
-- Other errors: genuinely broken; this simplified example just `panic`s.
+- Other errors: genuinely broken; this simplified example just panics.
 
 ### Why "Register First, Then Try" Matters
 

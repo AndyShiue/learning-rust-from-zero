@@ -12,7 +12,7 @@ Learning `Mutex` and `RwLock` in recent episodes, we always wrote `.lock().expec
 
 ### What Is Poisoning
 
-If a thread panics while holding a lock, the lock gets marked "poisoned." Every later attempt to take the lock — `lock`, `read`, or `write` — receives `Err(PoisonError)`.
+If a `Thread` panics while holding a lock, the lock gets marked "poisoned." Every later attempt to take the lock — `lock`, `read`, or `write` — receives `Err(PoisonError)`.
 
 ```rust,editable
 use std::sync::{Arc, Mutex};
@@ -40,7 +40,7 @@ fn main() {
 
 ### Why Poisoning Exists
 
-A panic usually means an unexpected error. If a thread panics halfway through modifying data, that data may be a half-finished product — a `Vec` mid-`push`, or two fields with only one updated. Poisoning is a safety mechanism: it tells you something went wrong, and lets you decide whether to keep using the data.
+A panic usually means an unexpected error. If a `Thread` panics halfway through modifying data, that data may be a half-finished product — a `Vec` mid-`push`, or two fields with only one updated. Poisoning is a safety mechanism: it tells you something went wrong, and lets you decide whether to keep using the data.
 
 ### Three Ways to Handle It
 
@@ -55,7 +55,7 @@ fn main() {
 }
 ```
 
-If the lock is poisoned, your thread panics too. Usually that's fine — the previous thread panicking generally means the whole program should end.
+If the lock is poisoned, your `Thread` panics too. Usually that's fine — the previous `Thread` panicking generally means the whole program should end.
 
 **2. Ignore the poison and carry on**
 
@@ -142,7 +142,7 @@ fn main() {
 
 ## Recap
 
-- A lock-holding thread panics → the lock is poisoned.
+- A lock-holding `Thread` panics → the lock is poisoned.
 - Afterward `lock` / `read` / `write` all return `Err(PoisonError)`.
 - `RwLock` poisons only on a write-lock panic; read-lock panics don't.
 - `PoisonError::into_inner` recovers the guard — memory safety is intact; only logical consistency is in question.

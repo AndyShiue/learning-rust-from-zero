@@ -171,5 +171,5 @@ fn main() {
 - 核心概念：編譯器自動生成 `impl Trait for dyn Trait`，`Self` = `dyn Trait`（DST）。
 - `Self` 不能出現在 `self` 之外的型別中——具體型別已被抹掉。
 - 方法不能有泛型參數——vtable 固定大小，放不下無限多版本。
-- trait 不能要求 `Self: Sized`——`dyn Trait` 是 DST，不是 `Sized`。
+- `trait` 不能要求 `Self: Sized`——`dyn Trait` 是 DST，不是 `Sized`。
 - 個別方法加 `where Self: Sized` 可以讓它退出 `dyn`，`trait` 本身仍然 `dyn` compatible。

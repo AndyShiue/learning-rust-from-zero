@@ -8,9 +8,9 @@ Understand what a deadlock is, why Rust's compiler can't stop it, and how to avo
 
 ### What's a Deadlock
 
-A deadlock is two or more threads waiting for each other to release locks — nobody can move, and the program hangs forever.
+A deadlock is two or more `Thread`s waiting for each other to release locks — nobody can move, and the program hangs forever.
 
-The classic case: thread A holds lock 1 while waiting for lock 2; thread B holds lock 2 while waiting for lock 1. Both wait forever.
+The classic case: `Thread` A holds lock 1 while waiting for lock 2; `Thread` B holds lock 2 while waiting for lock 1. Both wait forever.
 
 ### A Code Demonstration
 
@@ -46,15 +46,15 @@ fn main() {
 }
 ```
 
-Thread A takes lock 1 first, then wants lock 2. But lock 2 belongs to thread B, which is waiting for lock 1 — nobody can advance.
+`Thread` A takes lock 1 first, then wants lock 2. But lock 2 belongs to `Thread` B, which is waiting for lock 1 — nobody can advance.
 
 ### The Compiler Doesn't Block Deadlocks
 
 `Send` and `Sync` protect against **data races** — undefined behavior from simultaneous data access. A deadlock is a **logic problem**: nothing breaks and nothing is undefined; the program just hangs forever. Rust's compiler can't detect deadlocks.
 
-### One Thread Can Deadlock Alone
+### One `Thread` Can Deadlock Alone
 
-Even with a single thread, calling `lock` twice on the same `Mutex` can deadlock — if the first `lock` hasn't been released, the second may wait forever:
+Even with a single `Thread`, calling `lock` twice on the same `Mutex` can deadlock — if the first `lock` hasn't been released, the second may wait forever:
 
 ```rust,ignore,mdbook-runnable
 use std::sync::Mutex;
@@ -68,7 +68,7 @@ fn main() {
 
 ### How to Avoid It
 
-- **All threads take locks in the same order**: if everyone takes lock 1 before lock 2, nobody jams anybody.
+- **All `Thread`s take locks in the same order**: if everyone takes lock 1 before lock 2, nobody jams anybody.
 - **Hold fewer locks at once**: if one lock suffices, don't use two.
 - **Don't let guards live long**: `drop` promptly when done, shortening lock-hold time.
 
@@ -108,7 +108,7 @@ fn main() {
 
 ## Recap
 
-- Deadlock: threads waiting on each other's locks; the program hangs forever.
+- Deadlock: `Thread`s waiting on each other's locks; the program hangs forever.
 - Rust's compiler doesn't block deadlocks — `Send` / `Sync` guard against data races; deadlocks are logic problems.
-- One thread `lock`ing the same `Mutex` twice can deadlock too, the first lock never having been released.
+- One `Thread` `lock`ing the same `Mutex` twice can deadlock too, the first lock never having been released.
 - Avoidance: a uniform lock order, fewer simultaneous locks, prompt guard `drop`s.

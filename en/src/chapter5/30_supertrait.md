@@ -36,7 +36,7 @@ trait Copy: Clone { }
 
 This says: **to implement `Copy`, you must first implement `Clone`.**
 
-Why? Because `Copy` is an "automatic copying" ability, while `Clone` is "manual cloning." Logically, if you can copy automatically, you can surely clone manually. So `Copy` demands `Clone` as its prerequisite.
+Why? Because `Copy` is an "automatic copying" ability, while `Clone` is "manual cloning." Logically, if you can copy automatically, you can surely `clone` manually. So `Copy` demands `Clone` as its prerequisite.
 
 That's why `#[derive(Copy, Clone)]` lists both — writing only `derive(Copy)` errors, since `Copy` requires `Clone`.
 

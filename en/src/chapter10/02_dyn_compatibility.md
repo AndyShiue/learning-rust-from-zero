@@ -171,5 +171,5 @@ fn main() {
 - The core idea: the compiler auto-generates `impl Trait for dyn Trait`, where `Self` = `dyn Trait` (a DST).
 - `Self` can't appear in types other than `self` — the concrete type has been erased.
 - Methods can't have generic parameters — the vtable is fixed-size and can't hold infinitely many versions.
-- The trait can't require `Self: Sized` — `dyn Trait` is a DST, not `Sized`.
+- The `trait` can't require `Self: Sized` — `dyn Trait` is a DST, not `Sized`.
 - Adding `where Self: Sized` to individual methods opts them out of `dyn`, keeping the `trait` itself `dyn` compatible.

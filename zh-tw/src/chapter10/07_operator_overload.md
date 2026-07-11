@@ -8,7 +8,7 @@
 
 ### 運算子就是 `trait` 方法
 
-Rust 裡 `a + b` 其實是 `a.add(b)` 的簡寫——`+` 對應 `std::ops::Add` trait。幫你的型別實作 `Add`，就能用 `+`。
+Rust 裡 `a + b` 其實是 `a.add(b)` 的簡寫——`+` 對應 `std::ops::Add` `trait`。幫你的型別實作 `Add`，就能用 `+`。
 
 ### `Add` `trait` 的定義
 

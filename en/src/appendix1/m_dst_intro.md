@@ -46,7 +46,7 @@ So an `&str` actually occupies 16 bytes: 8 pointing at the string data, 8 record
 
 ### The `Sized` `trait`
 
-Rust has a special trait called `Sized`, meaning "this type's size is known at compile time." **The vast majority of types implement `Sized` automatically.**
+Rust has a special `trait` called `Sized`, meaning "this type's size is known at compile time." **The vast majority of types implement `Sized` automatically.**
 
 Furthermore — and many don't know this — **generic parameters carry a default `Sized` bound**:
 

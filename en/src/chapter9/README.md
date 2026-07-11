@@ -1,3 +1,3 @@
 # Multithreading
 
-This chapter covers using multiple threads to write programs that run several tasks at once.
+This chapter covers using multiple `Thread`s to write programs that run several tasks at once.

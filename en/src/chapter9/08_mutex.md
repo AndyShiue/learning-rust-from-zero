@@ -2,13 +2,13 @@
 
 ## Goal of This Episode
 
-Learn to let multiple threads safely modify shared data with `Mutex<T>`.
+Learn to let multiple `Thread`s safely modify shared data with `Mutex<T>`.
 
 ## Concept
 
 ### What about Modifying Complex Shared Data?
 
-Last episode's atomics apply only to simple types like integers and booleans. What if several threads should modify a `Vec`, a `String`, or any complex structure?
+Last episode's atomics apply only to simple types like integers and booleans. What if several `Thread`s should modify a `Vec`, a `String`, or any complex structure?
 
 ### `Mutex`: Multithreaded Interior Mutability
 
@@ -36,11 +36,11 @@ fn main() {
 
 `MutexGuard` implements `Deref` and `DerefMut` (from Chapter 5), making it a smart pointer too — usable directly as `&T` or `&mut T`.
 
-Only one thread can `lock` successfully at a time. Other threads calling `.lock()` **block** (wait) until the lock-holding thread `drop`s its guard.
+Only one `Thread` can `lock` successfully at a time. Other `Thread`s calling `.lock()` **block** (wait) until the lock-holding `Thread` `drop`s its guard.
 
 ### `Arc` + `Mutex`
 
-In practice they usually pair up — `Arc` lets several threads share the `Mutex`; the `Mutex` guards the data inside:
+In practice they usually pair up — `Arc` lets several `Thread`s share the `Mutex`; the `Mutex` guards the data inside:
 
 ```rust,editable
 use std::sync::{Arc, Mutex};
@@ -69,7 +69,7 @@ fn main() {
 
 ### Don't Let the `MutexGuard` Live Long
 
-While the guard lives, the lock stays held, and every other thread waits. So keep the guard's lifespan short:
+While the guard lives, the lock stays held, and every other `Thread` waits. So keep the guard's lifespan short:
 
 ```rust,ignore
 // Bad: the guard lives to scope's end; the lock is held too long
@@ -88,11 +88,11 @@ let mut guard = mutex.lock().expect("lock failed");
 
 ### `Mutex` Turns `Send` into `Sync`
 
-Episode 3 taught `Send` and `Sync`. Some types are `Send` but not `Sync` — Episode 4's `RefCell<T>`, say: safely movable to another thread (`Send`), but not accessible by several threads at once through `&RefCell<T>` (not `Sync`).
+Episode 3 taught `Send` and `Sync`. Some types are `Send` but not `Sync` — Episode 4's `RefCell<T>`, say: safely movable to another `Thread` (`Send`), but not accessible by several `Thread`s at once through `&RefCell<T>` (not `Sync`).
 
-`Mutex` solves this. `Mutex<T>` guarantees that only one thread accesses `T` at a time — even with many threads sharing one `&Mutex<T>`, only the lock-holder touches the inner `T`. So `Mutex<T>` requires only `T: Send` for `Mutex<T>` itself to be `Sync`.
+`Mutex` solves this. `Mutex<T>` guarantees that only one `Thread` accesses `T` at a time — even with many `Thread`s sharing one `&Mutex<T>`, only the lock-holder touches the inner `T`. So `Mutex<T>` requires only `T: Send` for `Mutex<T>` itself to be `Sync`.
 
-Put differently: `T` not being `Sync` is fine — the `Mutex`'s locking already rules out simultaneous access. `T` needs `Send` because: thread A takes the lock, works on `T`, releases; the next lock-taker might be thread B. From `T`'s perspective, it was A's exclusively, now it's B's exclusively — effectively `T` was "shipped" from A to B. Hence `T` must be `Send`.
+Put differently: `T` not being `Sync` is fine — the `Mutex`'s locking already rules out simultaneous access. `T` needs `Send` because: `Thread` A takes the lock, works on `T`, releases; the next lock-taker might be `Thread` B. From `T`'s perspective, it was A's exclusively, now it's B's exclusively — effectively `T` was "shipped" from A to B. Hence `T` must be `Send`.
 
 ## Example Code
 
@@ -132,8 +132,8 @@ fn main() {
 
 - `Mutex<T>` is multithreaded interior mutability, guarding data with a lock.
 - `lock().expect(...)` returns a `MutexGuard`, usable directly as `&mut T` via `DerefMut`.
-- Only one thread holds the lock at a time; the rest wait.
+- Only one `Thread` holds the lock at a time; the rest wait.
 - Dropping the guard unlocks automatically.
 - The common pairing: `Arc<Mutex<T>>` — `Arc` for sharing, `Mutex` for safe modification.
-- Don't let the `MutexGuard` live long; while locked, every other thread waits.
-- `Mutex<T>` needs only `T: Send` to be `Sync` — its locking lets non-`Sync` types be safely shared among threads.
+- Don't let the `MutexGuard` live long; while locked, every other `Thread` waits.
+- `Mutex<T>` needs only `T: Send` to be `Sync` — its locking lets non-`Sync` types be safely shared among `Thread`s.

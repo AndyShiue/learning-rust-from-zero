@@ -64,7 +64,7 @@ Note that the iteration order is **not fixed** — it can differ between runs. I
 
 A `HashMap` needs to find the value for a key quickly. Its trick: feed the key into a **hash function** to compute a number (the hash value), and use that number to decide where in memory the value goes. On lookup, it hashes the key again and jumps straight to that location — no scanning one by one.
 
-So the key type must implement the `Hash` trait — which tells the `HashMap` how to hash that type.
+So the key type must implement the `Hash` `trait` — which tells the `HashMap` how to hash that type.
 
 ### Key Requirements: `Eq + Hash`
 

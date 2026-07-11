@@ -77,7 +77,7 @@ impl Container for NumberList {
 
 ### `Deref` 也有 associated type
 
-第 23 集學的 `Deref` trait 就用了 associated type：
+第 23 集學的 `Deref` `trait` 就用了 associated type：
 
 ```rust,noplayground
 trait Deref {

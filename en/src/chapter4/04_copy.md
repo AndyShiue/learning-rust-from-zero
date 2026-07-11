@@ -22,7 +22,7 @@ Why? The answer is the **`Copy` `trait`**.
 
 ### What Is `Copy`?
 
-`Copy` is a special trait. If a type implements `Copy`, then on assignment or when passed into a function, Rust automatically makes a copy instead of moving.
+`Copy` is a special `trait`. If a type implements `Copy`, then on assignment or when passed into a function, Rust automatically makes a copy instead of moving.
 
 `Copy` means copying the value is a simple, mechanical operation, so Rust can do it automatically on assignment or when passing the value into a function — no need to write `.clone()`.
 

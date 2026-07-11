@@ -1,15 +1,15 @@
 # `mpsc`
 
 ## Goal of This Episode
-Learn to make threads communicate by passing messages through channels, and how this compares to shared memory.
+Learn to make `Thread`s communicate by passing messages through channels, and how this compares to shared memory.
 
 ## Concept
 
 ### A Different Line of Thought
 
-The earlier `Mutex` and `RwLock` follow the "shared memory" approach — several threads access one piece of data, with locks preventing conflicts.
+The earlier `Mutex` and `RwLock` follow the "shared memory" approach — several `Thread`s access one piece of data, with locks preventing conflicts.
 
-Channels take a completely different approach: **threads communicate by passing messages**. Data gets sent straight over — no sharing.
+Channels take a completely different approach: **`Thread`s communicate by passing messages**. Data gets sent straight over — no sharing.
 
 ### Creating a Channel
 
@@ -81,7 +81,7 @@ Note the `drop(tx)` in the example above — if you `clone`d `tx` but never `dro
 
 Which when?
 
-- **Several threads repeatedly reading and writing one piece of data** (a shared counter, a shared cache) → `Mutex` / `RwLock` is more direct.
+- **Several `Thread`s repeatedly reading and writing one piece of data** (a shared counter, a shared cache) → `Mutex` / `RwLock` is more direct.
 - **A produce-on-one-side, consume-on-the-other** pipeline → channels are more natural. Ownership of the data transfers outright: no locks, and no forgetting to release one.
 
 ## Example Code
@@ -119,7 +119,7 @@ fn main() {
 
 ## Recap
 
-- Channels let threads communicate by message passing; data is sent over, not shared.
+- Channels let `Thread`s communicate by message passing; data is sent over, not shared.
 - `mpsc::channel()` creates the sender `tx` and receiver `rx`.
 - `tx.send(value)` moves `value`; `rx.recv()` blocks until something arrives.
 - `tx.clone()` makes multiple senders, but there's only one receiver (`mpsc`).
