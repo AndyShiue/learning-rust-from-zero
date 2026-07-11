@@ -26,9 +26,9 @@ Here `loop { break 42; }` has type `i32`, since `break` carried out `42`.
 
 You might ask: why not `while` and `for`?
 
-The reason: `while` and `for` might **never execute even once**. If the loop body never ran, the value `break` would carry out simply doesn't exist — the compiler can't guarantee a return value.
+The reason: `while` and `for` can finish normally when their condition becomes false or their iterator runs out, without ever reaching a `break`. In that case, the loop produces `()` rather than a value carried by `break`.
 
-`loop` differs — it's an unconditional loop that **always enters its body**, so the compiler knows a `break` must eventually be reached (otherwise it's an infinite loop). That's why only `loop` can serve as a value-returning expression.
+`loop` differs because it has no condition that ends it normally. If a `loop` finishes, it must be through `break`; if no `break` is reached, it keeps running and produces no result. That's why the value carried by `break` can become the value of the entire `loop`.
 
 ### Practical Scenarios
 
@@ -74,5 +74,5 @@ fn main() {
 ## Recap
 
 - `let x = loop { break value; };` makes the `loop` an expression, returning the value `break` carries.
-- Only `loop` can do this — not `while` or `for`, which might never run at all.
+- Only `loop` can do this — `while` and `for` can finish normally without reaching a `break`.
 - The common use: search inside a loop and carry the result out with `break`.
