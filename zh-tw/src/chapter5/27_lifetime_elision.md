@@ -50,7 +50,6 @@ impl MyStruct {
 
 - 一個參考參數 → 幾乎不用寫。
 - method 回傳 `&self` 的一部分 → 不用寫。
-- 多個參考參數且回傳參考 → 要寫。
 
 ## 範例程式碼
 
@@ -121,4 +120,3 @@ fn main() {
 - 規則一：每個參數能放生命週期的位置各自獲得獨立的生命週期。
 - 規則二：只有一個 input lifetime → 回傳值的生命週期自動等於它。
 - 規則三：method 有 `&self` 或 `&mut self` → 回傳值的生命週期自動等於 `self`。
-- 有多個 input lifetime 且回傳型別有 lifetime 時，才需要手動標注。

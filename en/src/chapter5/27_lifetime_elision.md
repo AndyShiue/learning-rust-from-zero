@@ -50,7 +50,6 @@ When there are several reference parameters and it's unclear which one the retur
 
 - One reference parameter → almost never needs writing.
 - A method returning part of `&self` → no writing needed.
-- Multiple reference parameters returning a reference → must write.
 
 ## Example Code
 
@@ -121,4 +120,3 @@ fn main() {
 - Rule 1: each lifetime-capable position in the parameters gets its own independent lifetime.
 - Rule 2: exactly one input lifetime → the return value's lifetime automatically equals it.
 - Rule 3: a method with `&self` or `&mut self` → the return value's lifetime automatically equals `self`'s.
-- Only with multiple input lifetimes and a lifetime in the return type is manual annotation required.
