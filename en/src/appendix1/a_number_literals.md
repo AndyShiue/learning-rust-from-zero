@@ -102,4 +102,3 @@ fn main() {
 - `0x` hexadecimal, `0b` binary, `0o` octal.
 - Type suffixes like `u8`, `i64`, `f32` attach directly to numbers.
 - Floats support scientific notation (`1.0e10`, `2.5E-3`).
-- A floating-point literal must have a decimal point or scientific notation.
