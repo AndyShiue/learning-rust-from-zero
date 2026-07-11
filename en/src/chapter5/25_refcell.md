@@ -6,13 +6,13 @@ Learn to have the borrowing rules checked at runtime with `RefCell<T>`, and comb
 
 ## Concept
 
-Last episode's `Cell<T>` had the restriction that `T` must be `Copy`. What if you want to modify a `String` or a `Vec`?
+Last episode's `Cell<T>` uses `.get()` to read the inner value, but `.get()` requires `T` to be `Copy`. What if you want to modify a `String` or a `Vec` and borrow the inner value to read or write it?
 
 ### `RefCell`: Runtime Borrow Checking
 
 `RefCell<T>` is like `Cell` — letting you modify values without needing `&mut`. The differences:
 
-- `Cell<T>`: uses `get` / `set`, `T` must be `Copy`, **zero cost** (compiles down to the same as direct access).
+- `Cell<T>`: uses `.get()` / `.set()`; `.get()` requires `T` to be `Copy`, with **zero cost** (compiles down to the same as direct access).
 - `RefCell<T>`: uses `.borrow()` and `.borrow_mut()` to obtain values that behave like shared and mutable references, `T` **doesn't need** `Copy`, but there's a **runtime cost** (every borrow gets checked against the rules).
 
 ```rust,editable
@@ -114,7 +114,7 @@ fn main() {
 - `RefCell<T>` is like `Cell` — modifying values without needing `&mut`.
 - `RefCell<T>` moves the borrowing-rule check from compile time to runtime.
 - `.borrow()` obtains a value that behaves like a shared reference; `.borrow_mut()` obtains one that behaves like a mutable reference.
-- `T` **doesn't need** `Copy` (the difference from `Cell`).
+- `.borrow()` and `.borrow_mut()` don't require `T` to be `Copy`, unlike `Cell<T>`'s `.get()`.
 - `Cell` is zero-cost; `RefCell` pays a runtime check on every borrow.
 - Violating the borrowing rules **panics** (not a compile error).
 - The `Rc<RefCell<T>>` combo: mutable shared data.
