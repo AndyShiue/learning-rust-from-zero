@@ -28,7 +28,7 @@ Cumbersome — users couldn't care less how you divide folders internally; they 
 
 ### The Magic of `pub use`
 
-`pub use` "re-exports" internal things into the current mod, giving the outside a shorter path:
+`pub use` "re-exports" internal things into the current `mod`, giving the outside a shorter path:
 
 ```rust,ignore
 // lib.rs

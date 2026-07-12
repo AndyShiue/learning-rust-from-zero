@@ -41,7 +41,7 @@ Rust 有兩種路徑起點：
 use crate::math::add; // 自己這個 crate 裡的 math mod
 ```
 
-**相對路徑**——從當前 mod 的位置開始：
+**相對路徑**——從當前 `mod` 的位置開始：
 
 ```rust,ignore
 use math::add; // 當前 mod 底下的 math 子 mod
@@ -172,7 +172,7 @@ fn main() {
 
 ### glob import（星號匯入）
 
-`*` 會把 mod 底下所有 `pub` 的東西全部帶進來：
+`*` 會把 `mod` 底下所有 `pub` 的東西全部帶進來：
 
 ```rust,noplayground
 use std::collections::*; // HashMap, HashSet, BTreeMap... 全部可用

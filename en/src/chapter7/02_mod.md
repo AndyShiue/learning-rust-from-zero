@@ -26,7 +26,7 @@ mod math {
 # fn main() {}
 ```
 
-Call a mod's functions with the `::` path syntax:
+Call a `mod`'s functions with the `::` path syntax:
 
 ```rust,noplayground
 # mod math {

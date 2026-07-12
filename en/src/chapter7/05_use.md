@@ -41,7 +41,7 @@ Rust paths have two starting points:
 use crate::math::add; // The math mod within this very crate
 ```
 
-**Relative paths** — starting from the current mod's position:
+**Relative paths** — starting from the current `mod`'s position:
 
 ```rust,ignore
 use math::add; // The math sub-mod under the current mod
@@ -172,7 +172,7 @@ fn main() {
 
 ### Glob Imports (the Asterisk)
 
-`*` brings in everything `pub` under a mod:
+`*` brings in everything `pub` under a `mod`:
 
 ```rust,noplayground
 use std::collections::*; // HashMap, HashSet, BTreeMap... all available

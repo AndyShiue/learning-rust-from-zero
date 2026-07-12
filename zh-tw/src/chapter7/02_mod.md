@@ -26,7 +26,7 @@ mod math {
 # fn main() {}
 ```
 
-要呼叫 mod 裡的函數，用 `::` 路徑語法：
+要呼叫 `mod` 裡的函數，用 `::` 路徑語法：
 
 ```rust,noplayground
 # mod math {
