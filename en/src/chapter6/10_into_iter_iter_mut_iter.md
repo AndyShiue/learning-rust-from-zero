@@ -44,7 +44,7 @@ fn main() {
 }
 ```
 
-`.iter_mut()` returns `&mut T`, letting you modify each element in place.
+`.iter_mut()` returns an iterator of `&mut T`, letting you modify each element in place.
 
 ### `.iter()` — Just Looking
 
@@ -103,7 +103,7 @@ Most collection types (`Vec`, arrays...) follow this pattern — implementing `I
 - Modifying in place → `.iter_mut()`.
 - Only reading → `.iter()` (most common).
 
-The principle is ownership's own: don't take permissions you don't need.
+Choose the iteration method that gives you only the access you need.
 
 ## Example Code
 
@@ -176,4 +176,4 @@ fn main() {
 - `.iter_mut()` produces `&mut T`, allowing in-place modification.
 - `.iter()` produces `&T`, borrowing elements; the collection is unaffected.
 - `for x in v` = `.into_iter()`, `for x in &mut v` = `.iter_mut()`, `for x in &v` = `.iter()`.
-- Selection principle: take no more permission than needed — `.into_iter()` to consume, `.iter_mut()` to modify, `.iter()` to read.
+- Choose the iteration method that gives you only the access you need — `.into_iter()` to consume, `.iter_mut()` to modify, `.iter()` to read.
