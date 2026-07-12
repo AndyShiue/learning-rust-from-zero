@@ -118,7 +118,7 @@ v.push(3);
 
 `macro_rules!` 定義的巨集在定義之後才能用（跟函數不同——函數不受定義順序限制）。
 
-如果想讓巨集可以被其他 crate 使用，在前面加 `#[macro_export]`。在巨集內部引用定義巨集的 crate 的東西時，用 `$crate` 路徑——這樣不管使用者的 crate 怎麼命名你的 crate，路徑都能正確指向：
+如果想讓巨集可以被其他 `crate` 使用，在前面加 `#[macro_export]`。在巨集內部引用定義巨集的 `crate` 的東西時，用 `$crate` 路徑——這樣不管使用者的 `crate` 怎麼命名你的 `crate`，路徑都能正確指向：
 
 ```rust,noplayground
 // 在 my_lib crate 裡
@@ -137,7 +137,7 @@ macro_rules! log_msg {
 # fn main() {}
 ```
 
-別的 crate 只要引入 `my_lib`，就能直接用 `log_msg!("hello")`。`$crate` 會自動替換成正確的 crate 路徑。
+別的 `crate` 只要引入 `my_lib`，就能直接用 `log_msg!("hello")`。`$crate` 會自動替換成正確的 `crate` 路徑。
 
 ## 範例程式碼
 
@@ -187,4 +187,4 @@ fn main() {
 - `$(...),*` 匹配重複項，展開時 `$( ... )*` 對每個重複。
 - 三種括號 `()` / `[]` / `{}` 效果相同。
 - 巨集定義後才能用（跟函數不同）。
-- `#[macro_export]` 讓巨集可被其他 crate 使用。
+- `#[macro_export]` 讓巨集可被其他 `crate` 使用。

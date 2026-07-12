@@ -19,14 +19,14 @@
 
 兩者都用「`None` 代表結束」。
 
-本集的範例會用到 `tokio-stream` 這個套件（它不在 Tokio 本體裡），使用前要加上依賴：
+本集的範例會用到 `tokio-stream` 這個 `crate`（它不在 Tokio 本體裡），使用前要加上依賴：
 
 ```toml
 [dependencies]
 tokio-stream = "0.1"
 ```
 
-一個小地方要注意：套件名在 `Cargo.toml` 裡寫 `tokio-stream`（連字號），但在程式碼裡要寫成 `tokio_stream`（底線）——套件名裡的 `-` 到了程式碼裡一律變成 `_`。
+一個小地方要注意：`crate` 名稱在 `Cargo.toml` 裡寫 `tokio-stream`（連字號），但在程式碼裡要寫成 `tokio_stream`（底線）——`crate` 名稱裡的 `-` 到了程式碼裡一律變成 `_`。
 
 ### 走訪一個 `Stream`
 
@@ -52,7 +52,7 @@ async fn main() {
 
 ### `Stream` 不在標準庫裡
 
-有件事要特別說明：和 `Future` 不同，`Stream` **目前不在標準庫裡**，它定義在社群專案（`futures`）裡，Tokio 生態則提供 `tokio_stream`。要用 `next`、`map`、`filter` 這些方法，得引入對應的擴充 `trait` `StreamExt`：
+有件事要特別說明：和 `Future` 不同，`Stream` **目前不在標準庫裡**。`Stream` `trait` 定義在 `futures-core` `crate` 中；`tokio-stream` 會重新匯出它，並提供自己的 `StreamExt`。要用本集的 `next`、`map`、`filter` 等方法，得引入 `tokio_stream::StreamExt`：
 
 ```rust,editable
 extern crate tokio;

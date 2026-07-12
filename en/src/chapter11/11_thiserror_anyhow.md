@@ -2,11 +2,11 @@
 
 ## Goal of This Episode
 
-Meet the community's two most popular error-handling crates.
+Meet the community's two most popular error-handling `crate`s.
 
 ## Concept
 
-This episode covers not the standard library, but two community crates. They're practically standard equipment in the Rust ecosystem and extremely useful, so we introduce them here.
+This episode covers not the standard library, but two community `crate`s. They're practically standard equipment in the Rust ecosystem and extremely useful, so we introduce them here.
 
 Install them before use:
 

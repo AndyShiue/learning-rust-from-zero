@@ -39,7 +39,7 @@ pub fn gcd(mut a: u64, mut b: u64) -> u64 {
 
 `///` supports full **Markdown syntax** — headings, bold, code blocks, lists, all of it.
 
-### `//!` `mod`/Crate-level Docs
+### `//!` `mod`/`crate`-level Docs
 
 Two slashes plus a bang, `//!`, documents **the item containing it**, usually placed at the very top of a file:
 
@@ -61,7 +61,7 @@ pub fn add(a: i32, b: i32) -> i32 {
 # fn main() {}
 ```
 
-At the top of `lib.rs` it documents the whole crate; at the top of some `mod`'s file, that `mod`.
+At the top of `lib.rs` it documents the whole `crate`; at the top of some `mod`'s file, that `mod`.
 
 ### The Customary Documentation Sections
 
@@ -79,7 +79,7 @@ Each documentation example compiles as a **standalone little program** — it li
 
 This design yields something beautiful: **the examples are always right**. Rename a function or change its signature while forgetting the docs, and `cargo test` throws the error in your face at once. In many languages, doc examples silently rot as the code evolves; in Rust, a rotten example blocks your tests.
 
-One caveat: only a **library crate**'s doctests execute. Doc comments in a binary crate still generate documentation, but their examples **won't** run as tests.
+One caveat: only a **library `crate`**'s doctests execute. Doc comments in a binary `crate` still generate documentation, but their examples **won't** run as tests.
 
 ### `cargo doc`
 
@@ -91,7 +91,7 @@ cargo doc --open
 
 This:
 
-1. Compiles your crate (without running it).
+1. Compiles your `crate` (without running it).
 2. Generates HTML docs from every `///` and `//!`.
 3. Opens them in your browser automatically.
 
@@ -185,11 +185,11 @@ impl Temperature {
 ## Recap
 
 - `///` documents the item that follows (`fn`, `struct`, `enum`, etc.).
-- `//!` documents the containing item (`mod`, crate), usually at the file's top.
+- `//!` documents the containing item (`mod`, `crate`), usually at the file's top.
 - Doc comments support full Markdown syntax.
 - `# Examples` is the most important section — a good example beats a thousand words.
 - **Documentation examples are doctests**: `cargo test` compiles and runs every one; compile failures and `assert` failures both count as test failures.
 - Doctests compile as a "library user," so examples must write `use your_crate::...`.
-- Doctests run only for library crates.
+- Doctests run only for library `crate`s.
 - `cargo doc --open` generates and opens HTML docs in one step.
 - The docs you see on docs.rs are produced by this very mechanism.

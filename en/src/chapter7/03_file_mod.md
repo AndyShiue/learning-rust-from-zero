@@ -90,12 +90,12 @@ Both ways work identically — pick whichever you like. Newer projects lean towa
 
 ### `lib.rs` vs `main.rs`
 
-A Rust project (crate) comes in two types:
+A Rust project can contain one or more `crate`s. A `crate` comes in two types:
 
-- **binary crate**: has `src/main.rs`, compiling to an executable.
-- **library crate**: has `src/lib.rs`, a library for others to use.
+- **binary `crate`**: has `src/main.rs`, compiling to an executable.
+- **library `crate`**: has `src/lib.rs`, a library for others to use.
 
-One project can have **both** `main.rs` and `lib.rs`. `main.rs` is the binary crate's root; `lib.rs` is the library crate's root.
+One project can contain **both** `main.rs` and `lib.rs`. `main.rs` is the binary `crate`'s root; `lib.rs` is the library `crate`'s root.
 
 ```ignore
 src/
@@ -107,7 +107,7 @@ src/
     └── advanced.rs
 ```
 
-Inside `main.rs`, refer to things in `lib.rs` via the crate's name:
+Inside `main.rs`, refer to things in `lib.rs` via the `crate`'s name:
 
 ```rust,ignore
 // main.rs
@@ -179,5 +179,5 @@ pub fn power(base: i32, exp: u32) -> i32 {
 - `mod math;` (semicolon-terminated) tells Rust to go find the sub-`mod`.
 - The split-out file **doesn't** contain another `mod math { ... }` — the file itself is the `mod`.
 - Sub-`mod`s can use `math/mod.rs` (traditional) or `math.rs` + a `math/` folder (recommended).
-- `main.rs` is the binary crate's root; `lib.rs` is the library crate's root.
-- One project can be a binary crate and a library crate at the same time.
+- `main.rs` is the binary `crate`'s root; `lib.rs` is the library `crate`'s root.
+- One project can contain a binary `crate` and a library `crate` at the same time.

@@ -50,9 +50,9 @@ Much cleaner.
 
 Note: `pub use` can only export **things that were already `pub`**. Attempting to `pub use` a private item makes the compiler complain — you can't publicize what someone else has hidden.
 
-### Re-exporting from Other Crates
+### Re-exporting from Other `crate`s
 
-`pub use` isn't limited to your own `mod`s — it can export things from **other crates** too:
+`pub use` isn't limited to your own `mod`s — it can export things from **other `crate`s** too:
 
 ```rust,ignore
 // lib.rs
@@ -61,7 +61,7 @@ pub use rand::Rng; // Users just write use your_crate::Rng — no rand dependenc
 # fn main() {}
 ```
 
-Common in library design — your library depends on some crate, and you want users to reach those types through your crate without adding the dependency to their own `Cargo.toml`.
+Common in library design — your library depends on some `crate`, and you want users to reach those types through your `crate` without adding the dependency to their own `Cargo.toml`.
 
 ### Layered Re-exports
 
@@ -141,5 +141,5 @@ fn main() {
 ## Recap
 
 - `pub use path::Item;` re-exports internal things, giving the outside a shorter path.
-- It can export your own `mod`s' contents, or things from other crates.
-- A library's `lib.rs` commonly uses `pub use` to lift important types to the crate's top level.
+- It can export your own `mod`s' contents, or things from other `crate`s.
+- A library's `lib.rs` commonly uses `pub use` to lift important types to the `crate`'s top level.

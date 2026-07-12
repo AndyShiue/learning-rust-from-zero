@@ -10,7 +10,7 @@ Last episode we got Rust installed, so today let's write our first program!
 
 ### Creating a Project with Cargo
 
-Rust comes with a wonderfully handy tool called **Cargo**, Rust's project management tool. You can think of it as a butler that organizes your code, compiles it, and runs it — it takes care of everything.
+Rust comes with a wonderfully handy tool called **Cargo**, which handles building Rust projects and managing their dependencies. You can think of it as a butler that organizes your code, compiles it, and runs it — it takes care of everything.
 
 Open a terminal and type:
 
@@ -88,7 +88,7 @@ See that? Whatever you change it to, that's what it prints. That's what programm
 
 ## Recap
 
-- **Cargo** is Rust's project management tool; use `cargo new` to create a new project.
+- **Cargo** builds Rust projects and manages their dependencies; use `cargo new` to create a new project.
 - Inside a project, `Cargo.toml` is the configuration file and `src/main.rs` is the main code.
 - **Compiling** means translating human-readable code into a file the computer can run.
 - Use `cargo run` to compile and run in one step.

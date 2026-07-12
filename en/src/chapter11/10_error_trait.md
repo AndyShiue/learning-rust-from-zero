@@ -158,7 +158,7 @@ The downside: callers can't `match` to handle different error kinds precisely â€
 - **Quick prototypes, scripts, the `main` function**: `Box<dyn Error>` is the least effort.
 - **Libraries, or when callers must handle errors precisely**: a custom error `enum` + `impl Error` + `impl From`.
 
-Next episode we'll see how community crates dramatically simplify writing custom error types.
+Next episode we'll see how community `crate`s dramatically simplify writing custom error types.
 
 ## Example Code
 

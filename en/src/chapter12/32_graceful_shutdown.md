@@ -136,7 +136,7 @@ Using `watch` as a shutdown flag works, but it feels a bit like "borrowing" a st
 tokio-util = "0.7"
 ```
 
-(As with `tokio-stream` in Episode 30, the `-` in the crate name becomes `_` in code: `use tokio_util::...`.)
+(As with `tokio-stream` in Episode 30, the `-` in the `crate` name becomes `_` in code: `use tokio_util::...`.)
 
 Swapping it in for the `watch` above:
 

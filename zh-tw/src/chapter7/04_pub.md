@@ -191,9 +191,9 @@ mod shapes {
 
 ### `pub(crate)`、`pub(super)`、`pub(in path)`
 
-有時候你不想完全公開，但又想讓 crate 內部的其他 `mod` 使用。Rust 提供了精細的控制：
+有時候你不想完全公開，但又想讓 `crate` 內部的其他 `mod` 使用。Rust 提供了精細的控制：
 
-- `pub(crate)`：整個 crate 內部可見，但外部（別的 crate）看不到。
+- `pub(crate)`：整個 `crate` 內部可見，但外部（別的 `crate`）看不到。
 - `pub(super)`：只有父 `mod` 可見。
 - `pub(in crate::some::path)`：只對指定的 `mod` 路徑可見——最精細的控制。
 
@@ -255,7 +255,7 @@ fn main() {
 
 ### 你公開的這些東西，合起來就是你的 API
 
-你用 `pub` 開放出去的那組東西——函數、型別、方法、`trait`——合起來就是這個專案的 **API**。API（application programming interface，應用程式介面）指的就是「**一段程式對外公開、讓別人呼叫的介面**」：別人只看得到、也只該依賴你公開的這一面，至於你藏在 `pub` 後面那些私有的實作細節，他們碰不到，你之後也可以隨意改。從第 1 章到現在，每次寫 `String::new()`、`vec.push(x)`、`iter.map(...)`，你都是在呼叫標準庫的 API——標準庫把這些函數和方法標成 `pub` 給你用，內部怎麼實作則完全藏起來。差別只在於：之前你是 API 的**使用者**，而從這一章開始，你也成了 API 的**設計者**。
+你用 `pub` 開放出去的那組東西——函數、型別、方法、`trait`——合起來就是這個 `crate` 的 **API**。API（application programming interface，應用程式介面）指的就是「**一段程式對外公開、讓別人呼叫的介面**」：別人只看得到、也只該依賴你公開的這一面，至於你藏在 `pub` 後面那些私有的實作細節，他們碰不到，你之後也可以隨意改。從第 1 章到現在，每次寫 `String::new()`、`vec.push(x)`、`iter.map(...)`，你都是在呼叫標準庫的 API——標準庫把這些函數和方法標成 `pub` 給你用，內部怎麼實作則完全藏起來。差別只在於：之前你是 API 的**使用者**，而從這一章開始，你也成了 API 的**設計者**。
 
 ## 重點整理
 
@@ -264,7 +264,7 @@ fn main() {
 - 有私有欄位的 `struct` 無法從外部直接建構，必須提供建構函數。
 - `pub enum` 的所有 variants **自動公開**。
 - `impl Trait for T` 裡的 `fn` 可見性跟著 `trait` 走，不加 `pub`；`impl T` 裡的 `fn` 各自用 `pub` 控制。
-- `pub(crate)`：crate 內部可見，外部不可見。
+- `pub(crate)`：`crate` 內部可見，外部不可見。
 - `pub(super)`：只有父 `mod` 可見。
 - `pub(in path)`：只對指定的 `mod` 路徑可見。
 - 你公開的所有 `pub` 的東西**合起來就是你的 API**，沒公開的是實作細節；標準庫本身就是一套 API，差別只在這章中你從 API 的「使用者」變成了「設計者」。

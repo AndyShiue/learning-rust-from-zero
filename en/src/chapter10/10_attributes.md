@@ -77,7 +77,7 @@ When a function is called, the program has to jump to the function's location, r
 #[inline(never)]  // forbid inlining
 ```
 
-Most of the time you don't need to write these by hand — the compiler decides on its own. They're only needed for small functions called across crates, or in performance-critical spots.
+Most of the time you don't need to write these by hand — the compiler decides on its own. They're only needed for small functions called across `crate`s, or in performance-critical spots.
 
 ### Memory Layout
 
@@ -119,7 +119,7 @@ fn foo() {}
 fn foo() {}
 ```
 
-`///` is just shorthand for `#[doc = "..."]`. Likewise, `//!` is shorthand for `#![doc = "..."]` — used at the top of a file to document a whole `mod` or crate.
+`///` is just shorthand for `#[doc = "..."]`. Likewise, `//!` is shorthand for `#![doc = "..."]` — used at the top of a file to document a whole `mod` or `crate`.
 
 ## Example Code
 

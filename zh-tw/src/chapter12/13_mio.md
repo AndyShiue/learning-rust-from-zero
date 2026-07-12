@@ -17,7 +17,7 @@
 
 ### `mio` 的兩個主角
 
-`mio` 是 Rust 生態裡負責跨平台 I/O 事件通知的底層套件（Tokio 內部也是用它）。先用前要加上依賴：
+`mio` 是 Rust 生態裡負責跨平台 I/O 事件通知的底層 `crate`（Tokio 內部也是用它）。使用前要先加上依賴：
 
 ```toml
 [dependencies]

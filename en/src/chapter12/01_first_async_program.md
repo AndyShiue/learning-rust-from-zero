@@ -12,7 +12,7 @@ Let's start from the word itself. **Synchronous** means "everyone moves in locks
 
 ### Rust's `async` Needs a runtime
 
-Unlike many other languages, Rust's standard library has **no** built-in engine for executing async work (we'll call it a runtime from now on). The standard library only defines async's "specification"; how the async work actually gets run is left to third-party crates. That sounds odd, but this design lets Rust's `async` serve everything from big servers to small embedded devices.
+Unlike many other languages, Rust's standard library has **no** built-in engine for executing async work (we'll call it a runtime from now on). The standard library only defines async's "specification"; how the async work actually gets run is left to third-party `crate`s. That sounds odd, but this design lets Rust's `async` serve everything from big servers to small embedded devices.
 
 The most widely used runtime today is **Tokio**. In the second half of this chapter, we'll dig into Tokio's features. To use it, first add the dependency in `Cargo.toml`:
 

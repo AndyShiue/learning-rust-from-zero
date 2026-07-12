@@ -118,7 +118,7 @@ The difference is purely convention.
 
 A macro defined with `macro_rules!` can only be used after its definition (unlike functions — functions aren't restricted by definition order).
 
-To make a macro usable by other crates, add `#[macro_export]` in front. When referring to items from the defining crate inside the macro, use the `$crate` path — that way the path resolves correctly no matter what name the user's crate gives yours:
+To make a macro usable by other `crate`s, add `#[macro_export]` in front. When referring to items from the defining `crate` inside the macro, use the `$crate` path — that way the path resolves correctly no matter what name the user's `crate` gives yours:
 
 ```rust,noplayground
 // in the my_lib crate
@@ -137,7 +137,7 @@ macro_rules! log_msg {
 # fn main() {}
 ```
 
-Any crate that depends on `my_lib` can then use `log_msg!("hello")` directly. `$crate` is automatically replaced with the correct crate path.
+Any `crate` that depends on `my_lib` can then use `log_msg!("hello")` directly. `$crate` is automatically replaced with the correct `crate` path.
 
 ## Example Code
 
@@ -187,4 +187,4 @@ fn main() {
 - `$(...),*` matches repeated items; `$( ... )*` in the expansion repeats per item.
 - The three bracket styles `()` / `[]` / `{}` behave identically.
 - Macros are usable only after their definition (unlike functions).
-- `#[macro_export]` makes a macro usable from other crates.
+- `#[macro_export]` makes a macro usable from other `crate`s.

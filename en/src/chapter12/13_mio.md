@@ -17,7 +17,7 @@ In recent episodes our "waiting" relied on one `Thread` per `Delay` — far too 
 
 ### `mio`'s Two Protagonists
 
-`mio` is the low-level crate in the Rust ecosystem for cross-platform I/O event notification (Tokio uses it internally too). Add the dependency before use:
+`mio` is the low-level `crate` in the Rust ecosystem for cross-platform I/O event notification (Tokio uses it internally too). Add the dependency before use:
 
 ```toml
 [dependencies]

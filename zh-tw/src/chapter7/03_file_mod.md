@@ -90,12 +90,12 @@ pub mod advanced;
 
 ### `lib.rs` vs `main.rs`
 
-一個 Rust 專案（crate）有兩種類型：
+一個 Rust 專案可以包含一或多個 `crate`。`crate` 分成兩種類型：
 
-- **binary crate**：有 `src/main.rs`，會編譯成可執行檔。
-- **library crate**：有 `src/lib.rs`，給別人使用的程式庫。
+- **binary `crate`**：有 `src/main.rs`，會編譯成可執行檔。
+- **library `crate`**：有 `src/lib.rs`，給別人使用的程式庫。
 
-一個專案可以**同時**有 `main.rs` 和 `lib.rs`。`main.rs` 是 binary crate 的根，`lib.rs` 是 library crate 的根。
+一個專案可以**同時包含** `main.rs` 和 `lib.rs`。`main.rs` 是 binary `crate` 的根，`lib.rs` 是 library `crate` 的根。
 
 ```ignore
 src/
@@ -107,7 +107,7 @@ src/
     └── advanced.rs
 ```
 
-在 `main.rs` 裡可以用 crate 名稱引用 `lib.rs` 裡的東西：
+在 `main.rs` 裡可以用 `crate` 名稱引用 `lib.rs` 裡的東西：
 
 ```rust,ignore
 // main.rs
@@ -179,5 +179,5 @@ pub fn power(base: i32, exp: u32) -> i32 {
 - `mod math;`（分號結尾）告訴 Rust 去找子 `mod`。
 - 被拆出去的檔案裡**不需要**再寫 `mod math { ... }`，檔案本身就是 `mod`。
 - 子 `mod` 可以用 `math/mod.rs`（傳統）或 `math.rs` + `math/` 資料夾（推薦）。
-- `main.rs` 是 binary crate 的根，`lib.rs` 是 library crate 的根。
-- 一個專案可以同時是 binary crate 和 library crate。
+- `main.rs` 是 binary `crate` 的根，`lib.rs` 是 library `crate` 的根。
+- 一個專案可以同時包含 binary `crate` 和 library `crate`。

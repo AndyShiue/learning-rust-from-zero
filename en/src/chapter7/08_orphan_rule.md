@@ -26,7 +26,7 @@ The compiler refuses flat out. Why?
 
 Rust has a rule:
 
-> **To `impl` a `trait`, at least one of the `trait` or the type must be defined in your own crate.**
+> **To `impl` a `trait`, at least one of the `trait` or the type must be defined in your own `crate`.**
 
 Put differently: **the `trait` is yours, or the type is yours** — at least one must hold.
 
@@ -36,8 +36,8 @@ In the example above, `Display` is defined by the standard library, and so is `V
 
 Imagine there were no orphan rule:
 
-- Crate `A` implements `Display` for `Vec<i32>`, printing `[1, 2, 3]`.
-- Crate `B` also implements `Display` for `Vec<i32>`, printing `1 | 2 | 3`.
+- `crate` `A` implements `Display` for `Vec<i32>`, printing `[1, 2, 3]`.
+- `crate` `B` also implements `Display` for `Vec<i32>`, printing `1 | 2 | 3`.
 - Your program uses both `A` and `B`... which should the compiler pick?
 
 That's a conflict. The orphan rule prevents the problem at its root.
@@ -156,10 +156,10 @@ The complete rules involve concepts like "covered type parameters," beyond this 
 
 ## Recap
 
-- **The orphan rule**: to `impl` a `trait`, at least one of the `trait` or the type must be defined in your crate.
+- **The orphan rule**: to `impl` a `trait`, at least one of the `trait` or the type must be defined in your `crate`.
 - "Your type + an external `trait`" ✅ legal.
 - "An external type + your `trait`" ✅ legal.
 - "An external type + an external `trait`" ❌ illegal.
-- The rule exists to prevent `impl` conflicts between crates.
+- The rule exists to prevent `impl` conflicts between `crate`s.
 - **The newtype pattern**: wrap the external type in `struct MyWrapper(OriginalType)`, and it becomes your type.
 - The orphan rule for multi-parameter `trait`s is far subtler — see the official documentation.

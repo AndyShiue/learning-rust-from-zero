@@ -136,7 +136,7 @@ graceful 不代表**無限期**等。萬一某個 worker 卡死了，你不能�
 tokio-util = "0.7"
 ```
 
-（和第 30 集的 `tokio-stream` 一樣，crate 名稱裡的 `-` 在程式碼中會變成 `_`：`use tokio_util::...`。）
+（和第 30 集的 `tokio-stream` 一樣，`crate` 名稱裡的 `-` 在程式碼中會變成 `_`：`use tokio_util::...`。）
 
 把上面的 `watch` 換成它：
 

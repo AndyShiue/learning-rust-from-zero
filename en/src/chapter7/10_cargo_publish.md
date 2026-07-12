@@ -6,7 +6,7 @@ Learn to publish your library to crates.io, making it available to Rust develope
 
 ## Concept
 
-So far we've learned to organize code, write documentation, and use other people's packages. This episode flips the direction — publishing a package of your own.
+So far we've learned to organize code, write documentation, and use other people's `crate`s. This episode flips the direction — publishing a project of your own.
 
 ### Account Setup
 
@@ -70,7 +70,7 @@ Once everything's ready:
 cargo publish
 ```
 
-Done! Your package is now on crates.io, and anyone can `cargo add my-awesome-lib`.
+Done! Your project is now on crates.io, and anyone can `cargo add my-awesome-lib`.
 
 ### The Version Update Flow
 
@@ -100,7 +100,7 @@ cargo yank --version 0.1.0
 
 ### Best Done Before Publishing
 
-- Write a good `README.md` (shown on the crates.io package page).
+- Write a good `README.md` (shown on the `crate`'s crates.io page).
 - Run `cargo test` and confirm all tests pass.
 - Write doc comments with `///` (last episode's lesson).
 - Make sure there's example code.
@@ -249,6 +249,6 @@ cargo publish    # Publish for real!
 - Published versions can't be deleted; `cargo yank` merely marks them as discouraged.
 - Writing the README, doc comments, and tests before publishing is basic respect for your users.
 
-Congratulations on finishing Chapter 7! 🎉 By this point, we've covered Rust's major concepts — ownership, borrowing, generics, `trait`s, lifetimes, closures, iterators, plus the module system and package management. You can now stand on your own. If there's an idea in your head, now is a great time to build it!
+Congratulations on finishing Chapter 7! 🎉 By this point, we've covered Rust's major concepts — ownership, borrowing, generics, `trait`s, lifetimes, closures, iterators, plus the module system and how to build and publish Cargo projects. You can now stand on your own. If there's an idea in your head, now is a great time to build it!
 
 Even so, Rust has many more distinctive and powerful features. The chapters ahead continue with important topics not yet covered, aiming to give you a more complete, well-rounded understanding of Rust.

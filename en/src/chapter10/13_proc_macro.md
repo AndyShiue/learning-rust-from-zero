@@ -70,9 +70,9 @@ Usage: `my_macro!(any tokens);`
 - **attribute**: **replaces** the marked item.
 - **function-like**: the contents in the brackets get **expanded** into new code.
 
-### A Separate Crate
+### A Separate `crate`
 
-Proc macros must be defined in their own crate, with this in `Cargo.toml`:
+Proc macros must be defined in their own `crate`, with this in `Cargo.toml`:
 
 ```toml
 [lib]
@@ -81,7 +81,7 @@ proc-macro = true
 
 ### `syn` and `quote`
 
-In practice, two community crates almost always come along:
+In practice, two community `crate`s almost always come along:
 - **`syn`**: parses a `TokenStream` into structured data (e.g. knowing "this is a `struct` with one field named `x`").
 - **`quote`**: conveniently generates a `TokenStream` from structured data.
 
@@ -89,7 +89,7 @@ Without them you'd be handling tokens one by one — very painful.
 
 ## Example Code
 
-Here are minimal skeletons for the three kinds of proc macros (they need to live in a separate proc-macro crate):
+Here are minimal skeletons for the three kinds of proc macros (they need to live in a separate proc-macro `crate`):
 
 ```rust,ignore
 use proc_macro::TokenStream;
@@ -114,7 +114,7 @@ pub fn my_macro(input: TokenStream) -> TokenStream {
 }
 ```
 
-And here's the usage side (in another crate):
+And here's the usage side (in another `crate`):
 
 ```rust,ignore
 // suppose the proc-macro crate is called my_macros
@@ -139,5 +139,5 @@ fn main() {
 - Proc macros come in three kinds: `derive`, attribute, and function-like.
 - At heart they are compile-time functions that take a `TokenStream` and return a `TokenStream`.
 - `derive` attaches code, attribute replaces the item, function-like expands its contents.
-- They must be defined in a separate crate (`proc-macro = true`).
+- They must be defined in a separate `crate` (`proc-macro = true`).
 - `syn` (parsing) and `quote` (generation) are the usual companions.

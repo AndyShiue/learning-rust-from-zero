@@ -158,7 +158,7 @@ fn read_number(path: &str) -> Result<i32, Box<dyn Error>> {
 - **快速原型、腳本、`main` 函數**：`Box<dyn Error>` 最省事。
 - **函式庫、需要讓呼叫者精確處理錯誤**：自訂錯誤 `enum` + `impl Error` + `impl From`。
 
-下一集會介紹社群 crate 怎麼大幅簡化自訂錯誤型別的寫法。
+下一集會介紹社群 `crate` 怎麼大幅簡化自訂錯誤型別的寫法。
 
 ## 範例程式碼
 

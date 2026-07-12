@@ -191,9 +191,9 @@ mod shapes {
 
 ### `pub(crate)`, `pub(super)`, `pub(in path)`
 
-Sometimes you don't want full publicity, yet other `mod`s within the crate should have access. Rust offers fine-grained control:
+Sometimes you don't want full publicity, yet other `mod`s within the `crate` should have access. Rust offers fine-grained control:
 
-- `pub(crate)`: visible throughout the crate, invisible outside (to other crates).
+- `pub(crate)`: visible throughout the `crate`, invisible outside (to other `crate`s).
 - `pub(super)`: visible only to the parent `mod`.
 - `pub(in crate::some::path)`: visible only to the named `mod` path — the finest control.
 
@@ -255,7 +255,7 @@ fn main() {
 
 ### Everything You Make Public, Taken Together, Is Your API
 
-The set of things you open up with `pub` — functions, types, methods, `trait`s — together form the project's **API**. API (application programming interface) means "**the interface a piece of code exposes for others to call**": others see, and should depend on, only your public face; the private implementation details hidden behind `pub` are beyond their reach, and yours to change freely later. From Chapter 1 to now, every `String::new()`, `vec.push(x)`, and `iter.map(...)` you wrote was a call into the standard library's API — the standard library marked those functions and methods `pub` for you, hiding its internals completely. The only difference: before, you were the API's **user**; from this chapter on, you're also an API **designer**.
+The set of things you open up with `pub` — functions, types, methods, `trait`s — together form the `crate`'s **API**. API (application programming interface) means "**the interface a piece of code exposes for others to call**": others see, and should depend on, only your public face; the private implementation details hidden behind `pub` are beyond their reach, and yours to change freely later. From Chapter 1 to now, every `String::new()`, `vec.push(x)`, and `iter.map(...)` you wrote was a call into the standard library's API — the standard library marked those functions and methods `pub` for you, hiding its internals completely. The only difference: before, you were the API's **user**; from this chapter on, you're also an API **designer**.
 
 ## Recap
 
@@ -264,7 +264,7 @@ The set of things you open up with `pub` — functions, types, methods, `trait`s
 - A `struct` with private fields can't be constructed directly from outside; provide a constructor.
 - A `pub enum`'s variants are **automatically public**.
 - In `impl Trait for T`, the `fn`s' visibility follows the `trait` — no `pub`; in `impl T`, each `fn` takes its own `pub`.
-- `pub(crate)`: visible within the crate, not outside.
+- `pub(crate)`: visible within the `crate`, not outside.
 - `pub(super)`: visible only to the parent `mod`.
 - `pub(in path)`: visible only to the named `mod` path.
 - Everything `pub`, taken together, **is your API**; the rest is implementation detail. The standard library is itself an API — this chapter turns you from the API's "user" into its "designer."

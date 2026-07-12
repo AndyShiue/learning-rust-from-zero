@@ -35,7 +35,7 @@ fn main() {
 
 Rust paths have two starting points:
 
-**Absolute paths** — starting from the crate root:
+**Absolute paths** — starting from the `crate` root:
 
 ```rust,ignore
 use crate::math::add; // The math mod within this very crate
@@ -47,9 +47,9 @@ use crate::math::add; // The math mod within this very crate
 use math::add; // The math sub-mod under the current mod
 ```
 
-### Paths for External Crates
+### Paths for External `crate`s
 
-After adding an external crate in `Cargo.toml`, use the crate's name as the path's head:
+After adding an external `crate` in `Cargo.toml`, use the `crate`'s name as the path's head:
 
 ```rust,ignore
 use std::collections::HashMap;
@@ -58,9 +58,9 @@ use rand::Rng;
 # fn main() {}
 ```
 
-`std` is Rust's **standard library** — a built-in toolkit including the `Vec`, `String`, `Option`, `Result`, `println!` we've already used, plus much more: file operations, networking, collections, and so on. No Cargo.toml dependency is needed, since every Rust program links `std` automatically. Its paths read like an external crate's — `std::collections::HashMap`, `std::fmt::Display`, etc. And not only is `std` linked automatically — `std`'s **prelude** is imported automatically too, meaning the most common types and `trait`s (`Vec`, `String`, `Option`, `Result`, `Clone`, `Copy`...) work with no `use` at all. That's why the early chapters never needed `use`.
+`std` is Rust's **standard library** — a built-in toolkit including the `Vec`, `String`, `Option`, `Result`, `println!` we've already used, plus much more: file operations, networking, collections, and so on. No Cargo.toml dependency is needed, since every Rust program links `std` automatically. Its paths read like an external `crate`'s — `std::collections::HashMap`, `std::fmt::Display`, etc. And not only is `std` linked automatically — `std`'s **prelude** is imported automatically too, meaning the most common types and `trait`s (`Vec`, `String`, `Option`, `Result`, `Clone`, `Copy`...) work with no `use` at all. That's why the early chapters never needed `use`.
 
-To emphasize "this is an external crate" explicitly, start with `::`:
+To emphasize "this is an external `crate`" explicitly, start with `::`:
 
 ```rust,ignore,mdbook-runnable
 use ::rand::Rng;  // Explicitly: rand is an external crate, not a local mod
@@ -68,7 +68,7 @@ use ::rand::Rng;  // Explicitly: rand is an external crate, not a local mod
 # fn main() {}
 ```
 
-Especially useful when your own crate also has a `mod` named `rand` — it removes the ambiguity.
+Especially useful when your own `crate` also has a `mod` named `rand` — it removes the ambiguity.
 
 ### super:: and self::
 
@@ -252,7 +252,7 @@ fn main() {
 
 - `use` brings a path into scope, sparing you the full path each time.
 - Absolute paths start with `crate::`; relative paths start from the current `mod`.
-- External crates start with their name; a `::` prefix marks one explicitly as external.
+- External `crate`s start with their name; a `::` prefix marks one explicitly as external.
 - `std` is the standard library — usable without a dependency; the prelude lives there too.
 - `super::` points to the parent `mod`; `self::` to the current one.
 - `use a::b::{self, X, Y};` imports several things at once.

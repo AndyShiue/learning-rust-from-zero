@@ -57,7 +57,7 @@ async fn main() {
 - Since it doesn't cross `Thread`s, it **doesn't need `Send + 'static`** — it can hold `Future`s that borrow local variables (`JoinSet` can't, because it has to `spawn`).
 - But since everyone takes turns on the same `Task`, if one `Future`'s `poll` blocks or runs for too long, `poll`ing the others is delayed (that "don't block the `Thread`" iron rule again).
 
-`FuturesUnordered` is defined in the `futures` crate, so add the dependency first (last episode's `tokio-stream` is used here too):
+`FuturesUnordered` is defined in the `futures` `crate`, so add the dependency first (last episode's `tokio-stream` is used here too):
 
 ```toml
 [dependencies]

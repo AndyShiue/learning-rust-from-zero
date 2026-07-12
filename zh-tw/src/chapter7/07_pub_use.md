@@ -50,9 +50,9 @@ use your_crate::power;
 
 注意：`pub use` 只能匯出**本來就是 `pub` 的東西**。如果你試圖 `pub use` 一個 private 的 item，編譯器會報錯——你不能把別人藏起來的東西公開出去。
 
-### re-export 其他 crate 的東西
+### re-export 其他 `crate` 的東西
 
-`pub use` 不只能匯出自己 `mod` 的內容，也能匯出**其他 crate** 的東西：
+`pub use` 不只能匯出自己 `mod` 的內容，也能匯出**其他 `crate`** 的東西：
 
 ```rust,ignore
 // lib.rs
@@ -61,7 +61,7 @@ pub use rand::Rng; // 使用者 use your_crate::Rng 就好，不用自己加 ran
 # fn main() {}
 ```
 
-這在 library 設計裡很常見——你的 library 依賴了某個 crate，但你想讓使用者透過你的 crate 就能用到那些型別，不用自己在 `Cargo.toml` 加依賴。
+這在 library 設計裡很常見——你的 library 依賴了某個 `crate`，但你想讓使用者透過你的 `crate` 就能用到那些型別，不用自己在 `Cargo.toml` 加依賴。
 
 ### 分層 re-export
 
@@ -141,5 +141,5 @@ fn main() {
 ## 重點整理
 
 - `pub use path::Item;` 把內部的東西重新匯出，讓外部用更短的路徑存取。
-- 可以匯出自己 `mod` 的內容，也可以匯出其他 crate 的東西。
-- library 的 `lib.rs` 常用 `pub use` 把重要型別提升到 crate 頂層。
+- 可以匯出自己 `mod` 的內容，也可以匯出其他 `crate` 的東西。
+- library 的 `lib.rs` 常用 `pub use` 把重要型別提升到 `crate` 頂層。

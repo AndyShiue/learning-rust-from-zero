@@ -2,13 +2,13 @@
 
 ## Goal of This Episode
 
-Get to know more of Cargo's features and how to use community packages via crates.io.
+Get to know more of Cargo's features and how to use community `crate`s via crates.io.
 
 ## Concept
 
 We've been using `cargo new` and `cargo run` since Chapter 1. Actually, `cargo run` does two things: first it **compiles** your code, then it **runs** the compiled executable. To compile without running, use `cargo build` — it just produces the executable, placed in the `target/debug/` folder.
 
-This episode covers more of Cargo's features, especially bringing in external packages.
+This episode covers more of Cargo's features, especially bringing in external `crate`s.
 
 ### debug build vs release build
 
@@ -22,7 +22,7 @@ This produces an optimized executable, placed in `target/release/` instead of `t
 
 ### Cargo.toml
 
-Every Rust project's root has a `Cargo.toml`. TOML is a configuration format designed to be easy to read and write.
+Every Cargo project's root has a `Cargo.toml`. TOML is a configuration format designed to be easy to read and write.
 
 A typical `Cargo.toml`:
 
@@ -36,13 +36,13 @@ edition = "2024"
 ```
 
 - `[package]`: the project's basic information (name, version, Rust edition)
-- `[dependencies]`: the external packages this project uses
+- `[dependencies]`: the external `crate`s this project uses
 
-The `edition` here is a Rust **version number** — not the compiler's version, but the **language specification's version**. Rust publishes a new edition every few years (2015, 2018, 2021, 2024), each possibly adjusting some syntax or default behaviors. Crates on different editions interoperate fine, so compatibility isn't a worry. `cargo new` sets the newest edition for you automatically.
+The `edition` here is a Rust **version number** — not the compiler's version, but the **language specification's version**. Rust publishes a new edition every few years (2015, 2018, 2021, 2024), each possibly adjusting some syntax or default behaviors. `crate`s written using different editions interoperate fine, so compatibility isn't a worry. `cargo new` sets the newest edition for you automatically.
 
-### Adding External Packages
+### Adding External `crate`s
 
-Want to use packages others have written? The simplest way:
+Want to use `crate`s others have written? The simplest way:
 
 ```bash
 cargo add rand
@@ -59,7 +59,7 @@ The actual version number depends on the latest release when you run `cargo add`
 
 ### crates.io
 
-[crates.io](https://crates.io) is Rust's official package registry. You can search for packages, check download counts, and read documentation. Every package page has:
+[crates.io](https://crates.io) is Rust's official `crate` registry. You can search for `crate`s, check download counts, and read documentation. Every `crate` page has:
 
 - Usage instructions and version history
 - A link to auto-generated documentation on [docs.rs](https://docs.rs).
@@ -67,7 +67,7 @@ The actual version number depends on the latest release when you run `cargo add`
 
 ### Version Semantics for Dependencies
 
-There are several ways to specify a package's version in `[dependencies]`:
+There are several ways to specify a `crate`'s version in `[dependencies]`:
 
 - `"^1.0"` (or simply `"1.0"`): any version compatible with `1.x.y`, but never up to `2.0`.
 - `"=1.0.0"`: locked to **exactly** this version.
@@ -77,7 +77,7 @@ Most of the time the default `^` is fine; Cargo picks a suitable version for you
 
 ### Cargo features
 
-Some packages offer optional functionality, enabled via `features`:
+Some `crate`s offer optional functionality, enabled via `features`:
 
 ```toml
 [dependencies]
@@ -88,11 +88,11 @@ Now `serde`'s `#[derive(Serialize, Deserialize)]` becomes usable, while unneeded
 
 ## Example Code
 
-Generating random numbers with the `rand` package:
+Generating random numbers with the `rand` `crate`:
 
 ```rust,editable
 // First run: cargo add rand
-extern crate rand;
+# extern crate rand;
 
 use rand::RngExt;
 
@@ -114,9 +114,9 @@ fn main() {
 ## Recap
 
 - `cargo build --release` produces an optimized executable, suited for shipping.
-- `Cargo.toml` uses TOML format; `[package]` holds project info, `[dependencies]` the external packages.
-- `edition` is the Rust language specification's version (2015, 2018, 2021, 2024); crates on different editions interoperate.
-- `cargo add <package>` is the fastest way to add an external package.
+- `Cargo.toml` uses TOML format; `[package]` holds project info, `[dependencies]` the external `crate`s.
+- `edition` is the Rust language specification's version (2015, 2018, 2021, 2024); `crate`s written using different editions interoperate.
+- `cargo add <crate>` is the fastest way to add an external `crate`.
 - [crates.io](https://crates.io) is Rust's official registry; [docs.rs](https://docs.rs) hosts auto-generated docs.
 - The version `"1.0"` equals `"^1.0"`, allowing compatible upgrades; `"=1.0.0"` requires exactly that version.
-- `features` switch on a package's optional functionality.
+- `features` switch on a `crate`'s optional functionality.

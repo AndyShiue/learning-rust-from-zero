@@ -113,7 +113,7 @@ The two printed addresses are exactly the same: the pointer went in and out of t
 
 Finally, a reassurance: `Pin` is a **type-level pact**, mainly for "people writing low-level `Future`s or runtimes." If you just write `async fn`s and use `.await`, the compiler and runtime handle `Pin` for you, and you'll almost never touch it directly. So don't fret if the details of these episodes feel hazy — they exist so you "know what's happening underneath," not as everyday hand-written material.
 
-Should the day come when you hand-roll a low-level `Future` and need to extract a field's `Pin<P<Inner>>` from an outer `Pin<P<Outer>>` (an operation called projection), the community's `pin_project` project does it safely for you, no hand-written `unsafe` required. Knowing the tool exists is enough; we won't go deeper here.
+Should the day come when you hand-roll a low-level `Future` and need to extract a field's `Pin<P<Inner>>` from an outer `Pin<P<Outer>>` (an operation called projection), the community's `pin-project` `crate` does it safely for you, no hand-written `unsafe` required. Knowing the tool exists is enough; we won't go deeper here.
 
 And if you want to "get the value in a `Pin` back as a plain `&mut T`," next episode covers the trick that's often available when "moving wouldn't break it anyway."
 

@@ -19,14 +19,14 @@ The side-by-side makes it easy to remember:
 
 Both use "`None` means the end."
 
-These examples use the `tokio_stream` crate (it's not part of Tokio proper), so add the dependency first:
+These examples use the `tokio_stream` `crate` (it's not part of Tokio proper), so add the dependency first:
 
 ```toml
 [dependencies]
 tokio-stream = "0.1"
 ```
 
-One small thing to watch: the crate name is written `tokio-stream` (hyphen) in `Cargo.toml`, but `tokio_stream` (underscore) in code — a `-` in a crate name always becomes `_` in code.
+One small thing to watch: the `crate` name is written `tokio-stream` (hyphen) in `Cargo.toml`, but `tokio_stream` (underscore) in code — a `-` in a `crate` name always becomes `_` in code.
 
 ### Walking Through a `Stream`
 
@@ -52,7 +52,7 @@ async fn main() {
 
 ### `Stream` Isn't in the Standard Library
 
-One thing deserves special mention: unlike `Future`, `Stream` is **currently not in the standard library**. It's defined in a community project (`futures`), and the Tokio ecosystem provides `tokio_stream`. To use methods like `next`, `map`, and `filter`, you import the corresponding extension `trait`, `StreamExt`:
+One thing deserves special mention: unlike `Future`, `Stream` is **currently not in the standard library**. The `Stream` `trait` is defined in the `futures-core` `crate`; `tokio-stream` re-exports it and provides its own `StreamExt`. To use this episode's `next`, `map`, and `filter` methods, import `tokio_stream::StreamExt`:
 
 ```rust,editable
 extern crate tokio;

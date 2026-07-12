@@ -57,7 +57,7 @@ async fn main() {
 - 因為不跨 `Thread`，所以**不需要 `Send + 'static`**——它可以放借用了區域變數的 `Future`（`JoinSet` 因為要 `spawn` 就做不到）。
 - 但因為大家在同一個 `Task` 上輪流，如果一個 `Future` 的 `poll` 阻塞或執行太久，就會延後其他 `Future` 被 `poll`（又是「不要 block 住執行緒」那條鐵律）。
 
-`FuturesUnordered` 定義在 `futures` 這個套件裡，使用前要加上依賴（上一集加過的 `tokio-stream` 這裡也會用到）：
+`FuturesUnordered` 定義在 `futures` 這個 `crate` 裡，使用前要加上依賴（上一集加過的 `tokio-stream` 這裡也會用到）：
 
 ```toml
 [dependencies]

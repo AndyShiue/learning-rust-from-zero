@@ -232,4 +232,4 @@ fn main() {
 - Use `.take(n)` to extract finitely many elements from an infinite iterator.
 - Forget to consume an iterator, and the compiler warns you.
 
-Congratulations on finishing Chapter 6! 🎉 From function pointers through the three `Fn` `trait`s of closures to the lazy evaluation of iterators — this chapter combined ownership, `trait`s, generics, and everything before it, showing off the power of functional programming in Rust. You can now write clean, efficient data-processing pipelines with no intermediate staging. Next chapter: Cargo, crates, and the `mod` system — taking your code from a single file to a real project structure!
+Congratulations on finishing Chapter 6! 🎉 From function pointers through the three `Fn` `trait`s of closures to the lazy evaluation of iterators — this chapter combined ownership, `trait`s, generics, and everything before it, showing off the power of functional programming in Rust. You can now write clean, efficient data-processing pipelines with no intermediate staging. Next chapter: Cargo, `crate`s, and the `mod` system — taking your code from a single file to a real project structure!
