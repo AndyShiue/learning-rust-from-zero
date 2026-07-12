@@ -38,9 +38,9 @@
 fn main() {
     let mut scores = vec![60, 70, 80];
     for score in scores.iter_mut() {
-        *score += 10;  // score 是 &mut i32
+        *score += 10; // score 是 &mut i32
     }
-    println!("{:?}", scores);  // [70, 80, 90]
+    println!("{:?}", scores); // [70, 80, 90]
 }
 ```
 

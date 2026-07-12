@@ -38,9 +38,9 @@ In fact, `for name in names` equals `for name in names.into_iter()`.
 fn main() {
     let mut scores = vec![60, 70, 80];
     for score in scores.iter_mut() {
-        *score += 10;  // score is a &mut i32
+        *score += 10; // score is a &mut i32
     }
-    println!("{:?}", scores);  // [70, 80, 90]
+    println!("{:?}", scores); // [70, 80, 90]
 }
 ```
 
