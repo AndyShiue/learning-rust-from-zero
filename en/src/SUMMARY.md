@@ -137,7 +137,7 @@
     - [Closure Methods on `Option` / `Result`](chapter6/07_option_result_closure_methods.md)
     - [The `Iterator` `trait`](chapter6/08_iterator_trait.md)
     - [What `for` Loops Really Are](chapter6/09_for_loop_rewrite.md)
-    - [`iter` / `into_iter` / `iter_mut`](chapter6/10_iter_into_iter_iter_mut.md)
+    - [`into_iter` / `iter_mut` / `iter`](chapter6/10_into_iter_iter_mut_iter.md)
     - [Collecting](chapter6/11_collect.md)
     - [Aggregation](chapter6/12_aggregation.md)
     - [Combining and Slicing](chapter6/13_combine_and_slice.md)
