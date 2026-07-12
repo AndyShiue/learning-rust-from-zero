@@ -138,6 +138,6 @@ fn main() {
 
 - `mod name { ... }` creates a `mod` in the same file.
 - Things inside a `mod` are called with the `mod_name::item` path syntax.
-- `mod`s can nest, making paths ever longer: `a::b::c::func()`.
 - Everything inside a `mod` is **private by default**; external use requires `pub`.
+- `mod`s can nest, making paths ever longer: `a::b::c::func()`.
 - `mod` is Rust's basic unit of code organization — like folders organizing files.
