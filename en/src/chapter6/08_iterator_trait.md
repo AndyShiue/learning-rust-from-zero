@@ -135,7 +135,7 @@ impl Iterator for Fibonacci {
 }
 
 fn main() {
-    // Calling a Vec's iter().next() by hand
+    // Calling .next() of a Vec's .iter() by hand
     let names = vec!["Alice", "Bob", "Charlie"];
     let mut name_iter = names.iter();
     println!("First: {:?}", name_iter.next());

@@ -135,7 +135,7 @@ impl Iterator for Fibonacci {
 }
 
 fn main() {
-    // 手動呼叫 Vec 的 iter().next()
+    // 手動呼叫 Vec 的 .iter() 的 .next()
     let names = vec!["Alice", "Bob", "Charlie"];
     let mut name_iter = names.iter();
     println!("第一個：{:?}", name_iter.next());
