@@ -101,10 +101,6 @@ Calls then use the full path:
 
 It's like a filesystem's folder structure — `math` holds two sub-`mod`s, `basic` and `advanced`.
 
-### A `mod`'s Default Visibility
-
-An important idea: **everything in a `mod` is private by default**. Code within the same `mod` can access itself freely, but the outside sees nothing. This is Rust's design for protecting encapsulation. Episode 4 goes deeper.
-
 ## Example Code
 
 ```rust,editable
