@@ -65,9 +65,9 @@ fn main() {
         String::from("yaju@senpai.com"),
         24,
     );
-    println!("Name: {}", p.name);  // OK, name is pub
+    println!("Name: {}", p.name); // OK, name is pub
     println!("Age: {}", p.age()); // OK, accessed via the method
-    println!("{}", p.age);         // Compile error! The age field is private
+    println!("{}", p.age);        // Compile error! The age field is private
 }
 ```
 
