@@ -132,7 +132,7 @@
     - [Closures in Action](chapter6/02_closure_basics.md)
     - [Implementing Closures by Hand](chapter6/03_manual_closure.md)
     - [How Closure Kinds Are Inferred](chapter6/04_closure_inference.md)
-    - [`Fn` / `FnMut` / `FnOnce`](chapter6/05_fn_traits.md)
+    - [`FnOnce` / `FnMut` / `Fn`](chapter6/05_fn_traits.md)
     - [`move` Closures](chapter6/06_move_closure.md)
     - [Closure Methods on `Option` / `Result`](chapter6/07_option_result_closure_methods.md)
     - [The `Iterator` `trait`](chapter6/08_iterator_trait.md)

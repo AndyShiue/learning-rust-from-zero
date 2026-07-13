@@ -1,13 +1,13 @@
-# `Fn` / `FnMut` / `FnOnce`
+# `FnOnce` / `FnMut` / `Fn`
 
 ## Goal of This Episode
-Understand that `Fn`, `FnMut`, and `FnOnce` are `trait`s rather than types, grasp their inheritance relationships, and learn to choose the right closure `trait`.
+Understand that `FnOnce`, `FnMut`, and `Fn` are `trait`s rather than types, grasp their inheritance relationships, and learn to choose the right closure `trait`.
 
 ## Concept
 
 ### They're `trait`s, Not Types
 
-We've been saying `FnOnce`, `FnMut`, and `Fn` for several episodes without formally explaining — they are in fact **`trait`s**. Like Chapter 5's `Clone` and `Display`, `Fn` / `FnMut` / `FnOnce` are `trait`s defined in the standard library. Each closure's anonymous `struct` automatically `impl`s the corresponding `trait`s (last episode's inference rules decide which).
+We've been saying `FnOnce`, `FnMut`, and `Fn` for several episodes without formally explaining — they are in fact **`trait`s**. Like Chapter 5's `Clone` and `Display`, `FnOnce` / `FnMut` / `Fn` are `trait`s defined in the standard library. Each closure's anonymous `struct` automatically `impl`s the corresponding `trait`s (last episode's inference rules decide which).
 
 So what do these `trait`s look like?
 
@@ -21,7 +21,7 @@ Watch out! `fn(i32) -> i32` (lowercase) is the function pointer **type**, while 
 
 The three `trait`s form supertrait relationships:
 
-```ignore
+```text
 Fn : FnMut : FnOnce
 ```
 
@@ -126,7 +126,7 @@ fn main() {
     let result2 = sum_two_calls(double, 10);
     println!("With an ordinary function: {}", result2);
 
-    // An Fn closure also fits an FnOnce parameter (since Fn: FnMut: FnOnce)
+    // An Fn closure also fits an FnOnce parameter (every Fn closure implements FnOnce)
     let greeting = String::from("Hi");
     consume_and_print(|| {
         format!("{}, world!", greeting) // Only reads greeting — it's Fn
@@ -138,7 +138,7 @@ fn main() {
 
 ## Recap
 
-- `Fn`, `FnMut`, `FnOnce` are **`trait`s**, not types; `fn` is the function pointer type.
+- `FnOnce`, `FnMut`, `Fn` are **`trait`s**, not types; `fn` is the function pointer type.
 - The inheritance: `Fn` ⊂ `FnMut` ⊂ `FnOnce` (`FnOnce` accepts every closure).
 - Accept closure parameters with `impl FnOnce()` / `impl FnMut()` / `impl Fn()`.
 - `FnMut` parameters need `mut`.

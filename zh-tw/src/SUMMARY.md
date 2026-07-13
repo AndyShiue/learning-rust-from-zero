@@ -132,7 +132,7 @@
     - [閉包用法展示](chapter6/02_closure_basics.md)
     - [手動實作閉包](chapter6/03_manual_closure.md)
     - [閉包種類的推斷](chapter6/04_closure_inference.md)
-    - [`Fn` / `FnMut` / `FnOnce`](chapter6/05_fn_traits.md)
+    - [`FnOnce` / `FnMut` / `Fn`](chapter6/05_fn_traits.md)
     - [`move` 閉包](chapter6/06_move_closure.md)
     - [`Option` / `Result` 的閉包方法](chapter6/07_option_result_closure_methods.md)
     - [`Iterator` `trait`](chapter6/08_iterator_trait.md)

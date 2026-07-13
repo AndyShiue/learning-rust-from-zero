@@ -1,13 +1,13 @@
-# `Fn` / `FnMut` / `FnOnce`
+# `FnOnce` / `FnMut` / `Fn`
 
 ## 本集目標
-理解 `Fn`、`FnMut`、`FnOnce` 是 `trait` 而非型別，掌握它們的繼承關係，並學會選擇正確的閉包 `trait`。
+理解 `FnOnce`、`FnMut`、`Fn` 是 `trait` 而非型別，掌握它們的繼承關係，並學會選擇正確的閉包 `trait`。
 
 ## 概念說明
 
 ### 它們是 `trait`，不是型別
 
-前幾集我們一直說 `FnOnce`、`FnMut`、`Fn`，但還沒正式說明——它們其實是 **`trait`**。就像第 5 章學的 `Clone`、`Display` 一樣，`Fn` / `FnMut` / `FnOnce` 是定義在標準庫裡的 `trait`。每個閉包的匿名 `struct` 會自動 `impl` 對應的 `trait`（上一集講的推斷規則決定 `impl` 哪些）。
+前幾集我們一直說 `FnOnce`、`FnMut`、`Fn`，但還沒正式說明——它們其實是 **`trait`**。就像第 5 章學的 `Clone`、`Display` 一樣，`FnOnce` / `FnMut` / `Fn` 是定義在標準庫裡的 `trait`。每個閉包的匿名 `struct` 會自動 `impl` 對應的 `trait`（上一集講的推斷規則決定 `impl` 哪些）。
 
 那這些 `trait` 到底長什麼樣？
 
@@ -21,7 +21,7 @@
 
 這三個 `trait` 有繼承（supertrait）關係：
 
-```ignore
+```text
 Fn : FnMut : FnOnce
 ```
 
@@ -126,7 +126,7 @@ fn main() {
     let result2 = sum_two_calls(double, 10);
     println!("用普通函數：{}", result2);
 
-    // Fn 的閉包也可以傳給 FnOnce 的參數（因為 Fn: FnMut: FnOnce）
+    // Fn 的閉包也可以傳給 FnOnce 的參數（所有 Fn 閉包都實作 FnOnce）
     let greeting = String::from("哈囉");
     consume_and_print(|| {
         format!("{}, 世界！", greeting) // 只是讀取 greeting，是 Fn
@@ -138,7 +138,7 @@ fn main() {
 
 ## 重點整理
 
-- `Fn`、`FnMut`、`FnOnce` 是 **`trait`**，不是型別；`fn` 才是函數指標型別。
+- `FnOnce`、`FnMut`、`Fn` 是 **`trait`**，不是型別；`fn` 才是函數指標型別。
 - 繼承關係：`Fn` ⊂ `FnMut` ⊂ `FnOnce`（`FnOnce` 能接受所有閉包）。
 - 用 `impl FnOnce()` / `impl FnMut()` / `impl Fn()` 來接受閉包參數。
 - `FnMut` 的參數要加 `mut`。

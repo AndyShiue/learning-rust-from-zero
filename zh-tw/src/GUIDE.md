@@ -136,7 +136,7 @@
 | 第 3 章 | `struct`、tuple/unit struct、`enum`、`match`、block 表達式、各種 pattern、解構、`if let`、`while let`、`let else`、associated function、method、`Self` | 所有權細節、`&self`/`&mut self` method、對同一個 by-value method 物件連續呼叫 |
 | 第 4 章 | 所有權、move、`clone`、`Copy`、借用 `&T`、可變借用 `&mut T`、借用規則、`self`/`&self`/`&mut self`、stack/heap、`String`、`&str`、`Vec` | 泛型、`Option`/`Result` 正式錯誤處理、`trait` bound、生命週期標注、閉包、Iterator chain |
 | 第 5 章 | 泛型、`Option<T>`、`Result<T, E>`、`?`、`trait`、`trait` bound、`where`、`use` 基礎、`Display`、`From`/`Into`、`impl Trait`、`Drop`、`Box`、`Rc`、`Deref`、`Cell`/`RefCell`、生命週期、supertrait、derive、associated type、`Cow` | 閉包與 Iterator chain（到第 6 章才正式使用）、多檔案模組（到第 7 章才正式使用） |
-| 第 6 章 | 函數指標、閉包、`Fn`/`FnMut`/`FnOnce`、`move` 閉包、`Iterator`、`into_iter`/`iter_mut`/`iter`、`map`、`filter`、`collect`、`sum`、`fold`、`zip`、`enumerate`、惰性求值 | `mod`/多檔案 `crate` 組織（第 7 章） |
+| 第 6 章 | 函數指標、閉包、`FnOnce`/`FnMut`/`Fn`、`move` 閉包、`Iterator`、`into_iter`/`iter_mut`/`iter`、`map`、`filter`、`collect`、`sum`、`fold`、`zip`、`enumerate`、惰性求值 | `mod`/多檔案 `crate` 組織（第 7 章） |
 | 第 7 章 | Cargo 與 crates.io、`mod`、檔案模組、`pub`、`use`、`pub use`、orphan rule、文件註解、`cargo test`、`#[test]`、`cargo publish` | 第二部進階主題除非讀者主動問 |
 | 附錄一 | 數字字面值、短路求值、`break` 回傳值、多行字串與 raw string、格式化字串進階、區域 items、struct update syntax、`ref` pattern、match ergonomics、`panic!`/`todo!` 等、`let` chains、`Weak`、fully qualified syntax、DST 簡介 | 第 9 章之後的多執行緒與 unsafe 等進階主題 |
 | 第 9 章 | 指標、`thread::spawn`、`thread::scope`、`Send`/`Sync`、`Arc`、atomic、`Mutex`、`RwLock`、poisoning、`mpsc`、死鎖 | 第 10、11 章尚未讀到的進階語言與標準庫 |

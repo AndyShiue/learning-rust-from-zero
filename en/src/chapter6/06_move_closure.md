@@ -175,5 +175,5 @@ fn main() {
 
 - `move` forces the closure to capture every used outer variable by value. If a captured variable is itself a reference, it remains a reference and keeps its lifetime.
 - Returning a closure often requires `move` so it captures local variables by value, but any references captured by value must still live long enough.
-- `move` **does not affect** whether the closure is `Fn` / `FnMut` / `FnOnce` — that depends on **how it uses** the captured values.
+- `move` **does not affect** whether the closure is `FnOnce` / `FnMut` / `Fn` — that depends on **how it uses** the captured values.
 - Whether a closure can `clone` / copy depends on whether all its captures are `Clone` / `Copy`.
