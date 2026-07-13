@@ -29,7 +29,7 @@ A type defined inside a function is visible only to that `fn`. Other functions c
 
 ### The Important Difference: Items Aren't Order-sensitive
 
-Here's a point many don't know. In Rust, **items** — including `fn`, `struct`, `enum`, `trait`, `impl`, and so on — **are unaffected by definition order**. Use first, define later:
+Here's a point many don't know. In Rust, **items** — including `fn`, `struct`, `enum`, `trait`, `impl`, and so on — **are unaffected by definition order**. They can be used before they are defined:
 
 ```rust,editable
 fn main() {
@@ -57,19 +57,19 @@ fn main() {
     greet();
 
     // The struct used first, defined later
+    let p = Point { x: 3.0, y: 4.0 };
+    println!("Coordinates: ({}, {})", p.x, p.y);
+
+    // The enum used first, defined later
     let color = Color::Red;
     describe(color);
 
-    // The definition placed after the use
+    // These items are all defined after their use
     struct Point {
         x: f64,
         y: f64,
     }
 
-    let p = Point { x: 3.0, y: 4.0 };
-    println!("Coordinates: ({}, {})", p.x, p.y);
-
-    // The order of these item definitions doesn't matter at all
     enum Color {
         Red,
         Green,
@@ -99,8 +99,8 @@ fn main() {
 ## Recap
 
 - Items like `struct`, `enum`, and `fn` can legally be defined inside functions.
-- An item defined inside a `fn` is visible only to that `fn` (scope restriction).
+- An item defined inside an `fn` is visible only to that `fn` (scope restriction).
 - Type definitions conventionally still go outside `fn`s, unless a single `fn` uses them.
-- **Items are unaffected by definition order** — use first, define later.
+- **Items are unaffected by definition order** — they can be used either before or after their definitions.
 - **`let` bindings must appear before use** — the fundamental difference between items and `let`.
 - The reason: items are compile-time static definitions; the compiler scans all items before handling runtime code.
