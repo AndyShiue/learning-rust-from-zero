@@ -135,7 +135,7 @@ trait Robot {
 完全限定語法也可以用來存取某個型別在特定 `trait` 上的 **associated type**：
 
 ```rust,noplayground
-// Iterator trait 有一個 associated type 叫 Item
+// IntoIterator trait 有一個 associated type 叫 Item
 // 用完全限定語法取得它的具體型別：
 type MyItem = <Vec<i32> as IntoIterator>::Item; // i32
 #

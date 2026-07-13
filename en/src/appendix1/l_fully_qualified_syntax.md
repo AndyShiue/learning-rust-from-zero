@@ -135,7 +135,7 @@ For **associated functions** without a `self` parameter, there's no receiver for
 Fully qualified syntax also reaches a type's **associated type** on a particular `trait`:
 
 ```rust,noplayground
-// The Iterator trait has an associated type named Item
+// The IntoIterator trait has an associated type named Item
 // Fully qualified syntax retrieves its concrete type:
 type MyItem = <Vec<i32> as IntoIterator>::Item; // i32
 #
