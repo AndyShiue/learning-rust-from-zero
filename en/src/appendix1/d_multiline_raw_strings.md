@@ -64,7 +64,7 @@ What if the string even contains `"#`? Add more `#` layers:
 # }
 ```
 
-Any number of `#` layers works, as long as the opening and closing counts match.
+You can use up to 255 `#` characters, as long as the opening and closing counts match.
 
 ## Example Code
 
@@ -120,5 +120,5 @@ the sound of water";
 - A `\` at line's end continues to the next line, dropping the newline and the next line's leading whitespace.
 - `r"..."` is a raw string, processing no escapes at all (`\n`, `\\`, etc. stay verbatim).
 - `r#"..."#` lets a raw string contain double quotes.
-- The `#` layers can multiply (`r##"..."##`, `r###"..."###`), as long as they match front and back.
+- A raw string can use up to 255 `#` characters (`r##"..."##`, `r###"..."###`, and so on), as long as the opening and closing counts match.
 - Raw strings shine for Windows paths, regular expressions, JSON, embedded code, and the like.
