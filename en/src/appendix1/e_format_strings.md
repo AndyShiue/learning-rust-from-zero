@@ -2,7 +2,7 @@
 
 ## Goal of This Episode
 
-Learn `println!`'s assorted formatting tricks: the variable-capture shorthand, width, precision control, alignment, and base display.
+Learn `println!`'s assorted formatting tricks: the variable-capture shorthand, positional parameters, width, precision control, alignment, and base display.
 
 > This episode supplements **Chapter 2**.
 
