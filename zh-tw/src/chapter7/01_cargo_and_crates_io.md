@@ -92,7 +92,7 @@ serde = { version = "1.0", features = ["derive"] }
 
 ```rust,editable
 // 先執行：cargo add rand
-# extern crate rand;
+extern crate rand;
 
 use rand::RngExt;
 

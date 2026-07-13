@@ -92,7 +92,7 @@ Generating random numbers with the `rand` `crate`:
 
 ```rust,editable
 // First run: cargo add rand
-# extern crate rand;
+extern crate rand;
 
 use rand::RngExt;
 

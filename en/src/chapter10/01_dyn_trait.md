@@ -39,7 +39,7 @@ impl Describe for Dog {
 
 `dyn Describe` means "some type that implements `Describe`, but I don't know which one specifically."
 
-But since we don't know what it actually is, the size of `dyn Describe` isn't fixed — `Cat` might take 1 byte while `Dog` takes 100 bytes, and the compiler can't know at compile time which one it'll be. So `dyn Describe` is a DST (which we learned about in the last episode of Appendix I) and must live behind a pointer:
+But since we don't know what it actually is, the size of `dyn Describe` isn't fixed — `Cat` might take 1 byte while `Dog` takes 100 bytes, and the compiler can't know at compile time which one it'll be. So `dyn Describe` is a DST (which we learned about in Appendix I's DST introduction) and must live behind a pointer:
 
 - `&dyn Describe` — borrowed.
 - `Box<dyn Describe>` — owned
@@ -113,7 +113,7 @@ fn make_animal(is_cat: bool) -> Box<dyn Describe> {
 
 ### Fat Pointers: Address + vtable
 
-In the last episode of Appendix I we learned that `&[T]` is a fat pointer (address + length). `&dyn Trait` is also a fat pointer, but it stores something different:
+In Appendix I's DST introduction we learned that `&[T]` is a fat pointer (address + length). `&dyn Trait` is also a fat pointer, but it stores something different:
 
 ```ignore
 &[T]         = [data address][length]

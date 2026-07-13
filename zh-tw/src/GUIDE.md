@@ -113,9 +113,8 @@
 | 範圍 | 位置 | 命名 |
 | --- | --- | --- |
 | 第 1～7 章 | `chapter1/` 到 `chapter7/` | `##_topic.md` |
-| 附錄一 | `appendix1/` | `a_topic.md` 到 `m_topic.md` |
-| 第 9～11 章 | `chapter9/` 到 `chapter11/` | `##_topic.md` |
-| 第 12 章 | `chapter12/` | `##_topic.md` |
+| 附錄一 | `appendix1/` | `a_topic.md` 到 `n_topic.md` |
+| 第 9～12 章 | `chapter9/` 到 `chapter12/` | `##_topic.md` |
 
 注意：
 
@@ -138,7 +137,7 @@
 | 第 5 章 | 泛型、`Option<T>`、`Result<T, E>`、`?`、`trait`、`trait` bound、`where`、`use` 基礎、`Display`、`From`/`Into`、`impl Trait`、`Drop`、`Box`、`Rc`、`Deref`、`Cell`/`RefCell`、生命週期、supertrait、derive、associated type、`Cow` | 閉包與 Iterator chain（到第 6 章才正式使用）、多檔案模組（到第 7 章才正式使用） |
 | 第 6 章 | 函數指標、閉包、`FnOnce`/`FnMut`/`Fn`、`move` 閉包、`Iterator`、`into_iter`/`iter_mut`/`iter`、`map`、`filter`、`collect`、`sum`、`fold`、`zip`、`enumerate`、惰性求值 | `mod`/多檔案 `crate` 組織（第 7 章） |
 | 第 7 章 | Cargo 與 crates.io、`mod`、檔案模組、`pub`、`use`、`pub use`、orphan rule、文件註解、`cargo test`、`#[test]`、`cargo publish` | 第二部進階主題除非讀者主動問 |
-| 附錄一 | 數字字面值、短路求值、`break` 回傳值、多行字串與 raw string、格式化字串進階、區域 items、struct update syntax、`ref` pattern、match ergonomics、`panic!`/`todo!` 等、`let` chains、`Weak`、fully qualified syntax、DST 簡介 | 第 9 章之後的多執行緒與 unsafe 等進階主題 |
+| 附錄一 | 數字字面值、短路求值、`break` 回傳值、多行字串與 raw string、格式化字串進階、區域 items、struct update syntax、`ref` pattern、match ergonomics、`panic!`/`todo!` 等、`let` chains、`Weak`、fully qualified syntax、DST 簡介、`extern crate` | 第 9 章之後的多執行緒與 unsafe 等進階主題 |
 | 第 9 章 | 指標、`thread::spawn`、`thread::scope`、`Send`/`Sync`、`Arc`、atomic、`Mutex`、`RwLock`、poisoning、`mpsc`、死鎖 | 第 10、11 章尚未讀到的進階語言與標準庫 |
 | 第 10 章 | `dyn Trait`、dyn compatibility、`const fn`、associated `const`、`const` generics、預設參數模式、運算子重載、`as`、enum discriminant、attribute、`cfg!`、macro、`unsafe`、`static`、`LazyLock`、extern blocks、union、never type | 第 11 章標準庫主題 |
 | 第 11 章 | `AsRef`/`AsMut`、`Ordering`、排序、`HashMap`、`HashSet`、其他集合、`std::env`、`std::process`、`std::path`、進階字串、檔案 I/O、`Error` `trait`、`thiserror`、`anyhow`、`catch_unwind` | 第 12 章非同步主題除非讀者主動問 |

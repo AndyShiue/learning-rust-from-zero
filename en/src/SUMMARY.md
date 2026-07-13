@@ -168,6 +168,7 @@
     - [`Rc` Cycles and `Weak`](appendix1/k_rc_cycle_weak.md)
     - [Fully Qualified Syntax](appendix1/l_fully_qualified_syntax.md)
     - [A Brief Introduction to DSTs](appendix1/m_dst_intro.md)
+    - [`extern crate`](appendix1/n_extern_crate.md)
 
 # Part II
 

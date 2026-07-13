@@ -113,9 +113,8 @@ Chapter directories:
 | Range | Location | Naming |
 | --- | --- | --- |
 | Chapters 1–7 | `chapter1/` through `chapter7/` | `##_topic.md` |
-| Appendix I | `appendix1/` | `a_topic.md` through `m_topic.md` |
-| Chapters 9–11 | `chapter9/` through `chapter11/` | `##_topic.md` |
-| Chapter 12 | `chapter12/` | `##_topic.md` |
+| Appendix I | `appendix1/` | `a_topic.md` through `n_topic.md` |
+| Chapters 9–12 | `chapter9/` through `chapter12/` | `##_topic.md` |
 
 Notes:
 
@@ -139,7 +138,7 @@ Use this section to quickly establish "what the reader can currently understand.
 | Chapter 5 | Generics, `Option<T>`, `Result<T, E>`, `?`, `trait`s, `trait` bounds, `where`, `use` basics, `Display`, `From`/`Into`, `impl Trait`, `Drop`, `Box`, `Rc`, `Deref`, `Cell`/`RefCell`, lifetimes, supertraits, derive, associated types, `Cow` | Closures and Iterator chains (formally used in Chapter 6), multi-file modules (formally used in Chapter 7) |
 | Chapter 6 | Function pointers, closures, `FnOnce`/`FnMut`/`Fn`, `move` closures, `Iterator`, `into_iter`/`iter_mut`/`iter`, `map`, `filter`, `collect`, `sum`, `fold`, `zip`, `enumerate`, lazy evaluation | `mod`/multi-file `crate` organization (Chapter 7) |
 | Chapter 7 | Cargo and crates.io, `mod`, file modules, `pub`, `use`, `pub use`, the orphan rule, doc comments, `cargo test`, `#[test]`, `cargo publish` | Part II's advanced topics unless the reader asks |
-| Appendix I | Number literals, short-circuit evaluation, `break` with a value, multiline strings and raw strings, format strings in depth, local items, struct update syntax, `ref` patterns, match ergonomics, `panic!`/`todo!` and friends, `let` chains, `Weak`, fully qualified syntax, DST intro | Chapter 9+ topics such as multithreading and unsafe |
+| Appendix I | Number literals, short-circuit evaluation, `break` with a value, multiline strings and raw strings, format strings in depth, local items, struct update syntax, `ref` patterns, match ergonomics, `panic!`/`todo!` and friends, `let` chains, `Weak`, fully qualified syntax, DST intro, `extern crate` | Chapter 9+ topics such as multithreading and unsafe |
 | Chapter 9 | Pointers, `thread::spawn`, `thread::scope`, `Send`/`Sync`, `Arc`, atomics, `Mutex`, `RwLock`, poisoning, `mpsc`, deadlocks | Chapters 10 and 11's advanced language and standard-library topics not yet read |
 | Chapter 10 | `dyn Trait`, dyn compatibility, `const fn`, associated `const`s, `const` generics, default-parameter patterns, operator overloading, `as`, enum discriminants, attributes, `cfg!`, macros, `unsafe`, `static`, `LazyLock`, extern blocks, unions, the never type | Chapter 11's standard-library topics |
 | Chapter 11 | `AsRef`/`AsMut`, `Ordering`, sorting, `HashMap`, `HashSet`, other collections, `std::env`, `std::process`, `std::path`, advanced strings, file I/O, the `Error` `trait`, `thiserror`, `anyhow`, `catch_unwind` | Chapter 12's async topics unless the reader asks |

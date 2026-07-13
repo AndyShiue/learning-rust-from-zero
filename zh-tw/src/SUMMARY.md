@@ -168,6 +168,7 @@
     - [`Rc` 迴圈與 `Weak`](appendix1/k_rc_cycle_weak.md)
     - [fully qualified syntax](appendix1/l_fully_qualified_syntax.md)
     - [DST 簡介](appendix1/m_dst_intro.md)
+    - [`extern crate`](appendix1/n_extern_crate.md)
 
 # 第二部
 

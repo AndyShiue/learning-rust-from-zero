@@ -39,7 +39,7 @@ impl Describe for Dog {
 
 `dyn Describe` 代表「某個實作了 `Describe` 的型別，但具體是什麼我不知道」。
 
-但既然不知道具體是什麼，`dyn Describe` 的大小就不固定——`Cat` 可能佔 1 byte，`Dog` 可能佔 100 bytes，編譯器在編譯期不知道會是哪個。所以 `dyn Describe` 是 DST（附錄一最後一集學過），必須放在指標後面：
+但既然不知道具體是什麼，`dyn Describe` 的大小就不固定——`Cat` 可能佔 1 byte，`Dog` 可能佔 100 bytes，編譯器在編譯期不知道會是哪個。所以 `dyn Describe` 是 DST（附錄一的〈DST 簡介〉學過），必須放在指標後面：
 
 - `&dyn Describe` — 借用。
 - `Box<dyn Describe>` — 擁有
@@ -113,7 +113,7 @@ fn make_animal(is_cat: bool) -> Box<dyn Describe> {
 
 ### 胖指標：位址 + vtable
 
-附錄一最後一集學過 `&[T]` 是胖指標（位址 + 長度）。`&dyn Trait` 也是胖指標，但存的東西不同：
+附錄一的〈DST 簡介〉學過 `&[T]` 是胖指標（位址 + 長度）。`&dyn Trait` 也是胖指標，但存的東西不同：
 
 ```ignore
 &[T]         = [資料位址][長度]

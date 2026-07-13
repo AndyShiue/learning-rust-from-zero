@@ -8,7 +8,7 @@ Understand the concept of memory addresses, and what a pointer is at the low lev
 
 In earlier chapters, using `&T`, `Box<T>`, and `Rc<T>`, we cared about "who owns the data" and "who's borrowing." This episode switches angles — what are these things actually in memory?
 
-Appendix I's final episode touched on DSTs and fat pointers. If that felt hazy at the time, that's normal — we hadn't formally introduced pointers yet. This episode fills in that foundation.
+The DST introduction in Appendix I touched on DSTs and fat pointers. If that felt hazy at the time, that's normal — we hadn't formally introduced pointers yet. This episode fills in that foundation.
 
 ### Memory Addresses
 
@@ -61,7 +61,7 @@ Dereferencing isn't free. Most of the time the cost is tiny, but knowing it exis
 
 ### Fat Pointers
 
-Appendix I's last episode introduced DSTs — `[T]` and `str` are types of indeterminate size, unable to sit directly in variables, usually handled through `&[T]`, `&str`, `Box<[T]>`, and the like. But with no fixed size, an address alone isn't enough. Picture it: you're handed an address and told a contiguous run of `i32` data starts there — but where does it end? Memory itself won't say; an address is only a starting point. So besides the address, a length must also be recorded to know how far the data extends. Hence `&[T]` and `&str` occupy 16 bytes:
+The DST introduction in Appendix I explained that `[T]` and `str` are types of indeterminate size, unable to sit directly in variables, usually handled through `&[T]`, `&str`, `Box<[T]>`, and the like. But with no fixed size, an address alone isn't enough. Picture it: you're handed an address and told a contiguous run of `i32` data starts there — but where does it end? Memory itself won't say; an address is only a starting point. So besides the address, a length must also be recorded to know how far the data extends. Hence `&[T]` and `&str` occupy 16 bytes:
 
 ```rust,editable
 use std::mem::size_of;
