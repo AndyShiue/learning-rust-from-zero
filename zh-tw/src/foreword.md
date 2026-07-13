@@ -10,7 +10,7 @@
 
 > `rust-book-src.zip`：[https://andyshiue.github.io/learning-rust-from-zero/zh-tw/rust-book-src.zip](https://andyshiue.github.io/learning-rust-from-zero/zh-tw/rust-book-src.zip)
 
-強烈建議要用好一點的 AI 模型讀壓縮檔！免費的 AI 甚至可能完全懶得讀壓縮檔內的內容。個人目前建議使用 GPT-5.5 Thinking，自己試過效果還不錯。
+強烈建議要用好一點的 AI 模型讀壓縮檔！免費的 AI 甚至可能完全懶得讀壓縮檔內的內容。個人目前建議使用 GPT-5.6 Sol，自己試過效果還不錯。
 
 另外本教學也有 PDF 版供讀者下載：
 
@@ -24,5 +24,5 @@
 
 本教學除大綱外，初稿由 AI 完成，並經人類修改：
 
-- 模型：Claude 4.5 ~ 5 / GPT-5.5
+- 模型：Claude 4.5 ~ 5 / GPT-5.5 ~ 5.6
 - 馬具：OpenClaw / Claude Code / Codex
