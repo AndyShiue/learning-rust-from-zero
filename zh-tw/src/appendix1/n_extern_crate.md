@@ -51,7 +51,7 @@ use rand::RngExt;
 ```
 
 - `extern crate rand;` 明確載入 `rand` 這個外部 `crate`。
-- `use rand::RngExt;` 把 `rand` 裡的 `RngExt` `trait` 引入目前的 scope。
+- `use rand::RngExt;` 把 `rand` 裡的 `RngExt` `trait` 引入目前的作用域。
 
 也就是說，`extern crate` 處理的是外部 `crate` 本身，`use` 處理的是程式裡名稱的使用方式。
 
