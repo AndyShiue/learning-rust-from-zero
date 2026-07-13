@@ -221,7 +221,7 @@ fn main() {
 - DSTs can't be used directly as values; they need pointers: `&str`, `&[T]`, `Box<str>`, etc.
 - Pointers to DSTs are **fat pointers**: address + length, 16 bytes on 64-bit machines.
 - **`Sized`**: the type's size is compile-time known; generic parameters default to the `T: Sized` bound.
-- **`?Sized`**: loosens the bound so generics can accept DSTs (used through references).
+- **`?Sized`**: loosens the bound so generics can accept DSTs.
 - A `trait`'s `Self` defaults to `?Sized`; methods returning `Self` require `: Sized` on the `trait` (as in `Clone: Sized`).
 - The `B: ?Sized` in `Cow<'a, B>` exists precisely so `B` can be a DST like `str` or `[T]`.
 - `String`'s and `Vec<T>`'s `Deref` targets are the DSTs `str` and `[T]`; `deref` coercion makes `&String` → `&str` and `&Vec<T>` → `&[T]` possible.

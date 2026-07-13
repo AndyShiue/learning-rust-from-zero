@@ -221,7 +221,7 @@ fn main() {
 - DST 不能直接當值使用，必須透過指標：`&str`、`&[T]`、`Box<str>` 等。
 - 指向 DST 的指標是**胖指標（fat pointer）**：位址 + 長度，在 64 位元電腦上佔 16 bytes。
 - **`Sized`**：表示型別大小在編譯期已知；泛型參數預設有 `T: Sized` bound。
-- **`?Sized`**：放寬限制，讓泛型參數可以接受 DST（但必須透過參考使用）。
+- **`?Sized`**：放寬限制，讓泛型參數可以接受 DST。
 - `trait` 裡的 `Self` 預設是 `?Sized`；如果方法需要回傳 `Self`，要在 `trait` 上加 `: Sized`（如 `Clone: Sized`）。
 - `Cow<'a, B>` 中的 `B: ?Sized` 就是為了讓 `B` 可以是 `str` 或 `[T]` 等 DST。
 - `String` 和 `Vec<T>` 的 `Deref` target 分別是 DST `str` 和 `[T]`，`deref` coercion 讓 `&String` → `&str`、`&Vec<T>` → `&[T]` 成為可能。
