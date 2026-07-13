@@ -224,7 +224,6 @@ fn main() {
 - Method calls have three levels: `object.method()` → `Trait::method(&object)` → `<Type as Trait>::method(&object)`.
 - Use the simplest; escalate only on conflict.
 - With same-named methods across `trait`s, name whose version you're calling.
-- The type's own methods take priority over `trait` methods.
 - Associated functions (no `self`) need fully qualified syntax more often.
 - The fully-qualified format: `<Type as Trait>::function(args)`.
 - It also reaches associated types: `<Type as Trait>::TypeName`.
