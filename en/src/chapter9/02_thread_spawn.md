@@ -98,7 +98,7 @@ fn main() {
 }
 ```
 
-Why is `move` needed? Because `thread::spawn` isn't only callable in `main` — any function can `spawn` `Thread`s. The new `Thread`'s lifespan is uncertain; it may outlive the function that called it. If the closure merely borrowed `name`, and that function ended first, discarding `name`, the closure would be left holding a dangling reference. With `move`, `name`'s ownership travels into the closure, and however the original scope ends, the closure keeps its `name`.
+Why is `move` needed? Because the new `Thread` may outlive the function that called `spawn`. If the closure merely borrowed `name`, and that function ended first, discarding `name`, the closure would be left holding a dangling reference. With `move`, `name`'s ownership travels into the closure, and however the original scope ends, the closure keeps its `name`.
 
 ### Interleaved Output
 
