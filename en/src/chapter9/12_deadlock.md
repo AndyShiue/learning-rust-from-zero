@@ -110,5 +110,5 @@ fn main() {
 
 - Deadlock: `Thread`s waiting on each other's locks; the program hangs forever.
 - Rust's compiler doesn't block deadlocks — `Send` / `Sync` guard against data races; deadlocks are logic problems.
-- One `Thread` `lock`ing the same `Mutex` twice can deadlock too, the first lock never having been released.
+- One `Thread` locking the same `Mutex` twice can deadlock too, the first lock never having been released.
 - Avoidance: a uniform lock order, fewer simultaneous locks, prompt guard `drop`s.

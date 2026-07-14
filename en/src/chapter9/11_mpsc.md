@@ -73,7 +73,7 @@ fn main() {
 
 ### When Does It End
 
-Once every `tx` is `drop`ped, `rx.recv()` first drains all unreceived messages; only calls to `recv()` after that return `Err`. The `for msg in rx` loop behaves likewise — it runs through the remaining messages, then ends. That's how "nobody will send again, and every message has been handled" gets determined.
+Once every `tx` is `drop`ped, `rx.recv()` first drains all unreceived messages; only calls to `.recv()` after that return `Err`. The `for msg in rx` loop behaves likewise — it runs through the remaining messages, then ends. That's how "nobody will send again, and every message has been handled" gets determined.
 
 Note the `drop(tx)` in the example above — if you `clone`d `tx` but never `drop`ped the original, the receiver believes a sender still lives and never finishes.
 
