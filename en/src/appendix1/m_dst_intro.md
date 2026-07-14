@@ -35,7 +35,7 @@ A DST must hide behind some kind of pointer:
 - `&str`, `&[T]` — references
 - `Box<str>`, `Box<[T]>` — pointers to the heap
 
-These pointers are the so-called **fat pointers** — storing not just an address but an extra length:
+Pointers to `str` and `[T]` are **fat pointers** — storing an address and a length:
 
 ```ignore
 Ordinary pointer: [address]         (8 bytes)
@@ -219,7 +219,7 @@ fn main() {
 
 - **DSTs (Dynamically Sized Types)**: types with compile-time-unknown sizes, like `str` and `[T]`.
 - DSTs can't be used directly as values; they need pointers: `&str`, `&[T]`, `Box<str>`, etc.
-- Pointers to DSTs are **fat pointers**: address + length, 16 bytes on 64-bit machines.
+- Pointers to `str` and `[T]` are **fat pointers** containing an address and a length; they occupy 16 bytes on 64-bit machines.
 - **`Sized`**: the type's size is compile-time known; generic parameters default to the `T: Sized` bound.
 - **`?Sized`**: loosens the bound so generics can accept DSTs.
 - A `trait`'s `Self` defaults to `?Sized`; methods returning `Self` require `: Sized` on the `trait` (as in `Clone: Sized`).

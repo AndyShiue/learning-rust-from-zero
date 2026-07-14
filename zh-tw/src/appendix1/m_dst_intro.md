@@ -35,7 +35,7 @@ DST 必須藏在某種指標後面：
 - `&str`、`&[T]` — 參考
 - `Box<str>`、`Box<[T]>` — 指向 heap 的指標
 
-這些指標是所謂的**胖指標（fat pointer）**——它們不只存一個位址，還多存了一個長度資訊：
+指向 `str` 和 `[T]` 的指標是**胖指標（fat pointer）**——它們包含一個位址和一個長度：
 
 ```ignore
 一般指標：[位址]       （8 bytes）
@@ -219,7 +219,7 @@ fn main() {
 
 - **DST（Dynamically Sized Types）**：大小在編譯期未知的型別，如 `str`、`[T]`。
 - DST 不能直接當值使用，必須透過指標：`&str`、`&[T]`、`Box<str>` 等。
-- 指向 DST 的指標是**胖指標（fat pointer）**：位址 + 長度，在 64 位元電腦上佔 16 bytes。
+- 指向 `str` 和 `[T]` 的指標是**胖指標（fat pointer）**，包含位址與長度；在 64 位元電腦上佔 16 bytes。
 - **`Sized`**：表示型別大小在編譯期已知；泛型參數預設有 `T: Sized` bound。
 - **`?Sized`**：放寬限制，讓泛型參數可以接受 DST。
 - `trait` 裡的 `Self` 預設是 `?Sized`；如果方法需要回傳 `Self`，要在 `trait` 上加 `: Sized`（如 `Clone: Sized`）。
