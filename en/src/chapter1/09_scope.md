@@ -49,10 +49,10 @@ This is actually a good thing. It keeps your variables from wandering into place
 
 ### Not Just Standalone Braces
 
-The `if` we learned last episode has curly braces too, right? Well, the braces of an `if` also form a scope — variables inside can't be seen from outside. Later we'll learn about loops, functions, and so on. Whenever you see `{}`, the inside is a scope. It's a very consistent rule in Rust.
+The `if` we learned last episode has curly braces too, right? Well, the braces of an `if` also form a scope — variables inside can't be seen from outside. When you see `{}`, the inside is often a scope. It's a very consistent rule in Rust.
 
 ## Recap
 
-- Every pair of curly braces `{}` creates a scope.
+- Curly braces `{}` often enclose a scope.
 - A variable created inside a scope disappears once you leave the `{}` — it can't be used anymore.
-- `if` and every other construct with `{}` forms a scope.
+- An `if` forms its own scope.
