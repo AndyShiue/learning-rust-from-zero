@@ -14,8 +14,8 @@ Learn the read-write-separated lock `RwLock<T>`, and how it compares to `Mutex`.
 
 `RwLock<T>` distinguishes read locks from write locks:
 
-- **Read lock** (`read().expect(...)`): several `Thread`s may hold read locks **simultaneously**.
-- **Write lock** (`write().expect(...)`): exclusive — while a write lock is held, no read locks nor other write locks may exist.
+- **Read lock** (`.read().expect(...)`): several `Thread`s may hold read locks **simultaneously**.
+- **Write lock** (`.write().expect(...)`): exclusive — while a write lock is held, no read locks nor other write locks may exist.
 
 ```rust,editable
 use std::sync::RwLock;
@@ -103,7 +103,7 @@ fn main() {
 ## Recap
 
 - `RwLock<T>` separates read and write locks: many simultaneous readers, one exclusive writer.
-- `read().expect(...)` takes the read lock; `write().expect(...)` the write lock.
+- `.read().expect(...)` takes the read lock; `.write().expect(...)` the write lock.
 - Guards operate on contents via `Deref`, unlocking automatically on `drop`.
 - Against `RefCell`: `RefCell` is the single-threaded version; `RwLock` the multithreaded one.
 - `Mutex` is simple and cheap — usually enough; `RwLock` suits read-heavy workloads, at higher cost and with writer-starvation risk.
