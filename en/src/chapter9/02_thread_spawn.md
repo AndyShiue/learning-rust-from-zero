@@ -6,7 +6,7 @@ Learn to create `Thread`s, letting a program do several things at once.
 
 ## Concept
 
-Until now, our programs have run top to bottom, line by line. But sometimes you want a program doing several things **at once** — downloading a file while updating a progress bar, say. That's what **`Thread`s** are for.
+Until now, our programs have had a single flow of execution, doing one thing at a time. But sometimes you want a program doing several things **at once** — downloading a file while updating a progress bar, say. That's what **`Thread`s** are for.
 
 ### Creating a `Thread`
 
