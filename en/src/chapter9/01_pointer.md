@@ -43,7 +43,7 @@ fn main() {
 }
 ```
 
-`&T` and `Box<T>` are the same size — both store addresses. Data an `&T` points at may be on the stack or the heap, while an owning `Box<T>` always points into the heap. Wherever they point, the address itself is one size. So when `T` is large, passing an address is lighter than copying the whole `T` — at the cost of an extra layer of indirection on every access.
+The `&T` and `Box<T>` values above all point to `Sized` types. Under this condition, they are the same size because they only store addresses. Data an `&T` points at may be on the stack or the heap, while an owning `Box<T>` always points into the heap. Wherever they point, the address itself is one size. So when `T` is large, passing an address is lighter than copying the whole `T` — at the cost of an extra layer of indirection on every access.
 
 ### Dereferencing
 
