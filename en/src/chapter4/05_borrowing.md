@@ -122,9 +122,9 @@ fn main() {
 
 Note: `Point` itself isn't `Copy` (assignment moves it), but `&Point` is `Copy`.
 
-### `&` References Are Read-only
+### `&` References Are Usually Read-only
 
-When borrowing with `&`, you **can only read, not modify**. If you want to borrow something in order to change it — that's next episode.
+When borrowing with `&`, you can **usually only read, not modify directly**. If you want to borrow something in order to change it directly — that's next episode.
 
 ## Example Code
 
@@ -178,4 +178,4 @@ fn main() {
 - `*` is dereferencing — following a reference to the original value (though Rust usually does it for you).
 - `&[T]` and `&str` are special references; `*` can't extract a value from them.
 - Every `&T` is `Copy` — copying a reference doesn't affect the original data.
-- `&` references are **read-only**; you can't modify what you borrowed.
+- `&` references are **usually read-only**; you can't directly modify what you borrowed.
