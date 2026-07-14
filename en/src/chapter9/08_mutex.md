@@ -131,7 +131,7 @@ fn main() {
 ## Recap
 
 - `Mutex<T>` is multithreaded interior mutability, guarding data with a lock.
-- `lock().expect(...)` returns a `MutexGuard`, usable directly as `&mut T` via `DerefMut`.
+- `.lock().expect(...)` returns a `MutexGuard`, usable directly as `&mut T` via `DerefMut`.
 - Only one `Thread` holds the lock at a time; the rest wait.
 - Dropping the guard unlocks automatically.
 - The common pairing: `Arc<Mutex<T>>` — `Arc` for sharing, `Mutex` for safe modification.

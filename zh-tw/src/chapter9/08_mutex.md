@@ -131,7 +131,7 @@ fn main() {
 ## 重點整理
 
 - `Mutex<T>` 是多執行緒版的 interior mutability，用鎖保護資料。
-- `lock().expect(...)` 回傳 `MutexGuard`，透過 `DerefMut` 直接當 `&mut T` 用。
+- `.lock().expect(...)` 回傳 `MutexGuard`，透過 `DerefMut` 直接當 `&mut T` 用。
 - 同一時間只有一個執行緒能持有鎖，其他執行緒會等待。
 - guard 被 `drop` 時自動解鎖。
 - 常見搭配：`Arc<Mutex<T>>`——`Arc` 負責共享，`Mutex` 負責安全修改。
