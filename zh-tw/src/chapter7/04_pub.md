@@ -142,7 +142,7 @@ fn main() {
 }
 ```
 
-注意 `use animal::Speak;` 這行——即使 `Dog` 已經實作了 `Speak`，你還是要把 `Speak` `trait` 引入作用域才能呼叫它的方法。如果拿掉這行，`d.speak()` 會編譯錯誤。這是 Rust 的規則：**`trait` 的方法只有在 `trait` 被 `use` 進來之後才能呼叫。**
+注意 `use animal::Speak;` 這行——即使 `Dog` 已經實作了 `Speak`，你還是要把 `Speak` `trait` 引入作用域才能呼叫它的方法。如果拿掉這行，`d.speak()` 會編譯錯誤。這是 Rust 的規則：**`trait` 必須在作用域內，才能呼叫它的方法。**
 
 ```rust,compile_fail
 mod animal {

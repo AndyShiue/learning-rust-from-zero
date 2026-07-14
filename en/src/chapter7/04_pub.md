@@ -142,7 +142,7 @@ fn main() {
 }
 ```
 
-Note the line `use animal::Speak;` — even though `Dog` implements `Speak`, you still must bring the `Speak` `trait` into scope to call its methods. Remove that line and `d.speak()` fails to compile. That's Rust's rule: **a `trait`'s methods are callable only after the `trait` is `use`d in.**
+Note the line `use animal::Speak;` — even though `Dog` implements `Speak`, you still must bring the `Speak` `trait` into scope to call its methods. Remove that line and `d.speak()` fails to compile. That's Rust's rule: **a `trait` must be in scope before you can call its methods.**
 
 ```rust,compile_fail
 mod animal {

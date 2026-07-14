@@ -24,7 +24,7 @@ use std::fmt::Display;
 
 這行的意思是：「把 `std::fmt::Display` 引入到當前的作用域，之後直接寫 `Display` 就好。」
 
-`use` 不會引入新功能，它只是讓長路徑變短。沒有 `use`，你寫 `std::fmt::Display`；有了 `use`，你只需要寫 `Display`。
+`use` 會把既有名稱帶入目前的作用域，讓你能使用較短的路徑。沒有 `use`，你寫 `std::fmt::Display`；有了 `use`，你只需要寫 `Display`。
 
 ## 範例程式碼
 
@@ -46,6 +46,6 @@ fn main() {
 ## 重點整理
 
 - `use std::fmt::Display;` 把長路徑縮短，之後直接寫 `Display`。
-- `use` 只是路徑的簡寫，不引入新功能。
+- `use` 會把既有名稱帶入目前的作用域，讓你能使用較短的路徑。
 - Rust 的編譯器預設引入 prelude 的常用型別和 `trait`（`Vec`、`String`、`Option`、`Clone` 等）。
 - 不在 prelude 裡的東西（如 `Display`）需要寫完整路徑或用 `use` 引入。

@@ -24,7 +24,7 @@ use std::fmt::Display;
 
 This line means: "Bring `std::fmt::Display` into the current scope; from now on, just write `Display`."
 
-`use` doesn't add functionality — it only makes long paths short. Without `use`, you write `std::fmt::Display`; with it, just `Display`.
+`use` brings an existing name into the current scope, which lets you write a shorter path. Without `use`, you write `std::fmt::Display`; with it, just `Display`.
 
 ## Example Code
 
@@ -46,6 +46,6 @@ fn main() {
 ## Recap
 
 - `use std::fmt::Display;` shortens the long path; afterward, just write `Display`.
-- `use` is only path shorthand; it adds no functionality.
+- `use` brings an existing name into the current scope, which lets you write a shorter path.
 - Rust's compiler imports the prelude's common types and `trait`s by default (`Vec`, `String`, `Option`, `Clone`, etc.).
 - Things outside the prelude (like `Display`) need the full path or a `use`.
