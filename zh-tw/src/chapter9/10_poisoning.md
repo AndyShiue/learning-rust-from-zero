@@ -12,7 +12,7 @@
 
 ### 什麼是 poisoning
 
-如果一個執行緒在持有鎖的期間 panic 了，鎖會被標記為「中毒」（poisoned）。之後任何執行緒再嘗試取鎖，不管是 `lock`、`read` 還是 `write`，都會收到 `Err(PoisonError)`。
+如果一個執行緒在持有 `Mutex` 鎖或 `RwLock` 寫鎖的期間 panic 了，鎖會被標記為「中毒」（poisoned）。之後任何執行緒再嘗試取鎖，`Mutex::lock` 或 `RwLock` 的 `read`、`write` 都會收到 `Err(PoisonError)`。
 
 ```rust,editable
 use std::sync::{Arc, Mutex};
@@ -142,7 +142,7 @@ fn main() {
 
 ## 重點整理
 
-- 持有鎖的執行緒 panic 了 → 鎖中毒（poisoned）。
+- 執行緒在持有 `Mutex` 鎖或 `RwLock` 寫鎖期間 panic → 鎖中毒（poisoned）。
 - 之後 `lock` / `read` / `write` 都回傳 `Err(PoisonError)`。
 - `RwLock` 只有寫鎖 panic 才會中毒，讀鎖 panic 不會。
 - `PoisonError::into_inner` 可以拿回 guard——記憶體安全沒問題，只是邏輯一致性的問題。
