@@ -166,7 +166,7 @@ tokio::select! {
 ## Recap
 
 - `select!` waits on several branches at once; the **first** to complete runs its handler, and the rest get `drop`ped (cancelled).
-- Basic syntax is `pattern = future => { ... }`; no `.await` inside branches; use `_ = future` when the output isn't needed; `select!` can return the winning branch's value.
+- Basic syntax is `pattern = future => { ... }`; don't write `.await` on the left side of `=>`; use `_ = future` when the output isn't needed; `select!` can return the winning branch's value.
 - `select!` is thus the place in a program that **manufactures the most cancellations**; great for timeouts, multi-channel receives, and shutdown signals.
 - Using `select!` in a `loop` demands cancellation-safety care: keep non-cancellation-safe `Future`s like `read_exact` out of branches that may be `drop`ped.
 - Extras: branch `if` (preconditions), branches skipped on pattern mismatch, `else` (when all branches are skipped), and `biased;` to turn default randomness into top-down order.
