@@ -120,7 +120,7 @@ Ten `Thread`s adding 1000 each — the result is always 10000, never undercounte
 
 ### Atomic Types vs Locks
 
-Atomic operations apply only to simple types — integers (`AtomicI32`, `AtomicU64`, `AtomicUsize`, etc.) and booleans (`AtomicBool`). To protect a `Vec`, `String`, or any complex structure, atomics can't; you need next episode's locks.
+Atomic operations apply only to simple types — such as integers (`AtomicI32`, `AtomicU64`, `AtomicUsize`, etc.) and booleans (`AtomicBool`). To protect a `Vec`, `String`, or any complex structure, atomics can't; you need next episode's locks.
 
 But for simple counters and flags, atomics beat locks — every `Thread` operates directly, no queueing for someone else to finish.
 
