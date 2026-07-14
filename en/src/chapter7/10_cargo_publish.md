@@ -90,7 +90,7 @@ SemVer's rules:
 
 Why does SemVer fuss so much over "breaking changes"? Because once you've published, **your public API (especially the `pub` things) is no longer just your own business** — other people's programs `use` your functions and depend on your type and method declarations. Your public API becomes **a promise to your users**: the surface they depend on isn't yours to change on a whim.
 
-The promise **isn't limited to `pub` things: documented behavior can be part of it too**. Private implementation details remain yours to change as long as those promises still hold. So the question most worth asking before publishing or updating: "Do I really want to maintain this `pub` long-term?" The more you publish, the more you promise, and the less room remains for changing things without breaking someone. Keeping the unnecessary private (or `pub(crate)`) preserves your future freedom to change.
+The promise **isn't limited to `pub` things: documented behavior can be part of it too**. Private implementation details remain yours to change as long as those promises still hold. The question most worth asking before publishing or updating is: "Do I really want to maintain this `pub` long-term?" The more you publish, the more you promise, and the less room remains for changing things without breaking someone. Keeping the unnecessary private (or `pub(crate)`) preserves your future freedom to change.
 
 **Note**: published versions **can't be deleted or overwritten**. If a version turns out badly broken, `cargo yank` marks it as discouraged — but those already using it are unaffected:
 
