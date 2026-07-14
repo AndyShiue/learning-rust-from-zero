@@ -264,6 +264,7 @@ The set of things you open up with `pub` — functions, types, methods, `trait`s
 - A `struct` with private fields can't be constructed directly from outside; provide a constructor.
 - A `pub enum`'s variants are **automatically public**.
 - In `impl Trait for T`, the `fn`s' visibility follows the `trait` — no `pub`; in `impl T`, each `fn` takes its own `pub`.
+- When using the `.method()` syntax, the `trait` that provides the method must be in scope.
 - `pub(crate)`: visible within the `crate`, not outside.
 - `pub(super)`: visible only to the parent `mod`.
 - `pub(in path)`: visible only to the named `mod` path.

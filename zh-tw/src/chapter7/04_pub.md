@@ -264,6 +264,7 @@ fn main() {
 - 有私有欄位的 `struct` 無法從外部直接建構，必須提供建構函數。
 - `pub enum` 的所有 variants **自動公開**。
 - `impl Trait for T` 裡的 `fn` 可見性跟著 `trait` 走，不加 `pub`；`impl T` 裡的 `fn` 各自用 `pub` 控制。
+- 使用 `.method()` 語法時，提供該方法的 `trait` 必須在作用域內。
 - `pub(crate)`：`crate` 內部可見，外部不可見。
 - `pub(super)`：只有父 `mod` 可見。
 - `pub(in path)`：只對指定的 `mod` 路徑可見。
