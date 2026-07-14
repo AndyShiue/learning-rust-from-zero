@@ -19,7 +19,7 @@ Suppose two `Thread`s run `count += 1` on one variable simultaneously. It looks 
 
 Each side added once, yet the result is 1, not 2.
 
-An **atomic operation** fuses read, modify, and write into one indivisible act — no `Thread` can ever see a halfway state. Do `count += 1` atomically, and two simultaneous `Thread`s always yield 2.
+Some **atomic operations** fuse read, modify, and write into one indivisible act — no `Thread` can ever see a halfway state. Do `count += 1` atomically, and two simultaneous `Thread`s always yield 2.
 
 ### `AtomicI32` and `AtomicBool`
 
@@ -159,7 +159,7 @@ fn main() {
 
 ## Recap
 
-- Atomic operations fuse read-modify-write into one indivisible act, safe under simultaneous `Thread`s.
+- Some atomic operations fuse read-modify-write into one indivisible act, safe under simultaneous `Thread`s.
 - Common types: `AtomicI32`, `AtomicUsize`, `AtomicBool`.
 - Common methods: `load` (read), `store` (write), `fetch_add` (add, returning the old value).
 - `Ordering` controls memory ordering; when unsure, `SeqCst`.
