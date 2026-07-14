@@ -88,9 +88,9 @@ SemVer's rules:
   - New features (backward compatible): `1.0.1` → `1.1.0` (minor).
   - Breaking changes: `1.1.0` → `2.0.0` (major) — the first number changes.
 
-Why does SemVer fuss so much over "breaking changes"? Because once you've published, **your public API (the `pub` things) is no longer just your own business** — other people's programs `use` your functions and depend on your type and method declarations. Your public API becomes **a promise to your users**: the surface they depend on isn't yours to change on a whim.
+Why does SemVer fuss so much over "breaking changes"? Because once you've published, **your public API (especially the `pub` things) is no longer just your own business** — other people's programs `use` your functions and depend on your type and method declarations. Your public API becomes **a promise to your users**: the surface they depend on isn't yours to change on a whim.
 
-Of course, **only the `pub` things constitute the promise — private implementation details remain yours to change freely**. So the question most worth asking before publishing or updating: "Do I really want to maintain this `pub` long-term?" The more you publish, the more you promise, and the less room remains for changing things without breaking someone. Keeping the unnecessary private (or `pub(crate)`) preserves your future freedom to change.
+The promise **isn't limited to `pub` things: documented behavior can be part of it too**. Private implementation details remain yours to change as long as those promises still hold. So the question most worth asking before publishing or updating: "Do I really want to maintain this `pub` long-term?" The more you publish, the more you promise, and the less room remains for changing things without breaking someone. Keeping the unnecessary private (or `pub(crate)`) preserves your future freedom to change.
 
 **Note**: published versions **can't be deleted or overwritten**. If a version turns out badly broken, `cargo yank` marks it as discouraged — but those already using it are unaffected:
 
@@ -245,7 +245,7 @@ cargo publish    # Publish for real!
 - `cargo package` checks for problems before publishing.
 - `cargo publish` publishes to crates.io for real.
 - Bump the `version` field for updates, following SemVer (semantic versioning).
-- Your public API (the `pub` things) is a **promise to your users**; SemVer's three numbers exist to tell users "did this update touch that promise" — removing a `pub` is a breaking change (major), pure additions are backward compatible (minor). Only `pub` is the promise; private implementation changes freely.
+- Your public API (especially the `pub` things) is a **promise to your users**; SemVer's three numbers exist to tell users "did this update touch that promise" — removing a `pub` is a breaking change (major), pure additions are backward compatible (minor). Documented behavior can also be part of the promise; private implementation details may change as long as the promises still hold.
 - Published versions can't be deleted; `cargo yank` merely marks them as discouraged.
 - Writing the README, doc comments, and tests before publishing is basic respect for your users.
 
