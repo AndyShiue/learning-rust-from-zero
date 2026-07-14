@@ -8,7 +8,7 @@
 
 ### `async` 版的讀寫
 
-第 11 章我們用過同步的 `Read` / `Write` `trait`。`async` 世界有對應的 `AsyncRead` / `AsyncWrite`，概念一樣，只是讀寫的動作變成可以 `.await`。
+我們在進階標準庫一章用過同步的 `Read` / `Write` `trait`。`async` 世界有對應的 `AsyncRead` / `AsyncWrite`，概念一樣，只是讀寫的動作變成可以 `.await`。
 
 有個重要性質要先講：`AsyncRead` / `AsyncWrite` `trait` 底層真正的核心方法是 `poll_read` / `poll_write`。它們只承諾「**嘗試推進一次**」；`poll_read` 會把讀到的資料填進 buffer，`poll_write` 會回報這次實際寫入了幾個 bytes。兩者都**不保證**一次就讀滿你的 buffer，也不保證一次就把資料全部寫完。比方說你想讀 100 個 bytes，某次 `poll_read` 可能只填進 30 個——剩下的得之後再讀。
 

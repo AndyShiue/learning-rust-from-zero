@@ -43,7 +43,7 @@ async fn main() {
 
 注意我們建立 channel 時給了一個容量 `32`——這是 **bounded（有容量上限的）** channel。容量上限正是上一集所提到的 backpressure：當 channel 裡累積的訊息**塞滿** 32 個（代表消費者來不及處理），生產者的 `tx.send(value).await` 就會**等待**，直到消費者收走一些、騰出空位才繼續。
 
-這也解釋了為什麼 `send` 要 `.await`——因為它**可能要等**（等空位）。對照第 9 章同步版的 `send` 不用等（那是無上限的），這裡的 `.await` 正是 backpressure 的體現。Tokio 也有 `unbounded_channel`，它的 `send` 不用 `.await`，但就沒有 backpressure，要小心用。
+這也解釋了為什麼 `send` 要 `.await`——因為它**可能要等**（等空位）。對照多執行緒一章介紹過的同步版 `send`，它不用等（那是無上限的）；這裡的 `.await` 正是 backpressure 的體現。Tokio 也有 `unbounded_channel`，它的 `send` 不用 `.await`，但就沒有 backpressure，要小心用。
 
 ## 重點整理
 

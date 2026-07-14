@@ -16,7 +16,7 @@ Rust separates the two camps with a label, and that label is **`Unpin`**: a type
 
 ### Nearly Everyone Is `Unpin`
 
-Like Chapter 9's `Send` / `Sync`, `Unpin` is an **`auto trait`** — if everything a type stores is `Unpin`, the type itself is `Unpin` by default. Skipping to the punchline: **the overwhelming majority of types are `Unpin`**.
+Like the `Send` / `Sync` introduced in the multithreading chapter, `Unpin` is an **`auto trait`** — if everything a type stores is `Unpin`, the type itself is `Unpin` by default. Skipping to the punchline: **the overwhelming majority of types are `Unpin`**.
 
 A small gadget verifies this. The `assert_unpin` below only accepts `Unpin` types, and all the common values pass:
 

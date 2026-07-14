@@ -43,7 +43,7 @@ async fn main() {
 
 Notice we gave the channel a capacity of `32` — this is a **bounded** channel. That capacity ceiling is precisely last episode's backpressure: when the messages piling up in the channel **fill** all 32 slots (meaning the consumer can't keep up), the producer's `tx.send(value).await` **waits**, resuming only after the consumer clears some space.
 
-That also explains why `send` needs `.await` — because it **may have to wait** (for a free slot). Contrast Chapter 9's synchronous `send`, which never waits (it's unbounded); the `.await` here is backpressure incarnate. Tokio also has `unbounded_channel`, whose `send` needs no `.await` — but then there's no backpressure, so use it with care.
+That also explains why `send` needs `.await` — because it **may have to wait** (for a free slot). Contrast the synchronous `send` introduced in the multithreading chapter, which never waits (it's unbounded); the `.await` here is backpressure incarnate. Tokio also has `unbounded_channel`, whose `send` needs no `.await` — but then there's no backpressure, so use it with care.
 
 ## Recap
 
