@@ -24,7 +24,7 @@ fn forever() -> ! {
 
 ### 哪些東西的型別是 !
 
-- `panic!("...")` — 程式崩潰。
+- `panic!("...")` — 讓目前的 `Thread` 發生 panic，而不是正常回傳。
 - `std::process::exit(0)` — 程式結束。
 - `loop {}`（沒有 break）— 永遠跑下去。
 - `return` 表達式本身

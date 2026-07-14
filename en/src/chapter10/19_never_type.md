@@ -24,7 +24,7 @@ fn forever() -> ! {
 
 ### What Has Type !
 
-- `panic!("...")` — the program crashes.
+- `panic!("...")` — panics the current `Thread` instead of returning normally.
 - `std::process::exit(0)` — the program ends.
 - `loop {}` (with no break) — runs forever.
 - A `return` expression itself
