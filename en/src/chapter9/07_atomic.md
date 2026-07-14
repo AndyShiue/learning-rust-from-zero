@@ -68,12 +68,12 @@ if ready.load(Ordering::Relaxed) {    // Sees true
 }
 ```
 
-With `Relaxed`, the processor may reorder `Thread` A's steps 1 and 2 — `Thread` B sees the flag already `true` while the data isn't in yet. The processor dares to reorder because, from `Thread` A's own perspective, flag-then-data and data-then-flag give identical results — it doesn't know another `Thread` is watching. `SeqCst` avoids the problem, guaranteeing all `Thread`s see one consistent operation order.
+With `Relaxed`, the processor may reorder `Thread` A's steps 1 and 2 — `Thread` B sees the flag already `true` while the data isn't in yet. The processor dares to reorder because, from `Thread` A's own perspective, flag-then-data and data-then-flag give identical results — it doesn't know another `Thread` is watching. `SeqCst` prevents this problem by preserving the two orders written in the code: `Thread` A writes the data before setting the flag, and `Thread` B checks the flag before reading the data. Therefore, if `Thread` B sees `true`, it is guaranteed to also see the data that `Thread` A wrote first.
 
 The details run deep; as a beginner, remember two:
 
 - `Ordering::Relaxed`: guarantees only this atomic operation itself; no restrictions on other instructions' order. Fine for plain counters.
-- `Ordering::SeqCst`: the strictest — all `Thread`s see the same operation order.
+- `Ordering::SeqCst`: the strictest. In this example, it preserves "write data → set flag" and "check flag → read data," so when `Thread` B sees `ready == true`, it is guaranteed to also see the data that `Thread` A wrote first.
 
 When unsure, `SeqCst` is safest.
 
