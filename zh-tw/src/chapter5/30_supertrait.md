@@ -38,7 +38,7 @@ trait Copy: Clone { }
 
 為什麼？因為 `Copy` 是一種「自動複製」的能力，而 `Clone` 是「手動複製」的能力。邏輯上，如果你能自動複製，那你也一定能手動複製。所以 `Copy` 要求 `Clone` 作為前提。
 
-這就是為什麼 `#[derive(Copy, Clone)]` 要同時寫兩個——只寫 `derive(Copy)` 會報錯，因為 `Copy` 要求 `Clone`。
+這就是為什麼 `#[derive(Copy, Clone)]` 會同時寫上兩個。在這個例子中，只寫 `derive(Copy)` 會失敗，因為 `Point` 沒有用其他方式實作 `Clone`。如果手動實作了 `Clone`，就可以單獨 derive `Copy`。
 
 ### `DerefMut: Deref`
 
@@ -122,7 +122,7 @@ fn main() {
 ## 重點整理
 
 - `trait A: B` 表示「要實作 `A`，必須先實作 `B`」——`B` 是 `A` 的 supertrait，`A` 是 `B` 的 subtrait。
-- `Copy: Clone`——`Copy` 要求 `Clone`，所以 `derive` 時必須同時寫兩個。
+- `Copy: Clone`——實作 `Copy` 的型別也必須實作 `Clone`；兩者通常一起 derive，但 `Clone` 也可以手動實作。
 - `DerefMut: Deref`——要能可變解參考，必須先能不可變解參考。
 - 實作 subtrait 不會自動實作 supertrait——你必須自己先寫 `impl Supertrait`。
 - subtrait 的預設實作裡，可以依賴 supertrait 保證的能力。

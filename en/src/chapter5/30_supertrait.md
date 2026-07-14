@@ -38,7 +38,7 @@ This says: **to implement `Copy`, you must first implement `Clone`.**
 
 Why? Because `Copy` is an "automatic copying" ability, while `Clone` is "manual cloning." Logically, if you can copy automatically, you can surely `clone` manually. So `Copy` demands `Clone` as its prerequisite.
 
-That's why `#[derive(Copy, Clone)]` lists both — writing only `derive(Copy)` errors, since `Copy` requires `Clone`.
+That's why `#[derive(Copy, Clone)]` lists both. In this example, writing only `derive(Copy)` would fail because `Point` has no other `Clone` implementation. If `Clone` were implemented manually, `Copy` could be derived on its own.
 
 ### `DerefMut: Deref`
 
@@ -122,7 +122,7 @@ fn main() {
 ## Recap
 
 - `trait A: B` means "implementing `A` requires implementing `B` first" — `B` is `A`'s supertrait, `A` is `B`'s subtrait.
-- `Copy: Clone` — `Copy` requires `Clone`, hence both must appear in the `derive`.
+- `Copy: Clone` — implementing `Copy` requires a `Clone` implementation; the two are commonly derived together, but `Clone` may be implemented manually.
 - `DerefMut: Deref` — mutable dereferencing presupposes immutable dereferencing.
 - Implementing a subtrait doesn't auto-implement the supertrait — you must write `impl Supertrait` yourself first.
 - A subtrait's default implementations may rely on capabilities guaranteed by the supertrait.

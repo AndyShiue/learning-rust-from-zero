@@ -68,7 +68,7 @@ struct Point {
 # fn main() {}
 ```
 
-Note: `#[derive(Copy)]` must always come with `Clone` — writing `#[derive(Copy)]` alone without `Clone` is a compile error.
+Note: `Copy` requires `Clone`. When using `derive`, the usual approach is `#[derive(Copy, Clone)]`; writing only `#[derive(Copy)]` without a `Clone` implementation is a compile error.
 
 Why? Because Rust decrees: anything that can be copied must also be `clone`-able. `Copy` is "automatic copying"; `Clone` is "calling `.clone()` by hand." If something can't even be `clone`d manually, it certainly shouldn't be copied automatically. So `Copy` requires `Clone` first.
 
@@ -157,6 +157,6 @@ So the good habit is: **only add `Copy` when you're sure the type will never gai
 - Tuples and arrays are `Copy` when all their elements are.
 - Tuples behave this way for many `trait`s (`Copy`, `Clone`, etc.): all elements implement it → the tuple implements it.
 - Custom `struct`s can take `#[derive(Copy, Clone)]`, but every field must be a `Copy` type.
-- `Copy` must be `derive`d together with `Clone`.
+- `Copy` requires `Clone`; when using `derive`, both are usually listed together.
 - **`Copy` = automatic copying; `Clone` = calling `.clone()` by hand**
 - Don't add `Copy` casually — removing it later breaks all the code that relied on auto-copying. When unsure, just add `Clone`.

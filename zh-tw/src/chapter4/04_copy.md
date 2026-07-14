@@ -68,7 +68,7 @@ struct Point {
 # fn main() {}
 ```
 
-注意：`#[derive(Copy)]` 一定要同時加 `Clone`——如果只寫 `#[derive(Copy)]` 而不寫 `Clone`，編譯器會報錯。
+注意：`Copy` 要求 `Clone`。使用 derive 時，通常會寫成 `#[derive(Copy, Clone)]`；如果型別沒有實作 `Clone`，只寫 `#[derive(Copy)]` 就會編譯失敗。
 
 為什麼？因為 Rust 規定：任何可以 copy 的東西，也必須可以 `clone`。`Copy` 是「自動複製」，`Clone` 是「手動呼叫 `.clone()`」。如果一個東西連手動 `clone` 都做不到，那自動複製當然更不該發生。所以 `Copy` 要求你先有 `Clone`。
 
@@ -157,6 +157,6 @@ fn main() {
 - tuple 和陣列如果所有元素都是 `Copy`，整體也是 `Copy`。
 - tuple 對很多 `trait`（`Copy`、`Clone` 等）都有同樣的行為：所有元素都有實作 → tuple 就有實作。
 - 自訂 `struct` 可以加 `#[derive(Copy, Clone)]`，但所有欄位都必須是 `Copy` 的型別。
-- `Copy` 一定要搭配 `Clone` 一起 `derive`。
+- `Copy` 要求 `Clone`；使用 derive 時，通常會把兩者一起寫上。
 - **`Copy` = 自動複製，`Clone` = 手動呼叫 `.clone()`**
 - 不要隨便加 `Copy`——未來拿掉會讓所有依賴自動複製的程式碼壞掉。不確定就只加 `Clone`。
