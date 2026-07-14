@@ -73,7 +73,7 @@ fn print_it<T: ?Sized>(val: &T) { ... }
 
 We said generic parameters `T` default to a `Sized` bound. But a `trait`'s `Self` is the exception — it defaults to `?Sized`; that is, `Self` needn't be `Sized`.
 
-Remember `Clone` from Chapter 4 Episode 8? Its method is `fn clone(&self) -> Self` — returning `Self` outright. Since `Self` might not be `Sized` by default, while a returned type must have a known size, `Clone`'s actual definition is:
+Remember `Clone` from Chapter 4 Episode 8? Its method is `fn clone(&self) -> Self` — returning `Self` outright. To restrict this operation to `Sized` types, the bound can be placed on the whole `trait` or just on the method with `where Self: Sized`. `Clone` places it on the whole `trait`:
 
 ```rust,noplayground
 trait Clone: Sized {
@@ -222,6 +222,6 @@ fn main() {
 - Pointers to `str` and `[T]` are **fat pointers** containing an address and a length; they occupy 16 bytes on 64-bit machines.
 - **`Sized`**: the type's size is compile-time known; generic parameters default to the `T: Sized` bound.
 - **`?Sized`**: loosens the bound so generics can accept DSTs.
-- A `trait`'s `Self` defaults to `?Sized`; methods returning `Self` require `: Sized` on the `trait` (as in `Clone: Sized`).
+- A `trait`'s `Self` defaults to `?Sized`. `Clone` adds `Sized` to the whole `trait`; a method can instead add `where Self: Sized` so the restriction applies only to that method.
 - The `B: ?Sized` in `Cow<'a, B>` exists precisely so `B` can be a DST like `str` or `[T]`.
 - `String`'s and `Vec<T>`'s `Deref` targets are the DSTs `str` and `[T]`; `deref` coercion makes `&String` → `&str` and `&Vec<T>` → `&[T]` possible.

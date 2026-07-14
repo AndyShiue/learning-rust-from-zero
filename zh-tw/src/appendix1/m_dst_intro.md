@@ -73,7 +73,7 @@ fn print_it<T: ?Sized>(val: &T) { ... }
 
 前面說泛型參數 `T` 預設有 `Sized` bound。但 `trait` 裡的 `Self` 是個例外——它預設是 `?Sized` 的，也就是說 `Self` 不一定是 `Sized`。
 
-還記得第 4 章第 8 集介紹的 `Clone` 嗎？它的方法是 `fn clone(&self) -> Self`——直接回傳 `Self`。由於 `Self` 預設可能不是 `Sized`，而回傳的型別必須有已知大小，所以 `Clone` 實際上的定義是：
+還記得第 4 章第 8 集介紹的 `Clone` 嗎？它的方法是 `fn clone(&self) -> Self`——直接回傳 `Self`。要把這項操作限制在 `Sized` 型別，可以把 bound 加在整個 `trait` 上，也可以只在該方法加上 `where Self: Sized`。`Clone` 選擇加在整個 `trait` 上：
 
 ```rust,noplayground
 trait Clone: Sized {
@@ -222,6 +222,6 @@ fn main() {
 - 指向 `str` 和 `[T]` 的指標是**胖指標（fat pointer）**，包含位址與長度；在 64 位元電腦上佔 16 bytes。
 - **`Sized`**：表示型別大小在編譯期已知；泛型參數預設有 `T: Sized` bound。
 - **`?Sized`**：放寬限制，讓泛型參數可以接受 DST。
-- `trait` 裡的 `Self` 預設是 `?Sized`；如果方法需要回傳 `Self`，要在 `trait` 上加 `: Sized`（如 `Clone: Sized`）。
+- `trait` 裡的 `Self` 預設是 `?Sized`。`Clone` 對整個 `trait` 加上 `Sized`；也可以改在方法加上 `where Self: Sized`，讓限制只套用於該方法。
 - `Cow<'a, B>` 中的 `B: ?Sized` 就是為了讓 `B` 可以是 `str` 或 `[T]` 等 DST。
 - `String` 和 `Vec<T>` 的 `Deref` target 分別是 DST `str` 和 `[T]`，`deref` coercion 讓 `&String` → `&str`、`&Vec<T>` → `&[T]` 成為可能。
