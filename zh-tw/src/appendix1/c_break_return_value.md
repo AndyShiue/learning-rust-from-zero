@@ -22,7 +22,7 @@
 
 這裡 `loop { break 42; }` 的型別是 `i32`，因為 `break` 帶出了 `42`。
 
-### 為什麼只有 `loop` 能這樣做？
+### 為什麼 `while` 和 `for` 不能這樣做？
 
 你可能會問：`while` 和 `for` 為什麼不行？
 
@@ -71,8 +71,36 @@ fn main() {
 }
 ```
 
+## 搭配標籤使用 `break` 回傳值
+
+像 `'search:` 這樣的標籤可以放在迴圈或一般的 block 表達式 `{ ... }` 前面。後者會形成 labeled block。這裡的 `'search` 是標籤，不是 lifetime。
+
+`break 'label value` 會跳出有標籤的 `loop` 或 block，並讓該表達式產生 `value`。跳出最內層的 `loop` 時，可以省略標籤（寫成 `break value`）；在 labeled block 中則一定要寫出標籤。
+
+```rust,editable
+fn main() {
+    let from_loop = 'search: loop {
+        break 'search 7;
+    };
+
+    let from_block = 'answer: {
+        let n = 7;
+        if n > 5 {
+            break 'answer n * 2;
+        }
+        0
+    };
+
+    println!("來自 loop：{}", from_loop);
+    println!("來自 block：{}", from_block);
+}
+```
+
+這裡的 `break 'search 7` 會讓有標籤的 `loop` 產生 `7`，而 `break 'answer n * 2` 會讓 labeled block 產生 `14`。
+
 ## 重點整理
 
 - `let x = loop { break value; };` 讓 `loop` 成為表達式，回傳 `break` 帶出的值。
-- 只有 `loop` 能這樣做；`while` 和 `for` 可以不經過 `break` 就正常結束。
+- `while` 和 `for` 不能用 `break` 回傳值，因為它們可以不經過 `break` 就正常結束。
+- `break 'label value` 可以從有標籤的 `loop` 或 labeled block 回傳值；labeled block 一定要寫出標籤。
 - 常見用途是在迴圈中搜尋，找到後用 `break` 帶出結果。

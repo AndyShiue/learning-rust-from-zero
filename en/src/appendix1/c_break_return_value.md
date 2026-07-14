@@ -22,7 +22,7 @@ Remember how "almost everything in Rust is an expression"? The `loop` is no exce
 
 Here `loop { break 42; }` has type `i32`, since `break` carried out `42`.
 
-### Why Can Only `loop` Do This?
+### Why Can't `while` and `for` Do This?
 
 You might ask: why not `while` and `for`?
 
@@ -71,8 +71,36 @@ fn main() {
 }
 ```
 
+## Using Labels with `break` Values
+
+A label such as `'search:` can be placed before a loop (`loop`, `while`, or `for`) or an ordinary block expression `{ ... }`. The latter creates a labeled block. Here `'search` is a label, not a lifetime.
+
+`break 'label value` exits the labeled `loop` or block and makes that expression evaluate to `value`. When breaking out of the innermost `loop`, the label can be omitted (`break value`); in a labeled block, the label is required.
+
+```rust,editable
+fn main() {
+    let from_loop = 'search: loop {
+        break 'search 7;
+    };
+
+    let from_block = 'answer: {
+        let n = 7;
+        if n > 5 {
+            break 'answer n * 2;
+        }
+        0
+    };
+
+    println!("From loop: {}", from_loop);
+    println!("From block: {}", from_block);
+}
+```
+
+Here `break 'search 7` makes the labeled `loop` evaluate to `7`, while `break 'answer n * 2` makes the labeled block evaluate to `14`.
+
 ## Recap
 
 - `let x = loop { break value; };` makes the `loop` an expression, returning the value `break` carries.
-- Only `loop` can do this — `while` and `for` can finish normally without reaching a `break`.
+- `while` and `for` can't return a value with `break`, because they can finish normally without reaching one.
+- `break 'label value` can return a value from a labeled `loop` or labeled block; the label is required for a labeled block.
 - The common use: search inside a loop and carry the result out with `break`.
