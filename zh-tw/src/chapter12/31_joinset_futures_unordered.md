@@ -52,9 +52,9 @@ async fn main() {
 
 ### 路線二：`FuturesUnordered`（join! 的動態版）
 
-`futures::stream::FuturesUnordered` 則是「**`join!` 的動態版**」。它在**同一個 `Task` 內**輪流推進一堆 `Future`，**不**把它們變成獨立 `Task`、**不**跨 `Thread`。代價和好處都從這裡來：
+`futures::stream::FuturesUnordered` 則是「**`join!` 的動態版**」。它在**同一個 `Task` 內**輪流推進一堆 `Future`，**不**把它們變成獨立 `Task`，也**不一定**跨 `Thread`。代價和好處都從這裡來：
 
-- 因為不跨 `Thread`，所以**不需要 `Send + 'static`**——它可以放借用了區域變數的 `Future`（`JoinSet` 因為要 `spawn` 就做不到）。
+- 因為它不會把這些 `Future` `spawn` 成獨立 `Task`，所以 `FuturesUnordered` 本身**不要求這些 `Future` 是 `Send + 'static`**——它可以放借用了區域變數的 `Future`（`JoinSet` 因為要 `spawn` 就做不到）。
 - 但因為大家在同一個 `Task` 上輪流，如果一個 `Future` 的 `poll` 阻塞或執行太久，就會延後其他 `Future` 被 `poll`（又是「不要 block 住執行緒」那條鐵律）。
 
 `FuturesUnordered` 定義在 `futures` 這個 `crate` 裡，使用前要加上依賴（上一集加過的 `tokio-stream` 這裡也會用到）：
@@ -65,7 +65,7 @@ futures = "0.3"
 tokio-stream = "0.1"
 ```
 
-`FuturesUnordered` 本身其實就是一個 `Stream`——它只是「把內部那堆 `Future` 輪流 `poll`」，自己不 `spawn`、不碰排程。所以它**不依賴特定 runtime**，這是它相對於 `JoinSet` 的一大優點（`JoinSet` 的 `spawn` 就綁死 Tokio runtime）。用 `Stream` 的方式走訪它：
+`FuturesUnordered` 本身其實就是一個 `Stream`——它會追蹤喚醒通知，只 `poll` 剛加入或已被喚醒的 `Future`，不會把它們 `spawn` 成 `Task`。所以它**不依賴特定 runtime**，這是它相對於 `JoinSet` 的一大優點（`JoinSet` 的 `spawn` 就綁死 Tokio runtime）。用 `Stream` 的方式走訪它：
 
 ```rust,editable
 extern crate futures;
@@ -104,5 +104,5 @@ async fn main() {
 
 - 處理「大量、動態、誰先好先處理」的工作，`join!` 不夠用，改用 `JoinSet` 或 `FuturesUnordered`。
 - **`JoinSet`**（`spawn` 的動態版）：每個工作是獨立 `Task`、在多執行緒 runtime 上能夠平行執行、需 `Send + 'static`、綁 Tokio；`join_next()` 回 `Option<Result<T, JoinError>>`，支援 `.abort_all()` 與 `drop` 時自動 abort。
-- **`FuturesUnordered`**（`join!` 的動態版）：同一個 `Task` 內多工、不跨 `Thread`、不需 `Send`（可借用區域變數），但一個 `Future` 的 `poll` 阻塞或執行太久，就會延後其他 `Future` 被 `poll`；本身是個不綁 runtime 的 `Stream`。
+- **`FuturesUnordered`**（`join!` 的動態版）：在同一個 `Task` 內多工，不會 spawn 成獨立 `Task`，而且本身不要求其中的 `Future` 是 `Send + 'static`（因此在周圍情境允許時可以借用區域變數）；但一個 `Future` 的 `poll` 阻塞或執行太久，就會延後其他 `Future` 被 `poll`。它本身是個不綁 runtime 的 `Stream`。
 - 要獨立 `Task`、可以平行執行並有較高的排程隔離，用 `JoinSet`；要就地借用、工作輕量、不綁 runtime，用 `FuturesUnordered`。

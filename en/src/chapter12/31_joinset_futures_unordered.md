@@ -52,9 +52,9 @@ async fn main() {
 
 ### Route 2: `FuturesUnordered` (the Dynamic Version of `join!`)
 
-`futures::stream::FuturesUnordered` is "**the dynamic version of `join!`**." It advances a pile of `Future`s in turn **within a single `Task`** — it does **not** make them independent `Task`s and does **not** cross `Thread`s. Both the cost and the benefit flow from that:
+`futures::stream::FuturesUnordered` is "**the dynamic version of `join!`**." It advances a pile of `Future`s in turn **within a single `Task`** — it does **not** make them independent `Task`s and does **not necessarily** cross `Thread`s. Both the cost and the benefit flow from that:
 
-- Since it doesn't cross `Thread`s, it **doesn't need `Send + 'static`** — it can hold `Future`s that borrow local variables (`JoinSet` can't, because it has to `spawn`).
+- Since it doesn't `spawn` them as independent `Task`s, `FuturesUnordered` itself **doesn't require those `Future`s to be `Send + 'static`** — it can hold `Future`s that borrow local variables (`JoinSet` can't, because it has to `spawn`).
 - But since everyone takes turns on the same `Task`, if one `Future`'s `poll` blocks or runs for too long, `poll`ing the others is delayed (that "don't block the `Thread`" iron rule again).
 
 `FuturesUnordered` is defined in the `futures` `crate`, so add the dependency first (last episode's `tokio-stream` is used here too):
@@ -65,7 +65,7 @@ futures = "0.3"
 tokio-stream = "0.1"
 ```
 
-`FuturesUnordered` is itself really just a `Stream` — all it does is "`poll` its internal pile of `Future`s in turn"; it doesn't `spawn` or touch scheduling. So it **doesn't depend on a particular runtime**, a big advantage over `JoinSet` (whose `spawn` is tied to the Tokio runtime). Walk it the `Stream` way:
+`FuturesUnordered` is itself really just a `Stream` — it tracks wake-ups and `poll`s only newly added or woken `Future`s; it doesn't `spawn` them as `Task`s. So it **doesn't depend on a particular runtime**, a big advantage over `JoinSet` (whose `spawn` is tied to the Tokio runtime). Walk it the `Stream` way:
 
 ```rust,editable
 extern crate futures;
@@ -104,5 +104,5 @@ Next episode, we assemble the tools learned so far — `select!`, channels, `Joi
 
 - For "large, dynamic, first-done-first-served" work, `join!` isn't enough; use `JoinSet` or `FuturesUnordered`.
 - **`JoinSet`** (dynamic `spawn`): each job is an independent `Task`, can run in parallel on a multi-thread runtime, needs `Send + 'static`, tied to Tokio; `join_next()` returns `Option<Result<T, JoinError>>`, supports `.abort_all()` and auto-abort on `drop`.
-- **`FuturesUnordered`** (dynamic `join!`): multiplexes within one `Task`, no `Thread` crossing, no `Send` needed (can borrow local variables), but one `Future`'s blocking or long-running `poll` delays polling the others; it's itself a runtime-agnostic `Stream`.
+- **`FuturesUnordered`** (dynamic `join!`): multiplexes within one `Task`, doesn't spawn independent `Task`s, and doesn't itself require its `Future`s to be `Send + 'static` (so they can borrow local variables when the surrounding context allows), but one `Future`'s blocking or long-running `poll` delays polling the others; it's itself a runtime-agnostic `Stream`.
 - Independent `Task`s, possible parallel execution, and greater scheduling isolation → `JoinSet`; in-place borrowing, lightweight work, runtime-agnostic → `FuturesUnordered`.
