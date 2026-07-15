@@ -10,7 +10,7 @@ Chapter 4 taught the borrowing rules: either one `&mut` or many `&`s, never both
 
 ### The Idea of `Cell`
 
-`Cell<T>` offers a way "around the borrowing rules" — it reads with `.get()` and writes with `.set(v)`, **no mutable reference required**.
+`Cell<T>` provides interior mutability — it copies values out with `.get()` and replaces them with `.set(v)`, **no mutable reference required**. It never hands out a reference to the inner value, so it doesn't violate the borrowing rules.
 
 ```rust,editable
 use std::cell::Cell;

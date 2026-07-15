@@ -76,7 +76,7 @@ fn forever() -> ! {
 
 ```rust,editable
 fn exit_with_error(msg: &str) -> ! {
-    eprintln!("錯誤：{}", msg);
+    println!("錯誤：{}", msg);
     std::process::exit(1);
 }
 

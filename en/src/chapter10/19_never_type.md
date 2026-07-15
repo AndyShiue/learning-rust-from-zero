@@ -76,7 +76,7 @@ Every arm of a `match` must return the same type. `Some(v) => v` returns `i32`, 
 
 ```rust,editable
 fn exit_with_error(msg: &str) -> ! {
-    eprintln!("error: {}", msg);
+    println!("error: {}", msg);
     std::process::exit(1);
 }
 
