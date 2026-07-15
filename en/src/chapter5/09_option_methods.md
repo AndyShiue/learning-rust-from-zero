@@ -61,7 +61,7 @@ Sometimes you run into the nested structure `Option<Option<T>>`:
 ```rust,editable
 fn find_even(numbers: &[i32]) -> Option<i32> {
     for n in numbers {
-        if *n % 2 == 0 {
+        if n % 2 == 0 {
             return Some(*n);
         }
     }

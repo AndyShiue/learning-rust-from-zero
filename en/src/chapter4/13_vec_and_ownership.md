@@ -82,13 +82,15 @@ fn main() {
 fn main() {
     let v = vec![1, 2, 3];
     for x in &v {
-        println!("{}", x);
+        println!("{}", x); // x has type &i32
     }
     println!("v is still here: {:?}", v); // OK!
 }
 ```
 
 `for x in &v` merely borrows; `v` isn't consumed.
+
+One detail matters here: `x` is not an `i32`; it is a reference, with type `&i32`. Because the loop iterates over the borrowed `&v`, each element it receives is borrowed too, rather than moved out of the `Vec`. Similarly, the earlier function parameter `nums: &[i32]` is already a borrowed slice, so the `x` in `for x in nums` is also an `&i32`.
 
 Most of the time you should use `for x in &v`, unless you're certain you won't need the `Vec` again.
 
@@ -176,7 +178,7 @@ Throughout this episode we kept saying "a `Vec` of `i32`" — but you may have n
 - `&Vec` auto-converts to `&[T]` (just like `&String` to `&str`).
 - Prefer slice parameters `&[T]` over `&Vec`.
 - `for x in v`: **move** — consumes the whole `Vec`.
-- `for x in &v`: **borrow** — the `Vec` survives.
+- `for x in &v`: **borrow** — the `Vec` survives; in this example, `x` is a reference with type `&i32`.
 - Mostly use `for x in &v`, unless you're sure you're done with the `Vec`.
 - We never wrote out the type of "a `Vec` of `i32`" by hand — how to write it, and what the `T` in `&[T]` is, gets revealed next chapter.
 
