@@ -64,7 +64,7 @@ vtable 是一張固定大小的函數指標表。但泛型方法對每個不同�
 
 ### 限制三：`trait` 本身不能要求 `Self: Sized`
 
-回頭看開頭的問題——為什麼 `dyn Clone` 不行？除了回傳 `Self`，其實 `Clone` 有一個 supertrait 就是 `Sized`：
+回頭看開頭的問題——為什麼 `dyn Clone` 不行？附錄一的〈DST 簡介〉已經提過，除了回傳 `Self`，`Clone` 還以 `Sized` 作為 supertrait：
 
 ```rust,noplayground
 trait Clone: Sized {
@@ -74,7 +74,7 @@ trait Clone: Sized {
 # fn main() {}
 ```
 
-`Clone: Sized` 代表「實作 `Clone` 的型別必須是 `Sized`」。但 `dyn Clone` 是 DST，不是 `Sized`。所以 `impl Clone for dyn Clone` 根本不成立，`dyn Clone` 無法存在。
+`dyn Clone` 若要成立，編譯器就必須能產生前面提過的 `impl Clone for dyn Clone`。但 `Clone: Sized` 要求實作者必須是 `Sized`，而 `dyn Clone` 會是 DST。這個 `impl` 因此不可能成立，所以 `Clone` 不是 `dyn` compatible，也就不能形成 `dyn Clone`。
 
 ### 退出機制：`where Self: Sized`
 

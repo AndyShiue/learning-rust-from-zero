@@ -64,7 +64,7 @@ The main issue is that the vtable has to be built by whoever compiles the `impl`
 
 ### Restriction 3: The `trait` Itself Can't Require `Self: Sized`
 
-Back to the opening question — why doesn't `dyn Clone` work? Besides returning `Self`, `Clone` actually has `Sized` as a supertrait:
+Back to the opening question — why doesn't `dyn Clone` work? Recall from Appendix I's DST introduction that, besides returning `Self`, `Clone` has `Sized` as a supertrait:
 
 ```rust,noplayground
 trait Clone: Sized {
@@ -74,7 +74,7 @@ trait Clone: Sized {
 # fn main() {}
 ```
 
-`Clone: Sized` means "any type implementing `Clone` must be `Sized`." But `dyn Clone` is a DST — not `Sized`. So `impl Clone for dyn Clone` can't even exist, and therefore neither can `dyn Clone`.
+For `dyn Clone` to work, the compiler would have to generate the `impl Clone for dyn Clone` described above. But `Clone: Sized` requires the implementing type to be `Sized`, while `dyn Clone` would be a DST. That `impl` is therefore impossible, so `Clone` is not `dyn` compatible and `dyn Clone` can't be formed.
 
 ### The Escape Hatch: `where Self: Sized`
 
