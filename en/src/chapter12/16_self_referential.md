@@ -67,7 +67,7 @@ impl Future for Counter {
         let this = self.get_mut();
         this.count += 1;
         println!("poll number {}, self at address {:p}", this.count, this);
-        Poll::Ready(())
+        Poll::Pending
     }
 }
 

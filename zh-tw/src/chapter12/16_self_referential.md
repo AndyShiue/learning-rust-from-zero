@@ -67,7 +67,7 @@ impl Future for Counter {
         let this = self.get_mut();
         this.count += 1;
         println!("第 {} 次 poll，self 在位址 {:p}", this.count, this);
-        Poll::Ready(())
+        Poll::Pending
     }
 }
 
