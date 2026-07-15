@@ -48,6 +48,42 @@ fn main() {
 
 `drop` 是一個函數（不是 method），它會取走值的所有權，然後讓值離開作用域，觸發 `Drop`。
 
+### 裡面的值也會被自動 `drop`
+
+一個值被 `drop` 時，Rust 也會自動清理它裡面需要被 `drop` 的值，所以通常不需要在自己實作的 `drop` 裡手動一個個清理。這套機制不只適用於 `struct`：`tuple` 裡的值、`enum` 目前 variant 所攜帶的欄位、陣列的元素，以及 `Vec` 裡的元素也會在需要時被自動清理。
+
+```rust,editable
+struct Item(&'static str);
+
+impl Drop for Item {
+    fn drop(&mut self) {
+        println!("丟棄物品：{}", self.0);
+    }
+}
+
+enum Package {
+    Single(Item),
+    Bundle(Vec<Item>),
+}
+
+impl Drop for Package {
+    fn drop(&mut self) {
+        println!("丟棄包裹");
+    }
+}
+
+fn main() {
+    let package = Package::Bundle(vec![
+        Item("書"),
+        Item("筆"),
+    ]);
+
+    drop(package);
+}
+```
+
+這裡只對 `Package` 呼叫 `drop(package)`，裡面的 `Vec<Item>` 和每個 `Item` 也會自動被 `drop`。
+
 ### 有 `Drop` 的型別不能部分 move
 
 這是一個重要的限制。如果一個 `struct` 實作了 `Drop`，你就不能從它的欄位 move 出值：
@@ -117,4 +153,5 @@ fn main() {
 - `Drop` `trait` 讓你自訂值離開作用域時的清理行為。
 - Rust 在值離開作用域時**自動呼叫** `.drop()`，不能手動呼叫。
 - 想提前釋放，用 `drop(value)`。
+- 一個值被 `drop` 時，Rust 通常也會自動清理它裡面需要被 `drop` 的值。
 - **有 `Drop` 的型別不能部分 move**——因為 `drop` 需要完整的 `self`。

@@ -48,6 +48,42 @@ fn main() {
 
 `drop` is a function (not a method) — it takes ownership of the value, letting it leave scope and triggering `Drop`.
 
+### Contained Values Are Dropped Automatically
+
+When a value is `drop`ped, Rust also automatically cleans up the values inside it that need to be `drop`ped, so you usually don't need to clean them up one by one inside your `drop` implementation. This mechanism isn't limited to `struct`s: values inside `tuple`s, fields carried by the current variant of an `enum`, elements of arrays, and elements inside a `Vec` are also cleaned up automatically when needed.
+
+```rust,editable
+struct Item(&'static str);
+
+impl Drop for Item {
+    fn drop(&mut self) {
+        println!("Dropping item: {}", self.0);
+    }
+}
+
+enum Package {
+    Single(Item),
+    Bundle(Vec<Item>),
+}
+
+impl Drop for Package {
+    fn drop(&mut self) {
+        println!("Dropping package");
+    }
+}
+
+fn main() {
+    let package = Package::Bundle(vec![
+        Item("book"),
+        Item("pen"),
+    ]);
+
+    drop(package);
+}
+```
+
+Here we only call `drop(package)`, but the `Vec<Item>` and every `Item` inside it are `drop`ped automatically as well.
+
 ### Types with `Drop` Can't Be Partially Moved
 
 An important restriction. If a `struct` implements `Drop`, you can't move values out of its fields:
@@ -117,4 +153,5 @@ fn main() {
 - The `Drop` `trait` customizes cleanup when a value leaves scope.
 - Rust **calls `.drop()` automatically** at scope exit; manual calls are forbidden.
 - To release early, use `drop(value)`.
+- When a value is `drop`ped, Rust usually also cleans up the values inside it that need to be `drop`ped.
 - **Types with `Drop` can't be partially moved** — `drop` needs the complete `self`.
