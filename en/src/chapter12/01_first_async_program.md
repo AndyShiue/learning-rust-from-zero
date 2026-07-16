@@ -80,7 +80,7 @@ Once it's running on your machine, open your browser to `http://127.0.0.1:8080` 
 
 Several `.await`s appear in the program — this is the very heart of `async` code. For now, understand it like this:
 
-> `.await` means "this may take a while to be ready; while we wait, please try to find something else to do."
+> `.await` means "this may take a while to be ready; if we do have to wait, please try to find something else to do in the meantime."
 
 Take `listener.accept().await`: accepting a new connection means waiting until someone actually connects, which could be a few milliseconds or several seconds. `.await` marks this "might have to wait" spot; while waiting, this `async` job can be paused, yielding its turn to run.
 
