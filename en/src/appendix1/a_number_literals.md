@@ -12,7 +12,7 @@ Chapter 1 taught basic number notation like `42` and `3.14`. But Rust's numeric 
 
 ### Underscore Separators
 
-With a big number, which reads better — `1000000` or `1_000_000`? Rust lets you insert underscores `_` anywhere in a numeric literal; the compiler simply ignores them:
+With a big number, which reads better — `1000000` or `1_000_000`? Rust lets you insert underscores `_` at certain positions in a numeric literal; they do not affect its value:
 
 ```rust,noplayground
 # fn main() {
