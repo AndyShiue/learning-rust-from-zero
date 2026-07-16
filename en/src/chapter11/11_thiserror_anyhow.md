@@ -30,10 +30,10 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 enum AppError {
-    #[error("I/O error: {0}")]
+    #[error("I/O operation failed")]
     Io(#[from] std::io::Error),
 
-    #[error("parse error: {0}")]
+    #[error("failed to parse an integer")]
     Parse(#[from] std::num::ParseIntError),
 
     #[error("custom error: {0}")]
@@ -44,7 +44,7 @@ enum AppError {
 ```
 
 - `#[error("...")]` auto-generates the `Display` implementation.
-- `#[from]` auto-generates the `From` implementation.
+- `#[from]` auto-generates the `From` implementation and treats the same field as the underlying cause returned by `.source()`.
 - What took dozens of hand-written lines last episode is now a few lines.
 
 Usage is the same as last episode — `?` converts automatically:
@@ -56,10 +56,10 @@ Usage is the same as last episode — `?` converts automatically:
 #
 # #[derive(Debug, Error)]
 # enum AppError {
-#     #[error("I/O error: {0}")]
+#     #[error("I/O operation failed")]
 #     Io(#[from] std::io::Error),
 #
-#     #[error("parse error: {0}")]
+#     #[error("failed to parse an integer")]
 #     Parse(#[from] std::num::ParseIntError),
 #
 #     #[error("custom error: {0}")]
@@ -98,14 +98,14 @@ fn read_number(path: &str) -> Result<i32> {
 ```
 
 - `anyhow::Result<T>` is just `Result<T, anyhow::Error>`.
-- `anyhow::Error` is like `Box<dyn Error>`, but nicer to use.
+- `anyhow::Error` is similar to `Box<dyn Error + Send + Sync>`, but more convenient to use.
 - `.context("...")` adds extra explanation to an error, handy for debugging.
-- No error type to define; any `Error` converts automatically.
+- No new error type to define; errors implementing `Error + Send + Sync + 'static` convert automatically.
 
 ### How the Two Relate
 
 - **`thiserror`**: helps you define precise error types without the repetitive hand-written code. For libraries — users can `match` on your errors.
-- **`anyhow`**: no error types to define at all; every error handled uniformly. For applications — you just need to report errors, not let others handle them programmatically.
+- **`anyhow`**: no separate error type to define; errors meeting the bounds above are handled uniformly through one type. For applications — you just need to report errors, not let others handle them programmatically.
 
 They combine well: libraries define errors with `thiserror`, applications receive them all through `anyhow`.
 
@@ -147,7 +147,7 @@ fn main() -> Result<()> {
 ## Recap
 
 - `thiserror`: auto-generates `Display`, `Error`, and `From` via `derive`; suits libraries.
-- `#[error("...")]` generates `Display`; `#[from]` generates `From`.
-- `anyhow`: a universal error type with no error `enum` to define; suits applications.
+- `#[error("...")]` generates `Display`; `#[from]` generates `From` and marks the field as the underlying `source`.
+- `anyhow`: handles errors implementing `Error + Send + Sync + 'static` uniformly without an error `enum`; suits applications.
 - `.context("...")` adds extra explanation to errors.
 - Libraries use `thiserror`, applications use `anyhow`, and the two combine well.

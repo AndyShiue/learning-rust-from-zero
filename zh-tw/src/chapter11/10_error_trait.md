@@ -40,16 +40,25 @@ enum AppError {
 impl fmt::Display for AppError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            AppError::Io(e) => write!(f, "輸入輸出錯誤：{}", e),
-            AppError::Parse(e) => write!(f, "解析錯誤：{}", e),
+            AppError::Io(_) => write!(f, "輸入輸出操作失敗"),
+            AppError::Parse(_) => write!(f, "整數解析失敗"),
         }
     }
 }
 
-impl std::error::Error for AppError {}
+impl std::error::Error for AppError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            AppError::Io(e) => Some(e),
+            AppError::Parse(e) => Some(e),
+        }
+    }
+}
 #
 # fn main() {}
 ```
+
+以 `AppError::Parse` 為例，`Display` 會顯示「整數解析失敗」，而 `.source()` 會回傳原本的 `ParseIntError`，讓呼叫者需要時再查看更詳細的解析錯誤。這樣外層訊息和底層原因各自保留，不會把同一段錯誤文字印兩次。
 
 第 5 章學了 `?`，當時說它遇到 `Err` 就提前回傳。其實 `?` 還多做了一件事：它會呼叫 `From::from(e)` 把錯誤轉換成函數回傳型別裡的 `E`。所以只要你幫底層錯誤實作了 `From`，`?` 就能自動轉換：
 
@@ -65,13 +74,20 @@ impl std::error::Error for AppError {}
 # impl fmt::Display for AppError {
 #     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 #         match self {
-#             AppError::Io(e) => write!(f, "輸入輸出錯誤：{}", e),
-#             AppError::Parse(e) => write!(f, "解析錯誤：{}", e),
+#             AppError::Io(_) => write!(f, "輸入輸出操作失敗"),
+#             AppError::Parse(_) => write!(f, "整數解析失敗"),
 #         }
 #     }
 # }
 #
-# impl std::error::Error for AppError {}
+# impl std::error::Error for AppError {
+#     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+#         match self {
+#             AppError::Io(e) => Some(e),
+#             AppError::Parse(e) => Some(e),
+#         }
+#     }
+# }
 #
 impl From<std::io::Error> for AppError {
     fn from(e: std::io::Error) -> Self {
@@ -102,13 +118,20 @@ impl From<std::num::ParseIntError> for AppError {
 # impl fmt::Display for AppError {
 #     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 #         match self {
-#             AppError::Io(e) => write!(f, "輸入輸出錯誤：{}", e),
-#             AppError::Parse(e) => write!(f, "解析錯誤：{}", e),
+#             AppError::Io(_) => write!(f, "輸入輸出操作失敗"),
+#             AppError::Parse(_) => write!(f, "整數解析失敗"),
 #         }
 #     }
 # }
 #
-# impl std::error::Error for AppError {}
+# impl std::error::Error for AppError {
+#     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+#         match self {
+#             AppError::Io(e) => Some(e),
+#             AppError::Parse(e) => Some(e),
+#         }
+#     }
+# }
 #
 # impl From<std::io::Error> for AppError {
 #     fn from(e: std::io::Error) -> Self {
@@ -135,7 +158,7 @@ fn read_number(path: &str) -> Result<i32, AppError> {
 
 ### `Box<dyn Error>`
 
-如果你不需要精確區分錯誤種類，可以用 `Box<dyn Error>` 當通用錯誤型別：
+如果你不需要讓回傳型別列出一組可以窮舉 `match` 的錯誤種類，可以用 `Box<dyn Error>` 當通用錯誤型別：
 
 ```rust,noplayground
 use std::error::Error;
@@ -149,9 +172,35 @@ fn read_number(path: &str) -> Result<i32, Box<dyn Error>> {
 # fn main() {}
 ```
 
-任何實作了 `Error` 的型別都能自動轉成 `Box<dyn Error>`，所以 `?` 直接就能用，不需要手動寫 `From`。
+實作了 `Error + 'static` 的具體錯誤型別可以自動轉成 `Box<dyn Error>`，所以這些錯誤可以直接搭配 `?` 使用，不需要逐一手寫 `From`。
 
-缺點是呼叫者沒辦法用 `match` 精確處理不同的錯誤種類——它只知道「有個錯誤」，但不知道具體是哪種。
+`Box<dyn Error>` 會抹除具體錯誤的靜態型別，因此呼叫者不能像處理自訂錯誤 `enum` 一樣進行窮舉 `match`。不過，錯誤資訊並未完全消失：仍可用 `.source()` 查看底層原因，也能在已知目標型別時使用 `.downcast_ref::<T>()` 檢查具體型別。
+
+例如，呼叫者可以檢查 `Box<dyn Error>` 裡裝的是不是 `std::io::Error`：
+
+```rust,no_run
+# use std::error::Error;
+#
+# fn read_number(path: &str) -> Result<i32, Box<dyn Error>> {
+#     let content = std::fs::read_to_string(path)?;
+#     let num = content.trim().parse::<i32>()?;
+#     Ok(num)
+# }
+#
+fn main() {
+    if let Err(error) = read_number("missing.txt") {
+        if let Some(io_error) = error.downcast_ref::<std::io::Error>() {
+            println!("這是 I/O 錯誤，種類是：{:?}", io_error.kind());
+        } else {
+            println!("這是其他錯誤：{}", error);
+        }
+    }
+}
+```
+
+如果 `Box` 裡直接裝的是 `std::io::Error`，`.downcast_ref::<std::io::Error>()` 會回傳 `Some(&std::io::Error)`；型別不同就回傳 `None`。例如，`Box` 裡裝的是 `AppError` 時，即使 `AppError::Io` 內部包著 `std::io::Error`，`error.downcast_ref::<std::io::Error>()` 仍會回傳 `None`，因為直接裝在 `Box` 裡的型別是 `AppError`。這時要先呼叫 `.source()` 取得內部錯誤，再對它呼叫 `.downcast_ref::<T>()`。
+
+`Box<dyn Error>` 本身不保證錯誤可以跨 `Thread` 傳遞。如果錯誤需要送到其他 `Thread`，或 API 要求可跨執行緒的錯誤，常見的型別是 `Box<dyn Error + Send + Sync>`；放進去的錯誤也必須實作 `Send + Sync`。
 
 ### 什麼時候用哪個
 
@@ -184,7 +233,8 @@ fn main() {
 ## 重點整理
 
 - `Error` `trait` 要求 `Display + Debug`，是所有錯誤型別的共同介面。
-- 自訂錯誤：定義 `enum` → `impl Display` → `impl Error` → 為每種底層錯誤 `impl From`。
+- 自訂錯誤：定義 `enum` → `impl Display` → `impl Error`（用 `.source()` 保留原因）→ 為每種底層錯誤 `impl From`。
 - 有了 `From`，`?` 就能自動把底層錯誤轉成你的自訂錯誤。
-- `Box<dyn Error>`：通用錯誤型別，任何 `Error` 都能自動轉換，`?` 直接能用。
+- `Box<dyn Error>`：會抹除具體錯誤的靜態型別，但仍可透過 `.source()` 或 downcast 檢查錯誤。
+- 需要跨執行緒傳遞錯誤時，常用 `Box<dyn Error + Send + Sync>`。
 - `Box<dyn Error>` 適合快速開發；自訂錯誤 `enum` 適合函式庫。

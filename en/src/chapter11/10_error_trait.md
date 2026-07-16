@@ -40,16 +40,25 @@ enum AppError {
 impl fmt::Display for AppError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            AppError::Io(e) => write!(f, "I/O error: {}", e),
-            AppError::Parse(e) => write!(f, "parse error: {}", e),
+            AppError::Io(_) => write!(f, "I/O operation failed"),
+            AppError::Parse(_) => write!(f, "failed to parse an integer"),
         }
     }
 }
 
-impl std::error::Error for AppError {}
+impl std::error::Error for AppError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            AppError::Io(e) => Some(e),
+            AppError::Parse(e) => Some(e),
+        }
+    }
+}
 #
 # fn main() {}
 ```
+
+For example, `AppError::Parse` displays "failed to parse an integer," while `.source()` returns the original `ParseIntError` so callers can inspect the detailed parsing error when needed. This preserves both the outer message and the underlying cause without printing the same error text twice.
 
 Chapter 5 said `?` returns early when it meets an `Err`. Actually `?` does one more thing: it calls `From::from(e)` to convert the error into the `E` of the function's return type. So as long as you implement `From` for the underlying errors, `?` converts automatically:
 
@@ -65,13 +74,20 @@ Chapter 5 said `?` returns early when it meets an `Err`. Actually `?` does one m
 # impl fmt::Display for AppError {
 #     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 #         match self {
-#             AppError::Io(e) => write!(f, "I/O error: {}", e),
-#             AppError::Parse(e) => write!(f, "parse error: {}", e),
+#             AppError::Io(_) => write!(f, "I/O operation failed"),
+#             AppError::Parse(_) => write!(f, "failed to parse an integer"),
 #         }
 #     }
 # }
 #
-# impl std::error::Error for AppError {}
+# impl std::error::Error for AppError {
+#     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+#         match self {
+#             AppError::Io(e) => Some(e),
+#             AppError::Parse(e) => Some(e),
+#         }
+#     }
+# }
 #
 impl From<std::io::Error> for AppError {
     fn from(e: std::io::Error) -> Self {
@@ -102,13 +118,20 @@ Now one function can use `?` on both kinds of errors:
 # impl fmt::Display for AppError {
 #     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 #         match self {
-#             AppError::Io(e) => write!(f, "I/O error: {}", e),
-#             AppError::Parse(e) => write!(f, "parse error: {}", e),
+#             AppError::Io(_) => write!(f, "I/O operation failed"),
+#             AppError::Parse(_) => write!(f, "failed to parse an integer"),
 #         }
 #     }
 # }
 #
-# impl std::error::Error for AppError {}
+# impl std::error::Error for AppError {
+#     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+#         match self {
+#             AppError::Io(e) => Some(e),
+#             AppError::Parse(e) => Some(e),
+#         }
+#     }
+# }
 #
 # impl From<std::io::Error> for AppError {
 #     fn from(e: std::io::Error) -> Self {
@@ -135,7 +158,7 @@ A custom error type + `impl Display` + `impl Error` + a `From` for each kind... 
 
 ### `Box<dyn Error>`
 
-If you don't need to distinguish error kinds precisely, use `Box<dyn Error>` as a catch-all error type:
+If your return type doesn't need to expose a fixed set of error kinds that callers can match exhaustively, use `Box<dyn Error>` as a catch-all error type:
 
 ```rust,noplayground
 use std::error::Error;
@@ -149,9 +172,35 @@ fn read_number(path: &str) -> Result<i32, Box<dyn Error>> {
 # fn main() {}
 ```
 
-Any type implementing `Error` converts into `Box<dyn Error>` automatically, so `?` just works — no manual `From` needed.
+Concrete error types implementing `Error + 'static` can be converted automatically into `Box<dyn Error>`, so these errors work directly with `?` without a hand-written `From` implementation.
 
-The downside: callers can't `match` to handle different error kinds precisely — they only know "there was an error," not which one.
+`Box<dyn Error>` erases the concrete error's static type, so callers cannot exhaustively `match` it like a custom error `enum`. The error information is not completely lost, however: callers can inspect the underlying cause through `.source()` or check a known concrete type with `.downcast_ref::<T>()`.
+
+For example, a caller can check whether a `Box<dyn Error>` contains a `std::io::Error`:
+
+```rust,no_run
+# use std::error::Error;
+#
+# fn read_number(path: &str) -> Result<i32, Box<dyn Error>> {
+#     let content = std::fs::read_to_string(path)?;
+#     let num = content.trim().parse::<i32>()?;
+#     Ok(num)
+# }
+#
+fn main() {
+    if let Err(error) = read_number("missing.txt") {
+        if let Some(io_error) = error.downcast_ref::<std::io::Error>() {
+            println!("this is an I/O error of kind {:?}", io_error.kind());
+        } else {
+            println!("this is some other error: {}", error);
+        }
+    }
+}
+```
+
+If the `Box` directly contains a `std::io::Error`, `.downcast_ref::<std::io::Error>()` returns `Some(&std::io::Error)`; for a different type it returns `None`. For example, if the `Box` contains an `AppError`, then `error.downcast_ref::<std::io::Error>()` still returns `None` even when the value is `AppError::Io` wrapping a `std::io::Error`, because the type stored directly in the `Box` is `AppError`. In that case, call `.source()` first to obtain the wrapped error, then call `.downcast_ref::<T>()` on it.
+
+`Box<dyn Error>` by itself does not guarantee that the error can cross `Thread` boundaries. If an error must be sent to another `Thread`, or an API requires thread-safe errors, a common type is `Box<dyn Error + Send + Sync>`; the contained error must implement `Send + Sync` as well.
 
 ### Which One When
 
@@ -184,7 +233,8 @@ fn main() {
 ## Recap
 
 - The `Error` `trait` requires `Display + Debug` and is the common interface of all error types.
-- Custom errors: define an `enum` → `impl Display` → `impl Error` → `impl From` for each underlying error.
+- Custom errors: define an `enum` → `impl Display` → `impl Error` (preserving causes with `.source()`) → `impl From` for each underlying error.
 - With `From` in place, `?` automatically converts underlying errors into your custom error.
-- `Box<dyn Error>`: a catch-all error type; any `Error` converts automatically and `?` just works.
+- `Box<dyn Error>` erases the concrete error's static type, but errors remain inspectable through `.source()` or downcasting.
+- To send errors across thread boundaries, `Box<dyn Error + Send + Sync>` is commonly used.
 - `Box<dyn Error>` suits rapid development; custom error `enum`s suit libraries.
