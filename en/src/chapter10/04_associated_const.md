@@ -41,8 +41,8 @@ impl HasLimit for i8 {
     const LIMIT: i32 = 127;
 }
 fn main() {
-    println!("u8: {}", <u8 as HasLimit>::LIMIT); // 255
-    println!("i8: {}", <i8 as HasLimit>::LIMIT); // 127
+    println!("u8: {}", u8::LIMIT); // 255
+    println!("i8: {}", i8::LIMIT); // 127
 }
 ```
 
