@@ -2,13 +2,13 @@
 
 ## 本集目標
 
-學會用 `select!` 等待「多個 branch 中第一個完成的」，並理解它和取消（cancellation）的密切關係。
+學會用 `select!` 等待多個 branch，直到其中一個完成且輸出符合 pattern，並理解它和取消（cancellation）的密切關係。
 
 ## 正文
 
 ### 等「誰先到」
 
-`join!` 等的是「**全部**都完成」。`select!` 可說是它的一種相反：它同時等多個 branch，只要**第一個**完成，就執行那個 branch 對應的 handler，然後整個 `select!` 就結束——**其他還沒完成的 branch 會被 `drop` 掉**。
+`join!` 等的是「**全部**都完成」。`select!` 可說是它的一種相反：它同時等多個 branch，只要其中一個完成，而且輸出符合左邊的 pattern，就執行那個 branch 對應的 handler，然後整個 `select!` 就結束——**其他還沒完成的 branch 會被 `drop` 掉**。
 
 ### 基本語法
 
@@ -25,7 +25,7 @@ tokio::select! {
 }
 ```
 
-等號前的 `pattern` 用來接住等號後那個 `Future` 的輸出；如果 pattern 裡綁定了變數，那個變數會被帶進右邊的大括號裡使用。等號後寫的是要等待的 `Future` 而已，這裡**不要**自己加 `.await`。`select!` 會負責同時 `poll` 這些 `Future`，等其中一個先完成。
+等號前的 `pattern` 用來接住等號後那個 `Future` 的輸出；如果 pattern 裡綁定了變數，那個變數會被帶進右邊的大括號裡使用。等號後寫的是要等待的 `Future` 而已，這裡**不要**自己加 `.await`。`select!` 會負責同時 `poll` 這些 `Future`，等其中一個完成且輸出符合 pattern。
 
 如果你不需要某個 `Future` 的輸出，就像一般 `match` pattern 一樣用 `_` 忽略它：
 
@@ -56,7 +56,7 @@ tokio::select! {
 }
 ```
 
-`select!` 本身也可以有回傳值，回傳的是勝出 branch 大括號裡最後一個 expression。這點跟 `match` 很像：每個 branch 都要回傳同一種型別。
+`select!` 本身也可以有回傳值，回傳的是勝出 branch 大括號裡最後一個表達式。這點跟 `match` 很像：每個 branch 都要回傳同一種型別。
 
 ```rust,ignore
 let status = tokio::select! {
@@ -122,7 +122,7 @@ async fn main() {
 
 `select!` 還有幾個常用功能：
 
-**branch precondition**：在 branch 後面加 `, if 條件`。條件為假時，這個 branch 直接略過，不會參與本輪競爭。
+**branch precondition**：在 branch 後面加 `, if 條件`。這個條件可以使用進入 `select!` 前就已經存在的變數，例如下面的 `accepting_jobs`；但不能使用左邊 pattern 才會綁定的變數。`job` 要等 `jobs.recv()` 完成且 `Some(job)` 匹配成功後，才能在 handler 裡使用。
 
 ```rust,ignore
 tokio::select! {
@@ -135,9 +135,15 @@ tokio::select! {
 }
 ```
 
-**`else` 分支**：當所有 branch 都被略過，沒有任何 branch 能跑時，執行 `else`。
+處理一次 `select!` 時，相關步驟依序是：
 
-除了 `if` 失敗之外，如果右邊的 `Future` 完成了，但輸出不符合左邊的 pattern，這個 branch 也會在本輪 `select!` 被略過。例如 `Some(job) = jobs.recv()` 遇到 channel 關閉、`recv()` 回 `None` 時，`Some(job)` 匹配失敗，這個 branch 就不會執行。如果所有 branch 都被略過，而且沒有 `else`，`select!` 會 panic。
+1. 先求值所有 branch 的 `if` precondition；條件為假的 branch 會在這次 `select!` 中被停用。
+2. 求值所有等號右邊的 `async` 表達式，包括已停用 branch 的表達式。條件為假時，表達式仍會被求值以建立 `Future`，但產生的 `Future` 不會被 `poll`。這裡的「求值」是建立 `Future`，不是執行其中的 `async` 工作；不過，建立 `Future` 前的參數運算等一般表達式仍會執行。
+3. `poll` 其餘 branch 的 `Future`。
+4. 某個 `Future` 完成後，嘗試用它的輸出匹配左邊的 pattern。匹配成功就執行 handler 並結束 `select!`；匹配失敗則停用這個 branch，繼續等待其他 branch。因此最先完成的 branch 不一定會勝出；勝出的是完成且 pattern 匹配成功的 branch。
+5. 所有 branch 都被停用時，執行 `else`；如果沒有 `else`，`select!` 會 panic。
+
+**`else` branch**：例如 `Some(job) = jobs.recv()` 遇到 channel 關閉、`.recv()` 回 `None` 時，`Some(job)` 會匹配失敗，這個 branch 便會被停用。如果其他 branch 也全部被停用，就會執行 `else`。
 
 ```rust,ignore
 tokio::select! {
@@ -165,8 +171,8 @@ tokio::select! {
 
 ## 重點整理
 
-- `select!` 同時等多個 branch，**第一個**完成就執行對應 handler，其他 branch 被 `drop`（取消）。
+- `select!` 同時等多個 branch，第一個完成且輸出符合 pattern 的 branch 會執行對應 handler，其他 branch 被 `drop`（取消）。
 - 基本語法是 `pattern = future => { ... }`；`=>` 左邊不用寫 `.await`，不需要輸出時用 `_ = future`；`select!` 本身也能回傳勝出 branch 的值。
 - 所以 `select!` 是程式裡**最常製造取消**的地方；適合 timeout、多 channel 接收、等 shutdown 訊號。
 - 在 `loop` 裡用 `select!` 要注意 cancellation safety：別把 `read_exact` 這類不可安全取消的 `Future` 放進會被 `drop` 的 branch。
-- 補充功能：branch `if`（precondition）、pattern 不匹配時略過該 branch、`else`（所有 branch 都被略過時）、`biased;` 把預設的隨機改成依序。
+- 補充功能：branch `if`（precondition）、pattern 不匹配時停用該 branch、`else`（所有 branch 都被停用時）、`biased;` 把預設的隨機改成依序。

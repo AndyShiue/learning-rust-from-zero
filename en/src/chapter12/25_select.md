@@ -2,13 +2,13 @@
 
 ## Goal of This Episode
 
-Learn to use `select!` to wait for "the first of several branches to finish," and understand its close ties to cancellation.
+Learn to use `select!` to wait for "the first of several branches to finish with an output that matches its pattern," and understand its close ties to cancellation.
 
 ## Main Text
 
 ### Waiting for "Whoever Arrives First"
 
-`join!` waits for "**all** done." `select!` is in a sense its opposite: it waits on several branches at once, and the moment the **first** completes, the handler for that branch runs and the whole `select!` ends — **the other unfinished branches get `drop`ped**.
+`join!` waits for "**all** done." `select!` is in a sense its opposite: it waits on several branches at once, and when one completes with an output that matches the pattern on the left, the handler for that branch runs and the whole `select!` ends — **the other unfinished branches get `drop`ped**.
 
 ### Basic Syntax
 
@@ -25,7 +25,7 @@ tokio::select! {
 }
 ```
 
-The `pattern` before the equals sign catches the output of the `Future` after it; variables bound in the pattern are available inside the braces on the right. What goes after the equals sign is just the `Future` to wait on — do **not** add `.await` yourself. `select!` takes care of `poll`ing these `Future`s simultaneously, waiting for the first to finish.
+The `pattern` before the equals sign catches the output of the `Future` after it; variables bound in the pattern are available inside the braces on the right. What goes after the equals sign is just the `Future` to wait on — do **not** add `.await` yourself. `select!` takes care of `poll`ing these `Future`s simultaneously, waiting for one to finish with an output that matches its pattern.
 
 If you don't need some `Future`'s output, ignore it with `_`, just like an ordinary `match` pattern:
 
@@ -122,7 +122,7 @@ So the risk isn't "the handler didn't run"; it's "the `Future` got cancelled wit
 
 `select!` has some further commonly used features:
 
-**Branch preconditions**: append `, if condition` to a branch. When the condition is false, the branch is skipped outright and sits out this round.
+**Branch preconditions**: append `, if condition` to a branch. The condition can use variables that already exist before entering the `select!`, such as `accepting_jobs` below, but it cannot use variables that will be bound by the pattern on the left. `job` becomes available inside the handler only after `jobs.recv()` completes and `Some(job)` matches successfully.
 
 ```rust,ignore
 tokio::select! {
@@ -135,9 +135,15 @@ tokio::select! {
 }
 ```
 
-**The `else` branch**: runs when every branch was skipped and none could compete.
+The relevant steps in one call to `select!` occur in this order:
 
-Besides a failed `if`, a branch is also skipped this round if its `Future` completed but the output didn't match the left-hand pattern. For instance, `Some(job) = jobs.recv()` with a closed channel — `recv()` returns `None`, `Some(job)` fails to match, and the branch doesn't run. If every branch is skipped and there's no `else`, `select!` panics.
+1. Evaluate every branch's `if` precondition. A branch whose condition is false is disabled for this call to `select!`.
+2. Evaluate every `async` expression on the right of an equals sign, including expressions in disabled branches. When a condition is false, the expression is still evaluated to create a `Future`, but that `Future` is not `poll`ed. Here, "evaluated" means creating the `Future`, not running the `async` work inside it; ordinary expressions such as argument calculations performed before creating the `Future` still run.
+3. `poll` the `Future`s of the remaining branches.
+4. When a `Future` completes, try to match its output against the pattern on the left. If it matches, run the handler and finish the `select!`; if it does not, disable that branch and continue waiting for the others. The first branch to complete is therefore not necessarily the winner; the winner is a branch that completes and whose pattern matches.
+5. When all branches are disabled, run `else`; if there is no `else`, `select!` panics.
+
+**The `else` branch**: for example, if `Some(job) = jobs.recv()` encounters a closed channel, `.recv()` returns `None`, so `Some(job)` fails to match and that branch is disabled. If every other branch is also disabled, the `else` branch runs.
 
 ```rust,ignore
 tokio::select! {
@@ -165,8 +171,8 @@ tokio::select! {
 
 ## Recap
 
-- `select!` waits on several branches at once; the **first** to complete runs its handler, and the rest get `drop`ped (cancelled).
+- `select!` waits on several branches at once; the first branch to complete with an output matching its pattern runs its handler, and the rest get `drop`ped (cancelled).
 - Basic syntax is `pattern = future => { ... }`; don't write `.await` on the left side of `=>`; use `_ = future` when the output isn't needed; `select!` can return the winning branch's value.
 - `select!` is thus the place in a program that **manufactures the most cancellations**; great for timeouts, multi-channel receives, and shutdown signals.
 - Using `select!` in a `loop` demands cancellation-safety care: keep non-cancellation-safe `Future`s like `read_exact` out of branches that may be `drop`ped.
-- Extras: branch `if` (preconditions), branches skipped on pattern mismatch, `else` (when all branches are skipped), and `biased;` to turn default randomness into top-down order.
+- Extras: branch `if` (preconditions), branches disabled on pattern mismatch, `else` (when all branches are disabled), and `biased;` to turn default randomness into top-down order.
