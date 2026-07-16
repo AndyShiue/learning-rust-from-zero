@@ -50,20 +50,20 @@ where
 
 ### `Cow` 實作了 `Deref`
 
-這是使用 `Cow` 時最關鍵的一點：`Cow<'a, B>` 實作了 `Deref<Target = B>`。也就是說，不管裡面是 `Borrowed(&str)` 還是 `Owned(String)`，你都可以直接把 `Cow<'_, str>` 當成 `&str` 來用——呼叫 `&str` 的所有方法、傳給接受 `&str` 的函數，完全不用管它實際上是借用還是擁有。
+這是使用 `Cow` 時最關鍵的一點：`Cow<'a, B>` 實作了 `Deref<Target = B>`。也就是說，不管裡面是 `Borrowed(&str)` 還是 `Owned(String)`，你都可以直接把 `&Cow<'_, str>` 當成 `&str` 來用——呼叫 `str` 的方法或傳給接受 `&str` 的函數，完全不用管它實際上是借用還是擁有。
 
 ```rust,editable
 use std::borrow::Cow;
 
 fn main() {
     let cow: Cow<'_, str> = Cow::Owned(String::from("hello"));
-    // 直接當 &str 用，Deref 自動處理
+    // 直接呼叫 str 的方法，Deref 自動處理
     println!("長度：{}", cow.len());
     println!("大寫：{}", cow.to_uppercase());
 }
 ```
 
-因為有 `Deref`，呼叫端通常不需要在意裡面到底是借用還是擁有——直接當 `&str` 用就好。
+因為有 `Deref`，呼叫端通常不需要在意裡面到底是借用還是擁有——需要 `&str` 時對 `Cow` 取參考 `&cow` 即可。
 
 ### 常用方法
 
@@ -128,7 +128,7 @@ fn main() {
 
 - `Cow<'a, str>` 可以是借用（`&str`）或擁有（`String`），視情況而定。
 - `Cow` 利用 `ToOwned` `trait` 的 associated type 來決定擁有版本的型別（`str` → `String`、`[T]` → `Vec<T>`）。
-- `Cow` 實作了 `Deref`，`Cow<'a, str>` 不管是 `Borrowed` 還是 `Owned` 都能直接當 `&str` 用——這是它最大的優點。
+- `Cow` 實作了 `Deref`，不管是 `Borrowed` 還是 `Owned`，`&Cow<'_, str>` 都能直接當 `&str` 用——這是它最大的優點。
 - `.to_mut()`：寫入時才複製（`Borrowed` → `clone` 成 `Owned` → 回傳可變參考）。
 - `.into_owned()`：不管哪種都轉成擁有所有權的值。
 - 適合用在「大部分時候不修改，偶爾需要修改」的場景。

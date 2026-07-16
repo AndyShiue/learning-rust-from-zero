@@ -50,20 +50,20 @@ For `[T]`:
 
 ### `Cow` Implements `Deref`
 
-The most crucial point when using `Cow`: `Cow<'a, B>` implements `Deref<Target = B>`. Meaning: whether it holds `Borrowed(&str)` or `Owned(String)`, you can treat a `Cow<'_, str>` directly as an `&str` — calling all of `&str`'s methods, passing it to functions accepting `&str`, without ever caring whether it's borrowed or owned.
+The most crucial point when using `Cow`: `Cow<'a, B>` implements `Deref<Target = B>`. Meaning: whether it holds `Borrowed(&str)` or `Owned(String)`, you can use `&Cow<'_, str>` directly as an `&str` — calling `str` methods or passing it to functions accepting `&str`, without ever caring whether it's borrowed or owned.
 
 ```rust,editable
 use std::borrow::Cow;
 
 fn main() {
     let cow: Cow<'_, str> = Cow::Owned(String::from("hello"));
-    // Used directly as &str; Deref handles it
+    // Call str methods directly; Deref handles it
     println!("Length: {}", cow.len());
     println!("Uppercase: {}", cow.to_uppercase());
 }
 ```
 
-Thanks to `Deref`, callers usually needn't care whether the inside is borrowed or owned — just use it as an `&str`.
+Thanks to `Deref`, callers usually needn't care whether the inside is borrowed or owned — when an `&str` is needed, borrow the `Cow` as `&cow`.
 
 ### Common Methods
 
@@ -128,7 +128,7 @@ fn main() {
 
 - `Cow<'a, str>` can be borrowed (`&str`) or owned (`String`), as circumstances demand.
 - `Cow` uses the `ToOwned` `trait`'s associated type to decide the owning version's type (`str` → `String`, `[T]` → `Vec<T>`).
-- `Cow` implements `Deref`: whether `Borrowed` or `Owned`, a `Cow<'a, str>` can be used directly as an `&str` — its greatest strength.
+- `Cow` implements `Deref`: whether `Borrowed` or `Owned`, a `&Cow<'_, str>` can be used directly as an `&str` — its greatest strength.
 - `.to_mut()`: `clone` on write (`Borrowed` → `clone` into `Owned` → return a mutable reference).
 - `.into_owned()`: converts either variant into an owned value.
 - Suited to "mostly no modification, occasional modification" scenarios.
