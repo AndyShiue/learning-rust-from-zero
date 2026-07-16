@@ -19,7 +19,7 @@ The side-by-side makes it easy to remember:
 
 Both use "`None` means the end."
 
-These examples use the `tokio_stream` `crate` (it's not part of Tokio proper), so add the dependency first:
+These examples use the `tokio-stream` `crate` (it's not part of Tokio proper), so add the dependency first:
 
 ```toml
 [dependencies]
