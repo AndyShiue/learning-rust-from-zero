@@ -41,7 +41,7 @@ The one-line contrast: the hand-written version "finishes the whole batch before
 
 ### The Most Common Beginner Compile Error: Holding a Non-`Send` Value Across `.await`
 
-`tokio::spawn` requires `Future: Send`, and whether a `Future` is `Send` depends on **what it stores across `.await`s**. Holding a non-`Send` value (like `Rc` or `RefCell`) across an `.await` makes the whole `Future` non-`Send`, so it can't be `spawn`ed:
+`tokio::spawn` requires `Future: Send`, and whether a `Future` is `Send` depends on **what it stores across `.await`s**. Holding a non-`Send` value such as `Rc` across an `.await` makes the whole `Future` non-`Send`, so it can't be `spawn`ed:
 
 ```rust,compile_fail
 # extern crate tokio;
@@ -140,5 +140,5 @@ The single-threaded runtime's upside is no cross-`Thread` moving to worry about;
 - `tokio::spawn` hands a `Future` to the runtime and returns a `JoinHandle` (`.await` yields a `Result`, since it may panic).
 - Tokio defaults to multithreaded and may move `Task`s between `Thread`s, so `spawn`'s `Future` and output need `Send + 'static`; `block_on` runs on the current `Thread` and doesn't.
 - Semantic difference: our hand-written `block_on` waits for **all** `Task`s; Tokio's `block_on` returns as soon as **the specified `Future`** completes.
-- Holding a non-`Send` value (`Rc`, `RefCell`) across an `.await` makes the `Future` non-`Send` and unspawnable; fix with `Arc`, or scope / `drop` it away before the `.await`.
+- Holding a non-`Send` value such as `Rc` across an `.await` makes the `Future` non-`Send` and unspawnable; fix with `Arc`, or scope / `drop` it away before the `.await`.
 - `#[tokio::main]` defaults to multithreaded, adjustable via `flavor = "current_thread"` or `worker_threads = N`.

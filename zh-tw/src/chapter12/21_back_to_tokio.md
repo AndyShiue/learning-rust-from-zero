@@ -41,7 +41,7 @@ async fn main() {
 
 ### 新手最常見的編譯錯誤：`.await` 期間持有非 `Send` 的值
 
-`tokio::spawn` 要求 `Future: Send`，而一個 `Future` 是不是 `Send`，取決於它**跨 `.await` 時保存了什麼**。如果在 `.await` 期間還持有一個非 `Send` 的值（像 `Rc`、`RefCell`），整個 `Future` 就不是 `Send`，於是不能 `spawn`：
+`tokio::spawn` 要求 `Future: Send`，而一個 `Future` 是不是 `Send`，取決於它**跨 `.await` 時保存了什麼**。如果在 `.await` 期間還持有一個像 `Rc` 這樣非 `Send` 的值，整個 `Future` 就不是 `Send`，於是不能 `spawn`：
 
 ```rust,compile_fail
 # extern crate tokio;
@@ -140,5 +140,5 @@ async fn main() {
 - `tokio::spawn` 把 `Future` 交給 runtime，回傳 `JoinHandle`（`.await` 後得到 `Result`，因為可能 panic）。
 - Tokio 預設多執行緒，可能在 `Thread` 之間搬 `Task`，所以 `spawn` 的 `Future` 與輸出要 `Send + 'static`；`block_on` 在當前 `Thread` 跑，不需要。
 - 語意差異：手寫 `block_on` 等**所有** `Task` 完成；Tokio `block_on` 是**指定的 `Future`** 一完成就回傳。
-- `.await` 期間持有非 `Send` 的值（`Rc`、`RefCell`）會讓 `Future` 不是 `Send`，不能 `spawn`；解法是改用 `Arc`、或用作用域 / `drop` 讓它在 `.await` 前消失。
+- `.await` 期間持有像 `Rc` 這樣非 `Send` 的值，會讓 `Future` 不是 `Send`，不能 `spawn`；解法是改用 `Arc`、或用作用域 / `drop` 讓它在 `.await` 前消失。
 - `#[tokio::main]` 預設多執行緒，但可用 `flavor = "current_thread"` 或 `worker_threads = N` 調整。
