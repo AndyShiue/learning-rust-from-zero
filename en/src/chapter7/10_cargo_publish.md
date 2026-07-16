@@ -245,7 +245,7 @@ cargo publish    # Publish for real!
 - `cargo package` checks for problems before publishing.
 - `cargo publish` publishes to crates.io for real.
 - Bump the `version` field for updates, following SemVer (semantic versioning).
-- Your public API (especially the `pub` things) is a **promise to your users**; SemVer's three numbers exist to tell users "did this update touch that promise" — removing a `pub` is a breaking change (major), pure additions are backward compatible (minor). Documented behavior can also be part of the promise; private implementation details may change as long as the promises still hold.
+- Your public API (especially the `pub` things) is a **promise to your users**; removing or incompatibly changing a public item is a breaking change (major). Backward-compatible additions belong in a minor release, but not every addition is backward compatible. Documented behavior can also be part of the promise; private implementation details may change as long as the promises still hold.
 - Published versions can't be deleted; `cargo yank` merely marks them as discouraged.
 - Writing the README, doc comments, and tests before publishing is basic respect for your users.
 
