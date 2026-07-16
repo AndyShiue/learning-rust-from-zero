@@ -55,22 +55,18 @@ You've seen this situation before. Chapter 5's discussion of recursive types hit
 
 ### The Fix: Wrap the Recursive Call in `Box::pin`
 
-The fix for `async` recursion is the same: wrap the `Future` produced by the recursive call in `Box::pin`. `Pin<Box<dyn Future<Output = u64>>>` also implements `Future`. When it gets `poll`ed, it forwards the work to the real `Future` inside the `Box`. Now the state machine stores only a fixed-size pointer instead of directly embedding another state machine of the same type:
+The fix for `async` recursion is the same: wrap the `Future` produced by the recursive call in `Box::pin`. Now the state machine stores only a fixed-size pointer instead of directly embedding another state machine of the same type:
 
 ```rust,editable
 use std::future::Future;
-use std::pin::Pin;
 use std::task::{Context, Poll, Waker};
 
-// change the return type to Pin<Box<dyn Future<...>>>, wrapping the recursive call in Box::pin
-fn factorial(n: u64) -> Pin<Box<dyn Future<Output = u64>>> {
-    Box::pin(async move {
-        if n == 0 {
-            1
-        } else {
-            n * factorial(n - 1).await
-        }
-    })
+async fn factorial(n: u64) -> u64 {
+    if n == 0 {
+        1
+    } else {
+        n * Box::pin(factorial(n - 1)).await
+    }
 }
 
 fn block_on<F: Future>(future: F) -> F::Output {
@@ -92,11 +88,7 @@ fn main() {
 
 > The most bare-bones `block_on` from earlier is attached above (this `factorial` has no `.await` that genuinely waits, so that version suffices).
 
-We rewrote `factorial` from an `async fn` into an ordinary function returning `Pin<Box<dyn Future<Output = u64>>>`, with the body being an `async` block wrapped in `Box::pin`. The recursive call `factorial(n - 1)` also returns a `Pin<Box<...>>` — fixed-size — so the state machine's size can now be determined.
-
-`Box` and `Pin` here each handle a different job: `Box` gives the outer layer a fixed size, while `Pin` makes the `Future` inside safely `poll`able. Returning just `Box<dyn Future<Output = u64>>` isn't enough, because `dyn Future` doesn't guarantee `Unpin`, and a `Box<dyn Future>` can't safely treat the `Future` behind the pointer as already pinned. That's why we return `Pin<Box<dyn Future<Output = u64>>>`.
-
-You might also notice: `block_on` takes an `F: Future`, yet `factorial(5)` returns a `Pin<Box<dyn Future<Output = u64>>>` — can that be passed in? Yes, because `Pin<Box<dyn Future<Output = u64>>>` itself implements `Future`, so as far as `block_on` is concerned, what it receives is still something `poll`able.
+`Box` and `Pin` each handle a different job here: `Box` lets the state machine store only a fixed-size pointer, while `Pin` makes the `Future` inside safely `poll`able. Writing only `Box::new(factorial(n - 1)).await` isn't enough, because the `Future` returned by an `async fn` isn't guaranteed to implement `Unpin`, and `Box<F>` implements `Future` only when `F: Unpin`. So we use `Box::pin` to get a `Pin<Box<F>>`; as long as `F: Future`, `Pin<Box<F>>` itself also implements `Future` and can be `.await`ed directly.
 
 At this point, we've walked the whole of `async`'s underlying machinery — `Future`, executor, reactor, state machines, `Pin` — from start to finish. From next episode on, we return to Tokio to see what conveniences a truly mature runtime offers for writing `async` code.
 
