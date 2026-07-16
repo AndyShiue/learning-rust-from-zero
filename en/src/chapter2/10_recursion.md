@@ -107,5 +107,5 @@ For now, just knowing how to write recursion is enough — the right scenarios w
 ## Recap
 
 - Recursion is a function calling itself.
-- There must be a **base case** (stopping condition), or you get an infinite loop.
+- There must be a **base case** (stopping condition), or you get infinite recursion.
 - Each call must make the problem **smaller**, moving toward the base case.
