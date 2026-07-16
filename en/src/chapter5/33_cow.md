@@ -50,20 +50,20 @@ For `[T]`:
 
 ### `Cow` Implements `Deref`
 
-The most crucial point when using `Cow`: `Cow<'a, B>` implements `Deref<Target = B>`. Meaning: whether it holds `Borrowed(&str)` or `Owned(String)`, you can use `&Cow<'_, str>` directly as an `&str` — calling `str` methods or passing it to functions accepting `&str`, without ever caring whether it's borrowed or owned.
+The most crucial point when using `Cow`: `Cow<'a, B>` implements `Deref<Target = B>`. Meaning: whether it holds `Borrowed(&str)` or `Owned(String)`, you can use `&Cow<'_, str>` directly as an `&str` — calling `&str`'s methods or passing it to functions accepting `&str`, without ever caring whether it's borrowed or owned.
 
 ```rust,editable
 use std::borrow::Cow;
 
 fn main() {
     let cow: Cow<'_, str> = Cow::Owned(String::from("hello"));
-    // Call str methods directly; Deref handles it
+    // Used directly as &str; Deref handles it
     println!("Length: {}", cow.len());
     println!("Uppercase: {}", cow.to_uppercase());
 }
 ```
 
-Thanks to `Deref`, callers usually needn't care whether the inside is borrowed or owned — when an `&str` is needed, borrow the `Cow` as `&cow`.
+Thanks to `Deref`, callers usually needn't care whether the inside is borrowed or owned — just use it as an `&str`.
 
 ### Common Methods
 

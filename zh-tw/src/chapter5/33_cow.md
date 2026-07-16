@@ -50,20 +50,20 @@ where
 
 ### `Cow` 實作了 `Deref`
 
-這是使用 `Cow` 時最關鍵的一點：`Cow<'a, B>` 實作了 `Deref<Target = B>`。也就是說，不管裡面是 `Borrowed(&str)` 還是 `Owned(String)`，你都可以直接把 `&Cow<'_, str>` 當成 `&str` 來用——呼叫 `str` 的方法或傳給接受 `&str` 的函數，完全不用管它實際上是借用還是擁有。
+這是使用 `Cow` 時最關鍵的一點：`Cow<'a, B>` 實作了 `Deref<Target = B>`。也就是說，不管裡面是 `Borrowed(&str)` 還是 `Owned(String)`，你都可以直接把 `&Cow<'_, str>` 當成 `&str` 來用——呼叫 `&str` 的方法或傳給接受 `&str` 的函數，完全不用管它實際上是借用還是擁有。
 
 ```rust,editable
 use std::borrow::Cow;
 
 fn main() {
     let cow: Cow<'_, str> = Cow::Owned(String::from("hello"));
-    // 直接呼叫 str 的方法，Deref 自動處理
+    // 直接當 &str 用，Deref 自動處理
     println!("長度：{}", cow.len());
     println!("大寫：{}", cow.to_uppercase());
 }
 ```
 
-因為有 `Deref`，呼叫端通常不需要在意裡面到底是借用還是擁有——需要 `&str` 時對 `Cow` 取參考 `&cow` 即可。
+因為有 `Deref`，呼叫端通常不需要在意裡面到底是借用還是擁有——直接當 `&str` 用就好。
 
 ### 常用方法
 
