@@ -38,6 +38,29 @@ A rough first cut at telling them apart:
 
 That is, looking only at "named and reusable" versus "anonymous and on the spot," they're a bit like the difference between ordinary functions and closures. But that's just a first-impression analogy — don't read too much into it: `async fn`s and `async` blocks both produce `Future`s, but an `async` block is not a closure; you don't call it with `()`. Once created, it's driven by `.await` or the runtime.
 
+### `async move`
+
+An `async` block can also be written as `async move { ... }`. The `move` here is similar to `move` on a closure: it moves the outside variables used by the block into the `Future`. What gets moved is the variable itself; if that variable is already a reference, then the reference is what gets moved.
+
+```rust,editable
+# extern crate tokio;
+#
+#[tokio::main]
+async fn main() {
+    let name = String::from("Ferris");
+
+    let fut = async move {
+        println!("hello, {}", name);
+    };
+
+    fut.await;
+
+    // println!("{}", name); // compile error: name has been moved into the async block
+}
+```
+
+Without `move`, an `async` block usually tries to borrow outside variables. With `async move`, the outside variables it uses are moved into the resulting `Future`. This is common when you want to store a `Future`, hand it to a runtime, or let it leave the current scope.
+
 ### In the `Result` World, This Needs No New Syntax
 
 Here's an interesting contrast. In the `Result` world, if you want "a block right here where I can use `?`," you need **no new syntax at all** — an immediately invoked closure does it:
@@ -102,5 +125,6 @@ With that, the first five episodes have laid down the basic syntax and mental mo
 
 - `async { ... }` creates an anonymous `Future` on the spot, mid-function; it likewise runs only when `.await`ed.
 - An `async fn` is a named, reusable `Future` factory; an `async` block is one anonymous `Future` made in place.
+- `async move { ... }` moves the outside variables it uses into the resulting `Future`; this is common when the `Future` needs to leave the current scope or be handed to a runtime.
 - An immediately invoked closure that returns `Result` can use `?` inside; the outer code just receives the closure call's `Result` value.
 - `.await` can't copy that trick — it may only appear inside `async` constructs, and an ordinary closure can't pause and resume — hence the dedicated `async` block syntax.

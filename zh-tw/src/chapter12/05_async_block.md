@@ -38,6 +38,29 @@ async fn main() {
 
 也就是說，如果只看「具名、可重複使用」和「匿名、當場建立」這件事，它們有點像普通函數和閉包的差別。但這只是幫你抓第一印象的比喻，不要對它進行過度理解：`async fn` 和 `async` block 都產生 `Future`，但 `async` block 本身不是閉包，它不靠 `()` 呼叫，建立出來後是靠 `.await` 或 runtime 推進。
 
+### `async move`
+
+`async` block 也可以寫成 `async move { ... }`。這裡的 `move` 和閉包的 `move` 類似：它會把用到的外部變數搬進這個 `Future` 裡。被搬進去的是變數本身；如果那個變數本來就是參考，那搬進去的也會是那個參考。
+
+```rust,editable
+# extern crate tokio;
+#
+#[tokio::main]
+async fn main() {
+    let name = String::from("Ferris");
+
+    let fut = async move {
+        println!("hello, {}", name);
+    };
+
+    fut.await;
+
+    // println!("{}", name); // 編譯錯誤：name 已經被搬進 async block
+}
+```
+
+如果不用 `move`，`async` block 通常會盡量借用外面的變數；用了 `async move`，則會把用到的外部變數搬進產生出來的 `Future`。這在你想把 `Future` 存起來、交給 runtime 執行，或讓它離開目前作用域時很常見。
+
 ### 在 `Result` 世界，這件事不需要新語法
 
 這裡有個很有意思的對照。在 `Result` 世界，如果你想要「當場來一段可以用 `?` 的區塊」，其實**不需要任何新語法**——一個立刻呼叫的閉包就辦到了：
@@ -102,5 +125,6 @@ async fn main() {
 
 - `async { ... }` 在函數中間當場建立一個匿名的 `Future`，一樣要 `.await` 才會跑。
 - `async fn` 是具名、可重複呼叫的 `Future` 工廠；`async` block 是當場建立的一個匿名 `Future`。
+- `async move { ... }` 會把用到的外部變數搬進產生出來的 `Future`，常用在 `Future` 需要離開目前作用域或交給 runtime 執行時。
 - 如果建立後立刻呼叫的閉包回傳 `Result` 就可以用 `?`；外層只會拿到閉包呼叫後的 `Result` 值。
 - `.await` 不能照搬這招，因為它只能出現在 `async` 結構裡，普通閉包做不到暫停和恢復——所以才需要 `async` block 這個專屬語法。
