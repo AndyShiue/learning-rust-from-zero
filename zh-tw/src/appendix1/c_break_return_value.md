@@ -73,7 +73,7 @@ fn main() {
 
 ## 搭配標籤使用 `break` 回傳值
 
-像 `'search:` 這樣的標籤可以放在迴圈或一般的 block 表達式 `{ ... }` 前面。後者會形成 labeled block。這裡的 `'search` 是標籤，不是 lifetime。
+像 `'search:` 這樣的標籤可以放在迴圈（`loop`、`while` 或 `for`）或一般的 block 表達式 `{ ... }` 前面。後者會形成 labeled block。這裡的 `'search` 是標籤，不是 lifetime。
 
 `break 'label value` 會跳出有標籤的 `loop` 或 block，並讓該表達式產生 `value`。跳出最內層的 `loop` 時，可以省略標籤（寫成 `break value`）；在 labeled block 中則一定要寫出標籤。
 
