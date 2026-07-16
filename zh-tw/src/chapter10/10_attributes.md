@@ -73,8 +73,8 @@ fn slow_test() { /* 暫時跳過 */ }
 
 ```rust,ignore
 #[inline]         // 建議編譯器 inline 這個函數
-#[inline(always)] // 強制 inline
-#[inline(never)]  // 禁止 inline
+#[inline(always)] // 建議一律 inline
+#[inline(never)]  // 建議禁止 inline
 ```
 
 大部分時候不需要手動寫——編譯器會自己判斷。只有在跨 `crate` 呼叫的小函數、或效能很關鍵的地方才需要。

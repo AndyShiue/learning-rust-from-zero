@@ -73,8 +73,8 @@ When a function is called, the program has to jump to the function's location, r
 
 ```rust,ignore
 #[inline]         // suggest the compiler inline this function
-#[inline(always)] // force inlining
-#[inline(never)]  // forbid inlining
+#[inline(always)] // suggest always inlining
+#[inline(never)]  // suggest never inlining
 ```
 
 Most of the time you don't need to write these by hand — the compiler decides on its own. They're only needed for small functions called across `crate`s, or in performance-critical spots.
