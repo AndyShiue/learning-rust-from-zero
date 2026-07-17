@@ -6,81 +6,88 @@ Learn to use `@` to bind the matching value to a variable while matching a patte
 
 ## Concept
 
-We've learned range patterns: `1..=5` matches values from 1 to 5. But there's a problem — after a match succeeds, you can't tell "was it 1, 2, 3, 4, or 5?" You only know it was in the range.
-
-`@` (the at sign) solves this. It lets you store the actual value in a variable at the same time as matching a pattern:
+We have already learned range patterns: `0..=100` matches values from 0 through 100. Now suppose the `SetVolume` variant of a `Command` carries a volume. We want to check that volume's range and print its exact value inside the arm:
 
 ```rust,editable
+enum Command {
+    SetVolume(i32),
+    SetBrightness(i32),
+    Quit,
+}
+
 fn main() {
-    let age = 50;
-    match age {
-        n @ 0..=12 => println!("{} years old — a child", n),
-        n @ 13..=19 => println!("{} years old — a teenager", n),
-        n => println!("{} years old — an adult", n),
+    let command = Command::SetVolume(72);
+
+    match command {
+        Command::SetVolume(level @ 0..=100) => {
+            println!("Set the volume to {}", level);
+        }
+        Command::SetVolume(level) => {
+            println!("Volume {} is out of range", level);
+        }
+        Command::SetBrightness(level) => {
+            println!("Set the brightness to {}", level);
+        }
+        Command::Quit => println!("Quit"),
     }
 }
 ```
 
-`n @ 0..=12` means "if the value is between 0 and 12, call it `n`." Now you can range-check and capture the value at once.
+Inside `Command::SetVolume(level @ 0..=100)`, the range `0..=100` on the right performs the match, while `level` on the left binds the exact volume. When the value is `Command::SetVolume(72)`, the pattern matches and `level` is `72` inside the arm.
+
+This is the syntax of an `@` binding:
+
+```text
+variable_name @ pattern
+```
+
+The left side creates a binding, and the right side performs the match. After the pattern matches, the variable on the left can be used inside the arm.
+
+`@` can be used with other patterns too, including `|`:
+
+In the example below, the first arm uses `('a' | 'e' | 'i' | 'o' | 'u')` to match a lowercase vowel, then binds the matching character to `key`. When the pattern to the right of `@` uses `|`, that group must be wrapped in parentheses.
+
+The `MouseClick` arm demonstrates an `@` binding inside a field of a `struct` variant. `0..=10` matches the range of the `x` field, and `horizontal` binds the exact coordinate that matched.
 
 ## Example Code
 
 ```rust,editable
+enum Event {
+    KeyPress(char),
+    MouseClick { x: i32, y: i32 },
+    Quit,
+}
+
 fn main() {
-    let age = 15;
+    let event = Event::MouseClick { x: 6, y: 30 };
 
-    match age {
-        n @ 0..=6 => println!("{} years old — preschool", n),
-        n @ 7..=12 => println!("{} years old — elementary school", n),
-        n @ 13..=15 => println!("{} years old — junior high", n),
-        n @ 16..=18 => println!("{} years old — high school", n),
-        n => println!("{} years old — an adult", n),
-    }
-
-    // With char
-    let ch = 'k';
-
-    match ch {
-        c @ 'a'..='m' => println!("'{}' is in the first half of the alphabet", c),
-        c @ 'n'..='z' => println!("'{}' is in the second half of the alphabet", c),
-        c => println!("'{}' isn't a lowercase letter", c),
-    }
-
-    // A more practical example: HTTP status codes
-    let status = 404;
-
-    match status {
-        code @ 200..=299 => println!("Success! Status code: {}", code),
-        code @ 300..=399 => println!("Redirect, status code: {}", code),
-        code @ 400..=499 => println!("Client error, status code: {}", code),
-        code @ 500..=599 => println!("Server error, status code: {}", code),
-        code => println!("Unknown status code: {}", code),
+    match event {
+        Event::KeyPress(key @ ('a' | 'e' | 'i' | 'o' | 'u')) => {
+            println!("Pressed the lowercase vowel '{}'", key);
+        }
+        Event::KeyPress(key @ 'a'..='z') => {
+            println!("Pressed another lowercase letter '{}'", key);
+        }
+        Event::KeyPress(key) => {
+            println!("Pressed another key '{}'", key);
+        }
+        Event::MouseClick {
+            x: horizontal @ 0..=10,
+            y,
+        } => {
+            println!("Clicked in the left area: ({}, {})", horizontal, y);
+        }
+        Event::MouseClick { x, y } => {
+            println!("Clicked elsewhere: ({}, {})", x, y);
+        }
+        Event::Quit => println!("Quit"),
     }
 }
 ```
-
-## `@` Isn't Limited to Ranges
-
-`@` can pair with any pattern, not just ranges. For instance, with `|` (multiple values):
-
-```rust,editable
-fn main() {
-    let day = 6;
-
-    match day {
-        d @ (1 | 3 | 5 | 7) => println!("Day {} — a rest day", d),
-        d @ (2 | 4 | 6) => println!("Day {} — a workday", d),
-        d => println!("Day {} — not a valid day", d),
-    }
-}
-```
-
-`d @ (1 | 3 | 5 | 7)` means "if the value is 1, 3, 5, or 7, call it `d`." Note that the `|` part must be wrapped in parentheses.
 
 ## Recap
 
-- `n @ 1..=5` binds the value to the variable `n` while matching the range.
-- Syntax: `variable_name @ pattern`.
-- `@` can pair with any pattern, not just ranges: `d @ (1 | 3 | 5 | 7)` works too.
-- Without `@`, you only know the value fit the pattern — not what it actually was.
-- The idea of `@`: "store the value that fits this pattern under this name."
+- `variable_name @ pattern` checks the pattern on the right; after a successful match, the actual value is bound to the variable on the left.
+- `Command::SetVolume(level @ 0..=100)` both restricts the volume range and captures the exact volume.
+- `@` can be used inside nested data such as `enum` variants and `struct` fields.
+- `@` works with ranges, `|`, and other patterns. With `|`, write `value @ (pattern1 | pattern2)`.

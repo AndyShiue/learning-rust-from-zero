@@ -6,81 +6,88 @@
 
 ## 概念說明
 
-前面學過 range pattern：`1..=5` 可以比對 1 到 5 之間的值。但有個問題——比對成功後，你沒辦法知道「到底是 1、2、3、4 還是 5」，因為你只知道它在這個範圍裡。
-
-`@`（at 符號）可以解決這個問題。它讓你在比對某個模式的同時，把實際的值存到一個變數裡：
+前面學過 range pattern：`0..=100` 可以比對 0 到 100 之間的值。現在假設一個 `Command` 的 `SetVolume` variant 攜帶了音量，我們想檢查音量是否在範圍內，並在分支裡印出實際的音量：
 
 ```rust,editable
+enum Command {
+    SetVolume(i32),
+    SetBrightness(i32),
+    Quit,
+}
+
 fn main() {
-    let age = 50;
-    match age {
-        n @ 0..=12 => println!("{}歲，是小孩", n),
-        n @ 13..=19 => println!("{}歲，是青少年", n),
-        n => println!("{}歲，是大人", n),
+    let command = Command::SetVolume(72);
+
+    match command {
+        Command::SetVolume(level @ 0..=100) => {
+            println!("把音量設為 {}", level);
+        }
+        Command::SetVolume(level) => {
+            println!("音量 {} 超出範圍", level);
+        }
+        Command::SetBrightness(level) => {
+            println!("把亮度設為 {}", level);
+        }
+        Command::Quit => println!("結束程式"),
     }
 }
 ```
 
-`n @ 0..=12` 的意思是「如果值在 0 到 12 之間，就把這個值叫做 `n`」。這樣你就能同時做範圍檢查和取值了。
+`Command::SetVolume(level @ 0..=100)` 裡，右邊的 `0..=100` 負責比對範圍，左邊的 `level` 則綁定實際音量。當值是 `Command::SetVolume(72)` 時，這個 pattern 會匹配成功，而分支裡的 `level` 就是 `72`。
+
+這就是 `@` 的語法：
+
+```text
+變數名 @ pattern
+```
+
+左邊建立綁定，右邊負責比對。比對成功後，就能在分支裡使用左邊的變數。
+
+`@` 不只能搭配 range，也能搭配 `|` 等其他 pattern：
+
+下方範例的第一個分支先用 `('a' | 'e' | 'i' | 'o' | 'u')` 比對小寫母音，再把匹配到的字元綁定成 `key`。當 `@` 右邊用了 `|` 時，這一組 pattern 要用括號包起來。
+
+`MouseClick` 的分支則示範在 `struct` variant 的欄位裡使用 `@`。`0..=10` 比對 `x` 欄位的範圍，`horizontal` 綁定匹配到的實際座標。
 
 ## 範例程式碼
 
 ```rust,editable
+enum Event {
+    KeyPress(char),
+    MouseClick { x: i32, y: i32 },
+    Quit,
+}
+
 fn main() {
-    let age = 15;
+    let event = Event::MouseClick { x: 6, y: 30 };
 
-    match age {
-        n @ 0..=6 => println!("{}歲，學齡前", n),
-        n @ 7..=12 => println!("{}歲，國小", n),
-        n @ 13..=15 => println!("{}歲，國中", n),
-        n @ 16..=18 => println!("{}歲，高中", n),
-        n => println!("{}歲，已成年", n),
-    }
-
-    // 搭配 char 使用
-    let ch = 'k';
-
-    match ch {
-        c @ 'a'..='m' => println!("'{}' 在字母表前半段", c),
-        c @ 'n'..='z' => println!("'{}' 在字母表後半段", c),
-        c => println!("'{}' 不是小寫字母", c),
-    }
-
-    // 更實用的例子：HTTP 狀態碼
-    let status = 404;
-
-    match status {
-        code @ 200..=299 => println!("成功！狀態碼：{}", code),
-        code @ 300..=399 => println!("重新導向，狀態碼：{}", code),
-        code @ 400..=499 => println!("用戶端錯誤，狀態碼：{}", code),
-        code @ 500..=599 => println!("伺服器錯誤，狀態碼：{}", code),
-        code => println!("未知狀態碼：{}", code),
+    match event {
+        Event::KeyPress(key @ ('a' | 'e' | 'i' | 'o' | 'u')) => {
+            println!("按下小寫母音 '{}'", key);
+        }
+        Event::KeyPress(key @ 'a'..='z') => {
+            println!("按下其他小寫字母 '{}'", key);
+        }
+        Event::KeyPress(key) => {
+            println!("按下其他按鍵 '{}'", key);
+        }
+        Event::MouseClick {
+            x: horizontal @ 0..=10,
+            y,
+        } => {
+            println!("在左側區域點擊：({}, {})", horizontal, y);
+        }
+        Event::MouseClick { x, y } => {
+            println!("在其他區域點擊：({}, {})", x, y);
+        }
+        Event::Quit => println!("結束"),
     }
 }
 ```
-
-## `@` 不只能搭配 range
-
-`@` 可以搭配任何模式，不只是 range。比如搭配 `|`（多個值）：
-
-```rust,editable
-fn main() {
-    let day = 6;
-
-    match day {
-        d @ (1 | 3 | 5 | 7) => println!("第 {} 天，是休息日", d),
-        d @ (2 | 4 | 6) => println!("第 {} 天，是工作日", d),
-        d => println!("第 {} 天，不是合法的日子", d),
-    }
-}
-```
-
-`d @ (1 | 3 | 5 | 7)` 的意思是「如果值是 1、3、5 或 7，就把它叫做 `d`」。注意 `|` 的部分要用括號包起來。
 
 ## 重點整理
 
-- `n @ 1..=5` 在比對範圍的同時，把值綁定到變數 `n`。
-- 語法：`變數名 @ 模式`。
-- `@` 可以搭配任何模式，不只是 range：`d @ (1 | 3 | 5 | 7)` 也行。
-- 如果不用 `@`，你只知道值符合模式，但不知道具體是多少。
-- `@` 的概念是「把符合這個模式的值，用這個名字存起來」。
+- `變數名 @ pattern` 會用右邊的 pattern 比對；成功後，實際值會綁定到左邊的變數。
+- `Command::SetVolume(level @ 0..=100)` 同時限制音量範圍並取得實際音量。
+- `@` 可以用在 `enum` variant、`struct` 欄位等巢狀資料中。
+- `@` 可以搭配 range、`|` 等 pattern；搭配 `|` 時要寫成 `value @ (pattern1 | pattern2)`。
