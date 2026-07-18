@@ -16,12 +16,12 @@ Declare external C functions with an `unsafe extern "C"` block:
 
 ```rust,editable
 unsafe extern "C" {
-    fn abs(x: i32) -> i32;
+    fn fabs(x: f64) -> f64;
 }
 
 fn main() {
-    let result = unsafe { abs(-42) };
-    println!("abs(-42) = {}", result);
+    let result = unsafe { fabs(-42.0) };
+    println!("fabs(-42.0) = {}", result);
 }
 ```
 
@@ -35,12 +35,12 @@ If you're certain an external function is safe, you can mark it `safe`:
 
 ```rust,editable
 unsafe extern "C" {
-    safe fn abs(x: i32) -> i32; // you guarantee abs is always safe
+    safe fn fabs(x: f64) -> f64; // fabs is safe for every f64 input
 }
 
 fn main() {
-    let result = abs(-42); // callable without unsafe!
-    println!("abs(-42) = {}", result);
+    let result = fabs(-42.0); // callable without unsafe!
+    println!("fabs(-42.0) = {}", result);
 }
 ```
 
@@ -76,7 +76,7 @@ unsafe extern "C" {
 
 ```rust,editable
 unsafe extern "C" {
-    safe fn abs(x: i32) -> i32;
+    safe fn fabs(x: f64) -> f64;
     fn sqrt(x: f64) -> f64;
 }
 
@@ -87,11 +87,11 @@ pub extern "C" fn rust_add(a: i32, b: i32) -> i32 {
 
 fn main() {
     // functions marked safe don't need unsafe
-    println!("abs(-10) = {}", abs(-10));
+    println!("fabs(-10.0) = {}", fabs(-10.0));
 
     // unmarked ones do
     let root = unsafe { sqrt(25.0) };
-    println!("sqrt(25) = {}", root);
+    println!("sqrt(25.0) = {}", root);
 
     // Rust's extern "C" functions can also be called directly from Rust
     println!("rust_add(3, 4) = {}", rust_add(3, 4));

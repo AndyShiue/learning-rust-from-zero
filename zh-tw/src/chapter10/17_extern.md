@@ -16,12 +16,12 @@ FFI（Foreign Function Interface）是讓不同程式語言互相呼叫函數的
 
 ```rust,editable
 unsafe extern "C" {
-    fn abs(x: i32) -> i32;
+    fn fabs(x: f64) -> f64;
 }
 
 fn main() {
-    let result = unsafe { abs(-42) };
-    println!("abs(-42) = {}", result);
+    let result = unsafe { fabs(-42.0) };
+    println!("fabs(-42.0) = {}", result);
 }
 ```
 
@@ -35,12 +35,12 @@ fn main() {
 
 ```rust,editable
 unsafe extern "C" {
-    safe fn abs(x: i32) -> i32; // 你保證 abs 一定安全
+    safe fn fabs(x: f64) -> f64; // fabs 對所有 f64 輸入都是安全的
 }
 
 fn main() {
-    let result = abs(-42); // 不需要 unsafe 也能呼叫！
-    println!("abs(-42) = {}", result);
+    let result = fabs(-42.0); // 不需要 unsafe 也能呼叫！
+    println!("fabs(-42.0) = {}", result);
 }
 ```
 
@@ -76,7 +76,7 @@ unsafe extern "C" {
 
 ```rust,editable
 unsafe extern "C" {
-    safe fn abs(x: i32) -> i32;
+    safe fn fabs(x: f64) -> f64;
     fn sqrt(x: f64) -> f64;
 }
 
@@ -87,11 +87,11 @@ pub extern "C" fn rust_add(a: i32, b: i32) -> i32 {
 
 fn main() {
     // 標記 safe 的函數不需要 unsafe
-    println!("abs(-10) = {}", abs(-10));
+    println!("fabs(-10.0) = {}", fabs(-10.0));
 
     // 沒標記 safe 的需要 unsafe
     let root = unsafe { sqrt(25.0) };
-    println!("sqrt(25) = {}", root);
+    println!("sqrt(25.0) = {}", root);
 
     // Rust 的 extern "C" 函數也能在 Rust 裡直接呼叫
     println!("rust_add(3, 4) = {}", rust_add(3, 4));
