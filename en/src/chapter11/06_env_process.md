@@ -98,7 +98,8 @@ fn main() {
     }
 
     if let Ok(path) = env::var("PATH") {
-        println!("first 50 characters of PATH: {}", &path[..path.len().min(50)]);
+        let preview: String = path.chars().take(50).collect();
+        println!("first 50 characters of PATH: {}", preview);
     }
 }
 ```

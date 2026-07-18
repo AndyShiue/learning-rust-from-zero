@@ -98,7 +98,8 @@ fn main() {
     }
 
     if let Ok(path) = env::var("PATH") {
-        println!("PATH 的前 50 個字元：{}", &path[..path.len().min(50)]);
+        let preview: String = path.chars().take(50).collect();
+        println!("PATH 的前 50 個字元：{}", preview);
     }
 }
 ```
