@@ -33,7 +33,7 @@ This episode we only need to meet two of its pieces:
 
 ### Watching a `TcpListener` with `mio`
 
-The example below registers a `TcpListener` (the thing that accepts connections) with a `Poll`, then opens another `Thread` that connects to it after one second. The main `Thread` sleeps on `poll.poll()` and wakes only when the connection arrives:
+The example below registers a `TcpListener` (the thing that accepts connections) with a `Poll`, then opens another `Thread` that connects to it after one second. The main `Thread` sleeps on `poll.poll()` and wakes when the listener reports readiness:
 
 ```rust,editable
 extern crate mio;
@@ -72,10 +72,16 @@ fn main() {
         for event in events.iter() {
             match event.token() {
                 SERVER => {
-                    // token matches: listener is readable, so accept the connection
-                    let (_stream, addr) = listener.accept().expect("accept failed");
-                    println!("someone connected: {}", addr);
-                    return; // it's an example, so call it a day
+                    // token matches: the listener reported readable, so try accepting
+                    match listener.accept() {
+                        Ok((_stream, addr)) => {
+                            println!("someone connected: {}", addr);
+                            return; // it's an example, so call it a day
+                        }
+                        // readiness events may be spurious; just wait for the next one
+                        Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {}
+                        Err(e) => panic!("accept failed: {}", e),
+                    }
                 }
                 _ => {}
             }
@@ -89,7 +95,12 @@ fn main() {
 1. `Poll::new()` makes a `Poll`.
 2. `registry().register(&mut listener, SERVER, Interest::READABLE)` registers the `listener`, gives it the name tag `SERVER`, and states our interest — "readable" (`Interest::READABLE`). To wait on "writable," use `Interest::WRITABLE`.
 3. `poll.poll(&mut events, None)` puts this `Thread` **to sleep** until a registered source has an event (`None` means no timeout — sleep until something happens).
-4. On waking, check the `events` one by one. `event.token()` hands back the name tag from registration; matching `SERVER` tells us the `listener` stirred, so `accept()` takes in the new connection.
+4. On waking, check the `events` one by one. `event.token()` hands back the name tag from registration; matching `SERVER` tells us the `listener` reported readiness, so we try `accept()`:
+   - Success means we really got a connection.
+   - `WouldBlock` means it still can't accept one right now, so we go back to waiting for the next event. Readiness notifications may be **spurious**, so this is normal rather than a failure.
+   - Other errors mean something actually went wrong; this simplified example panics.
+
+`mio`'s sockets are **non-blocking**: calling `accept` or `read` does not make the `Thread` wait for a connection or data. If the operation can't proceed yet, it returns immediately with `WouldBlock`. In this episode that means going back to `poll.poll()`; next episode, after we wrap I/O in a `Future`, the same situation maps to `Poll::Pending`.
 
 The crux: even if you register **a hundred** I/O sources, only **one** `Thread` sleeps on that same `poll.poll()`. Whichever source acts up, `Poll` hands you its name tag. This is exactly the secret weapon a reactor uses to watch masses of I/O with just a few `Thread`s.
 
@@ -101,4 +112,4 @@ Next episode, we hook `mio` up to the runtime we hand-wrote earlier, building a 
 - `mio` itself is not an `async` runtime: it only does event notification for non-blocking I/O — no `Future`s, no `.await`, no `Task` scheduling.
 - `mio::Poll` is the "sleep waiting for I/O events" place; one `Thread` can watch many I/O sources at once.
 - A `Token` is a source's name tag: you give it at registration, and `Poll` returns it when the event fires so you can identify the source.
-- Register with `registry().register(&mut source, token, Interest::READABLE)`, sleep on `poll.poll()`, identify by `event.token()`, then `accept`.
+- Register with `registry().register(&mut source, token, Interest::READABLE)`, sleep on `poll.poll()`, identify by `event.token()`, then try the I/O operation. If it returns `WouldBlock`, wait for another event; inside a `Future`, that maps to `Poll::Pending`.

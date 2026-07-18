@@ -33,7 +33,7 @@ mio = { version = "1", features = ["os-poll", "net"] }
 
 ### 看 `mio` 怎麼盯著一個 `TcpListener`
 
-下面這個例子把一個 `TcpListener`（負責接受連線的東西）登記給 `Poll`，然後另開一條 `Thread` 過一秒去連它。主 `Thread` 就睡在 `poll.poll()` 上，等到連線進來才醒：
+下面這個例子把一個 `TcpListener`（負責接受連線的東西）登記給 `Poll`，然後另開一條 `Thread` 過一秒去連它。主 `Thread` 就睡在 `poll.poll()` 上，等到 listener 回報 ready 才醒：
 
 ```rust,editable
 extern crate mio;
@@ -72,10 +72,16 @@ fn main() {
         for event in events.iter() {
             match event.token() {
                 SERVER => {
-                    // 名牌對上了，表示 listener 可讀，可以 accept 這條連線
-                    let (_stream, addr) = listener.accept().expect("accept 失敗");
-                    println!("有人連進來了：{}", addr);
-                    return; // 因為是範例直接收工
+                    // 名牌對上了，表示 listener 回報可讀，所以試著 accept
+                    match listener.accept() {
+                        Ok((_stream, addr)) => {
+                            println!("有人連進來了：{}", addr);
+                            return; // 因為是範例直接收工
+                        }
+                        // readiness event 可能是假陽性，回去等下一次即可
+                        Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {}
+                        Err(e) => panic!("accept 失敗：{}", e),
+                    }
                 }
                 _ => {}
             }
@@ -89,7 +95,12 @@ fn main() {
 1. `Poll::new()` 做出一個 `Poll`。
 2. `registry().register(&mut listener, SERVER, Interest::READABLE)` 把 `listener` 登記進去，給它名牌 `SERVER`，並說明我們關心的是「可讀」（`Interest::READABLE`）。如果是要等「可寫」，就用 `Interest::WRITABLE`。
 3. `poll.poll(&mut events, None)` 讓這條 `Thread` **睡著**，直到有登記過的來源發生事件（`None` 代表不設逾時，睡到有事為止）。
-4. 醒來後，逐一檢查 `events`。`event.token()` 還給我們當初登記的名牌；對上 `SERVER`，就知道是 `listener` 有動靜，於是 `accept()` 把新連線收下來。
+4. 醒來後，逐一檢查 `events`。`event.token()` 還給我們當初登記的名牌；對上 `SERVER`，就知道是 `listener` 回報 ready，於是試著呼叫 `accept()`：
+   - 成功就代表真的接到一條連線。
+   - 回傳 `WouldBlock` 代表目前仍然無法接受連線，所以回去等待下一次 event。readiness 通知可能是**假陽性**，這是正常情況，不是故障。
+   - 其他錯誤才是真的出問題，這個簡化範例直接 panic。
+
+`mio` 的 socket 是**非阻塞**的：呼叫 `accept` 或 `read` 時，不會把 `Thread` 卡在那裡等待連線或資料。如果操作目前還做不了，就會立刻回傳 `WouldBlock`。在這一集，這代表回到 `poll.poll()` 等待；下一集把 I/O 包成 `Future` 後，同樣的情況就會對應到 `Poll::Pending`。
 
 關鍵在於：就算你登記了**一百個** I/O 來源，也只要**一條** `Thread` 睡在同一個 `poll.poll()` 上。哪個來源有事，`Poll` 就把對應的名牌交給你。這正是 reactor 用少少幾條 `Thread` 盯住大量 I/O 的祕密武器。
 
@@ -101,4 +112,4 @@ fn main() {
 - `mio` 本身不是 `async` runtime：它只做非阻塞 I/O 的事件通知，不建立 `Future`、不 `.await`、也不排程 `Task`。
 - `mio::Poll` 是「睡著等 I/O 事件」的地方，一條 `Thread` 就能同時盯住很多 I/O 來源。
 - `Token` 是事件來源的名牌：登記時給，事件發生時 `Poll` 還給你，讓你認出是哪個來源。
-- 用 `registry().register(&mut source, token, Interest::READABLE)` 登記，`poll.poll()` 睡著等事件，`event.token()` 認名牌後再 `accept`。
+- 用 `registry().register(&mut source, token, Interest::READABLE)` 登記，`poll.poll()` 睡著等事件，`event.token()` 認名牌後再嘗試 I/O 操作。如果回傳 `WouldBlock`，就繼續等下一次 event；放進 `Future` 後，這會對應到 `Poll::Pending`。

@@ -333,16 +333,6 @@ The three later `Read`s share the same `stream_token`, deliberately: a `Token` i
 
 After the I/O succeeds, `Accept` / `Read` call `clear_waker`, removing this wait's `Waker` from the `HashMap`. That way the reactor holds no waiters who "no longer need waking."
 
-### What `WouldBlock` Is
-
-`mio`'s sockets are **non-blocking**. That means when you call `accept` or `read`, it won't pin the executor `Thread` there just because "no connection / no data yet." It returns immediately, using `WouldBlock` to tell you: "can't do this yet — try again later."
-
-So `WouldBlock` here isn't a "something broke" error; it's the normal state of non-blocking I/O. For our hand-written `Future`s it maps exactly onto `Poll::Pending`:
-
-- `accept` / `read` succeeds: we truly got a connection or data — return `Poll::Ready(...)`.
-- `WouldBlock`: not ready yet — return `Poll::Pending`.
-- Other errors: genuinely broken; this simplified example just panics.
-
 ### Why "Register First, Then Try" Matters
 
 Notice that both `Accept`'s and `Read`'s `poll` do `set_waker` **first**, and **then** try `accept` / `read` once. The order is deliberate.

@@ -333,16 +333,6 @@ fn main() {
 
 等 I/O 成功後，`Accept` / `Read` 會呼叫 `clear_waker`，把這次等待用的 `Waker` 從 `HashMap` 裡拿掉。這樣 reactor 裡就不會留下「已經不需要喚醒」的等待者。
 
-### `WouldBlock` 是什麼
-
-`mio` 的 socket 是**非阻塞**的。這代表你呼叫 `accept` 或 `read` 時，它不會因為「現在還沒有連線 / 還沒有資料」就把 executor `Thread` 卡在那裡等。它會立刻回來，並用 `WouldBlock` 告訴你：「現在還不能做這件事，晚點再試。」
-
-所以 `WouldBlock` 在這裡不是「壞掉了」的錯誤，而是非阻塞 I/O 的正常狀態。對我們手寫的 `Future` 來說，它剛好對應到 `Poll::Pending`：
-
-- `accept` / `read` 成功：代表真的拿到連線或資料，回 `Poll::Ready(...)`。
-- `WouldBlock`：代表現在還沒好，先回 `Poll::Pending`。
-- 其他錯誤：才是真的出問題，這個簡化範例直接 panic。
-
 ### 「先登記再試」為什麼重要
 
 注意 `Accept` 和 `Read` 的 `poll` 都是**先** `set_waker`、**再**試一次 `accept` / `read`。這個順序是刻意的。
