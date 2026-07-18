@@ -137,15 +137,17 @@ macro_rules! log_msg {
 # fn main() {}
 ```
 
-別的 `crate` 只要引入 `my_lib`，就能直接用 `log_msg!("hello")`。`$crate` 會自動替換成正確的 `crate` 路徑。
+別的 `crate` 引入 `my_lib` 後，可以寫 `my_lib::log_msg!("hello")`，或先用 `use my_lib::log_msg;` 匯入，再寫 `log_msg!("hello")`。`$crate` 會自動指向定義這個巨集的 `crate`。
 
 ## 範例程式碼
 
 ```rust,editable
 macro_rules! max {
-    ($a:expr, $b:expr) => {
-        if $a > $b { $a } else { $b }
-    };
+    ($a:expr, $b:expr) => {{
+        let a = $a;
+        let b = $b;
+        if a > b { a } else { b }
+    }};
 }
 
 macro_rules! print_all {

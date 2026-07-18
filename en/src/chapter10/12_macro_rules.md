@@ -137,15 +137,17 @@ macro_rules! log_msg {
 # fn main() {}
 ```
 
-Any `crate` that depends on `my_lib` can then use `log_msg!("hello")` directly. `$crate` is automatically replaced with the correct `crate` path.
+A `crate` that depends on `my_lib` can call the macro as `my_lib::log_msg!("hello")`, or import it with `use my_lib::log_msg;` and then write `log_msg!("hello")`. `$crate` automatically resolves to the `crate` where the macro was defined.
 
 ## Example Code
 
 ```rust,editable
 macro_rules! max {
-    ($a:expr, $b:expr) => {
-        if $a > $b { $a } else { $b }
-    };
+    ($a:expr, $b:expr) => {{
+        let a = $a;
+        let b = $b;
+        if a > b { a } else { b }
+    }};
 }
 
 macro_rules! print_all {
