@@ -52,7 +52,7 @@ fn main() {
 
 這就是為什麼你在前面幾章寫的程式碼裡，整數、tuple、陣列可以隨便賦值給多個變數、傳進多個函數，完全不會有問題。
 
-除了 `Copy` 之外，當 tuple 的每個型別都有實作 `Clone` 時，tuple 也會自動實作 `Clone`。事實上 tuple 對很多其他 `trait` 也有同樣的行為——只要所有元素都有實作某個 `trait`，tuple 整體就會有。這點以後不再贅述。
+除了 `Copy` 之外，當 tuple 的每個型別都有實作 `Clone` 時，tuple 也會自動實作 `Clone`。事實上 tuple 對一些其他 `trait` 也有同樣的行為——對這些 `trait` 而言，只要所有元素都有實作，tuple 整體就會有。這點以後不再贅述。
 
 ### 自己的型別也可以加 `Copy`
 
@@ -155,7 +155,7 @@ fn main() {
 - **`Copy`** 是一個 `trait`，讓型別在賦值和傳入函數時自動複製，而不是 move。
 - `i32`、`f64`、`bool`、`char` 等基本型別天生就有 `Copy`。
 - tuple 和陣列如果所有元素都是 `Copy`，整體也是 `Copy`。
-- tuple 對很多 `trait`（`Copy`、`Clone` 等）都有同樣的行為：所有元素都有實作 → tuple 就有實作。
+- tuple 對一些 `trait`（`Copy`、`Clone` 等）有同樣的行為：對這些 `trait` 而言，所有元素都有實作 → tuple 就有實作。
 - 自訂 `struct` 可以加 `#[derive(Copy, Clone)]`，但所有欄位都必須是 `Copy` 的型別。
 - `Copy` 要求 `Clone`；使用 derive 時，通常會把兩者一起寫上。
 - **`Copy` = 自動複製，`Clone` = 手動呼叫 `.clone()`**

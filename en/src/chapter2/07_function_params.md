@@ -47,7 +47,7 @@ fn add_v2(a: i32, b: i32) { // ✅ Required
 
 "But doesn't `let x = 5;` get to skip the annotation?"
 
-True — `let` lets the compiler infer. But function parameters don't, because a function is your "public interface." Rust wants interfaces to be crystal clear, not vague and fuzzy.
+True — `let` lets the compiler infer the type. But function parameters must have type annotations: a function's definition must be clear, and Rust checks the code inside the function using those declared types.
 
 ### Multiple Parameters, Different Types
 

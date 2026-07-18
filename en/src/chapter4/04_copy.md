@@ -52,7 +52,7 @@ fn main() {
 
 That's why in the code you wrote in earlier chapters, integers, tuples, and arrays could be freely assigned to multiple variables and passed into multiple functions without any trouble.
 
-Beyond `Copy`: when every type in a tuple implements `Clone`, the tuple automatically implements `Clone` too. In fact, tuples behave this way for many other `trait`s — if all the elements implement some `trait`, the tuple as a whole has it. We won't belabor this point again.
+Beyond `Copy`: when every type in a tuple implements `Clone`, the tuple automatically implements `Clone` too. In fact, tuples behave this way for some other `trait`s — for those `trait`s, if all the elements implement one, the tuple as a whole does too. We won't belabor this point again.
 
 ### Your Own Types Can Take `Copy` Too
 
@@ -155,7 +155,7 @@ So the good habit is: **only add `Copy` when you're sure the type will never gai
 - **`Copy`** is a `trait` that makes a type copy automatically on assignment and function calls, instead of moving.
 - Primitive types like `i32`, `f64`, `bool`, `char` have `Copy` innately.
 - Tuples and arrays are `Copy` when all their elements are.
-- Tuples behave this way for many `trait`s (`Copy`, `Clone`, etc.): all elements implement it → the tuple implements it.
+- Tuples behave this way for some `trait`s (`Copy`, `Clone`, etc.): for those `trait`s, if all elements implement one, the tuple does too.
 - Custom `struct`s can take `#[derive(Copy, Clone)]`, but every field must be a `Copy` type.
 - `Copy` requires `Clone`; when using `derive`, both are usually listed together.
 - **`Copy` = automatic copying; `Clone` = calling `.clone()` by hand**
