@@ -2,7 +2,7 @@
 
 ## 本集目標
 
-從手寫 runtime 回到 Tokio，搞懂 `tokio::spawn` 的 `Send + 'static` 要求、Tokio 中 `block_on` 和我們手寫 `block_on` 的差別，以及 Tokio runtime 的多執行緒 / 單執行緒模式。
+從手寫 runtime 回到 Tokio，重新看看 `tokio::spawn` 和 `JoinHandle`、比較 Tokio 與手寫 `block_on` 的差別，以及認識 Tokio runtime 的多執行緒 / 單執行緒模式。
 
 ## 正文
 
@@ -10,7 +10,7 @@
 
 恭喜你撐過了最硬的幾集！前面我們從零手寫了 executor、reactor、`Task`、`JoinHandle`，還拆開了狀態機和 `Pin`。Tokio 真正的實作當然複雜得多，但現在回頭看它的 API，很多名詞和設計取捨應該不會讓人陌生。
 
-### `tokio::spawn` 與 `Send + 'static`
+### `tokio::spawn` 與 `JoinHandle`
 
 `tokio::spawn` 就是我們手寫過的 `spawn`：把一個 `Future` 包成 `Task` 交給 runtime 排程，回傳一個 `JoinHandle`：
 
@@ -29,13 +29,11 @@ async fn main() {
 
 （Tokio 的 `JoinHandle` `.await` 回傳的是 `Result`，因為背景 `Task` 有可能 panic，所以這裡用 `expect`。）
 
-但 `tokio::spawn` 有個我們手寫版沒強制的要求：傳進去的 `Future`、以及它的輸出，都必須是 **`Send + 'static`**。為什麼？因為 Tokio 預設是**多執行緒** runtime，它可能把一個 `Task` 從這條 `Thread` 搬到另一條去跑，這樣才能讓閒著的 `Thread` 幫忙。為了能在 `Thread` 之間搬動，就需要 `Send`；而 `Task` 可能活很久、不知道何時結束，所以也需要 `'static`。
+### Tokio 的 `block_on` 和手寫版有何不同
 
-相對地，`tokio::runtime::Runtime::block_on` **不需要** `Send` 或 `'static`。因為它只是把你給它的那個 `Future`，在目前這條呼叫的 `Thread` 上跑到完成，不會搬到別條 `Thread`，所以沒有 `Send` 的顧慮。
+和手寫版不同，`tokio::runtime::Runtime::block_on` **不需要** `Send` 或 `'static`。因為它只是把你給它的那個 `Future`，在目前這條呼叫的 `Thread` 上跑到完成，不會搬到別條 `Thread`，所以沒有 `Send` 的顧慮。
 
-### 和手寫 `block_on` 的語意差異
-
-這裡要特別點出一點：我們第 11 集後手寫的 `block_on` 會等 ready queue 裡所有 `Task` 都完成才回傳，但 Tokio 的 `block_on` 不一樣：它是「**傳給它的那個 `Future` 一完成就回傳**」，不會等其他用 `tokio::spawn` 開出去的背景 `Task`。那些還沒做完的背景 `Task` 會留在 runtime 上。
+語意上還有一個重要差異：我們第 11 集後手寫的 `block_on` 會等 ready queue 裡所有 `Task` 都完成才回傳，但 Tokio 的 `block_on` 是「**傳給它的那個 `Future` 一完成就回傳**」，不會等其他用 `tokio::spawn` 開出去的背景 `Task`。那些還沒做完的背景 `Task` 會留在 runtime 上。
 
 一句話對比：手寫版是「跑完整批才繼續」，Tokio 是「跑完我指定的這一個就繼續」。所以在 Tokio 裡，`block_on` 回傳時，只代表你傳進去的那個 `Future` 完成了；你 `spawn` 出去的背景 `Task` 可能還沒跑完。如果 runtime 接著結束，這些背景 `Task` 就沒有機會繼續做完。
 
@@ -64,7 +62,7 @@ async fn main() {
 
 解法有幾種：
 
-**用 `Send` 的替代品。** `Rc` 換成 `Arc`，它就是 `Send` 的：
+**用 `Send` 的替代品。** 這裡把 `Rc<i32>` 換成 `Arc<i32>`，後者是 `Send` 的：
 
 ```rust,noplayground
 # extern crate tokio;
@@ -137,8 +135,7 @@ async fn main() {
 
 ## 重點整理
 
-- `tokio::spawn` 把 `Future` 交給 runtime，回傳 `JoinHandle`（`.await` 後得到 `Result`，因為可能 panic）。
-- Tokio 預設多執行緒，可能在 `Thread` 之間搬 `Task`，所以 `spawn` 的 `Future` 與輸出要 `Send + 'static`；`block_on` 在當前 `Thread` 跑，不需要。
-- 語意差異：手寫 `block_on` 等**所有** `Task` 完成；Tokio `block_on` 是**指定的 `Future`** 一完成就回傳。
+- `tokio::spawn` 把 `Future` 交給 runtime，回傳 `JoinHandle`（`.await` 後得到 `Result`，因為 `Task` 可能 panic）。
+- 和手寫版不同，Tokio 的 `block_on` 不需要 `Send` 或 `'static`，而且是**指定的 `Future`** 一完成就回傳，不會等待**所有** `Task`。
 - `.await` 期間持有像 `Rc` 這樣非 `Send` 的值，會讓 `Future` 不是 `Send`，不能 `spawn`；解法是改用 `Arc`、或用作用域 / `drop` 讓它在 `.await` 前消失。
-- `#[tokio::main]` 預設多執行緒，但可用 `flavor = "current_thread"` 或 `worker_threads = N` 調整。
+- `#[tokio::main]` 預設多執行緒，但可用 `flavor = "current_thread"` 或 `worker_threads = N` 調整；無論哪種，`tokio::spawn` 的 `Future` 與輸出仍然必須是 `Send + 'static`。

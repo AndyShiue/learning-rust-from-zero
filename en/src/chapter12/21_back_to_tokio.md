@@ -2,7 +2,7 @@
 
 ## Goal of This Episode
 
-Return from the hand-written runtime to Tokio: understand `tokio::spawn`'s `Send + 'static` requirement, how Tokio's `block_on` differs from our hand-written one, and the runtime's multithreaded / single-threaded flavors.
+Return from the hand-written runtime to Tokio: revisit `tokio::spawn` and `JoinHandle`, compare Tokio's `block_on` with our hand-written one, and learn the runtime's multithreaded / single-threaded flavors.
 
 ## Main Text
 
@@ -10,7 +10,7 @@ Return from the hand-written runtime to Tokio: understand `tokio::spawn`'s `Send
 
 Congratulations on surviving the hardest episodes! We hand-wrote an executor, reactor, `Task`, and `JoinHandle` from scratch, and dissected state machines and `Pin`. Tokio's real implementation is of course far more sophisticated, but looking back at its API now, most of the terms and design trade-offs should feel familiar.
 
-### `tokio::spawn` and `Send + 'static`
+### `tokio::spawn` and `JoinHandle`
 
 `tokio::spawn` is the `spawn` we hand-wrote: wrap a `Future` into a `Task`, hand it to the runtime's scheduler, and get back a `JoinHandle`:
 
@@ -29,13 +29,11 @@ async fn main() {
 
 (`.await`ing Tokio's `JoinHandle` returns a `Result`, since the background `Task` might panic — hence the `expect` here.)
 
-But `tokio::spawn` has a requirement our hand-written version never enforced: the `Future` you pass in, and its output, must both be **`Send + 'static`**. Why? Because Tokio defaults to a **multithreaded** runtime — it may move a `Task` from one `Thread` to another so idle `Thread`s can pitch in. Moving between `Thread`s requires `Send`; and a `Task` may live long with no known end, hence `'static` too.
+### How Tokio's `block_on` Differs from Ours
 
-By contrast, `tokio::runtime::Runtime::block_on` requires **neither** `Send` nor `'static`. It simply runs the `Future` you give it to completion on the current calling `Thread`, never moving it elsewhere, so `Send` isn't a concern.
+Unlike our hand-written version, `tokio::runtime::Runtime::block_on` requires **neither** `Send` nor `'static`. It simply runs the `Future` you give it to completion on the current calling `Thread`, never moving it elsewhere, so `Send` isn't a concern.
 
-### The Semantic Difference from Our Hand-written `block_on`
-
-One point deserves special mention: the `block_on` we hand-wrote from Episode 11 onward waits until **every** `Task` in the ready queue completes before returning. Tokio's `block_on` is different: it "**returns as soon as the `Future` you passed it completes**," without waiting for other background `Task`s opened via `tokio::spawn`. Unfinished background `Task`s stay on the runtime.
+There is also an important semantic difference: the `block_on` we hand-wrote from Episode 11 onward waits until **every** `Task` in the ready queue completes before returning. Tokio's `block_on` instead "**returns as soon as the `Future` you passed it completes**," without waiting for other background `Task`s opened via `tokio::spawn`. Unfinished background `Task`s stay on the runtime.
 
 The one-line contrast: the hand-written version "finishes the whole batch before moving on"; Tokio "finishes the one I specified, then moves on." So in Tokio, `block_on` returning only means your `Future` finished; `Task`s you `spawn`ed may still be running. If the runtime then shuts down, those background `Task`s never get to finish.
 
@@ -64,7 +62,7 @@ The compiler says `future cannot be sent between threads safely` and points out 
 
 Several fixes:
 
-**Use a `Send` substitute.** Swap `Rc` for `Arc`, which is `Send`:
+**Use a `Send` substitute.** Here, swap `Rc<i32>` for `Arc<i32>`, which is `Send`:
 
 ```rust,noplayground
 # extern crate tokio;
@@ -137,8 +135,7 @@ The single-threaded runtime's upside is no cross-`Thread` moving to worry about;
 
 ## Recap
 
-- `tokio::spawn` hands a `Future` to the runtime and returns a `JoinHandle` (`.await` yields a `Result`, since it may panic).
-- Tokio defaults to multithreaded and may move `Task`s between `Thread`s, so `spawn`'s `Future` and output need `Send + 'static`; `block_on` runs on the current `Thread` and doesn't.
-- Semantic difference: our hand-written `block_on` waits for **all** `Task`s; Tokio's `block_on` returns as soon as **the specified `Future`** completes.
+- `tokio::spawn` hands a `Future` to the runtime and returns a `JoinHandle` (`.await` yields a `Result`, since the `Task` may panic).
+- Unlike our hand-written `block_on`, Tokio's requires neither `Send` nor `'static` and returns as soon as **the specified `Future`** completes instead of waiting for **all** `Task`s.
 - Holding a non-`Send` value such as `Rc` across an `.await` makes the `Future` non-`Send` and unspawnable; fix with `Arc`, or scope / `drop` it away before the `.await`.
-- `#[tokio::main]` defaults to multithreaded, adjustable via `flavor = "current_thread"` or `worker_threads = N`.
+- `#[tokio::main]` defaults to multithreaded, adjustable via `flavor = "current_thread"` or `worker_threads = N`; either way, `tokio::spawn` still requires its `Future` and output to be `Send + 'static`.
