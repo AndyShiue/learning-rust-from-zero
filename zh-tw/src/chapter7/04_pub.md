@@ -194,8 +194,8 @@ mod shapes {
 有時候你不想完全公開，但又想讓 `crate` 內部的其他 `mod` 使用。Rust 提供了精細的控制：
 
 - `pub(crate)`：整個 `crate` 內部可見，但外部（別的 `crate`）看不到。
-- `pub(super)`：只有父 `mod` 可見。
-- `pub(in crate::some::path)`：只對指定的 `mod` 路徑可見——最精細的控制。
+- `pub(super)`：在父 `mod` 的範圍內可見。
+- `pub(in crate::some::path)`：在指定的祖先 `mod` 範圍內可見——最精細的控制。
 
 ```rust,compile_fail
 mod database {
@@ -205,19 +205,17 @@ mod database {
         String::from("connected")
     }
 
-    // 注意 queries 本身是 pub——如果這個 mod 不是 pub，
-    // 那裡面的東西即使標了 pub(super) 也沒用，
-    // 因為外面根本看不到這個 mod，更別說裡面的東西了。
-    pub mod queries {
-        // 只有 database mod（父 mod）能看到
+    // queries 是私有的：database 可以存取，但 main 不行。
+    mod queries {
+        // pub(super) 讓父 mod database 可以呼叫這個函數。
         pub(super) fn raw_query() -> String {
             String::from("SELECT * FROM users")
         }
+    }
 
-        pub fn safe_query() -> String {
-            let raw = raw_query(); // 同 mod 內可以呼叫
-            format!("SAFE: {}", raw)
-        }
+    pub(crate) fn safe_query() -> String {
+        let raw = queries::raw_query(); // OK：database 是 queries 的父 mod
+        format!("SAFE: {}", raw)
     }
 }
 
@@ -225,7 +223,7 @@ mod database {
 mod app {
     pub mod api {
         pub mod internal {
-            // 只有 app::api 能看到這個函數
+            // 在 app::api 的範圍內可見。
             pub(in crate::app::api) fn secret_key() -> &'static str {
                 "super-secret"
             }
@@ -238,7 +236,7 @@ mod app {
 }
 
 // app::api::internal::secret_key() 在這裡看不到
-// 因為 pub(in crate::app::api) 限制了只有 app::api 能存取
+// 因為 pub(in crate::app::api) 限制了只能在 app::api 的範圍內存取
 
 // 注意：pub(in path) 必須指定「包含你的」mod
 // （從你往外數的某一層），不能是無關的路徑：
@@ -246,10 +244,10 @@ mod app {
 // 編譯器會報錯；你不能對不包含你的 mod 開放可見性。
 
 fn main() {
-    let conn = database::connect();          // OK，我們在同一個 crate
-    let q = database::queries::safe_query(); // OK，pub
+    let conn = database::connect(); // OK，我們在同一個 crate
+    let q = database::safe_query(); // OK，pub(crate)
     println!("{}, {}", conn, q);
-    database::queries::raw_query();          // 編譯錯誤！pub(super) 只給父 mod
+    database::queries::raw_query(); // 編譯錯誤！queries 是私有的
 }
 ```
 
@@ -266,6 +264,6 @@ fn main() {
 - `impl Trait for T` 裡的 `fn` 可見性跟著 `trait` 走，不加 `pub`；`impl T` 裡的 `fn` 各自用 `pub` 控制。
 - 使用 `.method()` 語法時，提供該方法的 `trait` 必須在作用域內。
 - `pub(crate)`：`crate` 內部可見，外部不可見。
-- `pub(super)`：只有父 `mod` 可見。
-- `pub(in path)`：只對指定的 `mod` 路徑可見。
+- `pub(super)`：在父 `mod` 的範圍內可見。
+- `pub(in path)`：在指定的祖先 `mod` 範圍內可見。
 - 你公開的所有 `pub` 的東西**合起來就是你的 API**，沒公開的是實作細節；標準庫本身就是一套 API，差別只在這章中你從 API 的「使用者」變成了「設計者」。

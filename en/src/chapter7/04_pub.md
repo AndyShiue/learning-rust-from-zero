@@ -194,8 +194,8 @@ mod shapes {
 Sometimes you don't want full publicity, yet other `mod`s within the `crate` should have access. Rust offers fine-grained control:
 
 - `pub(crate)`: visible throughout the `crate`, invisible outside (to other `crate`s).
-- `pub(super)`: visible only to the parent `mod`.
-- `pub(in crate::some::path)`: visible only to the named `mod` path — the finest control.
+- `pub(super)`: visible within the parent `mod`.
+- `pub(in crate::some::path)`: visible within the named ancestor `mod` — the finest control.
 
 ```rust,compile_fail
 mod database {
@@ -205,19 +205,17 @@ mod database {
         String::from("connected")
     }
 
-    // Note queries itself is pub — if this mod weren't pub,
-    // things inside marked pub(super) would be pointless,
-    // since the outside can't even see the mod, let alone its contents.
-    pub mod queries {
-        // Only the database mod (the parent) can see this
+    // queries is private: database can access it, but main cannot.
+    mod queries {
+        // pub(super) lets the parent database mod call this function.
         pub(super) fn raw_query() -> String {
             String::from("SELECT * FROM users")
         }
+    }
 
-        pub fn safe_query() -> String {
-            let raw = raw_query(); // Calls within the same mod are fine
-            format!("SAFE: {}", raw)
-        }
+    pub(crate) fn safe_query() -> String {
+        let raw = queries::raw_query(); // OK: database is queries' parent
+        format!("SAFE: {}", raw)
     }
 }
 
@@ -225,7 +223,7 @@ mod database {
 mod app {
     pub mod api {
         pub mod internal {
-            // Only app::api can see this function
+            // Visible within app::api.
             pub(in crate::app::api) fn secret_key() -> &'static str {
                 "super-secret"
             }
@@ -238,7 +236,7 @@ mod app {
 }
 
 // app::api::internal::secret_key() is invisible here,
-// since pub(in crate::app::api) restricts access to app::api only
+// since pub(in crate::app::api) makes it visible only within app::api
 
 // Note: pub(in path) must name a mod that contains you
 // (one of the layers outward), not an unrelated path:
@@ -246,10 +244,10 @@ mod app {
 // The compiler errors; you cannot open visibility to a mod that does not contain you.
 
 fn main() {
-    let conn = database::connect();          // OK, we're in the same crate
-    let q = database::queries::safe_query(); // OK, pub
+    let conn = database::connect(); // OK, we're in the same crate
+    let q = database::safe_query(); // OK, pub(crate)
     println!("{}, {}", conn, q);
-    database::queries::raw_query();          // Error: pub(super) is parent-only
+    database::queries::raw_query(); // Error: queries is private
 }
 ```
 
@@ -266,6 +264,6 @@ The set of things you open up with `pub` — functions, types, methods, `trait`s
 - In `impl Trait for T`, the `fn`s' visibility follows the `trait` — no `pub`; in `impl T`, each `fn` takes its own `pub`.
 - When using the `.method()` syntax, the `trait` that provides the method must be in scope.
 - `pub(crate)`: visible within the `crate`, not outside.
-- `pub(super)`: visible only to the parent `mod`.
-- `pub(in path)`: visible only to the named `mod` path.
+- `pub(super)`: visible within the parent `mod`.
+- `pub(in path)`: visible within the named ancestor `mod`.
 - Everything `pub`, taken together, **is your API**; the rest is implementation detail. The standard library is itself an API — this chapter turns you from the API's "user" into its "designer."

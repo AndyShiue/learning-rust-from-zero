@@ -172,7 +172,7 @@ fn main() {
 
 ### Glob Imports (the Asterisk)
 
-`*` brings in everything `pub` under a `mod`:
+`*` brings in every name accessible from a `mod` at the current location:
 
 ```rust,noplayground
 use std::collections::*; // HashMap, HashSet, BTreeMap... all available

@@ -172,7 +172,7 @@ fn main() {
 
 ### glob import（星號匯入）
 
-`*` 會把 `mod` 底下所有 `pub` 的東西全部帶進來：
+`*` 會把目前位置能從該 `mod` 存取的名稱全部帶進來：
 
 ```rust,noplayground
 use std::collections::*; // HashMap, HashSet, BTreeMap... 全部可用

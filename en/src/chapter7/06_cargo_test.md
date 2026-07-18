@@ -118,7 +118,7 @@ This command:
 
 ### Testing Private Functions
 
-Since `mod tests` is a child `mod` of your code, and things within one `mod` see each other — tests can test **private functions** directly, no `pub` needed.
+Since `mod tests` is a child of the surrounding `mod`, Rust's privacy rules let it access private items declared in its parent. Tests can therefore test **private functions** directly, no `pub` needed.
 
 ## Example Code
 
