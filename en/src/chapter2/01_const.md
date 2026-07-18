@@ -67,7 +67,7 @@ fn main() {
 }
 ```
 
-`let` can only go inside a `fn`, but `const` can sit at the outermost level, usable by the whole program.
+`const` can be declared at the outermost level of a program; `let` cannot.
 
 ### When to Use `const`?
 
