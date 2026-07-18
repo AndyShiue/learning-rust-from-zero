@@ -47,9 +47,9 @@ fn main() {
 }
 ```
 
-### `T` Must Be `Send + Sync`
+### `Arc<T>: Send` and `Arc<T>: Sync` Require `T: Send + Sync`
 
-`Arc` requires `T: Send + Sync`. Why?
+`Arc<T>` itself does not require `T: Send + Sync`. But to send and share an `Arc<T>` between `Thread`s as above, `T` must satisfy both traits. Why?
 
 **`Sync`**: multiple `Thread`s access the same `T` simultaneously through their own `Arc`s. Chapter 5 taught `Deref` — `Arc` implements it, so `T`'s contents are reachable straight through the `Arc`. That amounts to multiple `Thread`s holding shared references to `T` at once, so `T` must be `Sync`.
 
@@ -88,4 +88,4 @@ fn main() {
 - `Arc<T>` is `Rc<T>`'s multithreaded version, with atomic reference counting.
 - Usage nearly matches `Rc`: `Arc::new()`, `Arc::clone()`.
 - `Arc::clone` and move the `clone` into other `Thread`s to share data.
-- `T` must be `Send + Sync`: `Sync` for simultaneous multithreaded access, `Send` because the `drop` may happen on any `Thread`.
+- `Arc<T>: Send` and `Arc<T>: Sync` both require `T: Send + Sync`: `Sync` for simultaneous multithreaded access, `Send` because the `drop` may happen on any `Thread`.

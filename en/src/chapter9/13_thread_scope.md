@@ -12,7 +12,7 @@ Using `thread::spawn` earlier, outside variables had to be `move`d into the clos
 
 ### Why `spawn` Can't Borrow
 
-Episode 3 examined `thread::spawn`'s type signature: the closure and return value both demand `'static` — living as long as the whole program. That's why local variables can't be borrowed: locals aren't `'static`.
+Episode 3 examined `thread::spawn`'s type signature: the closure and return value both demand `'static` — living as long as the whole program. That's why local variables can't be borrowed: references to locals aren't `'static`.
 
 ### `thread::scope`
 
