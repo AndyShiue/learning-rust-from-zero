@@ -40,6 +40,47 @@ extern crate rand;
 
 不過，它不會下載或安裝 `rand`，也不能取代 `Cargo.toml` 裡的 dependency。外部 `crate` 還是必須先由 Cargo 或其他建置工具準備好。
 
+### 用 `as` 替外部 `crate` 取別名
+
+`extern crate` 也可以在載入外部 `crate` 時，替它建立一個在目前作用域中使用的名稱：
+
+```rust,ignore
+extern crate rand as random;
+```
+
+這個語法的一般形式是：
+
+```rust,ignore
+extern crate a as b;
+```
+
+其中：
+
+- `a` 是外部 `crate` 的名稱。
+- `b` 是這項宣告在目前作用域中建立的名稱。
+
+例如，替 `rand` 取名為 `random` 之後，就可以透過 `random` 使用它：
+
+```rust,editable
+extern crate rand as random;
+
+use random::RngExt;
+
+fn main() {
+    let mut rng = random::rng();
+    let n = rng.random_range(1..=100);
+    println!("{}", n);
+}
+```
+
+不過，在新版 Rust 的一般 Cargo 專案中，如果目的只是替名稱取別名，通常直接使用第 7 章介紹過的 `use ... as ...` 即可：
+
+```rust,ignore
+use rand as random;
+```
+
+兩者的差別是：`extern crate rand as random;` 明確載入外部 `crate`，並建立名稱 `random`；`use rand as random;` 則是替已經可以使用的 `rand` 建立別名。
+
 ### `extern crate` 和 `use` 不一樣
 
 下面兩行的工作不同：
@@ -74,6 +115,7 @@ extern crate rand;
 ## 重點整理
 
 - `extern crate name;` 會明確告訴編譯器載入某個外部 `crate`。
+- `extern crate a as b;` 會明確載入外部 `crate` `a`，並在目前作用域中替它建立名稱 `b`；新版 Rust 若只需要別名，通常使用 `use a as b;`。
 - `extern crate` 不會下載套件，也不能取代 `Cargo.toml` 裡的 dependency。
 - `extern crate` 和 `use` 的用途不同：前者處理外部 `crate`，後者把名稱引入作用域。
 - 新版 Rust 的一般 Cargo 專案通常不需要寫 `extern crate`。

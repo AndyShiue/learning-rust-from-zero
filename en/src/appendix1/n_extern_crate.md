@@ -40,6 +40,47 @@ extern crate rand;
 
 It does not download or install `rand`, however, and it cannot replace the dependency in `Cargo.toml`. Cargo or another build tool must still make the external `crate` available first.
 
+### Aliasing an External `crate` with `as`
+
+`extern crate` can also give the external `crate` a name to use in the current scope:
+
+```rust,ignore
+extern crate rand as random;
+```
+
+The general form is:
+
+```rust,ignore
+extern crate a as b;
+```
+
+Here:
+
+- `a` is the name of the external `crate`.
+- `b` is the name introduced into the current scope by this declaration.
+
+For example, after aliasing `rand` as `random`, you can use it through the name `random`:
+
+```rust,editable
+extern crate rand as random;
+
+use random::RngExt;
+
+fn main() {
+    let mut rng = random::rng();
+    let n = rng.random_range(1..=100);
+    println!("{}", n);
+}
+```
+
+In an ordinary Cargo project using a newer Rust edition, however, if you only want an alias, you can usually use the `use ... as ...` syntax introduced in Chapter 7:
+
+```rust,ignore
+use rand as random;
+```
+
+The difference is that `extern crate rand as random;` explicitly loads the external `crate` and introduces the name `random`, while `use rand as random;` aliases a `crate` that is already available.
+
 ### `extern crate` Is Not the Same as `use`
 
 These two lines do different jobs:
@@ -74,6 +115,7 @@ This is a special requirement of the tutorial's testing setup, not the usual sty
 ## Recap
 
 - `extern crate name;` explicitly tells the compiler to load an external `crate`.
+- `extern crate a as b;` explicitly loads external `crate` `a` and introduces it as `b` in the current scope; in newer Rust editions, use `use a as b;` when only an alias is needed.
 - `extern crate` does not download a package and cannot replace the dependency in `Cargo.toml`.
 - `extern crate` and `use` have different purposes: the former deals with an external `crate`, while the latter brings names into scope.
 - Ordinary Cargo projects using newer Rust editions usually do not need `extern crate`.
