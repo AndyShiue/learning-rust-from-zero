@@ -115,8 +115,8 @@ This is a special requirement of the tutorial's testing setup, not the usual sty
 ## Recap
 
 - `extern crate name;` explicitly tells the compiler to load an external `crate`.
-- `extern crate a as b;` explicitly loads external `crate` `a` and introduces it as `b` in the current scope; in newer Rust editions, use `use a as b;` when only an alias is needed.
 - `extern crate` does not download a package and cannot replace the dependency in `Cargo.toml`.
 - `extern crate` and `use` have different purposes: the former deals with an external `crate`, while the latter brings names into scope.
+- `extern crate a as b;` explicitly loads external `crate` `a` and introduces it as `b` in the current scope; in newer Rust editions, use `use a as b;` when only an alias is needed.
 - Ordinary Cargo projects using newer Rust editions usually do not need `extern crate`.
 - This tutorial includes `extern crate` so that its internal tests using `mdbook test -L` can find external `crate`s.

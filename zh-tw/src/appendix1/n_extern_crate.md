@@ -115,8 +115,8 @@ extern crate rand;
 ## 重點整理
 
 - `extern crate name;` 會明確告訴編譯器載入某個外部 `crate`。
-- `extern crate a as b;` 會明確載入外部 `crate` `a`，並在目前作用域中替它建立名稱 `b`；新版 Rust 若只需要別名，通常使用 `use a as b;`。
 - `extern crate` 不會下載套件，也不能取代 `Cargo.toml` 裡的 dependency。
 - `extern crate` 和 `use` 的用途不同：前者處理外部 `crate`，後者把名稱引入作用域。
+- `extern crate a as b;` 會明確載入外部 `crate` `a`，並在目前作用域中替它建立名稱 `b`；新版 Rust 若只需要別名，通常使用 `use a as b;`。
 - 新版 Rust 的一般 Cargo 專案通常不需要寫 `extern crate`。
 - 本教學加入 `extern crate`，是為了讓使用 `mdbook test -L` 的內部測試能找到外部 `crate`。
