@@ -98,12 +98,13 @@ async fn main() {
     let notify = Arc::new(Notify::new());
     let n = notify.clone();
 
-    tokio::spawn(async move {
+    let handle = tokio::spawn(async move {
         n.notified().await; // sleep awaiting notification
         println!("notified — waking up to work");
     });
 
     notify.notify_one(); // poke one waiter awake
+    handle.await.expect("task panicked");
 }
 ```
 

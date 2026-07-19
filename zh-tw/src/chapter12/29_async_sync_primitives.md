@@ -98,12 +98,13 @@ async fn main() {
     let notify = Arc::new(Notify::new());
     let n = notify.clone();
 
-    tokio::spawn(async move {
+    let handle = tokio::spawn(async move {
         n.notified().await; // 睡著等通知
         println!("被通知了，醒來做事");
     });
 
     notify.notify_one(); // 戳醒一個等待者
+    handle.await.expect("Task 發生 panic");
 }
 ```
 
