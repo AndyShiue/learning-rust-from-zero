@@ -2,7 +2,7 @@
 
 ## Goal of This Episode
 
-Unmask the `for` loop, and see that underneath it's really the combination `IntoIterator` + `while let`.
+Unmask the `for` loop, and understand how it works through `IntoIterator` + `while let`.
 
 ## Concept
 
@@ -21,9 +21,9 @@ fn main() {
 
 Looks simple, right? But what's actually happening underneath?
 
-### What the Compiler Turns It Into
+### A Conceptual Rewrite
 
-The compiler actually transforms the `for` loop above into this:
+Conceptually, you can think of the `for` loop above as this:
 
 ```rust,editable
 fn main() {
@@ -82,7 +82,7 @@ fn main() {
         println!("Fruit: {}", fruit);
     }
 
-    // Manually rewritten as while let (fully equivalent)
+    // Manually rewritten as while let (conceptually equivalent)
     let fruits = vec!["apple", "banana", "orange"];
     println!("\n--- Rewritten by hand ---");
     let mut iter = fruits.into_iter();
@@ -137,7 +137,7 @@ impl Iterator for Countdown {
 
 ## Recap
 
-- `for x in v` is shorthand; the compiler rewrites it as `v.into_iter()` + `while let Some(x) = iter.next()`.
+- `for x in v` is shorthand; conceptually, it works like `v.into_iter()` + `while let Some(x) = iter.next()`.
 - The `IntoIterator` `trait` defines "how to turn oneself into an iterator."
 - Any type implementing `IntoIterator` works with `for` loops.
 - Every `Iterator` implements `IntoIterator` automatically.
