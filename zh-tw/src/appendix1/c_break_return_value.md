@@ -80,7 +80,9 @@ fn main() {
 ```rust,editable
 fn main() {
     let from_loop = 'search: loop {
-        break 'search 7;
+        loop {
+            break 'search 7;
+        }
     };
 
     let from_block = 'answer: {
@@ -96,7 +98,7 @@ fn main() {
 }
 ```
 
-這裡的 `break 'search 7` 會讓有標籤的 `loop` 產生 `7`，而 `break 'answer n * 2` 會讓 labeled block 產生 `14`。
+這裡的 `break 'search 7` 會直接跳出兩層 `loop`，讓有 `'search` 標籤的外層 `loop` 產生 `7`。`break 'answer n * 2` 會讓 labeled block 產生 `14`。
 
 ## 重點整理
 

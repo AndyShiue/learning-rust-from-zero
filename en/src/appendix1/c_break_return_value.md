@@ -80,7 +80,9 @@ A label such as `'search:` can be placed before a loop (`loop`, `while`, or `for
 ```rust,editable
 fn main() {
     let from_loop = 'search: loop {
-        break 'search 7;
+        loop {
+            break 'search 7;
+        }
     };
 
     let from_block = 'answer: {
@@ -96,7 +98,7 @@ fn main() {
 }
 ```
 
-Here `break 'search 7` makes the labeled `loop` evaluate to `7`, while `break 'answer n * 2` makes the labeled block evaluate to `14`.
+Here `break 'search 7` exits both `loop`s directly, making the outer `loop` labeled `'search` evaluate to `7`. Meanwhile, `break 'answer n * 2` makes the labeled block evaluate to `14`.
 
 ## Recap
 
