@@ -24,7 +24,7 @@ fn main() {
 
 `drop` is an ordinary function provided by the prelude, so it needs no additional `use`. It takes ownership of the value passed to it, which means you cannot use the original value after `drop(message)`.
 
-More precisely, it is the **value** bound to `message` that is `drop`ped, not the variable name itself. The variable's original scope has not become shorter; its value has been moved into `drop` and then discarded.
+To emphasize the distinction, it is the **value** bound to `message` that is `drop`ped, not the variable name itself. The variable's original scope has not become shorter; its value has been moved into `drop` and then discarded.
 
 ### Contained Values Are `drop`ped Automatically
 
