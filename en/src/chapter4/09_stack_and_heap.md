@@ -54,7 +54,8 @@ struct StackData {
 }
 
 fn main() {
-    // These local variables have sizes known at compile time, so they can be stored directly on the stack
+    // These local variable sizes are known at compile time,
+    // so the values can be stored directly on the stack.
     let a = 42;    // i32, 4 bytes
     let b = 3.14;  // f64, 8 bytes
     let c = true;  // bool, 1 byte

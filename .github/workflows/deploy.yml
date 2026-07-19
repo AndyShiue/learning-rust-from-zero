@@ -66,6 +66,9 @@ jobs:
       - name: Build en book
         working-directory: en
         run: mdbook build
+      - name: Check en PDF code lines are at most 95 characters
+        working-directory: en
+        run: python3 scripts/check_pdf_code_lines.py
       - name: Build and publish print PDF (en)
         working-directory: en
         run: |

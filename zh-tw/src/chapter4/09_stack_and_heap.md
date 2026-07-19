@@ -54,7 +54,8 @@ struct StackData {
 }
 
 fn main() {
-    // 這些區域變數的大小在編譯時就已知，所以可以直接放在 stack 上
+    // 這些區域變數的大小在編譯時就已知，
+    // 所以這些值可以直接放在 stack 上
     let a = 42;    // i32，4 bytes
     let b = 3.14;  // f64，8 bytes
     let c = true;  // bool，1 byte

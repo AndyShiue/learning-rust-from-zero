@@ -8,7 +8,7 @@ MANUSCRIPT="build/print/manuscript.md"
 TEX="build/print/rust-book-a4.tex"
 PDF="book/rust-book-a4.pdf"
 CODE_REPORT="build/print/code-lines.txt"
-CODE_LINE_LIMIT="${CODE_LINE_LIMIT:-96}"
+CODE_LINE_LIMIT="${CODE_LINE_LIMIT:-95}"
 
 mkdir -p build/print book
 
