@@ -40,6 +40,21 @@ extern crate rand;
 
 不過，它不會下載或安裝 `rand`，也不能取代 `Cargo.toml` 裡的 dependency。外部 `crate` 還是必須先由 Cargo 或其他建置工具準備好。
 
+### `extern crate` 和 `use` 不一樣
+
+下面兩行的工作不同：
+
+```rust,ignore
+extern crate rand;
+
+use rand::RngExt;
+```
+
+- `extern crate rand;` 明確載入 `rand` 這個外部 `crate`。
+- `use rand::RngExt;` 把 `rand` 裡的 `RngExt` `trait` 引入目前的作用域。
+
+也就是說，`extern crate` 處理的是外部 `crate` 本身，`use` 處理的是程式裡名稱的使用方式。
+
 ### 用 `as` 替外部 `crate` 取別名
 
 `extern crate` 也可以在載入外部 `crate` 時，替它建立一個在目前作用域中使用的名稱：
@@ -79,22 +94,7 @@ fn main() {
 use rand as random;
 ```
 
-兩者的差別是：`extern crate rand as random;` 明確載入外部 `crate`，並建立名稱 `random`；`use rand as random;` 則是替已經可以使用的 `rand` 建立別名。
-
-### `extern crate` 和 `use` 不一樣
-
-下面兩行的工作不同：
-
-```rust,ignore
-extern crate rand;
-
-use rand::RngExt;
-```
-
-- `extern crate rand;` 明確載入 `rand` 這個外部 `crate`。
-- `use rand::RngExt;` 把 `rand` 裡的 `RngExt` `trait` 引入目前的作用域。
-
-也就是說，`extern crate` 處理的是外部 `crate` 本身，`use` 處理的是程式裡名稱的使用方式。
+雖然兩種語法都使用 `as`，用途仍然不同：`extern crate rand as random;` 明確載入外部 `crate`，並建立名稱 `random`；`use rand as random;` 則是替已經可以使用的 `rand` 建立別名。
 
 ### 為什麼本教學仍然使用它？
 
