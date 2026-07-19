@@ -63,7 +63,7 @@ fn main() {
 }
 ```
 
-`0.1 + 0.2` is not `0.3`! This isn't a bug in Rust — it's a floating-point precision limitation shared by every programming language. Computers store decimals in binary, and some decimal fractions simply can't be represented exactly. Just knowing this exists is enough; don't worry about it too much.
+`0.1 + 0.2` is not `0.3`! This isn't a bug in Rust — it's a floating-point precision limitation found in almost every programming language. Computers store decimals in binary, and some decimal fractions simply can't be represented exactly. Just knowing this exists is enough; don't worry about it too much.
 
 ### How Does Rust Infer Numeric Types?
 
