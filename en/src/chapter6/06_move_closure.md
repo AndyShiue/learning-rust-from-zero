@@ -102,10 +102,10 @@ fn main() {
 
 Until now, we've mostly treated closures as things you call. There wasn't a good place to ask a different ownership question: can the closure value itself be moved, copied, or `clone`d?
 
-This episode is finally about ownership around closures, so this is the right place to answer that. Moving a closure value is allowed like moving other values, but whether it can be copied or `clone`d depends on what it captures — much like a tuple: if everything inside is copyable, the whole is:
+This episode is finally about ownership around closures, so this is the right place to answer that. Moving a closure value is allowed like moving other values, but whether it can be copied or `clone`d depends on the values it actually captures — much like a tuple: if every value stored inside is copyable, the whole is:
 
-- All captured variables `Copy` → the closure is `Copy` too.
-- All captured variables `Clone` → the closure is `Clone` too.
+- All captured values implement `Copy` → the closure is `Copy` too.
+- All captured values implement `Clone` → the closure is `Clone` too.
 - The same holds for certain other `trait`s.
 
 ```rust,editable
@@ -176,4 +176,4 @@ fn main() {
 - `move` forces the closure to capture every used outer variable by value. If a captured variable is itself a reference, it remains a reference and keeps its lifetime.
 - Returning a closure often requires `move` so it captures local variables by value, but any references captured by value must still live long enough.
 - `move` **does not affect** whether the closure is `FnOnce` / `FnMut` / `Fn` — that depends on **how it uses** the captured values.
-- Whether a closure can `clone` / copy depends on whether all its captures are `Clone` / `Copy`.
+- Whether a closure can `clone` / copy depends on whether all the values it actually captures are `Clone` / `Copy`.
