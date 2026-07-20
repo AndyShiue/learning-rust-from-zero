@@ -162,7 +162,7 @@ fn main() {
     println!("String: {}, &str: {}", s, s_ref);
 
     let v = vec![1, 2, 3];
-    let v_ref: &[i32] = &v; // & of i32 → &[i32]
+    let v_ref: &[i32] = &v; // &Vec of i32 → &[i32]
     println!("Vec: {:?}, slice: {:?}", v, v_ref);
 }
 ```
