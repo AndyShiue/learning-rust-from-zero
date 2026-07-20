@@ -29,7 +29,7 @@ fn main() {
 
 ```rust,noplayground
 # fn main() {
-#     let v = vec![2, 7, 1, 8, 2, 8];
+#     let v = vec![1, 2, 3, 4, 5];
     v.iter()                 // 最內層：原始迭代器
         .filter(|x| **x > 2) // 第二層：Filter 結構，存著 inner + 閉包
         .map(|x| x * 10);    // 第三層：Map 結構，存著 inner + 閉包

@@ -29,7 +29,7 @@ Each call to `.map(f)` or `.filter(pred)` really "wraps another layer" around th
 
 ```rust,noplayground
 # fn main() {
-#     let v = vec![2, 7, 1, 8, 2, 8];
+#     let v = vec![1, 2, 3, 4, 5];
     v.iter()                 // Innermost: the original iterator
         .filter(|x| **x > 2) // Second layer: a Filter struct holding inner + closure
         .map(|x| x * 10);    // Third layer: a Map struct holding inner + closure
