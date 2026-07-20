@@ -30,8 +30,9 @@ fn print_length(s: impl AsRef<str>) {
 }
 
 fn main() {
-    print_length("hello");            // &str
-    print_length(String::from("hi")); // String
+    let text = String::from("hello");
+    print_length(&text);
+    println!("{text}"); // still usable
 }
 ```
 
@@ -59,23 +60,15 @@ fn main() {
 }
 ```
 
-### Why `impl AsRef<T>` for `AsRef` but `&mut impl AsMut<T>` for `AsMut`?
+### Who Owns the Argument?
 
-`AsRef`'s `as_ref` only needs `&self`, so passing the value in is perfectly fine — the function borrows it briefly inside, and the caller's value is unaffected (if it's `Copy`), or you intended to move the value in anyway.
+`AsRef` and `AsMut` only describe which kind of reference a type can provide. They do not determine whether a function takes ownership of its argument; that depends on the parameter type and what the caller passes in.
 
-`AsMut` is different. If you write `fn foo(buf: impl AsMut<[u8]>)`, the value gets moved in — gone from the caller once used. If you're bothering to pass something mutable, you presumably want to keep using it after the changes, so the parameter is written `&mut impl AsMut<[u8]>` — borrow it mutably, no move needed.
+Although `s: impl AsRef<str>` is a by-value parameter, the concrete type represented by `impl AsRef<str>` can itself be a reference. In `print_length(&text)`, that type is `&String`, so the function receives only a reference and `text` remains usable. If the caller has a value it wants to keep, it will therefore usually pass `&value`.
 
-You might wonder: "`&mut Vec<u8>` isn't a `Vec<u8>`, so why can `&mut Vec<u8>` be used as `AsMut<[u8]>`?" The answer is this blanket implementation in the standard library:
+We could instead declare the parameter as `s: &impl AsRef<str>` to require a borrow. However, `s: impl AsRef<str>` is more flexible: callers can pass a reference to keep an existing value, or pass an owned value when they no longer need it.
 
-```rust,ignore
-impl<T, U> AsMut<U> for &mut T
-where
-    T: AsMut<U> + ?Sized,
-    U: ?Sized,
-{ ... }
-```
-
-Meaning: if `T` implements `AsMut<U>`, then `&mut T` automatically implements `AsMut<U>` too. So a `&mut Vec<u8>` can be used directly as an `AsMut<[u8]>`.
+A function with an `AsMut` parameter usually wants to modify a value the caller already owns, so it normally does not want to take ownership of that value. `fill_zeros` therefore uses an outer `&mut` to require a mutable borrow. The outer `&mut` says how the function receives the buffer, while `AsMut<[u8]>` says the buffer can provide a `&mut [u8]`. In `fill_zeros(&mut v)`, `impl AsMut<[u8]>` represents `Vec<u8>`, and `buf.as_mut()` produces the mutable slice used by the loop.
 
 ### How It Differs from `Deref`
 
@@ -85,7 +78,7 @@ The more important difference: each type can have only one `Deref` target (`Stri
 
 ### When to Use It
 
-When you want a function parameter generalized to accept several types, use `impl AsRef<T>` and `&mut impl AsMut<T>`. The standard library uses this everywhere.
+Use `AsRef<T>` or `AsMut<T>` when a function needs a common way to borrow several possible input types. Usually, an `AsRef` parameter is written as `impl AsRef<T>`, while an `AsMut` parameter is written as `&mut impl AsMut<T>`. The former lets callers pass either an owned value or a reference; the latter modifies the caller's existing value without taking ownership. Use another form only when the function deliberately needs a different ownership relationship.
 
 ## Example Code
 
@@ -100,13 +93,13 @@ fn count_bytes(data: impl AsRef<[u8]>) {
 }
 
 fn main() {
-    // AsRef<str>: accepts &str and String
-    describe("hello");
-    describe(String::from("hi there"));
+    let message = String::from("hello");
+    describe(&message);
+    println!("original: {message}");
 
-    // AsRef<[u8]>: accepts Vec<u8>, String, etc.
-    count_bytes(vec![1, 2, 3]);
-    count_bytes(String::from("hi"));
+    let numbers = vec![1, 2, 3];
+    count_bytes(&numbers);
+    println!("original: {numbers:?}");
 }
 ```
 
@@ -114,7 +107,8 @@ fn main() {
 
 - `AsRef<T>`: cheaply borrow as `&T`, invoked with `.as_ref()`.
 - `AsMut<T>`: cheaply borrow as `&mut T`, invoked with `.as_mut()`.
-- Write `AsRef` parameters as `impl AsRef<T>` (by value) and `AsMut` parameters as `&mut impl AsMut<T>` (borrowed, so the caller can keep using it afterwards).
-- `&mut T` can be used as `impl AsMut<U>` thanks to a standard-library blanket implementation.
+- `AsRef` and `AsMut` do not decide ownership; the parameter type and the argument passed by the caller do.
+- A by-value `impl AsRef<T>` parameter can still receive a reference, allowing the caller to keep its value.
+- An `AsMut` parameter usually uses an outer `&mut` to modify the caller's existing value without taking ownership.
 - One type can implement multiple `AsRef`s / `AsMut`s (`Deref` / `DerefMut` allow only one target).
 - The standard library uses these heavily.
