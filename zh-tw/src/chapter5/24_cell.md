@@ -36,7 +36,7 @@ fn main() {
 
 ### `Rc` 就是用 `Cell` 實作的
 
-上一集學的 `Rc<T>` 需要一個參考計數器——每次 `clone` 時計數 +1，`drop` 時計數 -1。但看看 `Clone` 的簽名：`fn clone(&self) -> Self`，它只拿得到 `&self`（共享參考），卻必須把計數 +1。怎麼辦？答案就是用 `Cell`！`Rc` 內部的計數器就是 `Cell<usize>`，所以即使只有 `&self` 也能更新計數。
+前面學的 `Rc<T>` 需要一個參考計數器——每次 `clone` 時計數 +1，`drop` 時計數 -1。但看看 `Clone` 的簽名：`fn clone(&self) -> Self`，它只拿得到 `&self`（共享參考），卻必須把計數 +1。怎麼辦？答案就是用 `Cell`！`Rc` 內部的計數器就是 `Cell<usize>`，所以即使只有 `&self` 也能更新計數。
 
 ## 範例程式碼
 
