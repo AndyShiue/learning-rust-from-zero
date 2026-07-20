@@ -2,13 +2,13 @@
 
 ## 本集目標
 
-學會為泛型參數和 `const` generics 設定預設值。
+學會型別參數和 `const` generic 參數可以在哪些地方設定預設值，以及如何定義。
 
 ## 概念說明
 
-### 泛型的預設型別參數
+### 預設型別參數
 
-有時候某個泛型參數「大部分情況都是同一個值」。Rust 允許你給預設值——不指定就自動套用。
+在 `struct`、`enum`、`union`、型別別名和 `trait` 的宣告中，如果某個型別參數大部分情況都是同一種型別，就可以為它設定預設值。使用該型別或 `trait` 時若省略這個引數，就會套用預設值。函數和方法的泛型參數則不能有預設值。
 
 以標準庫的 `PartialEq` 為例：
 
@@ -55,6 +55,8 @@ fn main() {
 ```
 
 ### `const` generics 的預設值
+
+`const` generic 參數也能在上述型別與 `trait` 宣告中設定預設值，但同樣不能在函數或方法上設定。
 
 ```rust,noplayground
 struct Buffer<const N: usize = 1024> {
@@ -105,8 +107,10 @@ fn main() {
 
 ## 重點整理
 
-- 泛型參數可以有預設值：`<T = String>`、`<Rhs = Self>`。
-- `const` generics 也可以：`<const N: usize = 1024>`。
+- 型別參數可以在 `struct`、`enum`、`union`、型別別名和 `trait` 宣告中設定預設值。
+- `const` generic 參數也能在相同的位置設定預設值。
+- 函數和方法的泛型參數不能有預設值。
+- 語法為 `<T = String>`、`<Rhs = Self>` 或 `<const N: usize = 1024>`。
 - 不指定就套用預設，指定了就覆蓋。
 - `PartialEq<Rhs = Self>` 是標準庫最典型的例子。
 - 有預設值的參數必須放在沒有預設值的參數後面。

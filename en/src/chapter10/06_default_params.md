@@ -2,13 +2,13 @@
 
 ## Goal of This Episode
 
-Learn to set default values for generic parameters and `const` generics.
+Learn where type parameters and `const` generic parameters can have defaults, and how to define them.
 
 ## Concept
 
-### Default Type Parameters in Generics
+### Default Type Parameters
 
-Sometimes a generic parameter is "almost always the same value." Rust lets you give it a default — leave it unspecified and the default applies.
+On declarations for `struct`s, `enum`s, `union`s, type aliases, and `trait`s, a type parameter that is almost always the same type can have a default. When that argument is omitted while using the type or `trait`, the default applies. Generic parameters on functions and methods cannot have defaults.
 
 Take the standard library's `PartialEq` as an example:
 
@@ -55,6 +55,8 @@ fn main() {
 ```
 
 ### Defaults for `const` generics
+
+`const` generic parameters can also have defaults on the same kinds of type and `trait` declarations. They cannot have defaults on functions or methods either.
 
 ```rust,noplayground
 struct Buffer<const N: usize = 1024> {
@@ -105,8 +107,10 @@ fn main() {
 
 ## Recap
 
-- Generic parameters can have defaults: `<T = String>`, `<Rhs = Self>`.
-- So can `const` generics: `<const N: usize = 1024>`.
+- Type parameters can have defaults on `struct`, `enum`, `union`, type alias, and `trait` declarations.
+- `const` generic parameters can have defaults in the same places.
+- Function and method generic parameters cannot have defaults.
+- The syntax is `<T = String>`, `<Rhs = Self>`, or `<const N: usize = 1024>`.
 - Leave it out and the default applies; specify it and it's overridden.
 - `PartialEq<Rhs = Self>` is the standard library's classic example.
 - Parameters with defaults must come after parameters without them.
