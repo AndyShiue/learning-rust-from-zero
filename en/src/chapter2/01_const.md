@@ -86,4 +86,4 @@ const MAX_RETRY: i32 = 3;
 - The type annotation is mandatory (can't be omitted).
 - The naming convention is all caps with underscores, like `MAX_SCORE`.
 - No `mut` allowed.
-- It can be placed outside functions so other parts of the program can use it.
+- It can be placed outside `fn` so other parts of the program can use it.
