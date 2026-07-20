@@ -15,6 +15,8 @@ A `static`'s value must be computable at compile time. An empty `Vec::new()` is 
 ```rust,compile_fail
 // the vec! macro and String::from both need to allocate memory at runtime
 static NAMES: Vec<String> = vec![String::from("Alice"), String::from("Bob")];
+#
+# fn main() {}
 ```
 
 So what now? If we can't provide the value at compile time, then **don't provide it yet** — initialize it the first time it's used at runtime. That's lazy initialization.

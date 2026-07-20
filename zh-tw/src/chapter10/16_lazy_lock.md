@@ -15,6 +15,8 @@
 ```rust,compile_fail
 // vec! 巨集和 String::from 都需要在執行期配置記憶體
 static NAMES: Vec<String> = vec![String::from("Alice"), String::from("Bob")];
+#
+# fn main() {}
 ```
 
 那怎麼辦？既然沒辦法在編譯期給值，那就**先不給**——等到程式執行時第一次用到的時候再初始化。這就是延遲初始化。
