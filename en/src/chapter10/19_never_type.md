@@ -35,7 +35,7 @@ fn forever() -> ! {
 
 This is `!`'s most useful property. An expression that never produces a value can sit anywhere a value is expected without contradiction — it's never actually going to produce one anyway.
 
-You've been using this all along:
+This is why code like the following compiles:
 
 ```rust,noplayground
 # fn main() {
