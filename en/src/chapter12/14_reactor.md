@@ -347,7 +347,11 @@ Flipping the order — put the `Waker` in place first, then try the I/O once —
 
 Compare this episode with Episode 12 and you'll find the wake path ends at exactly the same place. The reactor may run on its own `Thread`, but the `waker.wake()` it calls is still some `Task`'s `Waker` — and `wake` still requeues that `Task` and `unpark`s the executor. We merely replaced "the party responsible for waking the `Thread`" — timing `Thread` out, reactor `Thread` in; everything downstream is untouched.
 
-And with that, our from-scratch, hand-written runtime is complete! It can `spawn`, sleep, and be woken by timers or real I/O. In the coming episodes, we turn back to finally open up that "state machine" behind `async fn` we've kept mentioning but never dissected.
+And with that, our from-scratch, hand-written runtime is complete as a teaching project! It can `spawn`, sleep, and be woken by timers or real I/O.
+
+This simplified implementation still has many bugs in its details and leaves plenty of edge cases unhandled, so it is far from a production-ready runtime. Even so, it is enough to show the rough shape of what an async runtime does behind the scenes: schedule `Task`s, wait for events, and wake `Future`s so the executor can `poll` them again.
+
+With that overall picture in place, in the coming episodes we turn back to finally open up the "state machine" behind `async fn` that we've kept mentioning but never dissected.
 
 ## Recap
 

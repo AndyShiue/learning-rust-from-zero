@@ -347,7 +347,11 @@ fn main() {
 
 把這集和第 12 集對照，你會發現喚醒的終點一模一樣。reactor 雖然跑在自己的 `Thread` 上，但它呼叫的 `waker.wake()` 仍然是某個 `Task` 的 `Waker`——`wake` 一樣會把那個 `Task` 排回 ready queue、`unpark` executor。我們只是把「負責叫醒 `Thread` 的人」從計時 `Thread` 換成了 reactor `Thread`，後面的流程完全沒動。
 
-到這裡，我們從零手寫的 runtime 大功告成了！它能 `spawn`、能睡覺、能被計時器或真實 I/O 喚醒。接下來幾集，我們要轉回頭，把 `async fn` 背後那個一直被我們提到、卻還沒拆開的「狀態機」看個明白。
+到這裡，我們從零手寫的 runtime 作為教學專案算是大功告成了！它能 `spawn`、能睡覺、能被計時器或真實 I/O 喚醒。
+
+這份簡化的實作在細節上仍有許多 bug，也沒有處理不少邊界情況，離能用於正式環境的 runtime 還很遠。不過，它已經足以讓我們看出 async runtime 背後大致在做什麼：安排 `Task`、等待事件，再喚醒 `Future`，讓 executor 重新 `poll`。
+
+有了這幅整體圖像，接下來幾集我們要轉回頭，把 `async fn` 背後那個一直被我們提到卻還沒拆開的「狀態機」看個明白。
 
 ## 重點整理
 
