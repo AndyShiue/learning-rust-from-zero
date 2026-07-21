@@ -33,9 +33,9 @@ You may still see a panic message in the terminal even when the panic is caught.
 
 ### Why Catch a Panic?
 
-One special use is at an FFI boundary. Suppose a Rust function is exposed to C with `extern "C"`. If a panic escapes this function, the whole program automatically terminates. This is not undefined behavior, and you do not need `catch_unwind` if terminating is acceptable.
+One special use is inside a Rust function exposed to C. If a panic is not caught inside an `extern "C"` function, the whole program terminates before control can return to C.
 
-If you would rather return an error code to C, use `catch_unwind` inside the Rust function and turn `Err` into that error code. The example at the end of this episode demonstrates this pattern.
+To avoid the abort, use `catch_unwind` inside the Rust function and turn `Err` into an error code. The example at the end of this episode demonstrates this pattern. If aborting the process is acceptable, you do not need `catch_unwind`.
 
 ### `UnwindSafe`
 
@@ -120,7 +120,7 @@ Here the panic is caught inside `ffi_entry`, so it never escapes the `extern "C"
 
 - `catch_unwind` runs a closure and returns `Ok(value)` or `Err`.
 - A caught panic may still print a message, but the program can continue.
-- A panic escaping an `extern "C"` Rust function automatically terminates the whole program; catch it first only when you want a different result, such as an error code.
+- If a panic is not caught inside an `extern "C"` Rust function, the whole program terminates before control can return to C. Catch it first only when you want a different result, such as an error code.
 - `&mut T` does not pass the `UnwindSafe` check. Most shared references do, but `&Cell<T>` and `&RefCell<T>` are exceptions.
 - `AssertUnwindSafe` asks Rust to accept your judgment; handling half-updated data is still your responsibility.
 - Under `panic = "abort"`, `catch_unwind` cannot catch a panic.

@@ -33,9 +33,9 @@ fn main() {
 
 ### 為什麼要攔截 panic？
 
-其中一個特殊用途是在 FFI 邊界。假設 Rust 函數用 `extern "C"` 提供給 C 呼叫，如果 panic 離開這個函數，整個程式會自動中止。這不是未定義行為；如果你能接受程式中止，就不需要使用 `catch_unwind`。
+其中一個特殊用途是在提供給 C 呼叫的 Rust 函數裡攔截 panic。如果 `extern "C"` 函數裡的 panic 沒有被攔住，整個程式會在回到 C 之前自動中止。
 
-如果你希望改成向 C 回傳錯誤碼，就能在 Rust 函數裡使用 `catch_unwind`，再把 `Err` 轉成錯誤碼。本集最後的範例會示範這種寫法。
+為了避免中止，你可以在 Rust 函數裡使用 `catch_unwind`，再把 `Err` 轉成錯誤碼。本集最後的範例會示範這種寫法。如果你能接受程式中止，就不需要使用 `catch_unwind`。
 
 ### `UnwindSafe`
 
@@ -120,7 +120,7 @@ fn main() {
 
 - `catch_unwind` 執行一個閉包，回傳 `Ok(值)` 或 `Err`。
 - 被攔住的 panic 仍可能印出訊息，但程式可以繼續執行。
-- panic 離開 `extern "C"` Rust 函數時，整個程式會自動中止。只有想改成回傳錯誤碼等其他結果時，才需要事先攔截。
+- 如果 `extern "C"` Rust 函數裡的 panic 沒有被攔住，整個程式會在回到 C 之前中止。只有想改成回傳錯誤碼等其他結果時，才需要事先攔截。
 - `&mut T` 無法通過 `UnwindSafe` 檢查。大部分共享參考可以，但 `&Cell<T>` 和 `&RefCell<T>` 是例外。
 - `AssertUnwindSafe` 會要求 Rust 接受你的判斷，但你仍要負責處理只更新到一半的資料。
 - `panic = "abort"` 設定下，`catch_unwind` 無法攔截 panic。
