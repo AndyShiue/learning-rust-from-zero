@@ -10,7 +10,7 @@ Learn to store and look up key-value data with `HashMap`.
 
 If you want to look up a score by name or a user by ID, a `Vec` can certainly do it — store a pile of `(name, score)` tuples and walk from the start until you find the matching name. But the more data, the slower that gets.
 
-`HashMap<K, V>` solves this. It uses a hash function to map keys to memory locations, so no matter how much data it holds, looking up a key takes nearly constant time.
+`HashMap<K, V>` solves this. It uses a hash function to narrow down where a key may be stored, so it can usually find the value without walking through every entry.
 
 ### Creation and Basic Operations
 
@@ -62,15 +62,15 @@ Note that the iteration order is **not fixed** — it can differ between runs. I
 
 ### What `Hash` Is
 
-A `HashMap` needs to find the value for a key quickly. Its trick: feed the key into a **hash function** to compute a number (the hash value), and use that number to decide where in memory the value goes. On lookup, it hashes the key again and jumps straight to that location — no scanning one by one.
+A `HashMap` needs to find the value for a key quickly. It feeds the key into a **hash function** to compute a number called a hash value. The map uses that number to decide where to start looking in its internal table. If multiple keys lead to the same area, it may examine several candidate locations until it finds the key or determines that it isn't there. This lets it locate keys without going through every stored entry.
 
-So the key type must implement the `Hash` `trait` — which tells the `HashMap` how to hash that type.
+So the key type must implement the `Hash` `trait` — which tells Rust how to feed values of that type into a hasher.
 
 ### Key Requirements: `Eq + Hash`
 
-Besides `Hash`, keys also need `Eq`. Different keys can land in the same location, so the `HashMap` needs `==` to confirm the key it found is really the one you asked for.
+Besides `Hash`, keys also need `Eq`. A hash value only narrows down the search; it does not uniquely identify a key. Different keys can lead to the same area, so the `HashMap` uses `==` to confirm that a candidate is the key you asked for.
 
-Most basic types (integers, `bool`, `char`, `&str`, `String`) already implement `Eq + Hash`. `f64` has no `Eq` (because of `NAN`), so it can't be a key.
+Most basic types (integers, `bool`, `char`, `&str`, `String`) already implement `Eq + Hash`. `f64` implements neither `Eq` nor `Hash`, so it can't be used directly as a key (`NaN` is one reason).
 
 ### Implementing `Hash` for Your Own Types
 
@@ -168,7 +168,7 @@ fn main() {
 
 ## Recap
 
-- `HashMap<K, V>` looks up values by key in nearly constant time regardless of size.
+- `HashMap<K, V>` uses a hash to find values by key without walking through every entry.
 - `insert` adds, `get` looks up (returns `Option<&V>`), `remove` deletes.
 - Keys must implement `Eq + Hash`; `Hash` can be `derive`d.
 - `f64` can't be a key (no `Eq`).

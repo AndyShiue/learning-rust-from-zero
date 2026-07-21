@@ -10,7 +10,7 @@
 
 如果你想用名字查分數、用 ID 查使用者，用 `Vec` 當然也做得到——存一堆 `(名字, 分數)` 的 tuple，要查的時候從頭走訪找到名字相符的那個。但這樣資料越多就越慢。
 
-`HashMap<K, V>` 解決了這個問題。它用 hash 函數把 key 對應到記憶體位置，不管裡面有多少資料，查一個 key 的速度幾乎是固定的。
+`HashMap<K, V>` 解決了這個問題。它用 hash 函數縮小 key 可能存放的範圍，通常不用走訪每一筆資料就能找到對應的值。
 
 ### 建立與基本操作
 
@@ -62,15 +62,15 @@ fn main() {
 
 ### `Hash` 是什麼
 
-`HashMap` 要根據 key 快速找到對應的值。它的做法是把 key 丟進一個 **hash 函數**，算出一個數字（hash value），用這個數字決定值放在記憶體的哪個位置。之後要查的時候，再對 key 算一次 hash，就能直接跳到那個位置，不用一個一個找。
+`HashMap` 要根據 key 快速找到對應的值。它會把 key 丟進一個 **hash 函數**，算出一個稱為 hash value 的數字，再用這個數字決定要從內部表格的哪裡開始找。如果多個 key 指向同一區域，它可能會檢查數個候選位置，直到找到 key 或確認它不在裡面。這樣就不用走訪每一筆已儲存的資料。
 
-所以 key 的型別必須實作 `Hash` `trait`——告訴 `HashMap` 怎麼對這個型別算 hash。
+所以 key 的型別必須實作 `Hash` `trait`——告訴 Rust 如何把這個型別的值交給 hasher 處理。
 
 ### Key 的要求：`Eq + Hash`
 
-Key 除了要 `Hash`，還要 `Eq`。因為不同的 key 可能被分到同一個位置，`HashMap` 需要用 `==` 來確認找到的確實是你要的 key。
+Key 除了要 `Hash`，還要 `Eq`。Hash value 只能縮小搜尋範圍，不能唯一識別一個 key。不同的 key 可能指向同一區域，所以 `HashMap` 會用 `==` 確認候選者是不是你要找的 key。
 
-大部分基本型別（整數、`bool`、`char`、`&str`、`String`）都已經實作了 `Eq + Hash`。`f64` 沒有 `Eq`（因為 `NAN`），所以不能當 key。
+大部分基本型別（整數、`bool`、`char`、`&str`、`String`）都已經實作了 `Eq + Hash`。`f64` 沒有實作 `Eq` 或 `Hash`，所以不能直接當 key（`NaN` 是其中一個原因）。
 
 ### 幫自己的型別實作 `Hash`
 
@@ -168,7 +168,7 @@ fn main() {
 
 ## 重點整理
 
-- `HashMap<K, V>` 用 key 查 value，不管資料量多大查詢速度幾乎是固定的。
+- `HashMap<K, V>` 利用 hash 按 key 尋找 value，不用走訪每一筆資料。
 - `insert` 放入、`get` 查詢（回傳 `Option<&V>`）、`remove` 刪除。
 - Key 必須實作 `Eq + Hash`，`Hash` 也可以 `derive`。
 - `f64` 不能當 key（沒有 `Eq`）。
