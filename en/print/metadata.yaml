@@ -16,13 +16,13 @@ sansfont: Noto Sans
 monofont: JetBrains Mono
 monofontoptions:
   - Scale=0.92
-  # Disable JetBrains Mono ligatures: combinations like -> => != get merged
-  # into a single glyph with no proper Unicode mapping in the PDF,
-  # turning search and copy results into garbage like ^: ^>.
-  # (Can't use RawFeature={...}: pandoc escapes braces in metadata.)
+  # Disable JetBrains Mono ligatures. Sequences such as :::, ->, =>, and !=
+  # would merge into glyphs without correct PDF Unicode mappings, corrupting
+  # search and copied text into sequences such as ^: and ^>.
+  # RawFeature={...} cannot be used because Pandoc escapes metadata braces.
   - Contextuals=AlternateOff
   - Ligatures=CommonOff
-  # Use the Medium weight; Regular looks too thin in print
+  # Use Medium because Regular is too light in print.
   - UprightFont=* Medium
   - ItalicFont=* Medium Italic
   - BoldFont=* Bold

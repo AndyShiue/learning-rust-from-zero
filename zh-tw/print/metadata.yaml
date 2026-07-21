@@ -16,13 +16,13 @@ sansfont: Noto Sans
 monofont: JetBrains Mono
 monofontoptions:
   - Scale=0.92
-  # 關閉 JetBrains Mono 的連字(ligatures)::: -> => != 等符號組合
-  # 會被合併成單一字形,該字形在 PDF 內沒有正確的 Unicode 對應,
-  # 導致搜尋與複製時變成 ^: ^> 之類的亂碼。
-  # (不能用 RawFeature={...}:pandoc 會把 metadata 裡的大括號轉義)
+  # Disable JetBrains Mono ligatures. Sequences such as :::, ->, =>, and !=
+  # would merge into glyphs without correct PDF Unicode mappings, corrupting
+  # search and copied text into sequences such as ^: and ^>.
+  # RawFeature={...} cannot be used because Pandoc escapes metadata braces.
   - Contextuals=AlternateOff
   - Ligatures=CommonOff
-  # 用 Medium 字重,Regular 在紙本上偏細
+  # Use Medium because Regular is too light in print.
   - UprightFont=* Medium
   - ItalicFont=* Medium Italic
   - BoldFont=* Bold

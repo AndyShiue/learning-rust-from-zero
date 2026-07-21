@@ -1,5 +1,5 @@
-% 讓 XeTeX 為經過字形替換(如連字)的文字輸出 ActualText,
-% 確保 PDF 中的搜尋與複製能還原成原始字元。
+% Make XeTeX emit ActualText for text altered by glyph substitution (such as
+% ligatures), so PDF search and copy operations recover the original characters.
 \XeTeXgenerateactualtext=1
 \usepackage{xeCJK}
 \usepackage{fontspec}
@@ -25,7 +25,7 @@
 }
 \makeatother
 
-% Symbola 優先:Noto Emoji 缺 → ← ✓ ✗ 等字形,落在它身上會整個字消失
+% Prefer Symbola: Noto Emoji lacks glyphs such as → ← ✓ ✗, which would disappear.
 \IfFontExistsTF{Symbola}
   {\newfontfamily\EmojiFont{Symbola}[Scale=MatchUppercase]}
   {%
@@ -38,19 +38,19 @@
 \newcommand{\PrintCodeBlockSetup}{\xeCJKsetup{CJKecglue={}}}
 
 \ifXeTeX
-  \IfFileExists{print/fonts/NotoSansCJKtc-Regular.otf}{%
+  \IfFileExists{../build/fonts/NotoSansCJKtc-Regular.otf}{%
     \setCJKmainfont[
-      Path=print/fonts/,
+      Path=../build/fonts/,
       BoldFont=NotoSansCJKtc-Bold.otf,
       Language=Chinese Traditional
     ]{NotoSansCJKtc-Regular.otf}
     \setCJKsansfont[
-      Path=print/fonts/,
+      Path=../build/fonts/,
       BoldFont=NotoSansCJKtc-Bold.otf,
       Language=Chinese Traditional
     ]{NotoSansCJKtc-Regular.otf}
     \setCJKmonofont[
-      Path=print/fonts/,
+      Path=../build/fonts/,
       AutoFakeBold=2,
       Language=Chinese Traditional
     ]{NotoSansMonoCJKtc-Regular.otf}
@@ -61,17 +61,17 @@
   }%
 \fi
 
-% 西文主字型 Noto Sans 缺 ⋯(U+22EF)與 ⊂(U+2282),
-% 宣告為 CJK 字元類讓 Noto Sans CJK TC 負責,避免字直接消失。
+% The Latin font Noto Sans lacks ⋯ (U+22EF) and ⊂ (U+2282). Classify them as
+% CJK characters so Noto Sans CJK TC renders them instead of dropping the glyphs.
 \xeCJKDeclareCharClass{CJK}{"22EF, "2282}
 
-% 表格(longtable)用 \small,避免比較表過寬突出版心
+% Use \small in longtable to keep comparison tables within the text width.
 \usepackage{etoolbox}
 \AtBeginEnvironment{longtable}{\small}
-% 容許段落多一點伸縮,減少行內程式碼造成的超寬行
+% Let paragraphs stretch slightly to reduce overfull lines caused by inline code.
 \emergencystretch=3em
 
-% 行內程式碼內部不要插入中英文間距,避免字串看起來多了空格
+% Do not insert CJK-Latin spacing inside inline code, which would look like spaces.
 \usepackage{letltxmacro}
 \LetLtxMacro\PrintOrigTexttt\texttt
 \renewcommand{\texttt}[1]{{\xeCJKsetup{CJKecglue={}}\PrintOrigTexttt{#1}}}
@@ -95,7 +95,7 @@
   \renewcommand{\headrulewidth}{0.4pt}%
 }
 
-% 頁眉小節標記(章標記見 StandardChapterStyle / AppendixChapterStyle)
+% Section marks in page headers; chapter marks are defined by the chapter styles.
 \renewcommand{\sectionmark}[1]{\markright{\thesection\quad #1}}
 
 \setlength{\cftpartnumwidth}{3.2em}
@@ -108,8 +108,8 @@
 \setlength{\cftbeforechapskip}{0.45em}
 \setlength{\cftbeforesecskip}{0.08em}
 
-% 一般章顯示「第N章」;附錄章只顯示章名。
-% 由 mdbook_to_pandoc.py 在附錄前後用 \AppendixChapterStyle / \StandardChapterStyle 切換。
+% Ordinary chapters show a numbered Chinese chapter label; appendix chapters
+% show only the title. mdbook_to_pandoc.py switches the styles around appendices.
 \newcommand{\StandardChapterStyle}{%
   \titleformat{\chapter}[display]
     {\normalfont\huge\bfseries}

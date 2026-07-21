@@ -15,11 +15,13 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v6
-      - run: rustup update stable
-      - run: cargo install mdbook
-      - name: Install print PDF dependencies
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Install Rust, mdBook, and PDF dependencies
         run: |
+          rustup update stable
+          cargo install mdbook
           sudo apt-get update
           sudo apt-get install -y \
             pandoc \
@@ -31,64 +33,58 @@ jobs:
             fonts-noto-core \
             fonts-noto-cjk \
             fonts-symbola
-      - name: Install print PDF fonts (zh-tw)
-        working-directory: zh-tw
+
+      - name: Prepare shared book resources
         run: |
-          mkdir -p print/fonts
+          cargo build --manifest-path test-deps/Cargo.toml
+          mkdir -p build/fonts
           curl -L --fail --retry 3 --retry-delay 2 \
-            --output print/fonts/NotoSansCJKtc-Regular.otf \
+            --output build/fonts/NotoSansCJKtc-Regular.otf \
             https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/OTF/TraditionalChinese/NotoSansCJKtc-Regular.otf
           curl -L --fail --retry 3 --retry-delay 2 \
-            --output print/fonts/NotoSansCJKtc-Bold.otf \
+            --output build/fonts/NotoSansCJKtc-Bold.otf \
             https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/OTF/TraditionalChinese/NotoSansCJKtc-Bold.otf
           curl -L --fail --retry 3 --retry-delay 2 \
-            --output print/fonts/NotoSansMonoCJKtc-Regular.otf \
+            --output build/fonts/NotoSansMonoCJKtc-Regular.otf \
             https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/Mono/NotoSansMonoCJKtc-Regular.otf
-      - name: Build doctest dependencies
-        working-directory: zh-tw/test-deps
-        run: cargo build
-      - name: Build zh-tw book
+
+      - name: Build Traditional Chinese edition
         working-directory: zh-tw
         run: |
-          mdbook test -L test-deps/target/debug/deps
+          mdbook test -L ../test-deps/target/debug/deps
           mdbook build
-      - name: Build and publish print PDF (zh-tw)
-        working-directory: zh-tw
-        run: |
           bash ./print/build.sh
           cp book/rust-book-a4.pdf book/book.pdf
-      - name: Bundle zh-tw/src as rust-book-src.zip for AI consumption
-        working-directory: zh-tw
-        run: (cd src && zip -r ../book/rust-book-src.zip .)
-      # The en translation is still in progress, so `mdbook test` is skipped.
+          (cd src && zip -r ../book/rust-book-src.zip .)
+
       # The English entry on the landing page is disabled until the
       # translation is complete.
-      - name: Build en book
-        working-directory: en
-        run: mdbook build
-      - name: Check en PDF code lines are at most 95 characters
-        working-directory: en
-        run: python3 scripts/check_pdf_code_lines.py
-      - name: Build and publish print PDF (en)
+      - name: Build English edition
         working-directory: en
         run: |
-          mkdir -p print/fonts
-          cp ../zh-tw/print/fonts/*.otf print/fonts/
+          mdbook test -L ../test-deps/target/debug/deps
+          mdbook build
+          python3 scripts/check_pdf_code_lines.py
           bash ./print/build.sh
           cp book/rust-book-a4.pdf book/book.pdf
-      - name: Bundle en/src as rust-book-src.zip for AI consumption
-        working-directory: en
-        run: (cd src && zip -r ../book/rust-book-src.zip .)
-      - name: Assemble multi-language site
+          (cd src && zip -r ../book/rust-book-src.zip .)
+
+      - name: Assemble multilingual site
         run: |
           rm -rf public
           mkdir -p public
           cp index.html public/index.html
           cp -r zh-tw/book public/zh-tw
           cp -r en/book public/en
-      - uses: actions/configure-pages@v6
-      - uses: actions/upload-pages-artifact@v5
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ./public
-      - id: deployment
+
+      - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v5
