@@ -76,6 +76,8 @@ async fn main() {
 
 Once it's running on your machine, open your browser to `http://127.0.0.1:8080` and refresh a few times — you'll see the number keep going up.
 
+> When you open this URL in a browser, the browser may request `/favicon.ico` in addition to the page itself. This simplified example counts every incoming TCP connection, so the number may sometimes increase by 2. Only the response for the page itself is displayed; the favicon response does not appear on the page.
+
 ### What `.await` Means
 
 Several `.await`s appear in the program — this is the very heart of `async` code. For now, understand it like this:
