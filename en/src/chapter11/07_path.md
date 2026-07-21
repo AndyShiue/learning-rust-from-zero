@@ -8,7 +8,7 @@ Learn to handle cross-platform paths with `Path` and `PathBuf`.
 
 ### Motivation
 
-Programs constantly deal with files — reading config files, writing logs, handling user-supplied paths. We'll learn to read and write files soon, but before that, we need a way to express "where the file is."
+Programs constantly read and write files — for example, reading config files or writing logs. We'll learn how to do that soon. But first, we need a way to express "where the file is."
 
 Path formats differ across operating systems — Windows uses `\`, while Linux / macOS use `/`. If you glue paths together from raw strings, cross-platform code can break. `std::path` handles those differences for you.
 
