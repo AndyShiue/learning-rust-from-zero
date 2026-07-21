@@ -132,11 +132,11 @@ fn main() {
 
 `HashMap` has a few more methods you'll use often:
 
-- `contains_key(&key)`: checks whether a key exists, returns `bool`.
-- `len()`: how many key-value pairs there are.
-- `is_empty()`: whether it's empty.
-- `keys()`: an iterator over all keys
-- `values()`: an iterator over all values
+- `.contains_key(&key)`: checks whether a key exists, returns `bool`.
+- `.len()`: how many key-value pairs there are.
+- `.is_empty()`: whether it's empty.
+- `.keys()`: an iterator over all keys
+- `.values()`: an iterator over all values
 
 ## Example Code
 
@@ -172,5 +172,5 @@ fn main() {
 - `insert` adds, `get` looks up (returns `Option<&V>`), `remove` deletes.
 - Keys must implement `Eq + Hash`; `Hash` can be `derive`d.
 - `f64` can't be a key (no `Eq`).
-- `entry().or_insert()` is the idiom for "insert only if absent"; it returns `&mut V`.
+- `.entry(k).or_insert(v)` is the idiom for "insert only if absent"; it returns `&mut V`.
 - Iteration order is not fixed.
