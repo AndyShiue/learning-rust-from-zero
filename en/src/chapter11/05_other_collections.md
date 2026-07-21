@@ -117,8 +117,8 @@ fn main() {
 
 ## Recap
 
-- `BTreeMap`: an ordered `HashMap`; keys must implement `Ord`.
-- `BTreeSet`: an ordered `HashSet`; elements must implement `Ord`.
+- `BTreeMap`: iteration follows key order; keys must implement `Ord`.
+- `BTreeSet`: iteration follows element order; elements must implement `Ord`.
 - Use the `BTree` family for ordered iteration; otherwise the `Hash` family (faster).
 - `VecDeque`: double-ended queue, fast at both ends.
 - `Vec` is only fast at the tail; head operations are slow (all elements shift).

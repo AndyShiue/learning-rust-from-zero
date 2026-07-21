@@ -117,8 +117,8 @@ fn main() {
 
 ## 重點整理
 
-- `BTreeMap`：有序的 `HashMap`，key 必須實作 `Ord`。
-- `BTreeSet`：有序的 `HashSet`，元素必須實作 `Ord`。
+- `BTreeMap`：走訪時，資料會按照 key 的排序順序出現；key 必須實作 `Ord`。
+- `BTreeSet`：走訪時，元素會按照排序順序出現；元素必須實作 `Ord`。
 - 需要排序走訪用 `BTree` 系列，不需要就用 `Hash` 系列（比較快）。
 - `VecDeque`：雙端佇列，頭尾操作都很快。
 - `Vec` 只在尾巴操作快，頭部操作慢（要搬移所有元素）。
