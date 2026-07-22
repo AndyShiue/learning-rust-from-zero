@@ -55,11 +55,11 @@ fn main() {
     block_on(async {
         println!("start");
 
-        println!("waiting for the first delay…");
+        println!("waiting for the first delay...");
         Delay::new(Duration::from_secs(1)).await;
         println!("first delay done, moving on");
 
-        println!("waiting for the second delay…");
+        println!("waiting for the second delay...");
         Delay::new(Duration::from_secs(1)).await;
         println!("second delay done, moving on");
     });
@@ -70,10 +70,10 @@ Run it, and the output appears step by step, like this:
 
 ```text
 start
-waiting for the first delay…
+waiting for the first delay...
 (one-second pause)
 first delay done, moving on
-waiting for the second delay…
+waiting for the second delay...
 (one-second pause)
 second delay done, moving on
 ```
@@ -82,9 +82,9 @@ second delay done, moving on
 
 This output order reveals how a `Future` operates. Remember, the whole `async` block is itself a `Future`, and `block_on` keeps `poll`ing it:
 
-1. First `poll`: it runs from the top, prints "start" and "waiting for the first delay…", then hits the first `.await`. The `Delay` hasn't expired, so it returns `Pending` — and the whole `async` block returns `Pending` along with it, **pausing right here**.
+1. First `poll`: it runs from the top, prints "start" and "waiting for the first delay...", then hits the first `.await`. The `Delay` hasn't expired, so it returns `Pending` — and the whole `async` block returns `Pending` along with it, **pausing right here**.
 2. The executor `poll`s again and again, but the `Delay` still isn't due; each time it gets stuck at that first `.await` returning `Pending`, unable to move on.
-3. A second later, the `Delay` duly returns `Ready(())`. This `poll` gets past the first `.await`, prints "first delay done" and "waiting for the second delay…", hits the second `.await`, and returns `Pending` again — **paused at a new spot**.
+3. A second later, the `Delay` duly returns `Ready(())`. This `poll` gets past the first `.await`, prints "first delay done" and "waiting for the second delay...", hits the second `.await`, and returns `Pending` again — **paused at a new spot**.
 4. One more second, the second `Delay` duly returns `Ready(())`; it clears the second `.await`, prints the final line, the whole `async` block returns `Ready`, and `block_on` finishes.
 
 The crux: **each time it's `poll`ed, the `Future` picks up from where it last paused**, running until the next not-yet-ready `.await` where it may stop. This ability to "remember progress, pause, and resume from the same spot" is delivered by the "state machine" mentioned earlier — but this episode, just watch the phenomenon.

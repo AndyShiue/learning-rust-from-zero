@@ -55,11 +55,11 @@ fn main() {
     block_on(async {
         println!("開始");
 
-        println!("等第一個 delay……");
+        println!("等第一個 delay...");
         Delay::new(Duration::from_secs(1)).await;
         println!("第一個 delay 完成，繼續往下");
 
-        println!("等第二個 delay……");
+        println!("等第二個 delay...");
         Delay::new(Duration::from_secs(1)).await;
         println!("第二個 delay 完成，繼續往下");
     });
@@ -70,10 +70,10 @@ fn main() {
 
 ```text
 開始
-等第一個 delay……
+等第一個 delay...
 （停頓一秒）
 第一個 delay 完成，繼續往下
-等第二個 delay……
+等第二個 delay...
 （停頓一秒）
 第二個 delay 完成，繼續往下
 ```
@@ -82,9 +82,9 @@ fn main() {
 
 這個輸出順序揭露了 `Future` 的運作方式。記得整個 `async` block 本身就是一個 `Future`，`block_on` 不斷在 `poll` 它：
 
-1. 第一次 `poll`：從頭開始跑，印出「開始」「等第一個 delay……」，然後遇到第一個 `.await`。這時 `Delay` 還沒到期，回 `Pending`——於是整個 `async` block 也跟著回 `Pending`，**從這裡暫停**。
+1. 第一次 `poll`：從頭開始跑，印出「開始」「等第一個 delay...」，然後遇到第一個 `.await`。這時 `Delay` 還沒到期，回 `Pending`——於是整個 `async` block 也跟著回 `Pending`，**從這裡暫停**。
 2. 接下來 executor 一次又一次 `poll`，但 `Delay` 還沒到期，每次都卡在第一個 `.await` 那裡回 `Pending`，沒能往下走。
-3. 一秒後 `Delay` 如期回傳 `Ready(())`，這次 `poll` 越過第一個 `.await`，印出「第一個 delay 完成」「等第二個 delay……」，遇到第二個 `.await` 又回 `Pending`，**在新的地方暫停**。
+3. 一秒後 `Delay` 如期回傳 `Ready(())`，這次 `poll` 越過第一個 `.await`，印出「第一個 delay 完成」「等第二個 delay...」，遇到第二個 `.await` 又回 `Pending`，**在新的地方暫停**。
 4. 再一秒，第二個 `Delay` 如期回傳 `Ready(())`，越過第二個 `.await`，印完最後一句，整個 `async` block 回 `Ready`，`block_on` 結束。
 
 關鍵在於：**每次被 `poll`，`Future` 都從上次暫停的地方接著跑**，一路跑到下一個還沒好的 `.await` 才可能停下。這種「能記住進度、暫停後又從原地恢復」的能力，正是由前面所說的「狀態機」完成——但這集先看現象就好。
