@@ -2,7 +2,7 @@
 
 ## Goal of This Episode
 
-Let `spawn`ed `Task`s hand their results back, by adding a `JoinHandle` — an awaitable waiting end.
+Let `spawn`ed `Task`s hand their results back, by adding a `JoinHandle` — an `.await`able waiting end.
 
 ## Main Text
 
