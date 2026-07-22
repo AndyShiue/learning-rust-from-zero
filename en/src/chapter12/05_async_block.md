@@ -27,7 +27,7 @@ async fn main() {
 }
 ```
 
-Note: exactly like an `async fn`, merely writing `async { ... }` doesn't execute its contents — you've only made a lazy `Future`, and it moves only when `.await`ed.
+Note: exactly like an `async fn`, merely writing `async { ... }` doesn't execute its contents — you've only made a lazy `Future`, and it makes progress only when `.await`ed.
 
 ### How `async fn` and `async` blocks Relate
 
