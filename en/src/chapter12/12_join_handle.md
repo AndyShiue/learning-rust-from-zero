@@ -20,13 +20,13 @@ The good news: the core scheduling logic **doesn't change at all**. We add just 
 
 The core question: when the background `Task` finishes, how does it deliver the result to "whoever is `.await`ing it"?
 
-The answer: **through a piece of shared state, `Shared<T>`** — not one `Future` notifying another directly. `Shared<T>` holds two things: the computed result, and "the waiter's `Waker`."
+The answer: **through a piece of shared state, `Shared<T>`** — not one `Future` notifying another directly. `Shared<T>` holds two things: the computed result, and the `Waker` of the `Task` `poll`ing the `JoinHandle`.
 
 The flow underneath goes like this:
 
-- The `JoinHandle<T>` is not wrapped into an independent `Task` and never enters the ready queue by itself. It's just one of the `Future`s inside the waiter's `Task`, `poll`ed along the way during `.await`.
-- When the waiter `poll`s the `JoinHandle` and the result isn't ready, the `JoinHandle` stores `cx.waker()` (that is, **the waiter's own** `Waker`, since a `JoinHandle` has no independent `Waker`) into `Shared<T>` and returns `Pending`.
-- When the background `Task` finishes, it puts the result into `Shared<T>`, then takes out that stored `Waker` and `wake()`s it — so the waiter's `Task` is requeued onto the ready queue and the executor gets `unpark`ed. Next time the waiter is `poll`ed, it finds the result in `Shared<T>`.
+- A `JoinHandle<T>` is itself a `Future`, but creating one does not automatically schedule it as another `Task`. In this example, it is `poll`ed when the executor reaches `handle.await` while `poll`ing the `async` block passed to `block_on`. If passed directly to `block_on`, `block_on` would wrap it in a `Task`, just like any other input `Future`.
+- When a `Task` `poll`s the `JoinHandle` and the result isn't ready, the `JoinHandle` stores `cx.waker()` — the current `Task`'s `Waker` — into `Shared<T>` and returns `Pending`.
+- When the background `Task` finishes, it puts the result into `Shared<T>`, then calls `wake` on the stored `Waker`. This requeues the `Task` that `poll`ed the `JoinHandle` and `unpark`s the executor; the next time that `Task` is `poll`ed, it can retrieve the result.
 
 ```rust,editable
 use std::collections::VecDeque;
@@ -98,7 +98,7 @@ impl Wake for Task {
 
 // state shared between a background Task and its JoinHandle
 struct Shared<T> {
-    state: Mutex<(Option<T>, Option<Waker>)>, // (result, waiter's Waker)
+    state: Mutex<(Option<T>, Option<Waker>)>, // (result, current Task's Waker)
 }
 
 struct JoinHandle<T> {
@@ -113,7 +113,7 @@ impl<T> Future for JoinHandle<T> {
         if let Some(value) = state.0.take() {
             Poll::Ready(value) // the result is ready
         } else {
-            state.1 = Some(cx.waker().clone()); // not yet — store the waiter's own Waker
+            state.1 = Some(cx.waker().clone()); // not yet — store the current Task's Waker
             Poll::Pending
         }
     }
@@ -238,7 +238,7 @@ Say A is the background `Task` above: it waits one second, then computes `42`. B
 6. The ready queue is empty; the executor falls asleep via `thread::park()`.
 7. About a second later, A's timing `Thread` calls A's `Waker`; A is requeued and the executor is `unpark`ed awake.
 8. The executor `poll`s A again. As before, A's outer `task_future` is `poll`ed first and continues polling inner A; the `Delay` has completed, so A resumes past the `.await`, first printing `background task: computed`, then computing `42`.
-9. A's outer `task_future` receives the `42`, deposits it into `Shared<T>`, then takes out B's stored `Waker` and `wake()`s it. This doesn't directly resume B — it requeues B onto the ready queue.
+9. A's outer `task_future` receives the `42`, deposits it into `Shared<T>`, then takes out B's stored `Waker` and `wake`s it. This doesn't directly resume B — it requeues B onto the ready queue.
 10. The executor next `poll`s B. B's outer `task_future` continues `poll`ing the inner `async` block; this time `handle.await` retrieves `42` from `Shared<T>`, prints `main task: got the background result 42`, and B returns `142`.
 11. B's own outer `task_future` writes `142` into B's own `Shared<T>`. All `Task`s are done; `block_on` extracts `142` from B's `JoinHandle` and returns it, finally printing `block_on returned: 142`.
 
@@ -261,6 +261,6 @@ At this point, our hand-written executor is looking respectable: it can `spawn`,
 - `JoinHandle<T>` is a `Future`; `.await` it to get the background `Task`'s return value.
 - The scheduling core is unchanged; only three additions: `Shared<T>` + `JoinHandle<T>`, an `Executor::spawn` returning `JoinHandle<T>`, and an `Executor::block_on` returning `T`.
 - When the executor `poll`s a `Task`, the `Context` flows down to the inner `Future`s; so the `cx.waker()` an inner `Future` sees is the current `Task`'s `Waker`.
-- A `JoinHandle` has no independent `Waker`; at `.await` time it stores **the waiter's own** `Waker` into `Shared<T>`.
-- On completion, the background `Task` deposits the result into `Shared<T>`, then takes out that `Waker` and `wake()`s it, rousing the waiter.
+- A `JoinHandle` has no `Waker` of its own; when its `poll` returns `Pending`, it stores the current `Task`'s `Waker` in `Shared<T>`.
+- On completion, the background `Task` deposits the result into `Shared<T>`, then `wake`s that `Waker`, requeuing the `Task` that `poll`ed the `JoinHandle`.
 - Waking is not `Future` notifying `Future` directly — the finisher wakes the waiter through shared state.
