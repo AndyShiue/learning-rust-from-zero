@@ -230,7 +230,7 @@ fn main() {
 
 Say A is the background `Task` above: it waits one second, then computes `42`. B is the `Task` passed to `block_on`: it `.await`s A's `JoinHandle` and, once it has the result, returns `142`.
 
-1. `executor.spawn(A)`: `spawn` first builds a wrapper `task_future`, responsible for awaiting A, writing the result into `Shared<T>`, and waking the waiter. What actually enters the ready queue is this wrapped `Task`; `spawn` then immediately returns a `JoinHandle<i32>`.
+1. `executor.spawn(A)`: `spawn` first builds a wrapper `task_future`, responsible for `await`ing A, writing the result into `Shared<T>`, and waking the waiter. What actually enters the ready queue is this wrapped `Task`; `spawn` then immediately returns a `JoinHandle<i32>`.
 2. `executor.block_on(B)`: B is also `spawn`ed as a `Task` and queued; `block_on` keeps B's `JoinHandle` for itself, to extract B's return value at the end.
 3. The executor `poll`s `Task` A first. What's actually `poll`ed is the outer `task_future`; it reaches `let value = future.await` and only then starts `poll`ing the real inner A. Inner A reaches `Delay::new(...).await` and `poll`s the `Delay`; the `Delay` isn't done, so it returns `Pending`. That `Pending` propagates back out through the `task_future`, and A's `poll` is over for now.
 4. After A's `Pending`, the executor doesn't sleep — the ready queue still holds B. It immediately `poll`s `Task` B. Likewise, B's outer `task_future` is `poll`ed first; it reaches `let value = future.await` and starts `poll`ing the `async` block that was passed to `block_on`.
