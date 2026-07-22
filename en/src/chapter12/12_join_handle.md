@@ -8,7 +8,7 @@ Let `spawn`ed `Task`s hand their results back, by adding a `JoinHandle` — an `
 
 ### Only Three Things Different from Last Episode
 
-Last episode's `spawn` had a regret: it only accepted `Future<Output = ()>` — once the work finished, that was that; no way to return the result. This episode fills that in.
+Last episode's `spawn` had a limitation: it only accepted `Future<Output = ()>` — once the work finished, that was that; no way to return the result. This episode fills that in.
 
 The good news: the core scheduling logic **doesn't change at all**. We add just three things on top:
 
