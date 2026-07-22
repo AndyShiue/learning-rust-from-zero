@@ -80,7 +80,7 @@ The two sections above showed two things: calling `say_hello()` doesn't execute 
 
 "Lazy" should sound familiar. Recall Chapter 6's **iterators**: when you write `v.iter().map(...).filter(...)`, those methods haven't processed a single element — they only describe "what to do later"; the real running starts the moment you `.collect()` or walk it with `for`.
 
-`Future` and `Iterator` share the same design philosophy at heart: **describe first, execute later**. An `Iterator` describes "how a sequence of values gets computed" and does work only when you ask it for values; a `Future` describes "what an async job will do" and makes progress only when the runtime polls it.
+`Future` and `Iterator` share the same design philosophy at heart: **describe first, execute later**. An `Iterator` describes "how a sequence of values gets computed" and does work only when you ask it for values; a `Future` describes "what an async job will do" and makes progress only when the runtime pushes it forward.
 
 Next episode we switch angles and set `.await` beside the `?` you've long known — you'll find they're the same kind of thing.
 
