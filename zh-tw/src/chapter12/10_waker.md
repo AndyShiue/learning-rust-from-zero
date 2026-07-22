@@ -12,7 +12,7 @@
 
 「叫醒」的工具，就是前幾集一直被我們冷落的 `Waker`。`cx.waker()` 拿得到一個 `Waker`，`Future` 在回 `Pending` 之前，應該把這個 `Waker` 交給「負責通知它好了的人」。等事件完成，那個人就呼叫 `waker.wake()`，把睡著的 executor 叫醒。
 
-這一集我們就讓計時這件事改由**另一條 `Thread`** 負責：`Delay` 第一次被 `poll` 時，`spawn` 一條 `Thread` 去 `sleep`，睡飽了就 `wake()` executor。
+這一集我們就讓計時這件事改由**另一條 `Thread`** 負責：`Delay` 第一次被 `poll` 時，`spawn` 一條 `Thread` 去 `sleep`，睡飽了就 `wake` executor。
 
 ### 自己做一個 `Waker`
 
@@ -79,7 +79,7 @@ fn block_on<F: Future>(future: F) -> F::Output {
 
 ### 會自己叫醒別人的 `Delay`
 
-最後改寫 `Delay`：回 `Pending` 之前，`spawn` 一條 `Thread` 去睡，睡醒就 `wake()`：
+最後改寫 `Delay`：回 `Pending` 之前，`spawn` 一條 `Thread` 去睡，睡醒就 `wake`：
 
 ```rust,editable
 use std::future::Future;
@@ -163,13 +163,13 @@ fn main() {
 }
 ```
 
-這次 executor 不再空轉燒 CPU 了——它 `poll` 一次拿到 `Pending` 就 `park` 睡著，整整睡一秒，被計時 `Thread` 的 `wake()` 叫醒後才再 `poll`。
+這次 executor 不再空轉燒 CPU 了——它 `poll` 一次拿到 `Pending` 就 `park` 睡著，整整睡一秒，被計時 `Thread` 的 `wake` 叫醒後才再 `poll`。
 
 ### `wake` 比 `park` 早發生會睡死嗎？
 
 這裡有個值得擔心的時序問題。executor 的 `poll` 回 `Pending` 之後，到它真的執行 `thread::park()` 之間，有一個小空檔。萬一計時 `Thread` 剛好在這個空檔裡 `wake` → `unpark`，那 executor 不就「先被叫醒、然後才去睡」，結果這次 `unpark` 撲了個空、executor 一睡不醒嗎？
 
-不會。`unpark` 的設計是：如果這條 `Thread` 還沒在 `park`，它會**留一張 permit（許可）**。下次這條 `Thread` 呼叫 `park()` 時，看到有 permit 就**立刻返回**，根本不睡。所以不管 `wake()`（也就是 `unpark`）落在 `park()` 之前還是之後，都不會漏接。正是因為 `park` / `unpark` 自帶這個保證，我們才敢直接拿它們來當「睡覺 / 叫醒」的工具。
+不會。`unpark` 的設計是：如果這條 `Thread` 還沒在 `park`，它會**留一張 permit（許可）**。下次這條 `Thread` 呼叫 `park()` 時，看到有 permit 就**立刻返回**，根本不睡。所以不管 `wake`（也就是 `unpark`）落在 `park()` 之前還是之後，都不會漏接。正是因為 `park` / `unpark` 自帶這個保證，我們才敢直接拿它們來當「睡覺 / 叫醒」的工具。
 
 ### `poll` 的兩條契約
 

@@ -12,7 +12,7 @@ So far our executor has a nasty habit: on `Pending`, it immediately `poll`s agai
 
 The waking tool is the `Waker` we've been neglecting for several episodes. `cx.waker()` yields a `Waker`; before returning `Pending`, a `Future` should hand that `Waker` to "whoever is responsible for announcing it's ready." When the event completes, that party calls `waker.wake()`, rousing the sleeping executor.
 
-This episode we make **another `Thread`** responsible for timing: on `Delay`'s first `poll`, `spawn` a `Thread` that `sleep`s, and once well rested, `wake()`s the executor.
+This episode we make **another `Thread`** responsible for timing: on `Delay`'s first `poll`, `spawn` a `Thread` that `sleep`s, and once well rested, `wake`s the executor.
 
 ### Making a `Waker` of Our Own
 
@@ -163,13 +163,13 @@ fn main() {
 }
 ```
 
-This time the executor no longer burns CPU spinning — one `poll` yields `Pending`, it `park`s and sleeps a full second, and only after the timing `Thread`'s `wake()` rouses it does it `poll` again.
+This time the executor no longer burns CPU spinning — one `poll` yields `Pending`, it `park`s and sleeps a full second, and only after the timing `Thread`'s `wake` rouses it does it `poll` again.
 
 ### If `wake` Happens Before `park`, Do We Sleep Forever?
 
 There's a timing concern worth raising. Between the executor's `poll` returning `Pending` and it actually executing `thread::park()`, there's a small gap. What if the timing `Thread` happens to `wake` → `unpark` inside that gap? Wouldn't the executor be "woken first, then go to sleep," the `unpark` land on nothing, and the executor never wake?
 
-No. `unpark` is designed so that if the `Thread` isn't parked yet, it **leaves a permit**. The next time that `Thread` calls `park()`, it sees the permit and **returns immediately** — no sleeping at all. So whether `wake()` (i.e. `unpark`) lands before or after `park()`, nothing is missed. It's precisely because `park` / `unpark` carry this guarantee that we dare use them directly as our "sleep / wake" tools.
+No. `unpark` is designed so that if the `Thread` isn't parked yet, it **leaves a permit**. The next time that `Thread` calls `park()`, it sees the permit and **returns immediately** — no sleeping at all. So whether `wake` (i.e. `unpark`) lands before or after `park()`, nothing is missed. It's precisely because `park` / `unpark` carry this guarantee that we dare use them directly as our "sleep / wake" tools.
 
 ### `poll`'s Two Contracts
 
