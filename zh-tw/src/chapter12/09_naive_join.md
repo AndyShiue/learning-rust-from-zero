@@ -127,7 +127,7 @@ fn main() {
 }
 ```
 
-這裡我們用 `type BoxFuture = Pin<Box<dyn Future<Output = ()>>>` 幫型別取了個短名字。`dyn Future<Output = ()>` 的意思是：「我不管裡面具體是哪一種 `Future`，只要它完成時回傳 `()` 就好。」`boxed(...)` 則負責把不同的 `Future` 放進 `Box`、用 `Pin` 釘住，包成同一種 `BoxFuture`，這樣 `JoinAll` 裡的 `Vec` 才能裝下它們。
+這裡我們用 `type BoxFuture = Pin<Box<dyn Future<Output = ()>>>` 幫型別取了個短名字；`BoxFuture` 只是型別別名，並沒有多包一層。`dyn Future<Output = ()>` 的意思是：「我不管裡面具體是哪一種 `Future`，只要它完成時回傳 `()` 就好。」`boxed(...)` 呼叫 `Box::pin`，產生 `Pin<Box<F>>`；它宣告的回傳型別再把具體的 `F` 擦除在 `dyn Future<Output = ()>` 後面。這樣每個結果都有相同的 `BoxFuture` 型別，`JoinAll` 裡的 `Vec` 才能裝下它們。
 
 你可能會注意到這行：
 

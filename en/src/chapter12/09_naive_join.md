@@ -127,7 +127,7 @@ fn main() {
 }
 ```
 
-Here `type BoxFuture = Pin<Box<dyn Future<Output = ()>>>` gives the type a short name. `dyn Future<Output = ()>` means: "I don't care which concrete kind of `Future` this is, as long as it returns `()` when done." And `boxed(...)` puts the various `Future`s into a `Box`, pins them with `Pin`, and packages them into the single `BoxFuture` type, so the `Vec` inside `JoinAll` can hold them all.
+Here `type BoxFuture = Pin<Box<dyn Future<Output = ()>>>` gives the type a short name; `BoxFuture` is only a type alias and adds no extra wrapper. `dyn Future<Output = ()>` means: "I don't care which concrete kind of `Future` this is, as long as it returns `()` when done." `boxed(...)` calls `Box::pin`, producing a `Pin<Box<F>>`; its declared return type then erases the concrete `F` behind `dyn Future<Output = ()>`. The results therefore all have the same `BoxFuture` type, so the `Vec` inside `JoinAll` can hold them all.
 
 You may notice this line:
 
