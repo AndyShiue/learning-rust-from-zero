@@ -75,7 +75,7 @@ impl<Ptr: Deref> Deref for Pin<Ptr> {
 
 **重新借出一根釘住的參考**——`as_mut` 把 `&mut Pin<Box<T>>` 之類的東西借成 `Pin<&mut T>`。`as_mut` 可以一次又一次地被呼叫，因為 `as_mut` 只是借而已，而且借出來的仍然是 `Pin<&mut T>`，不是普通的 `&mut T`。
 
-當然，拿著一個 `Pin<&mut F>`，你還能做最關鍵的一件事——呼叫它的 `poll`。而對 `async fn` / `async` block 來說，這個 `poll` 不必你動手寫，編譯器會自動幫你生一個。第 6 集 executor 反覆跑的 `future.as_mut().poll(...)` 就是這樣：`as_mut` 重新借出一個 `Pin<&mut F>`，交給 `F` 自己的 `poll`——而當這個 `F` 來自 `async fn` / `async` block 時，跑的正是編譯器產生的那個 `poll`。
+當然，拿著一個 `Pin<&mut F>`，你還能做最關鍵的一件事——呼叫它的 `poll`。對於 `async fn` 或 `async` block 產生的 `Future`，你不需要自己實作 `poll`；編譯器會替你產生實作。第 6 集 executor 反覆跑的 `future.as_mut().poll(...)` 就是這樣：`as_mut` 重新借出一個 `Pin<&mut F>`，交給 `F` 自己的 `poll`——而當這個 `F` 來自 `async fn` / `async` block 時，跑的正是編譯器產生的那個 `poll`。
 
 ### `Pin` 釘的是「值」，不是「指標」
 

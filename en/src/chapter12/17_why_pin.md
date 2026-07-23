@@ -75,7 +75,7 @@ impl<Ptr: Deref> Deref for Pin<Ptr> {
 
 **Re-lending a pinned reference** — `as_mut` borrows something like a `&mut Pin<Box<T>>` into a `Pin<&mut T>`. `as_mut` can be called again and again, because it only borrows — and what it lends out is still a `Pin<&mut T>`, not a plain `&mut T`.
 
-And of course, holding a `Pin<&mut F>`, you can do the one thing that matters most — call its `poll`. For `async fn`s / `async` blocks, you never write that `poll` yourself; the compiler generates it. Episode 6's executor running `future.as_mut().poll(...)` over and over is exactly this: `as_mut` re-lends a `Pin<&mut F>` and feeds it to `F`'s own `poll` — and when that `F` comes from an `async fn` / `async` block, what runs is precisely the compiler-generated `poll`.
+And of course, holding a `Pin<&mut F>`, you can do the one thing that matters most — call its `poll`. For a `Future` produced by an `async fn` or `async` block, you never implement `poll` yourself; the compiler generates the implementation for you. Episode 6's executor running `future.as_mut().poll(...)` over and over is exactly this: `as_mut` re-lends a `Pin<&mut F>` and feeds it to `F`'s own `poll` — and when that `F` comes from an `async fn` / `async` block, what runs is precisely the compiler-generated `poll`.
 
 ### `Pin` Pins the "Value," Not the "Pointer"
 
