@@ -309,7 +309,6 @@ async fn serve(reactor: Arc<Reactor>, listener: TcpListener) {
         println!("第 {} 個 request：{}", i, String::from_utf8_lossy(&buf[..n]).trim());
     }
 
-    reactor.clear_waker(stream_token);
     reactor.deregister(&mut stream);
 }
 
