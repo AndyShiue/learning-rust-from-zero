@@ -109,9 +109,9 @@ fn main() {
 
 The two printed addresses are exactly the same: the pointer went in and out of the `Vec`, but the `Data` on the heap was never moved. The only thing `Pin` forbids is the single act of "**using it to move the pointed-to value off its address**."
 
-### Ordinary Folks Rarely Touch `Pin`
+### `Pin` Usually Stays Behind the Scenes
 
-Finally, a reassurance: `Pin` is a **type-level pact**, mainly for "people writing low-level `Future`s or runtimes." If you just write `async fn`s and use `.await`, the compiler and runtime handle `Pin` for you, and you'll almost never touch it directly. So don't fret if the details of these episodes feel hazy — they exist so you "know what's happening underneath," not as everyday hand-written material.
+Finally, a reassurance: when you write everyday `async fn` + `.await` code on a ready-made runtime, `Pin` usually stays behind the scenes. The compiler generates the `Future` state machine, and the runtime pins and `poll`s it. We meet `Pin` directly in this chapter because we are exploring that machinery ourselves. So don't fret if the details of these episodes feel hazy — they are here to show you what happens underneath, not because you will routinely handle it all by hand.
 
 Should the day come when you hand-roll a low-level `Future` and need to extract a field's `Pin<P<Inner>>` from an outer `Pin<P<Outer>>` (an operation called projection), the community's `pin-project` `crate` does it safely for you, no hand-written `unsafe` required. Knowing the tool exists is enough; we won't go deeper here.
 
@@ -125,4 +125,4 @@ And if you want to "get the value in a `Pin` back as a plain `&mut T`," next epi
 - Blocking moves requires two things: creation must leave no external route to later move the value; and the safe API must never hand out inner pointers that could move the value.
 - `Pin`'s repertoire is small: read via `Deref`, re-lend via `as_mut`, and of course feed it to `poll`.
 - `Pin<P>` pins the pointed-to value, not the pointer itself — so a `Pin<Box<T>>` moves freely (even in and out of a `Vec`), which is why the executor can shuffle `Pin<Box<Fut>>`s around.
-- For everyday `async fn` + `.await` on a ready-made runtime, `Pin` stays invisible: the compiler implements your `Future`s, the runtime sets up the `Pin` and `poll`s; it's when hand-rolling runtimes / `Future`s, as in this chapter, that you actually meet it.
+- For everyday `async fn` + `.await` on a ready-made runtime, `Pin` usually stays behind the scenes: the compiler generates the `Future` state machine, and the runtime pins and `poll`s it. In this chapter, we meet `Pin` directly because we are exploring that machinery ourselves.
