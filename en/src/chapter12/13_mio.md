@@ -8,7 +8,7 @@ Meet `mio` — the tool that makes "one `Thread` watching a big pile of I/O sour
 
 ### The reactor's Role in the runtime
 
-Let's restate the full picture of our hand-written runtime. A runtime really has two roles, each with its own duty:
+Let's step back and look at the full picture of the runtime we're building. A runtime really has two roles, each with its own duty:
 
 - **executor**: takes `Task`s off the ready queue and `poll`s them — "running `Task`s." It knows nothing about the outside world — not whether a network packet has arrived, nor whether a file read is done.
 - **reactor**: watches all the I/O sources, and `wake`s the corresponding `Task` when one becomes ready — "waiting for events." It does **not** `poll` `Future`s and is not a `Task`; it only watches external event sources.

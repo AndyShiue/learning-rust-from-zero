@@ -8,7 +8,7 @@
 
 ### reactor 在 runtime 裡的角色
 
-先把我們手寫 runtime 的全貌再講一次。一個 runtime 其實有兩個各司其職的角色：
+先退一步，看看我們正在打造的 runtime 全貌。一個 runtime 其實有兩個各司其職的角色：
 
 - **executor**：從 ready queue 拿 `Task` 出來 `poll`，也就是「跑 `Task`」。它對外部世界一無所知——它不知道網路封包到了沒、檔案讀好了沒。
 - **reactor**：負責盯住所有的 I/O 來源，哪個 ready 了就 `wake` 對應的 `Task`，也就是「等事件」。它**不** `poll` `Future`、它不是 `Task`，它只盯著外部事件來源。
