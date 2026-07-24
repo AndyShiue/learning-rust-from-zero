@@ -14,7 +14,7 @@ The answer — apart from rare special cases like **self-referential `Future` st
 
 Rust separates the two camps with a label, and that label is **`Unpin`**: a type being `Unpin` means "**moving me doesn't break me; `Pin` needn't bother about me**."
 
-### Nearly Everyone Is `Unpin`
+### Almost Everything Is `Unpin`
 
 Like the `Send` / `Sync` introduced in the multithreading chapter, `Unpin` is an **`auto trait`** — if everything a type stores is `Unpin`, the type itself is `Unpin` by default. Skipping to the punchline: **the overwhelming majority of types are `Unpin`**.
 
