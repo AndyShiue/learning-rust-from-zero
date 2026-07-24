@@ -33,7 +33,7 @@ fn main() {
 
 Even our hand-written `Delay`, `Counter`, `JoinAll`, and `JoinHandle` are all `Unpin` — their fields are ordinary movable things.
 
-So who isn't `Unpin`? Point the same gadget at an `async fn` that "borrows a local across an `.await`" (i.e. Episode 16's self-referential state machine) and it gets blocked:
+So what isn't `Unpin`? Run the same check on an `async fn` that borrows a local variable across an `.await` — the kind of self-referential state machine we saw in Episode 16 — and the compiler rejects it:
 
 ```rust,compile_fail
 fn assert_unpin<T: Unpin>(_: T) {}
