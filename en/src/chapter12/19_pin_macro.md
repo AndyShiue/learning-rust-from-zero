@@ -57,7 +57,7 @@ That can't work. `value` is a local variable of the `pin` function itself. The m
 
 Then why can `Box::pin` be an ordinary function? Because it takes an entirely different road: `Box::pin` puts the value on the **heap** and hands you ownership of that heap memory wrapped in a `Pin<Box<T>>`. Something owned on the heap outlives "this function call" — returning doesn't discard it — so returning an owning `Pin<Box<T>>` is perfectly fine.
 
-The difference in one line each:
+In short, here's how they differ:
 
 - `pin!`: **stack borrowing** — obtain a `Pin<&mut T>` from a value in the current block without heap allocation; since ordinary functions can't return references to their own stack variables, this must be done by a macro at the call site.
 - `Box::pin`: **heap owning** — the value goes on the heap, ownership is handed over, it can be passed around freely, so an ordinary function works. The cost is one heap allocation.
