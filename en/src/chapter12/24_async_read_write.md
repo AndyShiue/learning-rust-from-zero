@@ -47,7 +47,7 @@ Remember that `Future`s are lazy? They only move when `poll`ed. Flip that around
 
 This is an ability unique to `async`. Ordinary `Thread`s can't be stopped this cleanly — there's no safe way to halt a running `Thread` midway from the outside. But an `async` job is just an unfinished `Future`; ignore it, discard it, and it stops.
 
-### `read_exact` Is Not cancellation safe
+### `read_exact` Is Not Cancellation Safe
 
 Convenient as cancellation is, there's a trap. Operations like `read_exact` — "**spanning several advances, accumulating state along the way**" — call for care.
 

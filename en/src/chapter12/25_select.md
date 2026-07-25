@@ -106,7 +106,7 @@ The timer fires at one second, beating the five-second job, so `select!` takes t
 - **Receiving on multiple channels at once**: whichever channel has a message first gets handled.
 - **Waiting for a shutdown signal**: doing normal work while also listening for "time to wrap up," responding to whichever comes first.
 
-### Watch Out for cancellation safety with `select!` in Loops
+### Watch Out for Cancellation Safety with `select!` in Loops
 
 We just mentioned `drop` — this is exactly last episode's **cancellation**: `drop`ping a `Future` cancels it. And `select!`, by design, `drop`s all the other branches when one wins. Grasping this keeps later `select!` usage out of the minefield.
 

@@ -115,7 +115,7 @@ async {
 
 That is, "keep waiting for workers to finish until the `JoinSet` is empty." So the whole `timeout` reads: **give all workers at most five seconds to wrap themselves up; if they all exit in time, print success — past five seconds, take the `Err(_)` branch and force-abort whoever's left**.
 
-### The cancellation safety Design Point
+### The Cancellation Safety Design Point
 
 Here's a key design choice echoing Episodes 24 and 25: **place the `select!` deliberately**. In the worker above, the `select!` waits on "the next job" and "shutdown"; once a job is actually in hand, we leave the `select!` and only then call `process_job`. So when shutdown wins, what gets `drop`ped (cancelled) is the resumable wait for the next job — not work that has already started.
 
