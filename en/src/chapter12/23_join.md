@@ -58,7 +58,7 @@ You've probably noticed `join!` is also a macro, not a function. Why must it be,
 
 Because it has to swallow any number of `Future`s of mutually different types, then return a tuple shaped to match. `join!(a, b)` and `join!(a, b, c, d)` both work, each branch's `Future` type entirely its own; the return type changes accordingly to `(A::Output, B::Output)` or `(A::Output, B::Output, C::Output, D::Output)`.
 
-Rust functions can't do that: a function can't take an arbitrary number of parameters, much less have its returned tuple type shift to match. Only a macro can generate, at **compile time**, code tailored to the `Future`s you actually threw in.
+An ordinary Rust function has a fixed number of parameters. We could write separate generic functions for two, three, or four `Future`s, each returning a tuple whose element types match those `Future`s' outputs, but no single function can cover every possible arity. A macro can instead generate, at **compile time**, code with exactly the right tuple shape for each invocation.
 
 The contrast with Episode 9's `JoinAll` sharpens the picture: `JoinAll` handles "**same type, dynamic count**" — a `Vec<F>` all of one `Future` kind, the count settled at runtime. `join!` is the reverse: "**mixed types, fixed count**" — count and types locked in as you write the code, so a macro can unroll them at compile time into a tuple that matches exactly.
 
@@ -67,5 +67,5 @@ The contrast with Episode 9's `JoinAll` sharpens the picture: `JoinAll` handles 
 - `join!` waits on multiple `Future`s at once **within one `Task`**, returning the results as a tuple once all complete.
 - Unlike `spawn`: `join!`'s branches don't become independent `Task`s — suited to a fixed number of concurrent I/O operations that should all complete within the current scope.
 - `join!`'s concurrency isn't CPU parallelism: branches take turns being `poll`ed on one `Task`, and one stuck branch starves the rest.
-- `join!` is a macro because it takes "any number + mutually different types" of `Future`s and returns a correspondingly typed tuple — impossible for a function.
+- `join!` is a macro because each invocation can take a different number of differently typed `Future`s and produce a correspondingly shaped output tuple; an ordinary function would need a separate version for each arity.
 - Against our own `JoinAll` (same type, dynamic count), `join!` is mixed types, fixed count.
