@@ -159,13 +159,41 @@ tokio::select! {
 }
 ```
 
-**公平性與 `biased;`**：`select!` 預設是**隨機**挑選同時就緒的 branch（避免某個 branch 永遠被優先，餓死其他人）。如果你希望改成「由上到下依序檢查」，在開頭加一行 `biased;`。
+**公平性與 `biased;`**：`select!` 預設會隨機選擇從哪個 branch 開始 `poll`。這主要在 `select!` 被反覆執行（通常是在 `loop` 裡），而且多個 branch 持續 ready 時有影響。每次改變起點，能降低某個 branch 只因排在前面而每輪都勝出的風險。
+
+加上 `biased;` 後，`select!` 會固定由上到下 `poll`。各個 branch 仍是一個一個被 `poll`，但只要其中一個回傳 `Ready` 且輸出符合 pattern，整個 `select!` 就會立刻結束。因此，排在前面且一直 ready 的 branch，可能讓後面的 branch 永遠得不到 `poll`：
 
 ```rust,ignore
-tokio::select! {
-    biased; // 改成由上到下依序檢查，而非隨機
-    _ = high_priority() => { /* ... */ }
-    _ = low_priority()  => { /* ... */ }
+loop {
+    tokio::select! {
+        biased;
+
+        // 如果一直有訊息在等，這個 branch 就會一直是 Ready
+        Some(message) = messages.recv() => {
+            handle_message(message).await;
+        }
+        // 即使 shutdown 已經到達，這個 branch 也可能永遠得不到 poll
+        _ = shutdown.recv() => {
+            break;
+        }
+    }
+}
+```
+
+如果 `messages.recv()` 每一輪都立刻 ready，它就會在程式檢查到 `shutdown.recv()` 之前勝出，這就是 starvation。使用 `biased;` 時，不能延遲的 branch 應該排在前面：
+
+```rust,ignore
+loop {
+    tokio::select! {
+        biased;
+
+        _ = shutdown.recv() => {
+            break;
+        }
+        Some(message) = messages.recv() => {
+            handle_message(message).await;
+        }
+    }
 }
 ```
 
@@ -175,4 +203,4 @@ tokio::select! {
 - 基本語法是 `pattern = future => { ... }`；`=>` 左邊不用寫 `.await`，不需要輸出時用 `_ = future`；`select!` 本身也能回傳勝出 branch 的值。
 - 所以 `select!` 是程式裡**最常製造取消**的地方；適合 timeout、多 channel 接收、等 shutdown 訊號。
 - 在 `loop` 裡用 `select!` 要注意 cancellation safety：別把 `read_exact` 這類不可安全取消的 `Future` 放進會被 `drop` 的 branch。
-- 補充功能：branch `if`（precondition）、pattern 不匹配時停用該 branch、`else`（所有 branch 都被停用時）、`biased;` 把預設的隨機改成依序。
+- 補充功能：branch `if`（precondition）、pattern 不匹配時停用該 branch、`else`（所有 branch 都被停用時），以及用 `biased;` 固定由上到下 `poll`。

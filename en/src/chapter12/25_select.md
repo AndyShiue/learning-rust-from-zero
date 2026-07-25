@@ -159,13 +159,41 @@ tokio::select! {
 }
 ```
 
-**Fairness and `biased;`**: by default `select!` picks **randomly** among simultaneously ready branches (so no branch always wins and starves the rest). If you'd rather have "check top to bottom in order," add `biased;` at the top.
+**Fairness and `biased;`**: by default, `select!` randomly chooses which branch to `poll` first. This matters mainly when `select!` runs repeatedly — typically in a `loop` — and multiple branches remain ready. Varying the starting branch reduces the risk that one branch wins every round simply because it appears earlier.
+
+Adding `biased;` makes `select!` always `poll` from top to bottom. The branches are still `poll`ed one at a time, but `select!` stops as soon as one returns `Ready` and its output matches the pattern. An always-ready branch near the top can therefore prevent later branches from ever being `poll`ed:
 
 ```rust,ignore
-tokio::select! {
-    biased; // check top to bottom in order instead of randomly
-    _ = high_priority() => { /* ... */ }
-    _ = low_priority()  => { /* ... */ }
+loop {
+    tokio::select! {
+        biased;
+
+        // If messages are always waiting, this branch is always Ready.
+        Some(message) = messages.recv() => {
+            handle_message(message).await;
+        }
+        // This branch may never be polled, even after shutdown arrives.
+        _ = shutdown.recv() => {
+            break;
+        }
+    }
+}
+```
+
+If `messages.recv()` is immediately ready on every iteration, it wins before `shutdown.recv()` is reached. This is starvation. With `biased;`, put a branch that must not be delayed first:
+
+```rust,ignore
+loop {
+    tokio::select! {
+        biased;
+
+        _ = shutdown.recv() => {
+            break;
+        }
+        Some(message) = messages.recv() => {
+            handle_message(message).await;
+        }
+    }
 }
 ```
 
@@ -175,4 +203,4 @@ tokio::select! {
 - Basic syntax is `pattern = future => { ... }`; don't write `.await` on the left side of `=>`; use `_ = future` when the output isn't needed; `select!` can return the winning branch's value.
 - `select!` is thus the place in a program that **manufactures the most cancellations**; great for timeouts, multi-channel receives, and shutdown signals.
 - Using `select!` in a `loop` demands cancellation-safety care: keep non-cancellation-safe `Future`s like `read_exact` out of branches that may be `drop`ped.
-- Extras: branch `if` (preconditions), branches disabled on pattern mismatch, `else` (when all branches are disabled), and `biased;` to turn default randomness into top-down order.
+- Extras: branch `if` (preconditions), branches disabled on pattern mismatch, `else` (when all branches are disabled), and `biased;` for fixed top-down polling.
