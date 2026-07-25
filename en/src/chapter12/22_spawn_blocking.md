@@ -10,7 +10,7 @@ Learn the discipline of "don't block the `Thread`," and how to house must-block 
 
 `async` can advance masses of work on a few `Thread`s because everyone **takes turns**. An `.await` is a **possible** yield point: if the `Future` being awaited isn't ready and returns `Pending`, the `Task` yields the `Thread`, letting someone else run. If the `Future` is already ready, execution continues immediately without yielding.
 
-That leads to an iron rule: **a `Task` must not go long without `.await`ing**. If a `Task` hogs the `Thread` — maybe doing an expensive computation (seconds of math), maybe calling some **synchronous** blocking function (`std::thread::sleep`, synchronous file reads, a slow synchronous database call) — it monopolizes that `Thread`, **every other `Task` on the same `Thread` goes un`poll`ed**, and the whole concurrency scheme seizes up.
+That leads to an iron rule: **a `Task` must not go long without `.await`ing**. If a `Task` hogs the `Thread` — maybe doing an expensive computation (seconds of math), maybe calling some **synchronous** blocking function (`std::thread::sleep`, synchronous file reads, a slow synchronous database call) — it monopolizes that `Thread`. Until the blocking work finishes, **that `Thread` cannot `poll` any other `Task`**.
 
 A bad example:
 
@@ -25,7 +25,7 @@ async fn main() {
 }
 ```
 
-This computation contains no `.await` from start to finish, so it hogs the `Thread` until done, and the runtime can't advance any other `Task` in the meantime.
+This computation contains no `.await` from start to finish, so the `Future` running it cannot yield until the computation is done. If code like this runs in a spawned `Task`, it occupies one worker `Thread` for the duration and prevents that `Thread` from advancing other `Task`s, though other worker `Thread`s can continue running.
 
 ### The Fix: `spawn_blocking`
 
