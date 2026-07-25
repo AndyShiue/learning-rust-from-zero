@@ -42,7 +42,7 @@ Both `spawn` and `join!` give you concurrency, but by different means:
 - `tokio::spawn` turns each job into an **independent `Task`** handed to the runtime, possibly run on different `Thread`s — hence `Send + 'static`.
 - `join!` `poll`s its branches in turn **within the same `Task`**; they do **not** become independent `Task`s.
 
-Precisely because the branches' lifetimes are tied to the current function (they're never thrown out to live independently), `join!` fits concurrent I/O of "**fixed count**, living right here, right now" — calling three APIs at once, reading two files at once.
+Because the branches stay inside the current `Task` and `join!` waits for all of them to complete, they never become independent `Task`s that can outlive the current scope. That makes `join!` a good fit for a **fixed number** of concurrent I/O operations that should all complete within the current scope — calling three APIs at once, reading two files at once.
 
 ### `join!`'s Concurrency Is Not CPU Parallelism
 
@@ -65,7 +65,7 @@ The contrast with Episode 9's `JoinAll` sharpens the picture: `JoinAll` handles 
 ## Recap
 
 - `join!` waits on multiple `Future`s at once **within one `Task`**, returning the results as a tuple once all complete.
-- Unlike `spawn`: `join!`'s branches don't become independent `Task`s — suited to fixed-count, right-here-right-now concurrent I/O.
+- Unlike `spawn`: `join!`'s branches don't become independent `Task`s — suited to a fixed number of concurrent I/O operations that should all complete within the current scope.
 - `join!`'s concurrency isn't CPU parallelism: branches take turns being `poll`ed on one `Task`, and one stuck branch starves the rest.
 - `join!` is a macro because it takes "any number + mutually different types" of `Future`s and returns a correspondingly typed tuple — impossible for a function.
 - Against our own `JoinAll` (same type, dynamic count), `join!` is mixed types, fixed count.
