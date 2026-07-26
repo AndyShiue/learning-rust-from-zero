@@ -27,7 +27,7 @@ As in recent episodes, patterns can mix "fixed values" and "variables." Fixed va
 
 ### Slices Work Too
 
-It's not just fixed-length arrays — slices (`&[T]`) can use slice patterns as well. The difference is that a slice's length is unknown at compile time, so you can match with patterns of different lengths:
+It's not just fixed-length arrays — slices (`&[T]`) can use slice patterns as well. The difference is that a slice's length is unknown at compile time, so you can match with patterns of different lengths. The `_` in the last arm below means "everything else"; Episode 15 covers it properly:
 
 ```rust,noplayground
 fn describe(numbers: &[i32]) {
