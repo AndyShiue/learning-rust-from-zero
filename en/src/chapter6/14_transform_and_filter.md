@@ -39,7 +39,8 @@ Remember `and_then` on `Option` and `Result` from Episode 7? What `flat_map` doe
 
 ```rust,noplayground
 # fn main() {
-    let evens: Vec<&i32> = vec![1, 2, 3, 4, 5].iter().filter(|&&x| x % 2 == 0).collect();
+    let numbers = vec![1, 2, 3, 4, 5];
+    let evens: Vec<&i32> = numbers.iter().filter(|&&x| x % 2 == 0).collect();
     // [&2, &4]
 # }
 ```
