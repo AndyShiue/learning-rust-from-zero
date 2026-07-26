@@ -38,7 +38,7 @@ impl Wake for ThreadWaker {
 # fn main() {}
 ```
 
-Note that `wake`'s `self` is `Arc<Self>` (another of those special types allowed in the `self` position, as mentioned last episode). `Waker::from(Arc::new(...))` turns it into a `Waker`.
+Note that `wake`'s `self` is `Arc<Self>` (another of those special types allowed in the `self` position, as mentioned in Episode 6). `Waker::from(Arc::new(...))` turns it into a `Waker`.
 
 ### An executor That Sleeps
 

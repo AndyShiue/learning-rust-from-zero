@@ -73,7 +73,7 @@ fn print_it<T: ?Sized>(val: &T) { ... }
 
 We said generic parameters `T` default to a `Sized` bound. But a `trait`'s `Self` is the exception — it defaults to `?Sized`; that is, `Self` needn't be `Sized`.
 
-Remember `Clone` from Chapter 4 Episode 8? Its method is `fn clone(&self) -> Self` — returning `Self` outright. To restrict this operation to `Sized` types, the bound can be placed on the whole `trait` or just on the method with `where Self: Sized`. `Clone` places it on the whole `trait`:
+Remember `Clone` from Chapter 4 Episode 3? Its method is `fn clone(&self) -> Self` — returning `Self` outright. To restrict this operation to `Sized` types, the bound can be placed on the whole `trait` or just on the method with `where Self: Sized`. `Clone` places it on the whole `trait`:
 
 ```rust,noplayground
 trait Clone: Sized {

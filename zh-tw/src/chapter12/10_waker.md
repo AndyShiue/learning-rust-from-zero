@@ -38,7 +38,7 @@ impl Wake for ThreadWaker {
 # fn main() {}
 ```
 
-注意 `wake` 的 `self` 是 `Arc<Self>`（這也是上一集說的、能放在 `self` 位置的特別型別之一）。`Waker::from(Arc::new(...))` 就能把它變成一個 `Waker`。
+注意 `wake` 的 `self` 是 `Arc<Self>`（這也是第 6 集說的、能放在 `self` 位置的特別型別之一）。`Waker::from(Arc::new(...))` 就能把它變成一個 `Waker`。
 
 ### 會睡覺的 executor
 

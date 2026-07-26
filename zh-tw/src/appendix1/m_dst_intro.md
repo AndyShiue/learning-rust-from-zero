@@ -73,7 +73,7 @@ fn print_it<T: ?Sized>(val: &T) { ... }
 
 前面說泛型參數 `T` 預設有 `Sized` bound。但 `trait` 裡的 `Self` 是個例外——它預設是 `?Sized` 的，也就是說 `Self` 不一定是 `Sized`。
 
-還記得第 4 章第 8 集介紹的 `Clone` 嗎？它的方法是 `fn clone(&self) -> Self`——直接回傳 `Self`。要把這項操作限制在 `Sized` 型別，可以把 bound 加在整個 `trait` 上，也可以只在該方法加上 `where Self: Sized`。`Clone` 選擇加在整個 `trait` 上：
+還記得第 4 章第 3 集介紹的 `Clone` 嗎？它的方法是 `fn clone(&self) -> Self`——直接回傳 `Self`。要把這項操作限制在 `Sized` 型別，可以把 bound 加在整個 `trait` 上，也可以只在該方法加上 `where Self: Sized`。`Clone` 選擇加在整個 `trait` 上：
 
 ```rust,noplayground
 trait Clone: Sized {
