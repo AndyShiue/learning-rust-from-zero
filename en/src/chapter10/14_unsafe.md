@@ -23,6 +23,8 @@ Safe Rust guarantees the following things **can never happen**, no matter how yo
 - No reads of uninitialized memory.
 - No type confusion (e.g. reading the bytes of an `isize` as a pointer).
 
+Violate any one of these and you have **undefined behavior** (UB for short). It is far worse than "the result is unpredictable": the compiler optimizes on the assumption that these things never happen, so once one does, it isn't only that line that breaks — the whole program loses every guarantee, and it may compute nonsense, crash, or go wrong somewhere entirely unrelated.
+
 The responsibility of `unsafe` code is this: even while bypassing the compiler's checks, it must ensure that **all** of these guarantees still hold.
 
 ### `unsafe` Blocks
@@ -157,4 +159,5 @@ fn main() {
 - `&raw const x` / `&raw mut x`: take a raw pointer directly, without going through a reference.
 - Since the 2024 edition, `unsafe fn` bodies also require `unsafe { }` blocks.
 - With `unsafe trait`s the danger is in implementing, not using (calling methods needs no `unsafe`).
+- **Undefined behavior (UB)**: violating safe Rust's guarantees. The compiler optimizes on the assumption that it never happens, so once it does, the whole program loses its guarantees.
 - The `unsafe` boundary: no matter what safe code calls it, it must never cause undefined behavior.
