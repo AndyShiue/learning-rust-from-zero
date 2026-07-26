@@ -20,7 +20,7 @@ fn show(x: &impl Display) {
 # fn main() {}
 ```
 
-This is fully equivalent to `fn show<T: Display>(x: &T)` — both say "`x`'s type must implement `Display`." Just terser.
+This is almost fully equivalent to `fn show<T: Display>(x: &T)` — both say "`x`'s type must implement `Display`," and it's terser.
 
 ### Each `impl Trait` Is an Independent Type
 

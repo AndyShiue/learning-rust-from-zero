@@ -20,7 +20,7 @@ fn show(x: &impl Display) {
 # fn main() {}
 ```
 
-這和 `fn show<T: Display>(x: &T)` 完全等價——都是說「`x` 的型別必須實作 `Display`」。只是寫法更簡潔。
+這和 `fn show<T: Display>(x: &T)` 幾乎完全等價——都是說「`x` 的型別必須實作 `Display`」，寫法也更簡潔。
 
 ### 每個 `impl Trait` 是獨立的型別
 
