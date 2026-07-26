@@ -126,7 +126,7 @@ fn replace<'a>(target: &'a mut String, new_value: &str) {
 If a function has just one reference parameter, Rust can usually infer on its own (next episode covers the details):
 
 ```rust,noplayground
-fn first_char(s: &str) -> &str {
+fn first_byte(s: &str) -> &str {
     &s[..1] // The return value obviously lives as long as s; no manual annotation needed
 }
 #
