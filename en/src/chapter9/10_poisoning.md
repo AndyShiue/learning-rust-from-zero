@@ -70,6 +70,8 @@ fn main() {
 
 `PoisonError::into_inner` hands back the guard, skipping the poison warning. If you're sure the data's state is fine, or don't care, this works.
 
+Note that this is an "**write it this way at every lock site**" approach: the lock itself stays poisoned throughout; you simply ignore it every time. If one place in the program forgets and reaches for a plain `lock().expect(...)`, that place panics.
+
 **3. Repair the data, then continue**
 
 ```rust,noplayground
@@ -81,7 +83,8 @@ fn main() {
         Ok(g) => g,
         Err(poisoned) => {
             let mut g = poisoned.into_inner();
-            *g = vec![]; // Reset to a known-safe state
+            *g = vec![];         // Reset to a known-safe state
+            data.clear_poison(); // Clear the poison so later locks work again
             g
         }
     };
@@ -89,6 +92,8 @@ fn main() {
 ```
 
 Take the guard, restore the data to a sensible value, then proceed.
+
+Option 2 can ignore the poison indefinitely because every lock site is written the same way. Option 3 means something different: repair the data, then go back to running normally. Repairing the data isn't enough for that — every plain `lock()` elsewhere in the program still comes back `Err` — so the repair is followed by `clear_poison()`, which is what actually clears it (`RwLock` has a method of the same name).
 
 ### Why `.into_inner()` Is Safe
 
@@ -149,4 +154,4 @@ fn main() {
 - Three handling options:
   - Panic (`.unwrap()` or `.expect()`).
   - Ignore (`.unwrap_or_else(PoisonError::into_inner)`).
-  - Repair the data and continue.
+  - Repair the data and continue (`into_inner` doesn't clear the poison; you also need `clear_poison()` for a real recovery).

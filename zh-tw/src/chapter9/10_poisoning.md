@@ -70,6 +70,8 @@ fn main() {
 
 `PoisonError::into_inner` 讓你拿回 guard，跳過中毒的警告。如果你確定資料的狀態沒問題，或者你不在意，可以這樣做。
 
+要注意這是一個「**每次取鎖都這樣寫**」的做法：鎖本身從頭到尾都還是中毒狀態，你只是每一次都不理它。只要程式裡有一個地方忘了這樣寫、直接用了 `lock().expect(...)`，那裡就會 panic。
+
 **3. 修復資料再繼續**
 
 ```rust,noplayground
@@ -81,7 +83,8 @@ fn main() {
         Ok(g) => g,
         Err(poisoned) => {
             let mut g = poisoned.into_inner();
-            *g = vec![]; // 重設成已知的安全狀態
+            *g = vec![];         // 重設成已知的安全狀態
+            data.clear_poison(); // 解除中毒，之後的 lock 才會恢復正常
             g
         }
     };
@@ -89,6 +92,8 @@ fn main() {
 ```
 
 拿到 guard 之後把資料修復成合理的值，然後繼續用。
+
+第 2 種做法可以一直不理中毒，是因為它每次取鎖都寫成同一個形式。但第 3 種做法的用意不一樣——它想把資料修好、然後回到正常運作。這時候只修資料是不夠的，程式裡其他地方老老實實寫的 `lock()` 還是會拿到 `Err`；修完之後要再呼叫 `clear_poison()`，才算真的解除中毒（`RwLock` 也有同名的方法）。
 
 ### 為什麼 `.into_inner()` 是安全的
 
@@ -149,4 +154,4 @@ fn main() {
 - 三種處理方式：
   - panic（`.unwrap()` 或 `.expect()`）。
   - 忽略（`.unwrap_or_else(PoisonError::into_inner)`）。
-  - 修復資料再繼續。
+  - 修復資料再繼續（`into_inner` 不會解除中毒，修好之後要 `clear_poison()` 才算真的復原）。
