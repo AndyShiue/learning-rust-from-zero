@@ -176,13 +176,11 @@ fn main() {
 
     // One mutable reference: OK
     let mut p2 = Point { x: 10, y: 20 };
-    {
-        let r3 = &mut p2;
-        r3.x += 5;
-        println!("After modifying: {:?}", r3);
-    } // r3 leaves scope; the mutable borrow ends
+    let r3 = &mut p2;
+    r3.x += 5;
+    println!("After modifying: {:?}", r3);
 
-    // The mutable borrow has ended; & borrowing is allowed now
+    // Once r3 is used for the last time the mutable borrow ends, so & borrowing is allowed now
     let r4 = &p2;
     println!("Read-only borrow: {:?}", r4);
 
