@@ -17,24 +17,27 @@
 - **讀鎖**（`.read().expect(...)`）：多個執行緒可以**同時**持有讀鎖。
 - **寫鎖**（`.write().expect(...)`）：寫鎖是獨佔的，持有寫鎖時不能有任何讀鎖或其他寫鎖。
 
+「多個讀者同時」這件事一條執行緒示範不出來，本集最後的範例程式碼會用三條執行緒跑給你看。這裡先看兩種鎖怎麼取得：
+
 ```rust,editable
 use std::sync::RwLock;
 
 fn main() {
     let lock = RwLock::new(42);
 
-    // 多個讀者可以同時讀
+    // 讀鎖：只能看
     {
-        let r1 = lock.read().expect("讀鎖失敗");
-        let r2 = lock.read().expect("讀鎖失敗"); // OK，可有多個讀者
-        println!("r1 = {}, r2 = {}", *r1, *r2);
-    }
+        let r = lock.read().expect("讀鎖失敗");
+        println!("讀到 {}", *r);
+    } // r 在這裡 drop，讀鎖放掉
 
-    // 寫入時獨佔
+    // 寫鎖：獨佔，可以改
     {
         let mut w = lock.write().expect("寫鎖失敗");
         *w += 1;
-    }
+    } // w 在這裡 drop，寫鎖放掉
+
+    println!("現在是 {}", *lock.read().expect("讀鎖失敗"));
 }
 ```
 
@@ -49,8 +52,10 @@ fn main() {
 |  | `RefCell` | `RwLock` |
 |--|-----------|----------|
 | 執行緒 | 單執行緒 | 多執行緒 |
-| 規則 | 多個 `borrow()` 或一個 `borrow_mut()` | 多個 `read()` 或一個 `write()` |
+| 規則 | 多個 `borrow()` 或一個 `borrow_mut()` | 多條執行緒的 `read()` 或一個 `write()` |
 | 檢查方式 | 執行期，違反會 panic | 作業系統的鎖，違反會阻塞等待 |
+
+不過有一個 `RefCell` 沒有的陷阱：`RefCell` 可以在同一條執行緒裡 `borrow()` 好幾次，但 `RwLock` 說的「多個讀者」指的是**多條執行緒**。同一條執行緒重複拿同一把 `RwLock` 的讀鎖，標準庫明說**可能會 panic**；在某些平台上還可能直接卡住。
 
 ### `Mutex` vs `RwLock`
 
@@ -102,8 +107,9 @@ fn main() {
 
 ## 重點整理
 
-- `RwLock<T>` 區分讀鎖和寫鎖：多個讀者可以同時讀，寫者獨佔。
+- `RwLock<T>` 區分讀鎖和寫鎖：多條執行緒可以同時讀，寫者獨佔。
 - `.read().expect(...)` 取得讀鎖，`.write().expect(...)` 取得寫鎖。
 - guard 透過 `Deref` 操作內容，`drop` 時自動放鎖。
 - 和 `RefCell` 的對照：`RefCell` 是單執行緒版本，`RwLock` 是多執行緒版本。
+- 同一條執行緒不要重複拿同一把 `RwLock` 的讀鎖——那不是 `RefCell` 的 `borrow()`，可能 panic 或卡死。
 - `Mutex` 簡單、開銷小，大部分情況夠用；`RwLock` 適合讀遠多於寫的場景，但開銷較大且有寫者飢餓的風險。

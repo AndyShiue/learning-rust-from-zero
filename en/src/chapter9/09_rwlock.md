@@ -17,24 +17,27 @@ Learn the read-write-separated lock `RwLock<T>`, and how it compares to `Mutex`.
 - **Read lock** (`.read().expect(...)`): several `Thread`s may hold read locks **simultaneously**.
 - **Write lock** (`.write().expect(...)`): exclusive — while a write lock is held, no read locks nor other write locks may exist.
 
+"Several readers at once" is not something a single `Thread` can demonstrate; this episode's example code at the end will show it with three `Thread`s. For now, just how the two locks are taken:
+
 ```rust,editable
 use std::sync::RwLock;
 
 fn main() {
     let lock = RwLock::new(42);
 
-    // Several readers may read at once
+    // Read lock: look, don't touch
     {
-        let r1 = lock.read().expect("read lock failed");
-        let r2 = lock.read().expect("read lock failed"); // OK: many readers
-        println!("r1 = {}, r2 = {}", *r1, *r2);
-    }
+        let r = lock.read().expect("read lock failed");
+        println!("read {}", *r);
+    } // r drops here, releasing the read lock
 
-    // Writing is exclusive
+    // Write lock: exclusive, and you may modify
     {
         let mut w = lock.write().expect("write lock failed");
         *w += 1;
-    }
+    } // w drops here, releasing the write lock
+
+    println!("now {}", *lock.read().expect("read lock failed"));
 }
 ```
 
@@ -49,8 +52,10 @@ The same caution applies: don't let guards live long.
 |  | `RefCell` | `RwLock` |
 |--|-----------|----------|
 | `Thread`s | Single-threaded | Multithreaded |
-| Rule | Many `borrow()`s or one `borrow_mut()` | Many `read()`s or one `write()` |
+| Rule | Many `borrow()`s or one `borrow_mut()` | `read()`s from many `Thread`s, or one `write()` |
 | Enforcement | Runtime; violations panic | The OS's lock; violations block and wait |
+
+There is one trap `RefCell` doesn't have, though: `RefCell` lets you `borrow()` several times on the same `Thread`, but `RwLock`'s "many readers" means **many `Thread`s**. Taking a second read lock on the same `RwLock` from the same `Thread` **may panic** — the standard library says so outright — and on some platforms it can hang outright.
 
 ### `Mutex` vs `RwLock`
 
@@ -102,8 +107,9 @@ fn main() {
 
 ## Recap
 
-- `RwLock<T>` separates read and write locks: many simultaneous readers, one exclusive writer.
+- `RwLock<T>` separates read and write locks: many `Thread`s may read simultaneously, one exclusive writer.
 - `.read().expect(...)` takes the read lock; `.write().expect(...)` the write lock.
 - Guards operate on contents via `Deref`, unlocking automatically on `drop`.
 - Against `RefCell`: `RefCell` is the single-threaded version; `RwLock` the multithreaded one.
+- Don't take a second read lock on the same `RwLock` from the same `Thread` — it isn't `RefCell`'s `borrow()`; it may panic or hang.
 - `Mutex` is simple and cheap — usually enough; `RwLock` suits read-heavy workloads, at higher cost and with writer-starvation risk.
