@@ -45,7 +45,7 @@ So `RefCell` doesn't "bypass" the borrowing rules — it "defers the check."
 
 ### `Rc` + `RefCell`: Mutable Shared Data
 
-`Rc<T>` can share data but not modify it. `RefCell<T>` can modify but not share. Combine them:
+`Rc<T>` gives you shared reading: several `Rc` values can read the same data, but none of them can change it. `RefCell<T>` gives you interior mutability: you can modify through a shared reference, but getting the data into several places still takes an `Rc`. Put them together:
 
 ```rust,noplayground
 use std::rc::Rc;
