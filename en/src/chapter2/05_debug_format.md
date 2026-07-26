@@ -39,7 +39,7 @@ fn main() {
 
 ### `Display` `{}` vs `Debug` `{:?}`
 
-For simple types like numbers and `bool`s, `{}` and `{:?}` print the same thing. So what's the point of `{:?}`?
+For simple types like numbers and `bool`s, `{}` and `{:?}` print much the same thing. So what's the point of `{:?}`?
 
 **It can print things `{}` can't — like tuples.** Tuples only have a `Debug` format, not a `Display` format.
 
