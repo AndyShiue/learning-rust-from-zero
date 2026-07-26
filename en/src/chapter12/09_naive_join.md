@@ -1,4 +1,4 @@
-# Hand-writing join
+# Writing join by Hand
 
 ## Goal of This Episode
 

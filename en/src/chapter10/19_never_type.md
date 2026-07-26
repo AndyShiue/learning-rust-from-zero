@@ -1,4 +1,4 @@
-# never type `!`
+# The Never Type `!`
 
 ## Goal of This Episode
 

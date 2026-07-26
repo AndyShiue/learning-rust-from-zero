@@ -1,4 +1,4 @@
-# Waking the executor with `Thread`s and `Waker`
+# Waking the Executor with `Thread`s and `Waker`s
 
 ## Goal of This Episode
 

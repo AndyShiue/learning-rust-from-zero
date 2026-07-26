@@ -1,4 +1,4 @@
-# The State Machine Behind `async fn`
+# The State Machine behind `async fn`
 
 ## Goal of This Episode
 

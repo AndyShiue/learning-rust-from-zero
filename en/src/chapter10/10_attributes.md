@@ -1,4 +1,4 @@
-# A Tour of attributes
+# An Overview of Attributes
 
 ## Goal of This Episode
 

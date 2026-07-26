@@ -1,4 +1,4 @@
-# graceful shutdown
+# Graceful Shutdown
 
 ## Goal of This Episode
 

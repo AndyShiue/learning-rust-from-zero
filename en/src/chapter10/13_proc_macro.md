@@ -1,4 +1,4 @@
-# proc macro
+# Proc Macros
 
 ## Goal of This Episode
 

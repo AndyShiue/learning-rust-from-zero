@@ -1,4 +1,4 @@
-# `async` Is an effect
+# `async` as an Effect
 
 ## Goal of This Episode
 

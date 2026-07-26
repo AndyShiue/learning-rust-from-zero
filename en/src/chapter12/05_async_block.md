@@ -1,4 +1,4 @@
-# `async` block
+# `async` Blocks
 
 ## Goal of This Episode
 

@@ -1,4 +1,4 @@
-# Testing `async` Programs
+# Testing `async` Code
 
 ## Goal of This Episode
 

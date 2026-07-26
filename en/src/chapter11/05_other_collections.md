@@ -1,4 +1,4 @@
-# A Brief Look at Other Collections
+# A Brief Tour of Other Collections
 
 ## Goal of This Episode
 

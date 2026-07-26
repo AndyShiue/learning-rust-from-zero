@@ -1,4 +1,4 @@
-# `const` generics
+# `const` Generics
 
 ## Goal of This Episode
 

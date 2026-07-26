@@ -1,4 +1,4 @@
-# `extern` blocks
+# `extern` Blocks
 
 ## Goal of This Episode
 

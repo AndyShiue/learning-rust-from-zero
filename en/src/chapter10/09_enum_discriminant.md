@@ -1,4 +1,4 @@
-# `enum` discriminant
+# `enum` Discriminants
 
 ## Goal of This Episode
 

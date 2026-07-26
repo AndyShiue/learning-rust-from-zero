@@ -1,4 +1,4 @@
-# Hand-writing a `Delay` `Future`
+# Writing a `Delay` `Future` by Hand
 
 ## Goal of This Episode
 

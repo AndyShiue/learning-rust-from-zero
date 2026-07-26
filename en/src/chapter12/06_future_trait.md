@@ -1,4 +1,4 @@
-# The `Future` `trait` and the Most Bare-bones executor
+# The `Future` `trait` and the Most Bare-bones Executor
 
 ## Goal of This Episode
 

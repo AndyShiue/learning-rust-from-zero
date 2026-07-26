@@ -1,4 +1,4 @@
-# `Semaphore` and backpressure
+# `Semaphore` and Backpressure
 
 ## Goal of This Episode
 

@@ -1,4 +1,4 @@
-# Hand-writing a reactor
+# Writing a Reactor by Hand
 
 ## Goal of This Episode
 

@@ -1,4 +1,4 @@
-# associated `const`
+# Associated `const`s
 
 ## Goal of This Episode
 

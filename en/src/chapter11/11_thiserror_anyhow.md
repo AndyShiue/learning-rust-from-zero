@@ -1,4 +1,4 @@
-# A Brief Look at `thiserror` / `anyhow`
+# A Brief Introduction to `thiserror` / `anyhow`
 
 ## Goal of This Episode
 

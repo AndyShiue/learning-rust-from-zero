@@ -1,4 +1,4 @@
-# Waiting on `Delay` with `.await`
+# Waiting for `Delay` with `.await`
 
 ## Goal of This Episode
 

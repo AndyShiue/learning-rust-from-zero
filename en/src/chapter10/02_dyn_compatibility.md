@@ -1,4 +1,4 @@
-# `dyn` compatibility
+# `dyn` Compatibility
 
 ## Goal of This Episode
 

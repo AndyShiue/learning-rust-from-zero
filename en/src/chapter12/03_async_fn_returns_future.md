@@ -1,4 +1,4 @@
-# An `async fn` Returns a `Future`
+# `async fn` Returns a `Future`
 
 ## Goal of This Episode
 

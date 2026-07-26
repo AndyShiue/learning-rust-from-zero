@@ -1,4 +1,4 @@
-# `spawn` and the ready queue
+# `spawn` and the Ready Queue
 
 ## Goal of This Episode
 

@@ -1,4 +1,4 @@
-# Why `async` Is Needed
+# Why We Need `async`
 
 ## Goal of This Episode
 
