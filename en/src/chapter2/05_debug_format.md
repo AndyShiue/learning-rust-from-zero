@@ -66,11 +66,11 @@ fn main() {
 }
 ```
 
-It prints the file name, line number, and value — super convenient:
+It prints the file name, the line and column, and the value — super convenient:
 
 ```ignore
-[src/main.rs:3] x = 5
-[src/main.rs:4] x + 1 = 6
+[src/main.rs:3:5] x = 5
+[src/main.rs:4:5] x + 1 = 6
 ```
 
 ## Recap
@@ -78,4 +78,4 @@ It prints the file name, line number, and value — super convenient:
 - `{}` is the `Display` format, meant for end users, but not every type supports it.
 - `{:?}` is the `Debug` format, meant for developers; compound types like tuples support it.
 - `{:#?}` is the prettified `Debug` format — clearer for complex data.
-- `dbg!` is a great helper for quick debugging; it prints the file name and line number.
+- `dbg!` is a great helper for quick debugging; it prints the file name plus the line and column.
