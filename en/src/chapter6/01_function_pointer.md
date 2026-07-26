@@ -62,7 +62,7 @@ A function pointer's type is determined by its parameters and return value:
 
 ### Function Pointers vs Next Episode's Closures
 
-The function pointer `fn(...) -> ...` is a concrete type with a fixed size. But it has one limitation — the function body can't use local variables from the call site. Next episode introduces closures, which can.
+The function pointer `fn(...) -> ...` is a concrete type with a fixed size. But a function can't reach the local variables inside another function — to use one, you have to pass it in as a parameter. Next episode introduces closures, which are different: **wherever a closure is written, whatever local variables sit next to it are simply available**, without being passed in one by one.
 
 ## Example Code
 
@@ -115,4 +115,4 @@ fn main() {
 
 - The function pointer type is written `fn(param_types) -> return_type` — note the lowercase `fn`.
 - A function's name works directly as a value: assign it to variables, pass it to other functions, store it in containers like `Vec`.
-- Function pointers' limitation: no access to the call site's local variables. Next episode's closures can do that.
+- A function can't reach the local variables inside another function; anything it needs must be passed in as a parameter. Next episode's closures can use the local variables sitting next to where they're written.

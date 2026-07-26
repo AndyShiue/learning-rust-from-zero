@@ -8,7 +8,7 @@ Learn basic closure syntax, see how closures capture outside variables, and look
 
 ### Closure Syntax
 
-Last episode's function pointers are handy, but limited: they can't use local variables from the call site. Closures exist to solve exactly that.
+Last episode's function pointers are handy, but a function can't reach the local variables inside another function — anything it needs has to be passed in as a parameter. Closures are different: wherever one is written, it can use the local variables right there — which is exactly why they exist.
 
 A closure's basic syntax wraps the parameters in `|`:
 
