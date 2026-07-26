@@ -22,10 +22,10 @@ Like arrays and tuples, slices can only be printed with `{:?}`, not `{}`.
 
 `&arr[1..4]` means: "Starting at index 1, up to just **before** index 4."
 
-- Index 1 → 2 (included).
-- Index 2 → 3 (included).
-- Index 3 → 4 (included).
-- Index 4 → 5 (**not included**).
+- Index 1 → value 2 (included).
+- Index 2 → value 3 (included).
+- Index 3 → value 4 (included).
+- Index 4 → value 5 (**not included**).
 
 So the result is `[2, 3, 4]`.
 
