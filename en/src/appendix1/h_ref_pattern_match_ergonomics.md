@@ -58,7 +58,7 @@ fn main() {
 }
 ```
 
-This is what's called **`match` ergonomics**. Seeing you `match` a reference (`&opt`), the compiler adds the `ref` in the pattern for you.
+This is what's called **`match` ergonomics**: the effect you used to have to spell out with `ref`, the compiler now gives you automatically once it sees you `match` a reference (`&opt`).
 
 ### So Is `ref` Still Needed?
 
