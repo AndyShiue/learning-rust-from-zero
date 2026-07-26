@@ -21,7 +21,7 @@
 ### 三要素組起來
 
 - **訊號來源**用 `tokio::signal::ctrl_c()`——它是個 `Future`，`.await` 它會等到使用者按下 Ctrl-C（實務上還會再加上監聽 SIGTERM）。
-- **廣播 shutdown** 用第 28 集的 `watch` 當一個 shutdown flag：一對多、而且晚訂閱的 worker 也讀得到當前狀態。
+- **廣播 shutdown** 用第 26 集的 `watch` 當一個 shutdown flag：一對多、而且晚訂閱的 worker 也讀得到當前狀態。
 - **等待 drain** 用第 31 集的 `JoinSet`，`join_next()` 一直收到全空為止。
 
 每個 worker 內部用 `select!`，**同時**等「下一份工作」和「shutdown 訊號」。如果先等到工作，就離開 `select!` 處理它；如果先等到 shutdown，就不再拿新工作：

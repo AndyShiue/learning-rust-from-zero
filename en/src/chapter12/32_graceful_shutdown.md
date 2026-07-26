@@ -21,7 +21,7 @@ We'll match each one to a tool we've already learned.
 ### Assembling the Three Ingredients
 
 - The **signal source** is `tokio::signal::ctrl_c()` — it's a `Future`; `.await`ing it waits until the user presses Ctrl-C (in practice you'd also listen for SIGTERM).
-- **Broadcasting shutdown** uses Episode 28's `watch` as a shutdown flag: one-to-many, and workers who subscribe late can still read the current state.
+- **Broadcasting shutdown** uses Episode 26's `watch` as a shutdown flag: one-to-many, and workers who subscribe late can still read the current state.
 - **Waiting for the drain** uses Episode 31's `JoinSet` — `join_next()` until it's empty.
 
 Each worker internally uses `select!` to wait for "the next job" and "the shutdown signal" **at the same time**. If a job arrives first, leave the `select!` and process it; if shutdown arrives first, stop taking new jobs:

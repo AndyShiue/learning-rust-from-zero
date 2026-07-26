@@ -112,7 +112,7 @@ async fn main() {
 
 ### `Notify` vs `watch`
 
-`Notify` is easily confused with last episode's `watch`, but their roles differ:
+`Notify` is easily confused with Episode 26's `watch`, but their roles differ:
 
 - **`Notify`**: **carries no data and stores at most one permit**. It only handles "poking people awake"; what to look at upon waking is yours to manage with a `Mutex` or similar.
 - **`watch`**: **carries the "latest value"**. It stores the latest state itself, and receivers read it directly upon waking.
