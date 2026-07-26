@@ -26,7 +26,7 @@ async fn main() {
 直覺上你會以為呼叫 `say_hello()` 就會印出 `hello`，但實際上**什麼都不會發生**。函數體裡的 `println!` 完全沒有執行。不只如此，編譯器還會給你一個警告：
 
 ```text
-warning: unused implementor of `Future` that must be used
+warning: unused implementer of `Future` that must be used
 note: futures do nothing unless you `.await` or poll them
 ```
 

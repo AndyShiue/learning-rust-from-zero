@@ -26,7 +26,7 @@ async fn main() {
 Intuitively you'd expect calling `say_hello()` to print `hello`, but in fact **nothing happens**. The `println!` in the function body never runs. Not only that, the compiler gives you a warning:
 
 ```text
-warning: unused implementor of `Future` that must be used
+warning: unused implementer of `Future` that must be used
 note: futures do nothing unless you `.await` or poll them
 ```
 
