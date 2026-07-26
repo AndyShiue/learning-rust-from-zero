@@ -77,15 +77,18 @@ impl<T: Clone> Pair<T> {
 #     second: T,
 # }
 #
-# impl<T: Clone> Pair<T> {
+# impl<T> Pair<T> {
 #     fn new(first: T, second: T) -> Pair<T> {
 #         Pair { first, second }
 #     }
+# }
 #
+# impl<T: Clone> Pair<T> {
 #     fn to_tuple(&self) -> (T, T) {
 #         (self.first.clone(), self.second.clone())
 #     }
 # }
+#
 # fn main() {
     let p1 = Pair::new(1, 2); // i32 有 Clone
     let t = p1.to_tuple();    // 可以呼叫 ✓

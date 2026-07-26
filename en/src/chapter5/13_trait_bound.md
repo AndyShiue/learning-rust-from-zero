@@ -77,15 +77,18 @@ This says: only when `T` implements `Clone` does `Pair<T>` have the `to_tuple` m
 #     second: T,
 # }
 #
-# impl<T: Clone> Pair<T> {
+# impl<T> Pair<T> {
 #     fn new(first: T, second: T) -> Pair<T> {
 #         Pair { first, second }
 #     }
+# }
 #
+# impl<T: Clone> Pair<T> {
 #     fn to_tuple(&self) -> (T, T) {
 #         (self.first.clone(), self.second.clone())
 #     }
 # }
+#
 # fn main() {
     let p1 = Pair::new(1, 2); // i32 has Clone
     let t = p1.to_tuple();    // Callable ✓
