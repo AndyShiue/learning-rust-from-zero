@@ -83,9 +83,7 @@ Next, a point that's very easy to get wrong:
 
 > What `Pin<P>` pins is **the value `P` points to** — not "the `Pin<P>` pointer variable itself."
 
-So a `Pin<Box<T>>` can **itself** be moved around freely. Shift it from one variable to another, stuff it into a `Vec`, take it back out — all fine, because what you're moving is only the pointer; the value it points to stays put at its original spot on the heap.
-
-That answers a question you may have had about earlier episodes: doesn't the executor keep pushing `Pin<Box<Fut>>`s into the queue and `pop`ping them out? Isn't the `Fut` being moved all over? Below we print the pointed-to value's address with `{:p}` (`&*` obtains a `&T` from `Pin<P<T>>`) and let the facts speak:
+So a `Pin<Box<T>>` can **itself** be moved around freely. Shift it from one variable to another, stuff it into a `Vec`, take it back out — all fine, because what you're moving is only the pointer; the value it points to stays put at its original spot on the heap. Below we print the pointed-to value's address with `{:p}` (`&*` obtains a `&T` from `Pin<P<T>>`) and let the facts speak:
 
 ```rust,editable
 use std::pin::Pin;
