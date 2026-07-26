@@ -206,7 +206,7 @@
     - [`extern` Blocks](chapter10/17_extern.md)
     - [`union`](chapter10/18_union.md)
     - [The Never Type `!`](chapter10/19_never_type.md)
-- [The Standard Library, Beyond the Basics](chapter11/README.md)
+- [Advanced Standard Library Topics](chapter11/README.md)
     - [`AsRef<T>` / `AsMut<T>`](chapter11/01_as_ref.md)
     - [`Ordering` and Sorting](chapter11/02_ordering_sort.md)
     - [`HashMap<K, V>`](chapter11/03_hash_map.md)
