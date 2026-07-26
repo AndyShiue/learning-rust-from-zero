@@ -2,7 +2,7 @@
 
 ## Goal of This Episode
 
-Understand Rust's borrowing rules: at any one time, either one `&mut` or many `&`s — plus the problem of dangling references.
+Understand Rust's borrowing rules: at any one time, either one `&mut` or many `&`s; why a borrowed value can't be moved; plus the problem of dangling references.
 
 ## Concept
 
@@ -58,9 +58,7 @@ fn main() {
 }
 ```
 
-### Dangling References
-
-One more important rule: **a reference must point to a value that's still valid**. If a reference will still be used but the value it points to has become invalid, it becomes a **dangling reference** — pointing at a place that no longer exists. Rust stops this at compile time.
+### You Can't Move a Value That's Borrowed
 
 We learned earlier that a move makes the original variable unusable. So while a value is still borrowed by a reference, you can't move it away:
 
@@ -82,27 +80,7 @@ fn main() {
 
 `r` still uses the borrowed value later, but `let p2 = p;` would move `p` away, making `p` unusable from that line on. Rust won't let you keep a reference that will still be used while invalidating the original variable.
 
-Likewise, you can't move a non-`Copy` value out from behind a reference:
-
-```rust,compile_fail
-#[derive(Debug)]
-struct Point {
-    x: i32,
-    y: i32,
-}
-
-fn main() {
-    let p = Point { x: 1, y: 2 };
-    let r = &p;
-
-    let moved = *r; // Compile error! Can't move a Point out from behind a &Point
-    println!("{:?}", moved);
-}
-```
-
-`*r` follows the reference to the original value. But `Point` doesn't implement `Copy`; storing it into `moved` would mean moving the `Point` out. That would make `r` a dangling reference — `r` still exists, but the value it borrowed has been carried off — so Rust forbids this too. Of course, if the value behind `*r` were a `Copy` type like `i32`, it's a different story: Rust copies it instead of moving, so no rule is broken.
-
-Worth noting: a borrow doesn't live from the reference's creation all the way to the closing brace. Once the reference is used for the last time, the borrow ends:
+That said, a borrow doesn't live from the reference's creation all the way to the closing brace. Once the reference is used for the last time, the borrow ends — and moving is fine again:
 
 ```rust,editable
 #[derive(Debug)]
@@ -122,7 +100,35 @@ fn main() {
 }
 ```
 
-Besides the move issue, another common dangling reference happens when a reference "escapes" from an inner scope:
+There's a second case: you can't move a non-`Copy` value out from behind a reference.
+
+```rust,compile_fail
+#[derive(Debug)]
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+fn main() {
+    let p = Point { x: 1, y: 2 };
+    let r = &p;
+
+    let moved = *r; // Compile error! Can't move a Point out from behind a &Point
+    println!("{:?}", moved);
+}
+```
+
+`*r` follows the reference to the original value. `Point` doesn't implement `Copy`, so storing it into `moved` is a move, not a copy.
+
+This one differs from the case above: there, waiting until `r` was done with the value was enough; here it makes no difference whether `r` is ever used again. `p` is the owner of that value, and `r` only borrowed a look at it — what you borrow, you may look at but not carry away.
+
+Of course, if the value behind `*r` were a `Copy` type like `i32`, it's a different story: Rust copies it instead of moving, so no rule is broken.
+
+### Dangling References
+
+One more important rule: **a reference must point to a value that's still valid**. If a reference will still be used but the value it points to has become invalid, it becomes a **dangling reference** — pointing at a place that no longer exists. Rust stops this at compile time.
+
+The most common dangling reference happens when a reference "escapes" from an inner scope:
 
 ```rust,compile_fail
 # fn main() {
@@ -195,7 +201,7 @@ fn main() {
 - **Only one `&mut` at a time** — two simultaneous mutable references are forbidden.
 - **`&` and `&mut` can't coexist** — either everyone reads, or exactly one person modifies.
 - **Multiple `&`s can coexist** — many simultaneous readers are fine.
-- **Dangling references**: a reference must point to a valid value — during a borrow you can't move the original, nor move a non-`Copy` value out from behind a reference.
-- A borrow ends after the reference's last use; afterward you can move the original.
-- A reference can't outlive the value it points to — whether the value left its scope or a function returned a reference to a local.
+- **You can't move a value that's borrowed**: while the reference will still be used, the original can't be moved away; once its last use is past, the borrow ends and moving is fine again.
+- **Nor can you move a non-`Copy` value out from behind a reference**: what you borrow, you may look at but not carry away — and that holds whether or not the reference is used again.
+- **Dangling references**: a reference must point to a valid value and can't outlive the value it points to — whether the value left its scope or a function returned a reference to a local.
 - These rules let Rust prevent conflicting access at compile time; later we'll learn lifetimes for tracking reference validity more precisely.
