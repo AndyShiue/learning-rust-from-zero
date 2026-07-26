@@ -37,7 +37,7 @@ fn main() {
 
 ### The Trouble with Floats
 
-`f64` doesn't implement `Ord` (Chapter 5 mentioned why: comparing `NAN` with anything is `false`), so you can't use `cmp::min` on it directly.
+`f64` doesn't implement `Ord` (Chapter 5 mentioned why: `NAN` compares as ordered against nothing at all), so you can't use `cmp::min` on it directly.
 
 `f64` only has `PartialOrd`, whose method `partial_cmp` returns `Option<Ordering>` instead of `Ordering` — when `NAN` shows up there's no way to compare, so it can only return `None`.
 

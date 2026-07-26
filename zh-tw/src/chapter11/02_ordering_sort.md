@@ -37,7 +37,7 @@ fn main() {
 
 ### 浮點數的問題
 
-`f64` 沒有實作 `Ord`（第 5 章提過，因為 `NAN` 和任何值比較都是 `false`），所以不能直接用 `cmp::min`。
+`f64` 沒有實作 `Ord`（第 5 章提過，因為 `NAN` 和任何值都比不出大小），所以不能直接用 `cmp::min`。
 
 `f64` 只有 `PartialOrd`，它的方法是 `partial_cmp`，回傳 `Option<Ordering>` 而不是 `Ordering`——因為碰到 `NAN` 的時候沒辦法比大小，只能回傳 `None`。
 

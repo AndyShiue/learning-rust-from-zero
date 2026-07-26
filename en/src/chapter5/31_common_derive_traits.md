@@ -31,7 +31,7 @@ If your type contains no floats, you can usually `derive` both `PartialEq` and `
 
 `Ord` is a total ordering — guaranteeing any two values can be ranked. Because of `NAN`, `f64` has only `PartialOrd`, not `Ord`.
 
-`NAN` compared with anything returns `false` — including itself:
+`NAN` compared with anything using `<`, `>`, `<=` or `>=`, or with `==`, is `false` — itself included. Only `!=` is the exception: it is always `true`:
 
 ```rust,editable
 fn main() {
@@ -43,7 +43,7 @@ fn main() {
 }
 ```
 
-That's why `f64` can't have `Ord` — there's no way to place `NAN` in a sorted order, since every comparison with it is `false`; no position makes sense for it.
+That's why `f64` can't have `Ord` — there's no way to place `NAN` in a sorted order, since it stands in no ordering relation to anything; no position makes sense for it.
 
 ### The Full Relationship among the Four `trait`s
 
