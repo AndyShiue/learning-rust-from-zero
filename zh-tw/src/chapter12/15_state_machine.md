@@ -8,7 +8,7 @@
 
 ### `.await` 不是開新 `Thread`
 
-先破除一個可能的誤會。當你看到 `.await`，可能會以為它「在背後偷偷開了一條 `Thread` 去等」。**完全不是。** 從第 6 集到現在，我們手寫的這套 runtime 從頭到尾就是一條 executor `Thread` 在反覆 `poll`，`.await` 沒有變出任何新 `Thread`。
+先破除一個可能的誤會。當你看到 `.await`，可能會以為它「在背後偷偷開了一條 `Thread` 去等」。**完全不是。** 從第 6 集到現在，我們手寫這套 runtime 的 executor 從頭到尾就是一條 `Thread` 在反覆 `poll`，`.await` 沒有變出任何新 `Thread`。
 
 那 `.await` 到底做了什麼？它把你的函數**切成好幾段**——每個 `.await` 是一個切點。函數可以在切點暫停、把控制權交還給 executor，之後再從同一個切點恢復。
 

@@ -8,7 +8,7 @@ Unmask `async fn`: the compiler rewrites it into a **state machine** that can pa
 
 ### `.await` Doesn't Open a New `Thread`
 
-First, let's dispel a possible misconception. Seeing `.await`, you might imagine it "secretly opens a `Thread` in the background to wait." **Absolutely not.** From Episode 6 until now, our hand-written runtime has been one executor `Thread` `poll`ing over and over, start to finish — `.await` conjured no new `Thread`s.
+First, let's dispel a possible misconception. Seeing `.await`, you might imagine it "secretly opens a `Thread` in the background to wait." **Absolutely not.** From Episode 6 until now, the executor of our hand-written runtime has been one `Thread` `poll`ing over and over, start to finish — `.await` conjured no new `Thread`s.
 
 So what does `.await` actually do? It **cuts your function into segments** — every `.await` is a cut point. The function can pause at a cut point, hand control back to the executor, and later resume from that same cut point.
 
