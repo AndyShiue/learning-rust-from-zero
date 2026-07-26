@@ -223,7 +223,7 @@
     - [第一個 `async` 程式](chapter12/01_first_async_program.md)
     - [為什麼需要 `async`](chapter12/02_why_async.md)
     - [`async fn` 回傳的是 `Future`](chapter12/03_async_fn_returns_future.md)
-    - [`async` 是一種 effect](chapter12/04_async_as_an_effect.md)
+    - [`async` 是一種作用](chapter12/04_async_as_an_effect.md)
     - [`async` block](chapter12/05_async_block.md)
     - [`Future` `trait` 與最陽春的 executor](chapter12/06_future_trait.md)
     - [手寫一個 `Delay` `Future`](chapter12/07_delay_future.md)

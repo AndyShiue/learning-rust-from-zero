@@ -1,4 +1,4 @@
-# `async` 是一種 effect
+# `async` 是一種作用
 
 ## 本集目標
 
