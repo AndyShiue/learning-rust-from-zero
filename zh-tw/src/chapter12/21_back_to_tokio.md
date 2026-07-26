@@ -131,7 +131,7 @@ async fn main() {
 }
 ```
 
-單執行緒 runtime 的好處是沒有跨 `Thread` 搬動的問題，缺點是不能真平行。
+單執行緒 runtime 的好處是沒有跨 `Thread` 的成本，缺點是不能真平行。
 
 ## 重點整理
 

@@ -131,7 +131,7 @@ async fn main() {
 }
 ```
 
-The single-threaded runtime's upside is no cross-`Thread` moving to worry about; the downside is no true parallelism.
+The single-threaded runtime's upside is that it pays no cross-`Thread` cost; the downside is no true parallelism.
 
 ## Recap
 
