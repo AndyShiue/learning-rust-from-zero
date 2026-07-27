@@ -146,7 +146,7 @@ struct GreetRef<'a> {
 // let greet = GreetRef { name: &name };
 
 impl<'a> GreetRef<'a> {
-    fn call_ref(&self) {
+    fn call(&self) {
         println!("Hello, {}!", self.name);
     }
 }
@@ -217,7 +217,7 @@ struct GreetRef<'a> {
 }
 
 impl<'a> GreetRef<'a> {
-    fn call_ref(&self) {
+    fn call(&self) {
         // 閉包體：只讀取，不修改
         println!("[Fn] Hello, {}!", self.name);
     }
@@ -243,9 +243,9 @@ fn main() {
     // --- Fn：只讀取，呼叫幾次都行 ---
     let name3 = String::from("Charlie");
     let greet_ref = GreetRef { name: &name3 };
-    greet_ref.call_ref();
-    greet_ref.call_ref();
-    greet_ref.call_ref();
+    greet_ref.call();
+    greet_ref.call();
+    greet_ref.call();
 }
 ```
 
