@@ -64,7 +64,7 @@
 2. 不主動超過讀者目前讀到的集數。
 3. 範例與練習題只能用讀者已學過的語法、API、術語或寫法。
 4. 若答案需要未學概念，必須標明它之後才會教，並先用目前程度能懂的方式處理。
-5. 第二部（第 9～11 章）預設讀者已讀完第一部與附錄一。
+5. 第二部（第 9～12 章）預設讀者已讀完第一部與附錄一。
 
 ### 2.2 練習題規則
 
@@ -133,7 +133,7 @@
 | 第 1 章 | `fn main()`、`println!`、註解、變數、數字與字元、基本運算、比較與邏輯運算、`if`/`else`、scope、`let mut`、stdin 固定句型、`parse::<i32>()` 固定句型、`loop`/`while`/`for`、range、`break`、`continue`、`cargo new`/`cargo run` | 自訂函數、陣列、`Vec`、`String` 詳解、所有權、`match`、struct、enum、`trait`、泛型、生命週期、閉包、Iterator |
 | 第 2 章 | `const`、shadowing、底線變數、tuple、`{:?}`/`Debug`、自訂函數、參數、回傳值、early `return`、遞迴、陣列、陣列走訪、索引、切片 `&[T]`、`&str` 型別 | 完整所有權與借用規則、`Vec`、struct/enum、`trait`、泛型、Iterator chain |
 | 第 3 章 | `struct`、tuple/unit struct、`enum`、`match`、block 表達式、各種 pattern、解構、`if let`、`while let`、`let else`、associated function、method、`Self` | 所有權細節、`&self`/`&mut self` method、對同一個 by-value method 物件連續呼叫 |
-| 第 4 章 | 所有權、move、`clone`、`Copy`、借用 `&T`、可變借用 `&mut T`、借用規則、`self`/`&self`/`&mut self`、stack/heap、`String`、`&str`、`Vec` | 泛型、`Option`/`Result` 正式錯誤處理、`trait` bound、生命週期標注、閉包、Iterator chain |
+| 第 4 章 | 所有權、`trait` 定義與實作、`#[derive]`、move、`clone`、`Copy`、借用 `&T`、可變借用 `&mut T`、借用規則、`self`/`&self`/`&mut self`、stack/heap、`String`、`&str`、`Vec` | 泛型、`Option`/`Result` 正式錯誤處理、`trait` bound、生命週期標注、閉包、Iterator chain |
 | 第 5 章 | 泛型、`Option<T>`、`Result<T, E>`、`?`、`trait`、`trait` bound、`where`、`use` 基礎、`Display`、`From`/`Into`、`impl Trait`、`Drop`、`Box`、`Rc`、`Deref`、`Cell`/`RefCell`、生命週期、supertrait、derive、associated type、`Cow` | 閉包與 Iterator chain（到第 6 章才正式使用）、多檔案模組（到第 7 章才正式使用） |
 | 第 6 章 | 函數指標、閉包、`FnOnce`/`FnMut`/`Fn`、`move` 閉包、`Iterator`、`into_iter`/`iter_mut`/`iter`、`map`、`filter`、`collect`、`sum`、`fold`、`zip`、`enumerate`、惰性求值 | `mod`/多檔案 `crate` 組織（第 7 章） |
 | 第 7 章 | Cargo 與 crates.io、`mod`、檔案模組、`pub`、`use`、`pub use`、orphan rule、文件註解、`cargo test`、`#[test]`、`cargo publish` | 第二部進階主題除非讀者主動問 |
@@ -147,6 +147,7 @@
 
 | 內容 | 第一次正式可用 | 在那之前怎麼辦 |
 | --- | --- | --- |
+| `trait` 定義、`impl Trait for Type`、`#[derive]` | 第 4 章第 2 集 | 前面不要自己定義 `trait` 或加 `#[derive]`；`{:?}` 只用在 tuple、陣列這類內建就印得出來的東西上 |
 | `&` / `&mut` 的借用意義 | 第 4 章第 5～7 集 | 前面若出現在 stdin、切片等固定句型，只照抄，不展開講借用規則 |
 | `&self` / `&mut self` method | 第 4 章第 8 集 | 第 3 章 method 只用 `self`；避免重複呼叫會 move 掉值的方法 |
 | `String` 所有權差異 | 第 4 章第 10～11 集 | 前面可使用字串字面值，少談 heap 與 ownership |
@@ -163,7 +164,8 @@
 | `mod` 與多檔案 | 第 7 章第 2～3 集 | 前面範例放在單一 `.rs` 檔 |
 | `cargo test` / `#[test]` | 第 7 章第 6 集 | 前面用 `cargo run` 驗證 |
 | `async fn` / `.await` / `#[tokio::main]` | 第 12 章第 1 集 | 前面不要主動引入；若讀者問，先說第 12 章會正式教 |
-| `Future` / `poll` / `Poll` / executor | 第 12 章第 6 集 | 第 12 章第 1～5 集只用使用者視角說「`.await` 等它好」 |
+| `Future`（型別名稱與惰性語意） | 第 12 章第 3 集 | 第 12 章第 1～2 集只用使用者視角說「`.await` 等它好」 |
+| `poll` / `Poll` / executor | 第 12 章第 6 集 | 第 12 章第 3～5 集可以說 `Future` 要被推動才會前進，但不要拆開輪詢機制與執行器 |
 | `Waker` / `Task` / ready queue / reactor | 第 12 章第 10～14 集 | 前面不要提前講底層喚醒與 I/O 事件通知 |
 | `Pin` / `Unpin` / `pin!` | 第 12 章第 17～19 集 | 前面只用書中固定句型；不要展開自我參照與 pinning |
 | `tokio::spawn` 的 `Send + 'static` | 第 12 章第 21 集 | 前面若出現 `spawn`，只當作「交給 runtime 背景跑」 |
@@ -178,7 +180,7 @@
 3. 範例必須能編譯。
 4. 預期輸出用 fenced code block 包起來。
 5. 程式裡可以用中文訊息，例如 `println!("請輸入分數：");`。
-6. 第 5 章第 10 集之前不要用 `.unwrap()`；教學上優先用 `.expect("訊息")`。
+6. 第 5 章第 9 集之前不要用 `.unwrap()`；教學上優先用 `.expect("訊息")`。
 7. 第 5 章第 11 集之前不要用 `?`。
 8. 第 6 章之前不要用 closure 或 iterator chain。
 9. 第 7 章之前不要建議拆檔案或設計模組。

@@ -64,7 +64,7 @@ These rules outrank your own teaching instincts.
 2. Never voluntarily go beyond the episode the reader has reached.
 3. Examples and exercises may only use syntax, APIs, terminology, or styles the reader has already learned.
 4. If an answer requires an untaught concept, you must flag that it's taught later, and first handle it in a way the current level can understand.
-5. Part II (Chapters 9–11) assumes the reader has finished Part I and Appendix I.
+5. Part II (Chapters 9–12) assumes the reader has finished Part I and Appendix I.
 
 ### 2.2 Exercise Rules
 
@@ -121,7 +121,7 @@ Notes:
 - **There is no `chapter8/`, and that's normal.** It's the author's arrangement, not a missing file.
 - Each episode usually ends with a "Recap." When judging what an episode taught, that section is a great place to read first.
 - Appendix I, despite the name, is part of Part I's main line; entering Part II assumes it has been read.
-- The English edition is still being translated. Some files in this bundle may be empty stubs; the Traditional Chinese original is the authoritative text.
+- The English edition is a translation of the Traditional Chinese original; where the two disagree, the Chinese text is authoritative.
 
 ---
 
@@ -134,7 +134,7 @@ Use this section to quickly establish "what the reader can currently understand.
 | Chapter 1 | `fn main()`, `println!`, comments, variables, numbers and chars, basic arithmetic, comparison and logical operators, `if`/`else`, scope, `let mut`, the fixed stdin boilerplate, the fixed `parse::<i32>()` boilerplate, `loop`/`while`/`for`, ranges, `break`, `continue`, `cargo new`/`cargo run` | Custom functions, arrays, `Vec`, `String` in detail, ownership, `match`, structs, enums, `trait`s, generics, lifetimes, closures, Iterator |
 | Chapter 2 | `const`, shadowing, underscore variables, tuples, `{:?}`/`Debug`, custom functions, parameters, return values, early `return`, recursion, arrays, array iteration, indexing, slices `&[T]`, the `&str` type | Full ownership and borrowing rules, `Vec`, struct/enum, `trait`s, generics, Iterator chains |
 | Chapter 3 | `struct`, tuple/unit structs, `enum`, `match`, block expressions, the various patterns, destructuring, `if let`, `while let`, `let else`, associated functions, methods, `Self` | Ownership details, `&self`/`&mut self` methods, repeatedly calling by-value methods on the same object |
-| Chapter 4 | Ownership, move, `clone`, `Copy`, borrowing `&T`, mutable borrowing `&mut T`, the borrowing rules, `self`/`&self`/`&mut self`, stack/heap, `String`, `&str`, `Vec` | Generics, formal `Option`/`Result` error handling, `trait` bounds, lifetime annotations, closures, Iterator chains |
+| Chapter 4 | Ownership, defining and implementing `trait`s, `#[derive]`, move, `clone`, `Copy`, borrowing `&T`, mutable borrowing `&mut T`, the borrowing rules, `self`/`&self`/`&mut self`, stack/heap, `String`, `&str`, `Vec` | Generics, formal `Option`/`Result` error handling, `trait` bounds, lifetime annotations, closures, Iterator chains |
 | Chapter 5 | Generics, `Option<T>`, `Result<T, E>`, `?`, `trait`s, `trait` bounds, `where`, `use` basics, `Display`, `From`/`Into`, `impl Trait`, `Drop`, `Box`, `Rc`, `Deref`, `Cell`/`RefCell`, lifetimes, supertraits, derive, associated types, `Cow` | Closures and Iterator chains (formally used in Chapter 6), multi-file modules (formally used in Chapter 7) |
 | Chapter 6 | Function pointers, closures, `FnOnce`/`FnMut`/`Fn`, `move` closures, `Iterator`, `into_iter`/`iter_mut`/`iter`, `map`, `filter`, `collect`, `sum`, `fold`, `zip`, `enumerate`, lazy evaluation | `mod`/multi-file `crate` organization (Chapter 7) |
 | Chapter 7 | Cargo and crates.io, `mod`, file modules, `pub`, `use`, `pub use`, the orphan rule, doc comments, `cargo test`, `#[test]`, `cargo publish` | Part II's advanced topics unless the reader asks |
@@ -148,6 +148,7 @@ Use this section to quickly establish "what the reader can currently understand.
 
 | Content | First formally usable | What to do before then |
 | --- | --- | --- |
+| Defining a `trait`, `impl Trait for Type`, `#[derive]` | Ch. 4, Ep. 2 | Don't define `trait`s or add `#[derive]` earlier; use `{:?}` only on things that already print, like tuples and arrays |
 | The borrowing meaning of `&` / `&mut` | Ch. 4, Ep. 5–7 | If it appears earlier in fixed boilerplate like stdin or slices, copy it verbatim without unfolding the borrowing rules |
 | `&self` / `&mut self` methods | Ch. 4, Ep. 8 | Chapter 3 methods use only `self`; avoid repeatedly calling methods that move the value |
 | `String` ownership differences | Ch. 4, Ep. 10–11 | Earlier on, string literals are fine; go light on heap and ownership |
@@ -164,7 +165,8 @@ Use this section to quickly establish "what the reader can currently understand.
 | `mod` and multiple files | Ch. 7, Ep. 2–3 | Keep earlier examples in a single `.rs` file |
 | `cargo test` / `#[test]` | Ch. 7, Ep. 6 | Verify with `cargo run` before then |
 | `async fn` / `.await` / `#[tokio::main]` | Ch. 12, Ep. 1 | Don't volunteer them earlier; if asked, say Chapter 12 teaches them formally |
-| `Future` / `poll` / `Poll` / executors | Ch. 12, Ep. 6 | In Ch. 12 Ep. 1–5, stick to the user's view: "`.await` waits for it" |
+| `Future` (the type's name and its laziness) | Ch. 12, Ep. 3 | In Ch. 12 Ep. 1–2, stick to the user's view: "`.await` waits for it" |
+| `poll` / `Poll` / executors | Ch. 12, Ep. 6 | In Ep. 3–5 you may say a `Future` only advances when something drives it; don't unfold the polling machinery or the executor |
 | `Waker` / `Task` / ready queue / reactor | Ch. 12, Ep. 10–14 | Don't front-run the low-level wakeup and I/O event notification story |
 | `Pin` / `Unpin` / `pin!` | Ch. 12, Ep. 17–19 | Use only the book's fixed phrasing earlier; don't unfold self-reference and pinning |
 | `tokio::spawn`'s `Send + 'static` | Ch. 12, Ep. 21 | If `spawn` appears earlier, treat it as "hand it to the runtime to run in the background" |
@@ -179,7 +181,7 @@ Use this section to quickly establish "what the reader can currently understand.
 3. Examples must compile.
 4. Wrap expected output in fenced code blocks.
 5. Messages in code should be in English, e.g. `println!("Please enter your score:");`.
-6. Before Chapter 5, Episode 10, don't use `.unwrap()`; pedagogically prefer `.expect("message")`.
+6. Before Chapter 5, Episode 9, don't use `.unwrap()`; pedagogically prefer `.expect("message")`.
 7. Before Chapter 5, Episode 11, don't use `?`.
 8. Before Chapter 6, no closures or iterator chains.
 9. Before Chapter 7, don't suggest splitting files or designing modules.
