@@ -76,7 +76,7 @@ fn main() {
     "hello".is_empty();    // false
     "hello".repeat(3);     // "hellohellohello"
 
-    // note: len() returns the byte count, not the character count
+    // note: .len() returns the byte count, not the character count
     "你好".len();           // 6 (UTF-8 bytes)
     "你好".chars().count(); // 2 (characters)
 # }
