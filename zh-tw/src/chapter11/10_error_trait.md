@@ -200,7 +200,7 @@ fn main() {
 
 如果 `Box` 裡直接裝的是 `std::io::Error`，`.downcast_ref::<std::io::Error>()` 會回傳 `Some(&std::io::Error)`；型別不同就回傳 `None`。例如，`Box` 裡裝的是 `AppError` 時，即使 `AppError::Io` 內部包著 `std::io::Error`，`error.downcast_ref::<std::io::Error>()` 仍會回傳 `None`，因為直接裝在 `Box` 裡的型別是 `AppError`。這時要先呼叫 `.source()` 取得內部錯誤，再對它呼叫 `.downcast_ref::<T>()`。
 
-`Box<dyn Error>` 本身不保證錯誤可以跨 `Thread` 傳遞。如果錯誤需要送到其他 `Thread`，或 API 要求可跨執行緒的錯誤，常見的型別是 `Box<dyn Error + Send + Sync>`；放進去的錯誤也必須實作 `Send + Sync`。
+`Box<dyn Error>` 本身不保證錯誤可以跨執行緒傳遞。如果錯誤需要送到其他執行緒，或 API 要求可跨執行緒的錯誤，常見的型別是 `Box<dyn Error + Send + Sync>`；放進去的錯誤也必須實作 `Send + Sync`。
 
 ### 什麼時候用哪個
 
