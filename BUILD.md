@@ -3,7 +3,8 @@
 This repository contains English (`en/`) and Traditional Chinese (`zh-tw/`)
 mdBook editions. Each edition also has a Pandoc-based pipeline for producing an
 A4 PDF. The deployment workflow in `.github/workflows/deploy.yml` runs the same
-tests and builds described here.
+tests and builds described here, plus the two packaging steps under
+[Reader downloads](#reader-downloads).
 
 ## Requirements
 
@@ -132,3 +133,20 @@ gate:
 ```bash
 (cd en && python3 scripts/check_pdf_code_lines.py)
 ```
+
+## Reader downloads
+
+Each edition's `foreword.md` points readers at a `book.pdf` and a
+`rust-book-src.zip`. Neither name is produced by the commands above: the
+deployment workflow creates them after the print pipeline runs, by copying the
+A4 PDF to a stable name and zipping that edition's `src/`.
+
+```bash
+(cd zh-tw && cp book/rust-book-a4.pdf book/book.pdf)
+(cd zh-tw/src && zip -r ../book/rust-book-src.zip .)
+(cd en && cp book/rust-book-a4.pdf book/book.pdf)
+(cd en/src && zip -r ../book/rust-book-src.zip .)
+```
+
+Run these locally only when you want to check those two downloads; nothing else
+in the build depends on them.
