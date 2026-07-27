@@ -203,7 +203,11 @@
 | 模式匹配 | 模式比對 | pattern matching |
 | 生命週期 | 存活期、生存期 | lifetime |
 | 編譯時期 | 編譯期、編譯時 | compile time |
+| 執行時期 | 執行期、執行時 | run time |
+| 函數 | 函式 | function |
 | `trait` | 特徵、特質 | `trait` |
+
+兩個例外：library 的譯名「函式庫」保留，不要跟著改成「函數庫」；第 12 章的 runtime 指的是執行環境本身，維持英文原樣，不要譯成「執行時期」。
 
 排版規則：runtime 一律不加 backticks；`trait`、`clone`、`Thread` 一律加上。panic 與 move 只有在指特定 Rust 語法或程式碼時才加 backticks，描述一般概念或動作時不加。
 
