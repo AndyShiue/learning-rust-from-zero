@@ -21,6 +21,47 @@ Picture two nodes A and B: A holds an `Rc` to B, and B holds an `Rc` to A. When 
 
 Result: A and B are **never released** — a memory leak. A ring invisible from outside, holding itself up — that's the essence of the cycle problem.
 
+What makes a leak awkward is that it has no visible symptom: nothing panics, nothing fails to compile, that memory simply never comes back. So let's make it visible with `Drop` — give the node a destructor that prints, and a message that never appears means a value that was never released:
+
+```rust,editable
+use std::rc::Rc;
+use std::cell::RefCell;
+
+struct Node {
+    name: &'static str,
+    other: Option<Rc<RefCell<Node>>>,
+}
+
+impl Drop for Node {
+    fn drop(&mut self) {
+        println!("{} released", self.name);
+    }
+}
+
+fn main() {
+    {
+        let a = Rc::new(RefCell::new(Node { name: "A", other: None }));
+        let b = Rc::new(RefCell::new(Node { name: "B", other: None }));
+
+        a.borrow_mut().other = Some(Rc::clone(&b));
+        b.borrow_mut().other = Some(Rc::clone(&a));
+
+        println!("before leaving the scope, A's strong count = {}", Rc::strong_count(&a));
+    }
+
+    println!("the scope has been left");
+}
+```
+
+The output is only two lines:
+
+```text
+before leaving the scope, A's strong count = 2
+the scope has been left
+```
+
+That `strong count = 2` is exactly the "B still points at A" from above, and neither "released" message shows up — the variables `a` and `b` are gone, yet the nodes they pointed at are still holding each other up. Comment out the `b.borrow_mut().other = ...` line and run it again: the ring is broken, and both messages appear.
+
 ### What Is `Weak`
 
 `Weak<T>` is a "weak reference" — it points at the same data but **doesn't increase the strong count**.

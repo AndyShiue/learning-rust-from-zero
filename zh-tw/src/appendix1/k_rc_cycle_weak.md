@@ -21,6 +21,47 @@
 
 結果：A 和 B **永遠不會被釋放**，這就是記憶體洩漏。從外面看不見、卻互相撐著的環——這才是迴圈問題的本質。
 
+洩漏麻煩的地方在於它沒有任何外顯症狀：程式不會 panic、不會編譯失敗，只是那塊記憶體再也回不來。所以我們用 `Drop` 讓它現形——幫節點加一個會印字的解構子，如果訊息沒印出來，就代表值沒被釋放：
+
+```rust,editable
+use std::rc::Rc;
+use std::cell::RefCell;
+
+struct Node {
+    name: &'static str,
+    other: Option<Rc<RefCell<Node>>>,
+}
+
+impl Drop for Node {
+    fn drop(&mut self) {
+        println!("{} 被釋放了", self.name);
+    }
+}
+
+fn main() {
+    {
+        let a = Rc::new(RefCell::new(Node { name: "A", other: None }));
+        let b = Rc::new(RefCell::new(Node { name: "B", other: None }));
+
+        a.borrow_mut().other = Some(Rc::clone(&b));
+        b.borrow_mut().other = Some(Rc::clone(&a));
+
+        println!("離開作用域前，A 的 strong count = {}", Rc::strong_count(&a));
+    }
+
+    println!("已經離開作用域了");
+}
+```
+
+輸出只有兩行：
+
+```text
+離開作用域前，A 的 strong count = 2
+已經離開作用域了
+```
+
+`strong count = 2` 正是上面說的「B 還在指向 A」，而兩個「被釋放了」都沒有出現——`a` 和 `b` 這兩個變數雖然消失了，它們指向的節點卻還互相撐著。把 `b.borrow_mut().other = ...` 那一行註解掉再跑一次，環斷了，兩則訊息就都會出現。
+
 ### `Weak` 是什麼
 
 `Weak<T>` 是一種「弱參考」——它指向同一筆資料，但**不會增加 strong count**。
