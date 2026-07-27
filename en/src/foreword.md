@@ -10,7 +10,7 @@ If, while reading, you run into a passage you don't understand, want practice pr
 
 > `rust-book-src.zip`: [https://andyshiue.github.io/learning-rust-from-zero/en/rust-book-src.zip](https://andyshiue.github.io/learning-rust-from-zero/en/rust-book-src.zip)
 
-I strongly recommend using a good AI model to read the archive! A free AI might not even bother to read what's inside. My current personal recommendation is GPT-5.6 Sol — I've tried it myself and the results were pretty good.
+I strongly recommend using a good AI model to read the archive! A free AI might not even bother to read what's inside.
 
 This tutorial also has a PDF version available for download:
 
