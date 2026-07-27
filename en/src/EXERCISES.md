@@ -409,6 +409,9 @@ Expected output:
 
 ```text
 Admitted
+```
+
+```text
 Admitted
 ```
 
@@ -419,6 +422,7 @@ Grading criteria:
 - Problem 2's parentheses matter, because the rule is "has a ticket" and "is 18+ or accompanied by a parent."
 - Don't write `has_ticket && age >= 18 || with_parent` — that makes `with_parent` look like it can bypass the ticket requirement.
 - If the reader asks about operator order, first remind them that "when unsure, add parentheses to make the condition clearer"; no need to unfold too many details.
+- Have each problem written as its own program; don't put both in one `main` and redeclare `age` — that's shadowing, which isn't taught until Chapter 2, Episode 2.
 
 Hint directions:
 1. "And" maps to `&&`.
@@ -437,7 +441,11 @@ fn main() {
     } else {
         println!("Not admitted");
     }
+}
+```
 
+```rust
+fn main() {
     let age = 16;
     let with_parent = true;
     let has_ticket = true;

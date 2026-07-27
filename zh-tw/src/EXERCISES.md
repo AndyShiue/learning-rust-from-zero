@@ -409,6 +409,9 @@ fn main() {
 
 ```text
 可以入場
+```
+
+```text
 可以入場
 ```
 
@@ -419,6 +422,7 @@ fn main() {
 - 第 2 題的括號很重要，因為題目要表達的是「有票」而且「年滿 18 或有家長陪同」。
 - 不要寫成 `has_ticket && age >= 18 || with_parent`，這會讓 `with_parent` 看起來可以繞過「有票」這個條件。
 - 如果讀者問運算順序，可以先提醒「不確定時加括號，讓條件更清楚」，不用展開太多細節。
+- 兩題各寫成一支獨立的程式；不要合在同一個 `main` 裡重複宣告 `age`，那是 shadowing，第 2 章第 2 集才會講。
 
 提示方向：
 1. 「而且」對應到 `&&`。
@@ -437,7 +441,11 @@ fn main() {
     } else {
         println!("不能入場");
     }
+}
+```
 
+```rust
+fn main() {
     let age = 16;
     let with_parent = true;
     let has_ticket = true;
