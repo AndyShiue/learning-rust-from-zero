@@ -92,7 +92,7 @@ cargo doc --open
 This:
 
 1. Compiles your `crate` (without running it).
-2. Generates HTML docs from every `///` and `//!`.
+2. Generates HTML docs from **public** items' `///` and `//!`.
 3. Opens them in your browser automatically.
 
 The generated docs are exactly what you see on docs.rs.
