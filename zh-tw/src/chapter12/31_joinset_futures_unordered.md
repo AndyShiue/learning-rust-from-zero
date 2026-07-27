@@ -36,7 +36,7 @@ async fn main() {
 
     // 誰先做完就先收到誰（不是按 spawn 的順序）
     while let Some(result) = set.join_next().await {
-        let value = result.expect("task panic 或被 abort");
+        let value = result.expect("task panic 或被取消");
         println!("完成：{}", value);
     }
 }
@@ -46,9 +46,9 @@ async fn main() {
 
 - `None`：已經沒有 `Task` 了，收完了。
 - `Some(Ok(value))`：一個 `Task` 順利完成。
-- `Some(Err(...))`：那個 `Task` panic 或被 abort（所以要處理這個 `Err`）。
+- `Some(Err(...))`：那個 `Task` panic 或被取消（所以要處理這個 `Err`）。
 
-`JoinSet` 還支援 `.abort_all()` 把所有工作一次喊停，而且 `JoinSet` 被 `drop` 時會**自動 abort** 裡面所有還沒完成的 `Task`——這在做 graceful shutdown 時很方便（下一集會用到）。
+`JoinSet` 還支援 `.abort_all()` 把所有工作一次取消，而且 `JoinSet` 被 `drop` 時會**自動取消**裡面所有還沒完成的 `Task`——這在做 graceful shutdown 時很方便（下一集會用到）。
 
 ### 路線二：`FuturesUnordered`（join! 的動態版）
 
@@ -103,6 +103,6 @@ async fn main() {
 ## 重點整理
 
 - 處理「大量、動態、誰先好先處理」的工作，`join!` 不夠用，改用 `JoinSet` 或 `FuturesUnordered`。
-- **`JoinSet`**（`spawn` 的動態版）：每個工作是獨立 `Task`、在多執行緒 runtime 上能夠平行執行、需 `Send + 'static`、綁 Tokio；`join_next()` 回 `Option<Result<T, JoinError>>`，支援 `.abort_all()` 與 `drop` 時自動 abort。
+- **`JoinSet`**（`spawn` 的動態版）：每個工作是獨立 `Task`、在多執行緒 runtime 上能夠平行執行、需 `Send + 'static`、綁 Tokio；`join_next()` 回 `Option<Result<T, JoinError>>`，支援 `.abort_all()` 與 `drop` 時自動取消。
 - **`FuturesUnordered`**（`join!` 的動態版）：在同一個 `Task` 內多工，不會 spawn 成獨立 `Task`，而且本身不要求其中的 `Future` 是 `Send + 'static`（因此在周圍情境允許時可以借用區域變數）；但一個 `Future` 的 `poll` 阻塞或執行太久，就會延後其他 `Future` 被 `poll`。它本身是個不綁 runtime 的 `Stream`。
 - 要獨立 `Task`、可以平行執行並有較高的排程隔離，用 `JoinSet`；要就地借用、工作輕量、不綁 runtime，用 `FuturesUnordered`。

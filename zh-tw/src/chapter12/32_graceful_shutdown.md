@@ -96,7 +96,7 @@ async fn main() {
     {
         Ok(()) => println!("所有 worker 都乾淨退出了"),
         Err(_) => {
-            println!("逾時！強制中止剩下的 worker");
+            println!("逾時！強制取消剩下的 worker");
             workers.abort_all();
         }
     }
@@ -113,7 +113,7 @@ async {
 }
 ```
 
-也就是「一直等 worker 結束，直到 `JoinSet` 空掉」。所以整段 `timeout` 的意思是：**最多等五秒讓所有 worker 自己收尾；五秒內都退完就印成功，超過五秒就進入 `Err(_)`，把剩下的 worker 強制 abort**。
+也就是「一直等 worker 結束，直到 `JoinSet` 空掉」。所以整段 `timeout` 的意思是：**最多等五秒讓所有 worker 自己收尾；五秒內都退完就印成功，超過五秒就進入 `Err(_)`，把剩下的 worker 強制取消**。
 
 ### cancellation safety 的設計重點
 
@@ -123,7 +123,7 @@ async {
 
 ### 一定要給期限
 
-graceful 不代表**無限期**等。萬一某個 worker 卡死了，你不能讓整個程式陪它一直耗下去。所以 drain 一定要**給期限**：上面用 `tokio::time::timeout` 把整個 drain 包起來，逾時就 `abort_all()`（或直接 `drop` 掉 `JoinSet`，它會自動 abort 剩下的 `Task`）強制收掉。
+graceful 不代表**無限期**等。萬一某個 worker 卡死了，你不能讓整個程式陪它一直耗下去。所以 drain 一定要**給期限**：上面用 `tokio::time::timeout` 把整個 drain 包起來，逾時就 `abort_all()`（或直接 `drop` 掉 `JoinSet`，它會自動取消剩下的 `Task`）強制收掉。
 
 一句話總結這個原則：**先禮貌地等，等不到就動手**。
 
@@ -197,7 +197,7 @@ async fn main() {
     {
         Ok(()) => println!("全部退出"),
         Err(_) => {
-            println!("逾時！強制中止剩下的 worker");
+            println!("逾時！強制取消剩下的 worker");
             workers.abort_all();
         }
     }

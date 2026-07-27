@@ -36,7 +36,7 @@ async fn main() {
 
     // received in completion order (not spawn order)
     while let Some(result) = set.join_next().await {
-        let value = result.expect("task panicked or was aborted");
+        let value = result.expect("task panicked or was cancelled");
         println!("done: {}", value);
     }
 }
@@ -46,9 +46,9 @@ async fn main() {
 
 - `None`: no `Task`s left; you've collected them all.
 - `Some(Ok(value))`: a `Task` finished successfully.
-- `Some(Err(...))`: that `Task` panicked or was aborted (so handle this `Err`).
+- `Some(Err(...))`: that `Task` panicked or was cancelled (so handle this `Err`).
 
-`JoinSet` also supports `.abort_all()` to call off all the work at once, and when a `JoinSet` is `drop`ped it **automatically aborts** every unfinished `Task` inside — very convenient for graceful shutdown (next episode uses this).
+`JoinSet` also supports `.abort_all()` to cancel all the work at once, and when a `JoinSet` is `drop`ped it **automatically cancels** every unfinished `Task` inside — very convenient for graceful shutdown (next episode uses this).
 
 ### Route 2: `FuturesUnordered` (the Dynamic Version of `join!`)
 
@@ -103,6 +103,6 @@ Next episode, we assemble the tools learned so far — `select!`, channels, `Joi
 ## Recap
 
 - For "large, dynamic, first-done-first-served" work, `join!` isn't enough; use `JoinSet` or `FuturesUnordered`.
-- **`JoinSet`** (dynamic `spawn`): each job is an independent `Task`, can run in parallel on a multi-thread runtime, needs `Send + 'static`, tied to Tokio; `join_next()` returns `Option<Result<T, JoinError>>`, supports `.abort_all()` and auto-abort on `drop`.
+- **`JoinSet`** (dynamic `spawn`): each job is an independent `Task`, can run in parallel on a multi-thread runtime, needs `Send + 'static`, tied to Tokio; `join_next()` returns `Option<Result<T, JoinError>>`, supports `.abort_all()`, and cancels whatever is left on `drop`.
 - **`FuturesUnordered`** (dynamic `join!`): multiplexes within one `Task`, doesn't spawn independent `Task`s, and doesn't itself require its `Future`s to be `Send + 'static` (so they can borrow local variables when the surrounding context allows), but one `Future`'s blocking or long-running `poll` delays polling the others; it's itself a runtime-agnostic `Stream`.
 - Independent `Task`s, possible parallel execution, and greater scheduling isolation → `JoinSet`; in-place borrowing, lightweight work, runtime-agnostic → `FuturesUnordered`.

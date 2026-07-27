@@ -96,7 +96,7 @@ async fn main() {
     {
         Ok(()) => println!("all workers exited cleanly"),
         Err(_) => {
-            println!("timed out! force-aborting the remaining workers");
+            println!("timed out! force-cancelling the remaining workers");
             workers.abort_all();
         }
     }
@@ -113,7 +113,7 @@ async {
 }
 ```
 
-That is, "keep waiting for workers to finish until the `JoinSet` is empty." So the whole `timeout` reads: **give all workers at most five seconds to wrap themselves up; if they all exit in time, print success — past five seconds, take the `Err(_)` branch and force-abort whoever's left**.
+That is, "keep waiting for workers to finish until the `JoinSet` is empty." So the whole `timeout` reads: **give all workers at most five seconds to wrap themselves up; if they all exit in time, print success — past five seconds, take the `Err(_)` branch and force-cancel whoever's left**.
 
 ### The Cancellation Safety Design Point
 
@@ -123,7 +123,7 @@ If instead you put the real processing inside a branch that can lose to shutdown
 
 ### Always Set a Deadline
 
-Graceful doesn't mean waiting **indefinitely**. If some worker is stuck for good, you can't let the whole program keep it company forever. So the drain must have a **deadline**: above, we wrap the entire drain in `tokio::time::timeout`, and on timeout call `abort_all()` (or just `drop` the `JoinSet` — it auto-aborts the remaining `Task`s) to force things closed.
+Graceful doesn't mean waiting **indefinitely**. If some worker is stuck for good, you can't let the whole program keep it company forever. So the drain must have a **deadline**: above, we wrap the entire drain in `tokio::time::timeout`, and on timeout call `abort_all()` (or just `drop` the `JoinSet` — it cancels the remaining `Task`s for you) to force things closed.
 
 The principle in one sentence: **ask politely first; act if that fails**.
 
@@ -197,7 +197,7 @@ async fn main() {
     {
         Ok(()) => println!("all exited"),
         Err(_) => {
-            println!("timed out! force-aborting the remaining workers");
+            println!("timed out! force-cancelling the remaining workers");
             workers.abort_all();
         }
     }
