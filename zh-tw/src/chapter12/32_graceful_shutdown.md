@@ -117,7 +117,7 @@ async {
 
 ### cancellation safety 的設計重點
 
-這裡有個呼應第 24、25 集的關鍵設計：要**刻意安排 `select!` 的位置**。在上面的 worker 裡，`select!` 等的是「下一份工作」和「shutdown」；一旦真的拿到工作，就離開 `select!`，再呼叫 `process_job`。因此 shutdown 勝出時，被 `drop`（取消）的是「等下一份工作」這種可以重來的等待，而不是已經開始處理的工作。
+這裡有個呼應第 27、28 集的關鍵設計：要**刻意安排 `select!` 的位置**。在上面的 worker 裡，`select!` 等的是「下一份工作」和「shutdown」；一旦真的拿到工作，就離開 `select!`，再呼叫 `process_job`。因此 shutdown 勝出時，被 `drop`（取消）的是「等下一份工作」這種可以重來的等待，而不是已經開始處理的工作。
 
 如果反過來，把真正的處理流程直接放進會輸給 shutdown 的 branch，像 `read_exact` 這類不可安全取消的操作就可能被砍在半路，資料也跟著掉了。這就是前面強調過的 cancellation safety 在 shutdown 上的具體應用。
 

@@ -117,7 +117,7 @@ That is, "keep waiting for workers to finish until the `JoinSet` is empty." So t
 
 ### The Cancellation Safety Design Point
 
-Here's a key design choice echoing Episodes 24 and 25: **place the `select!` deliberately**. In the worker above, the `select!` waits on "the next job" and "shutdown"; once a job is actually in hand, we leave the `select!` and only then call `process_job`. So when shutdown wins, what gets `drop`ped (cancelled) is the resumable wait for the next job — not work that has already started.
+Here's a key design choice echoing Episodes 27 and 28: **place the `select!` deliberately**. In the worker above, the `select!` waits on "the next job" and "shutdown"; once a job is actually in hand, we leave the `select!` and only then call `process_job`. So when shutdown wins, what gets `drop`ped (cancelled) is the resumable wait for the next job — not work that has already started.
 
 If instead you put the real processing inside a branch that can lose to shutdown, operations that aren't safely cancellable — like `read_exact` — could be cut off midway, and the data lost with them. This is the cancellation safety we emphasized earlier, applied concretely to shutdown.
 
