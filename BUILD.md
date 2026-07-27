@@ -1,6 +1,6 @@
 # Building the books
 
-This repository contains English (`en/`) and Traditional Chinese (`zh-tw/`)
+This repository contains English (`en/`) and Traditional Chinese (`zh-TW/`)
 mdBook editions. Each edition also has a Pandoc-based pipeline for producing an
 A4 PDF. The deployment workflow in `.github/workflows/deploy.yml` runs the same
 tests and builds described here, plus the two packaging steps under
@@ -66,7 +66,7 @@ cargo build --manifest-path test-deps/Cargo.toml
 Then test both editions against the same compiled dependencies:
 
 ```bash
-(cd zh-tw && mdbook test -L ../test-deps/target/debug/deps)
+(cd zh-TW && mdbook test -L ../test-deps/target/debug/deps)
 (cd en && mdbook test -L ../test-deps/target/debug/deps)
 ```
 
@@ -75,11 +75,11 @@ Then test both editions against the same compiled dependencies:
 Build both mdBook sites from the repository root:
 
 ```bash
-(cd zh-tw && mdbook build)
+(cd zh-TW && mdbook build)
 (cd en && mdbook build)
 ```
 
-The generated sites are written to `zh-tw/book/` and `en/book/`.
+The generated sites are written to `zh-TW/book/` and `en/book/`.
 
 ## Shared PDF fonts
 
@@ -103,7 +103,7 @@ the GitHub Actions font selection exactly, download the same three files into
 Run either print pipeline from the repository root:
 
 ```bash
-./zh-tw/print/build.sh
+./zh-TW/print/build.sh
 ./en/print/build.sh
 ```
 
@@ -142,8 +142,8 @@ deployment workflow creates them after the print pipeline runs, by copying the
 A4 PDF to a stable name and zipping that edition's `src/`.
 
 ```bash
-(cd zh-tw && cp book/rust-book-a4.pdf book/book.pdf)
-(cd zh-tw/src && zip -r ../book/rust-book-src.zip .)
+(cd zh-TW && cp book/rust-book-a4.pdf book/book.pdf)
+(cd zh-TW/src && zip -r ../book/rust-book-src.zip .)
 (cd en && cp book/rust-book-a4.pdf book/book.pdf)
 (cd en/src && zip -r ../book/rust-book-src.zip .)
 ```

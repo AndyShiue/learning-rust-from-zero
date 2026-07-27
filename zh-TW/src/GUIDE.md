@@ -27,7 +27,7 @@
 | --- | --- |
 | 書名 | 從零開始學 Rust |
 | 作者 | Andy Shiue |
-| 線上版 | <https://andyshiue.github.io/learning-rust-from-zero/zh-tw/> |
+| 線上版 | <https://andyshiue.github.io/learning-rust-from-zero/zh-TW/> |
 | 語言 | 繁體中文，原生撰寫，不是翻譯 |
 | 讀者 | 完全零基礎，沒寫過程式也能看 |
 | Rust 版本 | Edition 2024 |

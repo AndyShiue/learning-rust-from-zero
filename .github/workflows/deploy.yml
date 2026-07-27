@@ -49,7 +49,7 @@ jobs:
             https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/Mono/NotoSansMonoCJKtc-Regular.otf
 
       - name: Build Traditional Chinese edition
-        working-directory: zh-tw
+        working-directory: zh-TW
         run: |
           mdbook test -L ../test-deps/target/debug/deps
           mdbook build
@@ -72,7 +72,7 @@ jobs:
           rm -rf public
           mkdir -p public
           cp index.html public/index.html
-          cp -r zh-tw/book public/zh-tw
+          cp -r zh-TW/book public/zh-TW
           cp -r en/book public/en
 
       - name: Configure GitHub Pages
