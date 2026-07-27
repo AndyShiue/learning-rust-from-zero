@@ -204,7 +204,7 @@ async fn main() {
 }
 ```
 
-`token.cancelled()` is a `Future` that waits for "being cancelled"; one call to `token.cancel()` wakes every worker holding a `clone`. It reads exactly like "cancellation," fitting the need better than borrowing `watch` as a switch.
+`token.cancelled()` is a `Future` that waits for "being cancelled"; one call to `token.cancel()` wakes every worker holding a `clone`. It reads as what it is — cancellation — and fits the need better than borrowing `watch` as a switch.
 
 ## Recap
 
