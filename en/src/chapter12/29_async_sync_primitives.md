@@ -73,7 +73,7 @@ async fn main() {
     let data = Arc::new(Mutex::new(0));
     let d = data.clone();
     tokio::spawn(async move {
-        let mut guard = d.lock().await; // note that lock() takes .await
+        let mut guard = d.lock().await; // note that .lock() takes .await
         *guard += 1; // this guard is Send and may cross .awaits
     });
 }
@@ -81,11 +81,11 @@ async fn main() {
 
 But remember: **the standard library's locks are faster than Tokio's** (Tokio's pay extra to be able to cross `.await`s). So default to `std`'s locks with short scopes; deploy Tokio's `Mutex` only when "holding the lock across an `.await`" is unavoidable.
 
-Like the standard library, Tokio also has an `RwLock` separating reads from writes: `read().await` admits many readers at once, `write().await` is exclusive to a single writer. The usage principles match Tokio's `Mutex`.
+Like the standard library, Tokio also has an `RwLock` separating reads from writes: `.read().await` admits many readers at once, `.write().await` is exclusive to a single writer. The usage principles match Tokio's `Mutex`.
 
 ### `Notify`: Wakeups Without Data
 
-Finally, `tokio::sync::Notify`. It's a **wakeup tool without a payload (no data)** — it lets one `Task` sleep in wait (`notified().await`) and another give it a poke to wake up (`notify_one()`), but **transmits no value**.
+Finally, `tokio::sync::Notify`. It's a **wakeup tool without a payload (no data)** — it lets one `Task` sleep in wait (`.notified().await`) and another give it a poke to wake up (`.notify_one()`), but **transmits no value**.
 
 ```rust,no_run
 # extern crate tokio;

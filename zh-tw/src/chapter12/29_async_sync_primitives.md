@@ -73,7 +73,7 @@ async fn main() {
     let data = Arc::new(Mutex::new(0));
     let d = data.clone();
     tokio::spawn(async move {
-        let mut guard = d.lock().await; // 注意 lock() 要 .await
+        let mut guard = d.lock().await; // 注意 .lock() 要 .await
         *guard += 1; // 這個 guard 是 Send，可以跨 .await
     });
 }
@@ -81,11 +81,11 @@ async fn main() {
 
 但請記得：**標準庫的鎖比 Tokio 的鎖快**（Tokio 的鎖為了能跨 `.await` 付出額外成本）。所以預設用 `std` 的鎖、縮短作用域；只有「非抓著鎖跨 `.await` 不可」時，才動用 Tokio 的 `Mutex`。
 
-和標準庫一樣，Tokio 也有 `RwLock`，把讀寫分開：`read().await` 允許多個讀者同時進入，`write().await` 則獨佔給單一寫者。使用原則也與 Tokio 的 `Mutex` 一樣。
+和標準庫一樣，Tokio 也有 `RwLock`，把讀寫分開：`.read().await` 允許多個讀者同時進入，`.write().await` 則獨佔給單一寫者。使用原則也與 Tokio 的 `Mutex` 一樣。
 
 ### `Notify`：不帶資料的喚醒
 
-最後介紹 `tokio::sync::Notify`。它是一個**不帶 payload（不帶資料）的喚醒工具**——它能讓一個 `Task` 睡著等（`notified().await`），讓另一個 `Task` 戳它一下叫它起來（`notify_one()`），但**不傳任何值**。
+最後介紹 `tokio::sync::Notify`。它是一個**不帶 payload（不帶資料）的喚醒工具**——它能讓一個 `Task` 睡著等（`.notified().await`），讓另一個 `Task` 戳它一下叫它起來（`.notify_one()`），但**不傳任何值**。
 
 ```rust,no_run
 # extern crate tokio;
