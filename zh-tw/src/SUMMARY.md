@@ -258,6 +258,7 @@
     - [`'a: 'b`]()
     - [HRTB]()
     - [variance]()
+    - [`PhantomData` / `PhantomPinned`]()
     - [GAT]()
     - [`async` 閉包]()
-    - [RPIT 進階]()
+    - [`use` bounds]()
