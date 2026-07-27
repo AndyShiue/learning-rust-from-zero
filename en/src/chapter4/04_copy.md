@@ -96,7 +96,7 @@ fn main() {
 | Can customize its behavior | No | Yes, through the implementation of `.clone()` |
 | Prerequisite to implement | All contents must be `Copy` | None |
 
-In short: **copy is automatic duplication; `clone` is manual duplication.**
+In short: **copy is automatic duplication; `clone` is called by hand, and what it does is up to the type.**
 
 ## Example Code
 
