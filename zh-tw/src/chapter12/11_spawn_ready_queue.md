@@ -203,7 +203,7 @@ fn main() {
 
 威脅來自散落在外面的 `Waker` 複本。`Task` 完成後，executor 這邊確實不會再主動排它；可是像 `Delay` 交給計時執行緒的那份 `Waker`，executor 收不回來。萬一有人拿著這種過期的 `Waker`，在 `Task` **完成之後**才呼叫 `wake`，這個已完成的 `Task` 就會被重新排進 ready queue，然後再次被 `poll`——契約二被打破，而且 `remaining -= 1` 還會多扣一次。
 
-所以 `Task` 還需要一個 `done` 旗標，讓過期的喚醒失效。防線設在 executor 這一側：pop 出 `Task` 之後先檢查 `done`，是 `true` 就直接 `continue` 跳過。這樣過期的喚醒頂多讓 `Task` 多排進 queue 一次，絕不會讓它再被 `poll`。而因為只有 executor 這條執行緒會 `poll` `Future`、也只有它會把 `done` 設成 `true`，所以「設完 `done` 之後絕不再 `poll`」是嚴格成立的。
+所以 `Task` 還需要一個 `done` 旗標，讓過期的喚醒失效。防線設在 executor 這一側：pop 出 `Task` 之後先檢查 `done`，是 `true` 就直接 `continue` 跳過。這樣過期的喚醒頂多讓 `Task` 多排進 queue 一次，絕不會讓它再被 `poll`。而因為只有 executor 這條 `Thread` 會 `poll` `Future`、也只有它會把 `done` 設成 `true`，所以「設完 `done` 之後絕不再 `poll`」是嚴格成立的。
 
 老實說，這一集的範例其實觸發不了這個問題——每個計時器只 fire 一次，而且都在 `Task` 完成之前。但 executor 的正確性不能靠這種巧合。
 
