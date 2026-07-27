@@ -125,5 +125,5 @@ fn main() -> Result<(), String> {
 - `?` is shorthand for `match` + early `return`.
 - `?` on a `Result`: extract on `Ok`, return early on `Err`.
 - `?` on an `Option`: extract on `Some`, return early on `None`.
-- When using `?`, the error type must line up with the function's return type — handle mismatches separately.
+- When using `?`, the error type must match the function's return type or be related to it; otherwise you convert it yourself.
 - `fn main() -> Result<(), String>` lets `main` use `?` too.
