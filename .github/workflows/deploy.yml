@@ -57,8 +57,6 @@ jobs:
           cp book/rust-book-a4.pdf book/book.pdf
           (cd src && zip -r ../book/rust-book-src.zip .)
 
-      # The English entry on the landing page is disabled until the
-      # translation is complete.
       - name: Build English edition
         working-directory: en
         run: |
