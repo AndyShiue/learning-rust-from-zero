@@ -8,7 +8,7 @@
 
 ### `static` vs `const`
 
-第 2 章學了 `const`——編譯期常數，值被直接嵌進使用它的地方。`static` 看起來很像，但有一個根本差異：**`static` 變數有固定的記憶體位址**。
+第 2 章學了 `const`——編譯時期常數，值被直接嵌進使用它的地方。`static` 看起來很像，但有一個根本差異：**`static` 變數有固定的記憶體位址**。
 
 ```rust,noplayground
 static GREETING: &str = "Hello, world!";

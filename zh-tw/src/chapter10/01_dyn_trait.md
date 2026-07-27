@@ -33,13 +33,13 @@ impl Describe for Dog {
 # fn main() {}
 ```
 
-`Cat` 和 `Dog` 是不同型別——你沒辦法寫 `Vec<impl Describe>` 把它們放在一起。`impl Trait` 在編譯期就決定了具體型別，而 `Vec` 裡的每個元素必須是同一個型別。
+`Cat` 和 `Dog` 是不同型別——你沒辦法寫 `Vec<impl Describe>` 把它們放在一起。`impl Trait` 在編譯時期就決定了具體型別，而 `Vec` 裡的每個元素必須是同一個型別。
 
 ### `dyn Trait` 登場
 
 `dyn Describe` 代表「某個實作了 `Describe` 的型別，但具體是什麼我不知道」。
 
-但既然不知道具體是什麼，`dyn Describe` 的大小就不固定——`Cat` 可能佔 1 byte，`Dog` 可能佔 100 bytes，編譯器在編譯期不知道會是哪個。所以 `dyn Describe` 是 DST（附錄一的〈DST 簡介〉學過），必須放在指標後面：
+但既然不知道具體是什麼，`dyn Describe` 的大小就不固定——`Cat` 可能佔 1 byte，`Dog` 可能佔 100 bytes，編譯器在編譯時期不知道會是哪個。所以 `dyn Describe` 是 DST（附錄一的〈DST 簡介〉學過），必須放在指標後面：
 
 - `&dyn Describe` — 借用。
 - `Box<dyn Describe>` — 擁有
@@ -109,7 +109,7 @@ fn make_animal(is_cat: bool) -> Box<dyn Describe> {
 # fn main() {}
 ```
 
-`impl Trait` 做不到這件事——因為 `if` 的兩個分支回傳不同型別，編譯器在編譯期無法決定是哪一個。
+`impl Trait` 做不到這件事——因為 `if` 的兩個分支回傳不同型別，編譯器在編譯時期無法決定是哪一個。
 
 ### 胖指標：位址 + vtable
 
@@ -155,11 +155,11 @@ fn main() {
 }
 ```
 
-**動態分派**（`dyn Trait`）：編譯器只生成一份程式碼，執行期透過 vtable 查找要呼叫的函數。程式碼只有一份，但每次呼叫多了一層 vtable 查找。
+**動態分派**（`dyn Trait`）：編譯器只生成一份程式碼，執行時期透過 vtable 查找要呼叫的函數。程式碼只有一份，但每次呼叫多了一層 vtable 查找。
 
 | | 靜態分派（`impl Trait` / 泛型） | 動態分派（`dyn Trait`） |
 |--|--|--|
-| 決定時機 | 編譯期 | 執行期 |
+| 決定時機 | 編譯時期 | 執行時期 |
 | 程式碼量 | 每個型別一份 | 只有一份 |
 | 呼叫速度 | 快（直接呼叫） | 稍慢（查 vtable） |
 | 能混合不同型別 | 不能 | 能 |
@@ -310,7 +310,7 @@ fn main() {
 - `dyn Trait` 代表「某個實作了 `Trait` 的型別，具體是什麼不知道」。
 - `dyn Trait` 是 DST，必須放在指標後面：`&dyn Trait`、`Box<dyn Trait>`。
 - `&dyn Trait` 是胖指標：資料位址 + vtable 指標。
-- 動態分派（`dyn Trait`）透過 vtable 查找方法；靜態分派（`impl Trait`）編譯期決定。
+- 動態分派（`dyn Trait`）透過 vtable 查找方法；靜態分派（`impl Trait`）編譯時期決定。
 - 大部分情況用靜態分派，需要混合不同型別時才用 `dyn Trait`。
 - `Box<dyn Fn()>` 可以把不同閉包統一成同一個型別。
 - `Box<dyn Trait>` 在某些地方預設隱含 `+ 'static`；`dyn Trait + 'a` 讀成 `dyn (Trait + 'a)`，`dyn` 把 `trait` bound 變成型別。

@@ -10,7 +10,7 @@
 
 （本集提到的指標大小以 64 位元系統為準——現在絕大多數電腦都是 64 位元。）
 
-在 Rust 的型別系統裡，大部分型別的大小在編譯期就已知——`i32` 是 4 bytes、`bool` 是 1 byte、`(i32, i32)` 是 8 bytes。但有些型別的大小**在編譯期是未知的**，這就是 **DST（Dynamically Sized Types）**，動態大小型別。
+在 Rust 的型別系統裡，大部分型別的大小在編譯時期就已知——`i32` 是 4 bytes、`bool` 是 1 byte、`(i32, i32)` 是 8 bytes。但有些型別的大小**在編譯時期是未知的**，這就是 **DST（Dynamically Sized Types）**，動態大小型別。
 
 ### 常見的 DST
 
@@ -46,7 +46,7 @@ DST 必須藏在某種指標後面：
 
 ### `Sized` `trait`
 
-Rust 有一個特殊的 `trait` 叫 `Sized`，表示「這個型別的大小在編譯期已知」。**絕大多數型別都自動實作了 `Sized`**。
+Rust 有一個特殊的 `trait` 叫 `Sized`，表示「這個型別的大小在編譯時期已知」。**絕大多數型別都自動實作了 `Sized`**。
 
 而且——這是很多人不知道的——**泛型參數預設有 `Sized` bound**：
 
@@ -217,10 +217,10 @@ fn main() {
 
 ## 重點整理
 
-- **DST（Dynamically Sized Types）**：大小在編譯期未知的型別，如 `str`、`[T]`。
+- **DST（Dynamically Sized Types）**：大小在編譯時期未知的型別，如 `str`、`[T]`。
 - DST 不能直接當值使用，必須透過指標：`&str`、`&[T]`、`Box<str>` 等。
 - 指向 `str` 和 `[T]` 的指標是**胖指標（fat pointer）**，包含位址與長度；在 64 位元電腦上佔 16 bytes。
-- **`Sized`**：表示型別大小在編譯期已知；泛型參數預設有 `T: Sized` bound。
+- **`Sized`**：表示型別大小在編譯時期已知；泛型參數預設有 `T: Sized` bound。
 - **`?Sized`**：放寬限制，讓泛型參數可以接受 DST。
 - `trait` 裡的 `Self` 預設是 `?Sized`。`Clone` 對整個 `trait` 加上 `Sized`；也可以改在方法加上 `where Self: Sized`，讓限制只套用於該方法。
 - `Cow<'a, B>` 中的 `B: ?Sized` 就是為了讓 `B` 可以是 `str` 或 `[T]` 等 DST。

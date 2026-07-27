@@ -137,7 +137,7 @@ fn main() {
 ## 重點整理
 
 - proc macro 分三種：`derive`、attribute、function-like。
-- 本質是接收 `TokenStream`、回傳 `TokenStream` 的編譯期函數。
+- 本質是接收 `TokenStream`、回傳 `TokenStream` 的編譯時期函數。
 - `derive` 附加程式碼、attribute 取代項目、function-like 展開內容。
 - 必須在獨立 `crate` 裡定義（`proc-macro = true`）。
 - 常用 `syn`（解析）和 `quote`（生成）兩個 `crate`。

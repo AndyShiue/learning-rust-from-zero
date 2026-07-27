@@ -31,7 +31,7 @@ enum List {
 # fn main() {}
 ```
 
-Rust 需要在編譯時知道每個型別的大小。但這裡有個問題：要知道 `List` 的大小，你需要知道 `Node` 有多大。`Node` 包含一個 `i32` 和一個 `List`——所以你需要知道 `List` 有多大。但 `List` 裡面又有 `List`⋯⋯
+Rust 需要在編譯時期知道每個型別的大小。但這裡有個問題：要知道 `List` 的大小，你需要知道 `Node` 有多大。`Node` 包含一個 `i32` 和一個 `List`——所以你需要知道 `List` 有多大。但 `List` 裡面又有 `List`⋯⋯
 
 展開來看：`List` 的大小 = `i32` + `List` 的大小 = `i32` + `i32` + `List` 的大小 = ⋯⋯ 永遠算不完。編譯器在這裡直接報錯：「recursive type has infinite size（遞迴型別大小無限大）」。
 

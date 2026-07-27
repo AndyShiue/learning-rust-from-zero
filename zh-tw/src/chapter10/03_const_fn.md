@@ -2,13 +2,13 @@
 
 ## 本集目標
 
-學會用 `const fn` 定義編譯期也能執行的函數，以及 `const { }` 區塊。
+學會用 `const fn` 定義編譯時期也能執行的函數，以及 `const { }` 區塊。
 
 ## 概念說明
 
 ### 問題：想用函數算 `const` 的值
 
-第 2 章學了 `const`——編譯期常數。但 `const` 的值只能用簡單的表達式：
+第 2 章學了 `const`——編譯時期常數。但 `const` 的值只能用簡單的表達式：
 
 ```rust,noplayground
 const MAX: i32 = 100;        // OK
@@ -21,33 +21,33 @@ const DOUBLE: i32 = MAX * 2; // OK
 
 ```rust,compile_fail
 fn square(x: i32) -> i32 { x * x }
-const VALUE: i32 = square(5); // 編譯錯誤！一般函數不能在編譯期執行
+const VALUE: i32 = square(5); // 編譯錯誤！一般函數不能在編譯時期執行
 #
 # fn main() {}
 ```
 
 ### `const fn`
 
-在函數前面加上 `const`，它就變成編譯期也能執行的函數：
+在函數前面加上 `const`，它就變成編譯時期也能執行的函數：
 
 ```rust,noplayground
 const fn square(x: i32) -> i32 { x * x }
-const VALUE: i32 = square(5); // OK！編譯期算出 25
+const VALUE: i32 = square(5); // OK！編譯時期算出 25
 #
 # fn main() {}
 ```
 
-`const fn` 不是「只能在編譯期用」——它在執行期也能正常呼叫，就像普通函數一樣。它只是多了一個能力：**可以在編譯期執行**。
+`const fn` 不是「只能在編譯時期用」——它在執行時期也能正常呼叫，就像普通函數一樣。它只是多了一個能力：**可以在編譯時期執行**。
 
 ```rust,editable
 const fn max(a: i32, b: i32) -> i32 {
     if a > b { a } else { b }
 }
 
-const BIGGER: i32 = max(10, 20); // 編譯期：20
+const BIGGER: i32 = max(10, 20); // 編譯時期：20
 
 fn main() {
-    let x = max(3, 7); // 執行期：也能用，就是普通函數
+    let x = max(3, 7); // 執行時期：也能用，就是普通函數
     println!("{}", x);
     println!("{}", BIGGER);
 }
@@ -63,7 +63,7 @@ fn main() {
 - `let` 綁定（包括 `let mut`）。
 - 建立 tuple、`struct`、`enum`。
 - 呼叫其他 `const fn`。
-- `panic!`（編譯期 panic 會變成編譯錯誤）。
+- `panic!`（編譯時期 panic 會變成編譯錯誤）。
 
 不能做的：
 - 呼叫非 `const` 的函數。
@@ -75,16 +75,16 @@ Rust 每個版本都在放寬限制，能在 `const fn` 裡做的事越來越多
 
 ### `const` 區塊
 
-`const { ... }` 可以在任何地方插入一段編譯期運算，不需要定義 `const` 變數或 `const fn`：
+`const { ... }` 可以在任何地方插入一段編譯時期運算，不需要定義 `const` 變數或 `const fn`：
 
 ```rust,editable
 fn main() {
     let x = const { 1 + 2 + 3 };
-    println!("{}", x); // 6，在編譯期就算好了
+    println!("{}", x); // 6，在編譯時期就算好了
 }
 ```
 
-這在需要「就地」做編譯期運算的時候很方便，不用另外定義一個 `const`。
+這在需要「就地」做編譯時期運算的時候很方便，不用另外定義一個 `const`。
 
 ## 範例程式碼
 
@@ -114,7 +114,7 @@ fn main() {
     println!("10! = {}", FACT_10);
     println!("clamp(150, 0, 100) = {}", CLAMPED);
 
-    // 執行期也能呼叫
+    // 執行時期也能呼叫
     let n = factorial(5);
     println!("5! = {}", n);
 
@@ -126,7 +126,7 @@ fn main() {
 
 ## 重點整理
 
-- `const fn` 可以在編譯期執行，也可以在執行期執行。
+- `const fn` 可以在編譯時期執行，也可以在執行時期執行。
 - 主要用來初始化 `const` 的值。
 - 限制：不能呼叫非 `const fn`、不能做輸入輸出，但限制逐版放寬。
-- `const { ... }` 區塊可以在任何地方插入編譯期運算。
+- `const { ... }` 區塊可以在任何地方插入編譯時期運算。

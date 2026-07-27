@@ -71,7 +71,7 @@ pattern 匹配成功，不代表這個分支一定執行。如果 guard 是 `fal
 
 guard 不只可以比較一個欄位和門檻，也能比較同一個 pattern 綁定的多個欄位：
 
-下方範例的第一個 guard 比較 `from` 和 `to`，第二個 guard 比較 `amount` 和外部的 `daily_limit`。這類需要欄位間運算或執行時變數的條件，正是 guard 比單純 pattern 更合適的地方。
+下方範例的第一個 guard 比較 `from` 和 `to`，第二個 guard 比較 `amount` 和外部的 `daily_limit`。這類需要欄位間運算或執行時期變數的條件，正是 guard 比單純 pattern 更合適的地方。
 
 ## 範例程式碼
 
@@ -133,4 +133,4 @@ fn main() {
 - guard 可以使用同一個 pattern 綁定的變數，也可以使用外部已存在的變數。
 - pattern 匹配但 guard 為 `false` 時，Rust 會繼續嘗試後面的分支。
 - 即使幾個 guard 在邏輯上涵蓋所有可能，編譯器仍可能需要一個沒有 guard 的分支，才能確認 `match` 已經窮舉。
-- guard 特別適合表達欄位之間的比較、計算，或和執行時門檻的比較。
+- guard 特別適合表達欄位之間的比較、計算，或和執行時期門檻的比較。

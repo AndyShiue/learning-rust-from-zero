@@ -8,18 +8,18 @@
 
 `LazyLock` 嚴格來說是標準庫提供的工具，不算語言功能。但因為上一集剛學了 `static`，它又是搭配 `static` 最常用的東西，所以一併在這裡介紹。
 
-### 問題：`static` 的值必須編譯期確定
+### 問題：`static` 的值必須在編譯時期確定
 
-`static` 的值必須在編譯期就算出來。空的 `Vec::new()` 可以（因為它是 `const fn`，不需要配置記憶體），但如果你想要一個**已經有內容**的 `Vec` 呢？
+`static` 的值必須在編譯時期就算出來。空的 `Vec::new()` 可以（因為它是 `const fn`，不需要配置記憶體），但如果你想要一個**已經有內容**的 `Vec` 呢？
 
 ```rust,compile_fail
-// vec! 巨集和 String::from 都需要在執行期配置記憶體
+// vec! 巨集和 String::from 都需要在執行時期配置記憶體
 static NAMES: Vec<String> = vec![String::from("Alice"), String::from("Bob")];
 #
 # fn main() {}
 ```
 
-那怎麼辦？既然沒辦法在編譯期給值，那就**先不給**——等到程式執行時第一次用到的時候再初始化。這就是延遲初始化。
+那怎麼辦？既然沒辦法在編譯時期給值，那就**先不給**——等到程式執行時第一次用到的時候再初始化。這就是延遲初始化。
 
 ### `LazyLock`
 
@@ -67,6 +67,6 @@ fn main() {
 
 ## 重點整理
 
-- `static` 的初始值必須能在編譯期求值；建立有內容的 `Vec`、呼叫 `String::from` 等操作需要在執行期執行。
+- `static` 的初始值必須能在編譯時期求值；建立有內容的 `Vec`、呼叫 `String::from` 等操作需要在執行時期執行。
 - `LazyLock` 延遲到第一次存取才初始化，之後用快取。
 - `LazyLock` 是 thread-safe 的，可以安全地用在 `static`。

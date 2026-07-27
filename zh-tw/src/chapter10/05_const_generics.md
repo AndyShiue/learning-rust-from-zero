@@ -62,7 +62,7 @@ fn add_arrays<const N: usize>(a: [i32; N], b: [i32; N]) -> [i32; N] {
 # fn main() {}
 ```
 
-兩個參數的長度在編譯期就保證一致。slice 做不到。
+兩個參數的長度在編譯時期就保證一致。slice 做不到。
 
 ### 用在 `struct` 上
 
