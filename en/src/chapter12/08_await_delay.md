@@ -102,4 +102,4 @@ So what if I do want both `Delay`s timing simultaneously, one second total? That
 - Waiting on `Delay` with `.await` inside `async`, plus `println!`, lets you watch execution step forward.
 - Each `poll` resumes the `Future` from where it last paused, until the next unfinished `.await` returns `Pending`.
 - A `Future` remembers its progress and resumes in place — the state machine behind it deserves the credit.
-- `.await` does **not** auto-parallelize: two consecutive `.await`s wait in sequence; concurrency needs other tools (one comes next episode).
+- `.await` does **not** give you concurrency for free: two consecutive `.await`s wait in sequence; concurrency needs other tools (one comes next episode).
