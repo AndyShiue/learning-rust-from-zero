@@ -236,5 +236,5 @@ fn main() {
 - Custom errors: define an `enum` → `impl Display` → `impl Error` (preserving causes with `.source()`) → `impl From` for each underlying error.
 - With `From` in place, `?` automatically converts underlying errors into your custom error.
 - `Box<dyn Error>` erases the concrete error's static type, but errors remain inspectable through `.source()` or downcasting.
-- To send errors across thread boundaries, `Box<dyn Error + Send + Sync>` is commonly used.
+- To send errors across `Thread` boundaries, `Box<dyn Error + Send + Sync>` is commonly used.
 - `Box<dyn Error>` suits rapid development; custom error `enum`s suit libraries.

@@ -49,7 +49,7 @@ fn main() {
 
 ### `Arc<T>: Send` and `Arc<T>: Sync` Require `T: Send + Sync`
 
-`Arc<T>` itself does not require `T: Send + Sync`. But to send and share an `Arc<T>` between `Thread`s as above, `T` must satisfy both traits. Why?
+`Arc<T>` itself does not require `T: Send + Sync`. But to send and share an `Arc<T>` between `Thread`s as above, `T` must satisfy both `trait`s. Why?
 
 **`Sync`**: multiple `Thread`s access the same `T` simultaneously through their own `Arc`s. Chapter 5 taught `Deref` — `Arc` implements it, so `T`'s contents are reachable straight through the `Arc`. That amounts to multiple `Thread`s holding shared references to `T` at once, so `T` must be `Sync`.
 
