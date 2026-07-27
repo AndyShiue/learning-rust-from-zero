@@ -8,7 +8,7 @@
 
 ### `#[tokio::test]`
 
-第 7 章學過用 `#[test]` 加 `cargo test` 寫測試。但 `#[test]` 標記的是一個普通函式，沒辦法 `.await`。要測 `async` 程式，Tokio 提供 `#[tokio::test]`——它會自動幫你的測試函式套上一個 runtime，你不用自己 `block_on`：
+第 7 章學過用 `#[test]` 加 `cargo test` 寫測試。但 `#[test]` 標記的是一個普通函數，沒辦法 `.await`。要測 `async` 程式，Tokio 提供 `#[tokio::test]`——它會自動幫你的測試函數套上一個 runtime，你不用自己 `block_on`：
 
 ```rust,noplayground
 # extern crate tokio;
@@ -32,7 +32,7 @@ async fn test_add() {
 
 `async` 程式常常牽涉時間——timeout、延遲、定時重試。如果照實測，一個「5 秒後逾時」的邏輯，測試就得真的等 5 秒，又慢又煩。
 
-Tokio 的解法是**虛擬時間**：讓測試裡的時間由你**手動推進**，不必真的空等。兩個關鍵函式：
+Tokio 的解法是**虛擬時間**：讓測試裡的時間由你**手動推進**，不必真的空等。兩個關鍵函數：
 
 - `tokio::time::pause()`：把時間「暫停」，從此時間不會自己流動。
 - `tokio::time::advance(duration)`：手動把時間往前快轉一段。
@@ -65,7 +65,7 @@ async fn test_with_virtual_time() {
 
 ## 重點整理
 
-- `#[tokio::test]` 自動幫測試函式套上 runtime、允許 `.await`，等於「`#[test]` + runtime + `async`」；其餘用法和第 7 章的 `cargo test` 一樣。
+- `#[tokio::test]` 自動幫測試函數套上 runtime、允許 `.await`，等於「`#[test]` + runtime + `async`」；其餘用法和第 7 章的 `cargo test` 一樣。
 - 牽涉時間的測試別用真實時間（又慢又不穩），改用 Tokio 的虛擬時間。
 - `tokio::time::pause()` 暫停時間、`tokio::time::advance(duration)` 手動快轉，讓 timeout / 延遲的測試瞬間完成且結果一致。
 - 也可用 `#[tokio::test(start_paused = true)]` 從頭暫停時間；虛擬時間工具需要 Tokio 的 `test-util` 功能。

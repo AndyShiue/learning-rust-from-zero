@@ -93,7 +93,7 @@ pub mod advanced;
 一個 Rust 專案可以包含一或多個 `crate`。`crate` 分成兩種類型：
 
 - **binary `crate`**：有 `src/main.rs`，會編譯成可執行檔。
-- **library `crate`**：有 `src/lib.rs`，給別人使用的程式庫。
+- **library `crate`**：有 `src/lib.rs`，給別人使用的函式庫。
 
 一個專案可以**同時包含** `main.rs` 和 `lib.rs`。`main.rs` 是 binary `crate` 的根，`lib.rs` 是 library `crate` 的根。
 
