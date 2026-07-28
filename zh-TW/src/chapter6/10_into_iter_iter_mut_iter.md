@@ -66,7 +66,7 @@ fn main() {
 
 | 所有權概念 | 迭代方法 | for 簡寫 |
 |-----------|---------|-----------|
-| `T`（移動所有權） | `.into_iter()` | `for x in v` |
+| `T`（move） | `.into_iter()` | `for x in v` |
 | `&mut T`（可變借用） | `.iter_mut()` | `for x in &mut v` |
 | `&T`（借用） | `.iter()` | `for x in &v` |
 
