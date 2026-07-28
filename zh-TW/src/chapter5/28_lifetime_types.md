@@ -43,7 +43,7 @@ enum Token<'a> {
 # fn main() {}
 ```
 
-`Token::Word` 借用了一段文字，所以 `Token` 的壽命不能超過那段文字。`Token::Number` 本身不包含任何參考，但因為它和 `Word` 是同一個 `enum`，建立 `Token::Number(42)` 時仍然需要指定 `'a`——只是這個 `'a` 對 `Number` 來說不起實際作用。
+`Token::Word` 借用了一段文字，所以 `Token` 的壽命不能超過那段文字。`Token::Number` 本身不包含任何參考，但它和 `Word` 是同一個 `enum`，所以 `Token::Number(42)` 的型別一樣是 `Token<'a>`——這個 `'a` 由編譯器自己推斷，你不用寫，而且它對 `Number` 來說不起實際作用。
 
 ### 使用帶生命週期的型別
 

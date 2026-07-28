@@ -43,7 +43,7 @@ enum Token<'a> {
 # fn main() {}
 ```
 
-`Token::Word` borrows a piece of text, so a `Token` can't outlive that text. `Token::Number` contains no references, but since it shares the `enum` with `Word`, creating `Token::Number(42)` still requires an `'a` — it just has no practical effect for `Number`.
+`Token::Word` borrows a piece of text, so a `Token` can't outlive that text. `Token::Number` contains no references, but since it shares the `enum` with `Word`, `Token::Number(42)` still has the type `Token<'a>` — the compiler infers that `'a` for you, and it has no practical effect for `Number`.
 
 ### Using a Type with a Lifetime
 
