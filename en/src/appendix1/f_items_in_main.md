@@ -25,7 +25,7 @@ This code compiles just fine.
 
 ### The Limitation: Visible Only within That Function
 
-A type defined inside a function is visible only to that `fn`. Other functions can't use it. So by convention, type definitions still go outside — unless you're sure the type is used in just one `fn`.
+A type defined inside a function is visible only inside that `fn`. Functions outside it can't use it. So by convention, type definitions still go outside — unless you're sure the type is used in just one `fn`.
 
 ### The Important Difference: Items Aren't Order-sensitive
 
@@ -99,7 +99,7 @@ fn main() {
 ## Recap
 
 - Items like `struct`, `enum`, and `fn` can legally be defined inside functions.
-- An item defined inside an `fn` is visible only to that `fn` (scope restriction).
+- An item defined inside an `fn` is visible only inside that `fn` (scope restriction).
 - Type definitions conventionally still go outside `fn`s, unless a single `fn` uses them.
 - **Items are unaffected by definition order** — they can be used either before or after their definitions.
 - **`let` bindings must appear before use** — the fundamental difference between items and `let`.
