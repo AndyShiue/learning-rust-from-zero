@@ -106,11 +106,11 @@ Rust treats the `*p` part roughly like this:
 #
 # fn main() {
 #     let p = Box::new(10);
-    let n = *Deref::deref(&p);
+    let n = *p.deref();
 # }
 ```
 
-First, Rust borrows the smart pointer: `&p`. Then `Deref::deref(&p)` returns a reference to the inner value: `&Self::Target`. Finally, the outer `*` follows that reference.
+`deref` takes `&self`, so `p.deref()` borrows the smart pointer first, then returns a reference to the inner value: `&Self::Target`. Finally, the outer `*` follows that reference.
 
 For `Box<i32>`, `Self::Target` is `i32`, so `deref()` returns `&i32`. Since `i32` is `Copy`, `let n = *p;` can create another `i32`.
 
@@ -153,11 +153,11 @@ Since the left side is `*p`, Rust needs mutable access to the inner value. It tr
 #
 # fn main() {
 #     let mut p = Box::new(String::from("hello"));
-    *DerefMut::deref_mut(&mut p) = String::from("world");
+    *p.deref_mut() = String::from("world");
 # }
 ```
 
-First, Rust mutably borrows the smart pointer: `&mut p`. Then `DerefMut::deref_mut(&mut p)` returns a mutable reference to the inner value: `&mut Self::Target`. Finally, the outer `*` follows that mutable reference, so the assignment can replace the inner `String`.
+`deref_mut` takes `&mut self`, so `p.deref_mut()` mutably borrows the smart pointer first, then returns a mutable reference to the inner value: `&mut Self::Target`. Finally, the outer `*` follows that mutable reference, so the assignment can replace the inner `String`.
 
 ### Specifying Associated Types in `trait` Bounds
 

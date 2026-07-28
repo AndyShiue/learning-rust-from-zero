@@ -106,11 +106,11 @@ Rust 大致上會把 `*p` 這部分當成：
 #
 # fn main() {
 #     let p = Box::new(10);
-    let n = *Deref::deref(&p);
+    let n = *p.deref();
 # }
 ```
 
-首先，Rust 借用這個智慧指標：`&p`。接著 `Deref::deref(&p)` 回傳一個指向內部值的參考：`&Self::Target`。最後，外面的 `*` 沿著這個參考走過去。
+`deref` 接收 `&self`，所以 `p.deref()` 會先借用這個智慧指標，再回傳一個指向內部值的參考：`&Self::Target`。最後，外面的 `*` 沿著這個參考走過去。
 
 對 `Box<i32>` 來說，`Self::Target` 是 `i32`，所以 `deref()` 回傳 `&i32`。因為 `i32` 是 `Copy`，`let n = *p;` 能產生出另一個 `i32`。
 
@@ -153,11 +153,11 @@ trait DerefMut: Deref {
 #
 # fn main() {
 #     let mut p = Box::new(String::from("hello"));
-    *DerefMut::deref_mut(&mut p) = String::from("world");
+    *p.deref_mut() = String::from("world");
 # }
 ```
 
-首先，Rust 可變地借用這個智慧指標：`&mut p`。接著 `DerefMut::deref_mut(&mut p)` 回傳一個指向內部值的可變參考：`&mut Self::Target`。最後，外面的 `*` 沿著這個可變參考走過去，賦值就能把內部的 `String` 換掉。
+`deref_mut` 接收 `&mut self`，所以 `p.deref_mut()` 會先可變地借用這個智慧指標，再回傳一個指向內部值的可變參考：`&mut Self::Target`。最後，外面的 `*` 沿著這個可變參考走過去，賦值就能把內部的 `String` 換掉。
 
 ### 在 `trait` bound 中指定 associated type
 
