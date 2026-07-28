@@ -1141,7 +1141,7 @@ Status: no problems
 
 Reason for no problems:
 - This episode mainly introduces `char`, the difference between single and double quotes, and Unicode characters.
-- A standalone problem has little practice value; the next episode, "Escape Characters," is better suited to output problems involving quotes and special characters.
+- A standalone problem has little practice value; the next episode, "Escape Characters," is better suited to output problems involving special characters.
 
 ### Chapter 1, Episode 26: Escape Characters
 
