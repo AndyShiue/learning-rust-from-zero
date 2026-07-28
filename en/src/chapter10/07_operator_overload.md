@@ -82,7 +82,7 @@ Every binary operator listed above has a corresponding assign version (e.g. `&=`
 - `Add::add(self, rhs)` consumes `a` and produces a new value.
 - `AddAssign::add_assign(&mut self, rhs)` modifies `a` in place.
 
-For an `i32` the difference barely matters, but for a non-`Copy` type (like `String`), `s1 += &s2` appends directly, while `s1 = s1 + &s2` consumes `s1` and builds a new one. The efficiency and semantics differ, which is why they're separate `trait`s.
+For an `i32` the difference barely matters, but for a non-`Copy` type (like `String`), `s1 += &s2` only needs a mutable borrow of `s1`, while `s1 = s1 + &s2` has to give up ownership of `s1` and assign the result back. They ask for different things from you, and for some types the efficiency differs too, which is why they're separate `trait`s.
 
 `Add` and `AddAssign` are completely independent — implementing `Add` doesn't automatically make `+=` work, nor vice versa. Without the implementation, it's a compile error.
 
