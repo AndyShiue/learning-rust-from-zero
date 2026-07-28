@@ -33,7 +33,7 @@ fn main() {
     // 之後再 lock → Err
     match data.lock() {
         Ok(guard) => println!("正常：{:?}", *guard),
-        Err(poisoned) => println!("鎖中毒了！"),
+        Err(_poisoned) => println!("鎖中毒了！"),
     }
 }
 ```

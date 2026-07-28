@@ -33,7 +33,7 @@ fn main() {
     // A later lock → Err
     match data.lock() {
         Ok(guard) => println!("Normal: {:?}", *guard),
-        Err(poisoned) => println!("The lock is poisoned!"),
+        Err(_poisoned) => println!("The lock is poisoned!"),
     }
 }
 ```
