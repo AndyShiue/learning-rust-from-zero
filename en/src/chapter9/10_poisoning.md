@@ -70,7 +70,7 @@ fn main() {
 
 `PoisonError::into_inner` hands back the guard, skipping the poison warning. If you're sure the data's state is fine, or don't care, this works.
 
-Note that this is an "**write it this way at every lock site**" approach: the lock itself stays poisoned throughout; you simply ignore it every time. If one place in the program forgets and reaches for a plain `lock().expect(...)`, that place panics.
+Note that this is a "**write it this way at every lock site**" approach: the lock itself stays poisoned throughout; you simply ignore it every time. If one place in the program forgets and reaches for a plain `lock().expect(...)`, that place panics.
 
 **3. Repair the data, then continue**
 

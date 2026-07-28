@@ -54,7 +54,7 @@ fn main() {
     });
 
     handle.join().expect("執行緒發生錯誤");
- }
+}
 ```
 
 用 `thread::scope` 簡潔很多：

@@ -54,7 +54,7 @@ fn main() {
     });
 
     handle.join().expect("thread panicked");
- }
+}
 ```
 
 With `thread::scope`, far cleaner:
