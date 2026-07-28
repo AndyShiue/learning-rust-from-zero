@@ -6,7 +6,7 @@
 
 ## 概念說明
 
-第二集我們定義了泛型 `struct` `Pair<T>`。這集要幫它 `impl`。
+第 2 集我們定義了泛型 `struct` `Pair<T>`。這集要幫它 `impl`。
 
 回想第 3 章，`impl` `struct` 是這樣寫的：
 
