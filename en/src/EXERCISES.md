@@ -27,9 +27,9 @@ This bank is not a "source of inspiration" — it is a "source of boundaries." T
 - Chapter 3 and later have no fixed practice problems. Much of that material leans toward data modeling, syntactic expression, code organization, or convention round-ups; forcing fixed problems there easily turns into retyping examples or terminology quizzes.
 - If the reader is on Chapter 3 or later and actively asks for problems, you may improvise 1 problem, but say first:
 
-> There's no fixed problem bank past Chapter 3. Below is an improvised challenge; it may use content taught later, and you shouldn't feel you must solve it entirely on your own.
+> There's no fixed problem bank from Chapter 3 onward. Below is an improvised challenge; it may use content taught later, and you shouldn't feel you must solve it entirely on your own.
 
-- Improvised problems past Chapter 3 may lean a little toward challenge problems, but still avoid piling on too many untaught tools at once.
+- Improvised problems from Chapter 3 onward may lean a little toward challenge problems, but still avoid piling on too many untaught tools at once.
 
 ## Rules for Using the Fixed Bank
 
@@ -485,6 +485,7 @@ Grading criteria:
 - The update should stay `coins = 5;`, not `let coins = 5;`.
 - Don't introduce shadowing here; shadowing isn't covered until Chapter 2, Episode 2.
 - After the fix, the program should print `5`.
+- The fixed program still produces a "value assigned to `coins` is never read" warning; that's normal and doesn't affect the run.
 
 Hint directions:
 1. Rust variables can't be changed by default.
@@ -1148,7 +1149,7 @@ Reason for no problems:
 Status: available
 
 Practice goals:
-- Confirm the reader can use `\n` and `\t` to control output formatting.
+- Confirm the reader can use `\n` to control output formatting.
 - Confirm the reader can print a double quote `"` inside a string.
 - Confirm the reader can print a backslash `\` inside a string.
 

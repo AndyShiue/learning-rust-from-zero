@@ -119,8 +119,8 @@ Flow:
 6. If the episode is `no problems`, briefly explain why, and suggest the nearest available problem or that the reader keep reading.
 7. If a Chapter 1–2 episode has no fixed available problem and the reader still insists on practicing, you may improvise 1 problem, but say first:
    > This episode has no fixed problems in the bank. Below is a practice problem I improvised for your current progress.
-8. If a reader past Chapter 3 insists on practicing without a fixed bank, you may improvise 1 problem, but say first:
-   > There's no fixed problem bank past Chapter 3. Below is an improvised challenge; it may use content taught later, and you shouldn't feel you must solve it entirely on your own.
+8. If a reader on Chapter 3 or later insists on practicing without a fixed bank, you may improvise 1 problem, but say first:
+   > There's no fixed problem bank from Chapter 3 onward. Below is an improvised challenge; it may use content taught later, and you shouldn't feel you must solve it entirely on your own.
 9. Improvised problems should be small and complete; be especially conservative in Chapters 1–2 — no big integrative designs.
 
 If `EXERCISES.md` can't be read:

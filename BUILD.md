@@ -15,14 +15,15 @@ rustup update stable
 cargo install mdbook
 ```
 
-The PDF builds additionally require Pandoc, XeLaTeX, JetBrains Mono, Noto Sans,
-Noto CJK, and an emoji or symbol font.
+The PDF builds additionally require Python 3, Pandoc, XeLaTeX, JetBrains Mono,
+Noto Sans, Noto CJK, and an emoji or symbol font.
 
 On Ubuntu/Debian, these packages match the GitHub Actions environment:
 
 ```bash
 sudo apt-get update
 sudo apt-get install -y \
+  python3 \
   pandoc \
   texlive-xetex \
   texlive-latex-extra \
@@ -103,8 +104,8 @@ the GitHub Actions font selection exactly, download the same three files into
 Run either print pipeline from the repository root:
 
 ```bash
-./zh-TW/print/build.sh
-./en/print/build.sh
+bash zh-TW/print/build.sh
+bash en/print/build.sh
 ```
 
 Each edition writes these files beneath its own directory:
@@ -124,7 +125,7 @@ The default visible code-line limit is 96 characters for Traditional Chinese
 and 95 characters for English. Override it for an individual build when needed:
 
 ```bash
-CODE_LINE_LIMIT=100 ./en/print/build.sh
+CODE_LINE_LIMIT=100 bash en/print/build.sh
 ```
 
 Before deploying, the workflow also applies the fixed 95-character English PDF
