@@ -7,7 +7,7 @@ Understand that `FnOnce`, `FnMut`, and `Fn` are `trait`s rather than types, gras
 
 ### They're `trait`s, Not Types
 
-We've been saying `FnOnce`, `FnMut`, and `Fn` for several episodes without formally explaining — they are in fact **`trait`s**. Like Chapter 5's `Clone` and `Display`, `FnOnce` / `FnMut` / `Fn` are `trait`s defined in the standard library. Each closure's anonymous `struct` automatically `impl`s the corresponding `trait`s (last episode's inference rules decide which).
+We've been saying `FnOnce`, `FnMut`, and `Fn` for several episodes without formally explaining — they are in fact **`trait`s**. Like the `Clone` and `Display` you've already met, `FnOnce` / `FnMut` / `Fn` are `trait`s defined in the standard library. Each closure's anonymous `struct` automatically `impl`s the corresponding `trait`s (last episode's inference rules decide which).
 
 So what do these `trait`s look like?
 
