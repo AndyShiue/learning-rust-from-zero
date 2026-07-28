@@ -53,7 +53,7 @@ After adding an external `crate` in `Cargo.toml`, use the `crate`'s name as the 
 
 ```rust,ignore
 use std::collections::HashMap;
-use rand::Rng;
+use rand::RngExt;
 #
 # fn main() {}
 ```
@@ -63,7 +63,7 @@ use rand::Rng;
 To emphasize "this is an external `crate`" explicitly, start with `::`:
 
 ```rust,ignore,mdbook-runnable
-use ::rand::Rng;  // Explicitly: rand is an external crate, not a local mod
+use ::rand::RngExt; // Explicitly: rand is an external crate, not a local mod
 #
 # fn main() {}
 ```

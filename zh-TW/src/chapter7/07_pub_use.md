@@ -56,7 +56,7 @@ use your_crate::power;
 
 ```rust,ignore
 // lib.rs
-pub use rand::Rng; // 使用者 use your_crate::Rng 就好，不用自己加 rand 依賴
+pub use rand::RngExt; // 使用者 use your_crate::RngExt 就好，不用自己加 rand 依賴
 #
 # fn main() {}
 ```

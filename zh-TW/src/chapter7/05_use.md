@@ -53,7 +53,7 @@ use math::add; // 當前 mod 底下的 math 子 mod
 
 ```rust,ignore
 use std::collections::HashMap;
-use rand::Rng;
+use rand::RngExt;
 #
 # fn main() {}
 ```
@@ -63,7 +63,7 @@ use rand::Rng;
 如果你想明確強調「這是外部 `crate`」，可以用 `::` 開頭：
 
 ```rust,ignore,mdbook-runnable
-use ::rand::Rng;  // 明確表示 rand 是外部 crate，不是本地 mod
+use ::rand::RngExt; // 明確表示 rand 是外部 crate，不是本地 mod
 #
 # fn main() {}
 ```
