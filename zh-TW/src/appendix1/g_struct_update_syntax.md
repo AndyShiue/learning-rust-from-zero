@@ -39,7 +39,7 @@
 
 ### 搭配 `Default`
 
-如果你的 `struct` 有實作 `Default` `trait`，可以用 `..Default::default()` 來建立「只指定幾個欄位，其他用預設值」的實例：
+如果你的 `struct` 有實作 `Default` `trait`，可以用 `..` 搭配它的 `default()` 來建立「只指定幾個欄位，其他用預設值」的實例：
 
 ```rust,noplayground
 # #[derive(Default)]
@@ -49,7 +49,7 @@
 # }
 #
 # fn main() {
-    let config = Config { debug: true, ..Default::default() };
+    let config = Config { debug: true, ..Config::default() };
 # }
 ```
 
@@ -94,12 +94,12 @@ fn main() {
     let custom = Config {
         width: 1920,
         height: 1080,
-        ..Default::default()
+        ..Config::default()
     };
     println!("自訂設定：{:?}", custom);
 
     // 全部用預設值
-    let default_config = Config { ..Default::default() };
+    let default_config = Config { ..Config::default() };
     println!("預設設定：{:?}", default_config);
 
     // 注意 move 語義！
@@ -126,4 +126,4 @@ fn main() {
 - `Copy` 型別的欄位會被 copy，非 `Copy` 型別的欄位會被 move。
 - 如果所有欄位都是 `Copy`，原本的 `struct` 還能繼續使用。
 - 如果有非 `Copy` 欄位被 move，原本 `struct` 的那些欄位就不能再存取。
-- `..Default::default()` 很適合用在「大部分欄位用預設值，只改幾個」的場景。
+- `..Config::default()` 很適合用在「大部分欄位用預設值，只改幾個」的場景。

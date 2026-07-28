@@ -43,8 +43,8 @@ fn main() {
         let a = Rc::new(RefCell::new(Node { name: "A", other: None }));
         let b = Rc::new(RefCell::new(Node { name: "B", other: None }));
 
-        a.borrow_mut().other = Some(Rc::clone(&b));
-        b.borrow_mut().other = Some(Rc::clone(&a));
+        a.borrow_mut().other = Some(b.clone());
+        b.borrow_mut().other = Some(a.clone());
 
         println!("before leaving the scope, A's strong count = {}", Rc::strong_count(&a));
     }

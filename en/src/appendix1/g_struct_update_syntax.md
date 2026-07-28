@@ -39,7 +39,7 @@ Meaning: if `..p1` moves some of `p1`'s non-`Copy` fields, those fields can no l
 
 ### Pairing with `Default`
 
-If your `struct` implements the `Default` `trait`, `..Default::default()` builds an instance "specifying just a few fields, defaults for the rest":
+If your `struct` implements the `Default` `trait`, `..` paired with its `default()` builds an instance "specifying just a few fields, defaults for the rest":
 
 ```rust,noplayground
 # #[derive(Default)]
@@ -49,7 +49,7 @@ If your `struct` implements the `Default` `trait`, `..Default::default()` builds
 # }
 #
 # fn main() {
-    let config = Config { debug: true, ..Default::default() };
+    let config = Config { debug: true, ..Config::default() };
 # }
 ```
 
@@ -94,12 +94,12 @@ fn main() {
     let custom = Config {
         width: 1920,
         height: 1080,
-        ..Default::default()
+        ..Config::default()
     };
     println!("Custom settings: {:?}", custom);
 
     // All defaults
-    let default_config = Config { ..Default::default() };
+    let default_config = Config { ..Config::default() };
     println!("Default settings: {:?}", default_config);
 
     // Watch the move semantics!
@@ -126,4 +126,4 @@ fn main() {
 - `Copy`-typed fields are copied; non-`Copy` fields are moved.
 - If every field is `Copy`, the original `struct` stays usable.
 - If a non-`Copy` field was moved, that field of the original `struct` is off-limits.
-- `..Default::default()` suits "mostly defaults, a few changes" nicely.
+- `..Config::default()` suits "mostly defaults, a few changes" nicely.
