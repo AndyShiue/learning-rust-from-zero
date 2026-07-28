@@ -66,7 +66,7 @@ pub extern "C" fn add(a: i32, b: i32) -> i32 {
 
 ```rust,noplayground
 unsafe extern "C" {
-    static errno: i32; // a global variable on the C side
+    static daylight: i32; // a global variable on the C side
 }
 #
 # fn main() {}
@@ -104,3 +104,4 @@ fn main() {
 - Calling external functions requires `unsafe`, except those marked `safe fn`.
 - `"C"` is the ABI — how functions are called at the binary level.
 - `#[unsafe(no_mangle)] pub extern "C" fn` lets C call Rust.
+- An `extern` block can declare `static` variables too.

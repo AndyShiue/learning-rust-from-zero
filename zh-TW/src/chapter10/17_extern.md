@@ -66,7 +66,7 @@ pub extern "C" fn add(a: i32, b: i32) -> i32 {
 
 ```rust,noplayground
 unsafe extern "C" {
-    static errno: i32; // C 那邊的全域變數
+    static daylight: i32; // C 那邊的全域變數
 }
 #
 # fn main() {}
@@ -104,3 +104,4 @@ fn main() {
 - 呼叫外部函數需要 `unsafe`；標記 `safe fn` 的除外。
 - `"C"` 是 ABI，指定函數在二進位層面的呼叫方式。
 - `#[unsafe(no_mangle)] pub extern "C" fn` 讓 C 可以呼叫 Rust。
+- `extern` 區塊裡也能宣告 `static` 變數。
