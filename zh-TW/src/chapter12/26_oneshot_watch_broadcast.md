@@ -79,10 +79,10 @@ async fn main() {
     tx.send(2).expect("沒有接收端");
 
     // rx1 和 rx2 都會收到 1 和 2
-    println!("rx1 收到：{}", rx1.recv().await.unwrap());
-    println!("rx1 收到：{}", rx1.recv().await.unwrap());
-    println!("rx2 收到：{}", rx2.recv().await.unwrap());
-    println!("rx2 收到：{}", rx2.recv().await.unwrap());
+    println!("rx1 收到：{}", rx1.recv().await.expect("接收失敗"));
+    println!("rx1 收到：{}", rx1.recv().await.expect("接收失敗"));
+    println!("rx2 收到：{}", rx2.recv().await.expect("接收失敗"));
+    println!("rx2 收到：{}", rx2.recv().await.expect("接收失敗"));
 }
 ```
 

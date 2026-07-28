@@ -79,10 +79,10 @@ async fn main() {
     tx.send(2).expect("no receivers");
 
     // rx1 and rx2 both receive 1 and 2
-    println!("rx1 got: {}", rx1.recv().await.unwrap());
-    println!("rx1 got: {}", rx1.recv().await.unwrap());
-    println!("rx2 got: {}", rx2.recv().await.unwrap());
-    println!("rx2 got: {}", rx2.recv().await.unwrap());
+    println!("rx1 got: {}", rx1.recv().await.expect("receive failed"));
+    println!("rx1 got: {}", rx1.recv().await.expect("receive failed"));
+    println!("rx2 got: {}", rx2.recv().await.expect("receive failed"));
+    println!("rx2 got: {}", rx2.recv().await.expect("receive failed"));
 }
 ```
 
