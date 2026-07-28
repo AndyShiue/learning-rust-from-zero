@@ -127,7 +127,7 @@ fn main() {
     println!("{:?}", hellos);
 
     // expression syntax
-    let zeros: [i32; { 2 + 3 }] = filled(0);
+    let zeros = filled::<i32, { 2 + 3 }>(0);
     println!("{:?}", zeros);
 }
 ```
