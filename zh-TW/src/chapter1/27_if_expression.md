@@ -83,7 +83,7 @@ fn main() {
     let msg = if condition { "好" } else { "壞" };
 
     // ❌ 一邊整數一邊字串
-    let x = if condition { 1 } else { "hello" };
+    let bad = if condition { 1 } else { "hello" };
 # }
 ```
 

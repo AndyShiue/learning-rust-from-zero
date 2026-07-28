@@ -83,7 +83,7 @@ The values inside the two sets of braces **must have the same type**:
     let msg = if condition { "good" } else { "bad" };
 
     // ❌ One side an integer, the other a string
-    let x = if condition { 1 } else { "hello" };
+    let bad = if condition { 1 } else { "hello" };
 # }
 ```
 
