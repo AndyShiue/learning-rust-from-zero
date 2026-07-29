@@ -56,7 +56,7 @@ Note: `pub use` can only export **things that were already `pub`**. Attempting t
 
 ```rust,ignore
 // lib.rs
-pub use rand::RngExt; // Users just write use your_crate::RngExt — no rand dependency of their own
+pub use rand::RngExt; // Users write use your_crate::RngExt — no rand dependency of their own
 #
 # fn main() {}
 ```

@@ -97,7 +97,10 @@ fn main() {
 
     match request {
         Request::Transfer { from, to, amount } if from == to => {
-            println!("帳戶 {} 不需要轉帳給自己，金額 {}", from, amount);
+            println!(
+                "帳戶 {} 不需要轉帳給自己，金額 {}",
+                from, amount
+            );
         }
         Request::Transfer { from, to, amount } if amount > daily_limit => {
             println!(
@@ -106,7 +109,10 @@ fn main() {
             );
         }
         Request::Transfer { from, to, amount } => {
-            println!("從帳戶 {} 轉 {} 到帳戶 {}", from, amount, to);
+            println!(
+                "從帳戶 {} 轉 {} 到帳戶 {}",
+                from, amount, to
+            );
         }
         Request::CheckBalance { account } => {
             println!("查詢帳戶 {} 的餘額", account);
