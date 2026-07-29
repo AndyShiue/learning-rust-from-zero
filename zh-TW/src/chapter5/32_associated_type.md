@@ -112,7 +112,7 @@ Rust 大致上會把 `*p` 這部分當成：
 
 `deref` 接收 `&self`，所以 `p.deref()` 會先借用這個智慧指標，再回傳一個指向內部值的參考：`&Self::Target`。最後，外面的 `*` 沿著這個參考走過去。
 
-對 `Box<i32>` 來說，`Self::Target` 是 `i32`，所以 `deref()` 回傳 `&i32`。因為 `i32` 是 `Copy`，`let n = *p;` 能產生出另一個 `i32`。
+對 `Box<i32>` 來說，`Self::Target` 是 `i32`，所以 `.deref()` 回傳 `&i32`。因為 `i32` 是 `Copy`，`let n = *p;` 能產生出另一個 `i32`。
 
 這跟 `Container` 的 `type Item` 是同樣的道理：一旦 `Self` 定為 `Box<i32>`，`Target` 就只有一個答案——`i32`。這正是 `Target` 用 associated type 而不是泛型參數的原因。
 

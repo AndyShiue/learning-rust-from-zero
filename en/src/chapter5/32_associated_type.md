@@ -112,7 +112,7 @@ Rust treats the `*p` part roughly like this:
 
 `deref` takes `&self`, so `p.deref()` borrows the smart pointer first, then returns a reference to the inner value: `&Self::Target`. Finally, the outer `*` follows that reference.
 
-For `Box<i32>`, `Self::Target` is `i32`, so `deref()` returns `&i32`. Since `i32` is `Copy`, `let n = *p;` can create another `i32`.
+For `Box<i32>`, `Self::Target` is `i32`, so `.deref()` returns `&i32`. Since `i32` is `Copy`, `let n = *p;` can create another `i32`.
 
 This is the same reasoning as `Container`'s `type Item`: once `Self` is fixed as `Box<i32>`, `Target` has only one answer — `i32`. That is why `Target` is an associated type rather than a generic parameter.
 
