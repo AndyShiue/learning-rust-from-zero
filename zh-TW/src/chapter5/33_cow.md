@@ -16,7 +16,7 @@
 
 ### `Cow` 來拯救
 
-`Cow` 的全名是 **`Clone` on write**（寫入時才複製）。它定義在 `std::borrow` 模組裡。來看一個教學用的簡化定義，先抓住核心結構；它省略了標準庫完整型別需要的部分，所以這段還不是可以直接拿來完整運作的實作：
+`Cow` 的全名是 **`Clone` on write**（寫入時才 `clone`）。它定義在 `std::borrow` 模組裡。來看一個教學用的簡化定義，先抓住核心結構；它省略了標準庫完整型別需要的部分，所以這段還不是可以直接拿來完整運作的實作：
 
 ```rust,noplayground
 enum Cow<'a, B>
@@ -67,7 +67,7 @@ fn main() {
 
 ### 常用方法
 
-- **`.to_mut()`**：如果是 `Borrowed`，先 `clone` 成 `Owned`，然後回傳可變參考。如果已經是 `Owned`，直接回傳它的可變參考。這就是「寫入時才複製」的核心。
+- **`.to_mut()`**：如果是 `Borrowed`，先 `clone` 成 `Owned`，然後回傳可變參考。如果已經是 `Owned`，直接回傳它的可變參考。這就是「寫入時才 `clone`」的核心。
 - **`.into_owned()`**：不管是 `Borrowed` 還是 `Owned`，都轉成擁有所有權的值。`Borrowed` 會 `clone` 一份，`Owned` 則直接拿走。
 
 ## 範例程式碼
@@ -111,7 +111,7 @@ fn main() {
         Cow::Owned(s) => println!("擁有的：{}", s),
     }
 
-    // to_mut：寫入時才複製
+    // to_mut：寫入時才 clone
     let mut cow: Cow<'_, str> = Cow::Borrowed("hello");
     // 現在是 Borrowed，呼叫 to_mut 會先 clone 成 Owned
     cow.to_mut().push_str(" world");
@@ -129,7 +129,7 @@ fn main() {
 - `Cow<'a, str>` 可以是借用（`&str`）或擁有（`String`），視情況而定。
 - `Cow` 利用 `ToOwned` `trait` 的 associated type 來決定擁有版本的型別（`str` → `String`、`[T]` → `Vec<T>`）。
 - `Cow` 實作了 `Deref`，不管是 `Borrowed` 還是 `Owned`，`&Cow<'_, str>` 都能直接當 `&str` 用——這是它最大的優點。
-- `.to_mut()`：寫入時才複製（`Borrowed` → `clone` 成 `Owned` → 回傳可變參考）。
+- `.to_mut()`：寫入時才 `clone`（`Borrowed` → `clone` 成 `Owned` → 回傳可變參考）。
 - `.into_owned()`：不管哪種都轉成擁有所有權的值。
 - 適合用在「大部分時候不修改，偶爾需要修改」的場景。
 
