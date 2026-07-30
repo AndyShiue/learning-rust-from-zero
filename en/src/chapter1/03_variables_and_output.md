@@ -10,7 +10,7 @@ Last episode we successfully printed "Hello, Rust!", but that text was hard-code
 
 ### What Is a Variable?
 
-A variable is like a container: you can put something into it and take it out to use later.
+A variable gives a value a name, so you can use that value later by that name.
 
 Let's see how to use one:
 
@@ -21,13 +21,13 @@ fn main() {
 }
 ```
 
-Here, `let x = 5;` says: "I want to create a variable called `x`, and put `5` into it."
+Here, `let x = 5;` binds the name `x` to the value `5`.
 
 Then, in `println!("{}", x);`, the `{}` is a placeholder — it means "at this spot, please fill in the value of `x`."
 
 ### Text Variables
 
-Variables can hold more than just numbers — they can hold text too:
+A variable name can be bound to more than just a number — it can be bound to text too:
 
 ```rust,editable
 fn main() {
