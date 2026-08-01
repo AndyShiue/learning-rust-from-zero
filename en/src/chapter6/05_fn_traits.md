@@ -11,9 +11,9 @@ We've been saying `FnOnce`, `FnMut`, and `Fn` for several episodes without forma
 
 So what do these `trait`s look like?
 
-- `FnOnce(Args) -> Ret`: callable at least once (may consume itself).
-- `FnMut(Args) -> Ret`: callable repeatedly (may modify internal state).
-- `Fn(Args) -> Ret`: callable repeatedly through a shared reference to itself.
+- `FnOnce(Args) -> Ret`: callable once (the call may consume the closure, so further calls are not guaranteed).
+- `FnMut(Args) -> Ret`: callable repeatedly, with mutable access to captured state.
+- `Fn(Args) -> Ret`: callable repeatedly, without mutable access to captured state.
 
 Watch out! `fn(i32) -> i32` (lowercase) is the function pointer **type**, while `Fn(i32) -> i32` (capitalized) is a **`trait`**. Two entirely different things.
 
@@ -69,7 +69,7 @@ When designing a function that takes a closure, choose the `trait` bound **accep
 2. Move to `FnMut` — if you need repeated calls.
 3. Only then `Fn` — if you need repeated calls without a mutable reference to the closure value.
 
-Why? Because `FnOnce` accepts every closure (all closures are at least `FnOnce`), while `Fn` accepts only closures callable through a shared reference. The widest bound gives callers maximum freedom.
+Why? Because `FnOnce` accepts every closure (every closure implements `FnOnce`), while `Fn` accepts only closures callable through a shared reference. The widest bound gives callers maximum freedom.
 
 In practice `Fn` is rarely needed — most functions calling a closure repeatedly do fine with `FnMut` (which also accepts `Fn` closures). Use `Fn` when the function needs to call the closure without a mutable reference to the closure value.
 
