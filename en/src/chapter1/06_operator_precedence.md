@@ -50,4 +50,4 @@ fn main() {
 
 - Rust's operator precedence works just like math: multiplication and division come before addition and subtraction.
 - Parentheses `()` force a different order of operations.
-- When in doubt, add parentheses — it's safe and makes the code easier to read.
+- When operator precedence isn't obvious, parentheses can make the intended order clearer.
