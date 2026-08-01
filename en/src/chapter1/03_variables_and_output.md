@@ -60,4 +60,4 @@ This is perfectly legal, but you must assign to it exactly once before using it 
 - Text is wrapped in `"double quotes"`.
 - `println!("{}", variable)` prints out the value of a variable.
 - `{}` is a placeholder that gets replaced by the value that follows.
-- A variable declared with `let` doesn't have to be assigned right away, but it must be assigned exactly once.
+- A variable declared with `let` doesn't have to be assigned right away, but it must be assigned exactly once before use.
