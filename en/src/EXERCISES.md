@@ -1,43 +1,51 @@
 # Fixed Practice-Problem Bank
 
-This document is a practice-problem spec for AIs. When the reader wants exercises, the AI must read this document first, then decide how to respond based on the reader's current progress.
+This document defines the fixed bank and the rules AIs follow when assigning and grading exercises.
 
 Distinguish between two kinds of problems:
 
 1. **Fixed-bank problems**: the problems written out later in this document.
-2. **Improvised problems**: when the reader insists on practicing but there is no suitable fixed problem for their progress, a small problem the AI writes on the spot, following the rules.
+2. **Improvised problems**: problems the AI writes on the spot when the rules below permit, rather than taking them from the fixed bank.
 
-This bank is not a "source of inspiration" — it is a "source of boundaries." The AI must not read this document and then add its own string of more advanced, more complete, or more conventional-Rust-course problems; even improvised problems must be small, conservative, and constrained by the reader's progress.
+Improvised problems are allowed only as the rules below specify. Don't treat the fixed bank as inspiration for expanding it into an unofficial series of more advanced, more elaborate, or more conventional-Rust-course problems.
 
 ## Problem-Assignment Principles
 
-1. First confirm which chapter and episode the reader is currently on.
+1. Apply `GUIDE.md` Section 2: confirm the reader's chapter and episode before assigning a problem.
 2. Look for problems within the reader's progress in this document, and check each entry's status.
-3. Only entries whose status is `available` may be assigned directly as fixed-bank problems; pick 1 problem at a time.
+3. Only entries whose status is `available` may be assigned directly as fixed-bank problems; pick 1 numbered problem at a time. Multiple numbered problems in one entry are alternatives, not a batch.
 4. When the status is `no problems`, briefly explain the entry's reason, then suggest the nearest earlier available problem or ask the reader to keep reading.
-5. If there is no suitable fixed problem but the reader still insists on practicing, you may assign 1 improvised problem; you must state clearly that it is not a fixed-bank problem.
+5. When no suitable fixed-bank problem exists, or the reader explicitly asks for an ahead-of-progress challenge, follow "Default Strategy by Chapter" below. It determines when you may improvise 1 problem and what you must say first. Always identify an improvised problem as improvised; never present a generic Rust problem as fixed-bank.
+6. By default, everything the reader must understand or create themselves in an improvised problem must stay within their current progress. Merely asking for practice or for a "challenge" does not count as permission to use untaught material.
+7. `GUIDE.md` Section 2 defines **fixed boilerplate** and the parts that may be adapted. Don't turn its later-taught internals into an exercise target.
+8. In a progress-matched problem, if later syntax not already introduced as fixed boilerplate appears necessary, first redesign the problem if possible. If a small amount is genuinely unavoidable, put the complete code in a separate block headed `Fixed scaffolding (taught later; don't edit)`. Briefly state what the block does without teaching its internals, and ask the reader to edit only a separately indicated progress-matched part.
+9. Only when the reader explicitly asks for an ahead-of-progress challenge may the required solution use untaught material. Keep that material to the minimum needed, mark it clearly as taught later, don't treat it as expected knowledge, and don't turn the problem into a large integrative design.
 
 ## Default Strategy by Chapter
 
-- Chapters 1 and 2 have fixed practice problems by default. If the reader insists on practicing an episode that has no fixed problem, you may improvise 1 problem, but say first:
+- Chapters 1 and 2 have fixed practice problems by default. For a progress-matched request, if the reader, after hearing that an episode has no fixed problem, still wants practice for that episode, you may improvise 1 problem, but say first:
 
 > This episode has no fixed problems in the bank. Below is a practice problem I improvised for your current progress.
 
 - Improvised problems for Chapters 1–2 must be conservative, small, and complete; don't design big integrative problems.
 - Chapter 3 and later have no fixed practice problems. Much of that material leans toward data modeling, syntactic expression, code organization, or convention round-ups; forcing fixed problems there easily turns into retyping examples or terminology quizzes.
-- If the reader is on Chapter 3 or later and actively asks for problems, you may improvise 1 problem, but say first:
+- For a progress-matched request from a reader on Chapter 3 or later, if they still want practice after hearing that there is no fixed bank, you may improvise 1 problem, but say first:
 
-> There's no fixed problem bank from Chapter 3 onward. Below is an improvised challenge; it may use content taught later, and you shouldn't feel you must solve it entirely on your own.
+> There's no fixed problem bank from Chapter 3 onward. Below is one small improvised challenge for your current progress.
 
-- Improvised problems from Chapter 3 onward may lean a little toward challenge problems, but still avoid piling on too many untaught tools at once.
+- Improvised problems from Chapter 3 onward may be somewhat more integrative by combining several concepts the reader has already learned.
+- If a reader explicitly asks for a challenge beyond their current progress, you may improvise 1 such problem, but say first:
+
+> This is an improvised challenge beyond your current progress. It may use a small amount of material taught later. I'll mark that material clearly, and you aren't expected to already know it.
 
 ## Rules for Using the Fixed Bank
 
-1. Show the reader only the "Problems" part; don't hand over the "Grading criteria," "Hint directions," or "Reference answer" up front.
-2. After the reader answers, first use the "Grading criteria" to judge whether they hit the problem's goal.
-3. When the reader is stuck, give the "Hint directions" one layer at a time; don't spread the whole answer out at once.
-4. Only give the "Reference answer" when the reader asks for it, or has tried and is still stuck.
-5. The fixed bank focuses on programming problems; don't pad it with setup checks or terminology quizzes.
+1. Show the reader only the selected numbered problem and the reader-facing material needed to attempt it, such as its starting code, expected output, or sample run. Don't hand over the "Grading criteria," "Hint directions," or "Reference answer" up front.
+2. After the reader answers, use the parts of the "Grading criteria" that apply to the selected numbered problem to judge whether they hit its goal.
+3. When the reader is stuck, give the parts of the "Hint directions" that apply to the selected numbered problem one layer at a time; don't spread the whole answer out at once.
+4. Only give the matching "Reference answer" when the reader asks for it, or has tried and is still stuck.
+5. When an entry contains multiple numbered problems, its supporting blocks and reference answers follow problem-number order unless they are explicitly labeled otherwise.
+6. The fixed bank focuses on programming problems; don't pad it with setup checks or terminology quizzes.
 
 ## Problem Entry Format
 
@@ -67,7 +75,9 @@ Hint directions:
 
 Reference answer:
 ```rust
-// If the problem needs code, it goes here.
+fn main() {
+    // If the problem needs code, it goes here.
+}
 ```
 ``````
 
@@ -876,7 +886,6 @@ FizzBuzz
 ```
 
 Grading criteria:
-- Must use the stdin boilerplate and `.parse::<i32>().expect("not a number")`.
 - Problem 1 must use `for seat in 1..=last`, because the last seat is included.
 - Problem 1 must not use `1..last` — that would skip the final seat.
 - Problem 2 must use `for i in 1..=n`, printing from 1 to n.
@@ -981,7 +990,6 @@ Grading criteria:
 - Problem 3 must use a loop label, e.g. `'outer: for a in 1..=9 { ... }`.
 - Problem 3 must `break 'outer;` once the first pair is found, not just `break` the inner loop.
 - Problems 1 and 2 may produce "unused variable" warnings; that's normal. Don't silence them with underscore variables — those come in Chapter 2, Episode 3.
-- Don't use arrays, `Vec`, functions, or recursion.
 
 Hint directions:
 1. Think of nested loops as "the outer loop picks the row, the inner loop prints that row."
@@ -1082,12 +1090,10 @@ Please enter the upper limit:
 ```
 
 Grading criteria:
-- Must use the stdin boilerplate and `.parse::<i32>().expect("not a number")`.
 - The outer loop can be written as `'outer: for num in 2..=n`.
 - The inner loop can be written as `for divisor in 2..num`, checking whether anything divides `num`.
 - If `num % divisor == 0`, `num` isn't prime — use `continue 'outer;`.
 - Only when the inner loop runs to completion without skipping do you print `num`.
-- Don't use arrays, `Vec`, functions, or recursion.
 - Don't reduce this to checking a single number; the problem lists all primes in a range.
 - Don't demand optimizations from the reader (checking only up to the square root, skipping evens, and so on); those aren't the point of this problem.
 
@@ -1227,7 +1233,6 @@ The ticket price is 50 dollars
 ```
 
 Grading criteria:
-- Must use the stdin boilerplate and `.parse::<i32>().expect("not a number")`.
 - It should read `let ticket_price = if age < 18 { 50 } else { 100 };`.
 - No `let mut ticket_price` needed.
 - No semicolons after the `50` and `100`.
@@ -1519,7 +1524,7 @@ Practice goals:
 
 Problems:
 1. Write a function `calculate_total(price: i32, count: i32) -> i32` that returns the total `price * count`. In `main`, ask the user for the unit price and quantity, call the function, and print the total.
-2. Write a function `buy_ticket(money: i32, price: i32) -> (i32, i32)` that returns "how many tickets you can buy" and "how much money is left." In `main`, ask the user for the money on hand and the ticket price, then print the result.
+2. Write a function `buy_ticket(money: i32, price: i32) -> (i32, i32)` that returns "how many tickets you can buy" and "how much money is left." In `main`, ask the user for the money on hand and a positive ticket price, then print the result.
 
 Sample runs:
 
@@ -1544,6 +1549,7 @@ Grading criteria:
 - Problem 1's last line should be `price * count`, with no semicolon.
 - Problem 2's return type should be `(i32, i32)`.
 - Problem 2 can compute the two values with `money / price` and `money % price`.
+- For Problem 2, you may assume the ticket price is positive; don't add input validation that distracts from function return values.
 - Problem 2 must return a tuple, e.g. `(count, change)`.
 - After calling the tuple-returning function, use `.0` and `.1` to take out the results.
 - Don't use `return`; early `return` is taught next episode — this episode practices last-line returns.
@@ -1682,7 +1688,7 @@ Practice goals:
 
 Problems:
 1. Write a function `is_power_of_two(n: i32) -> bool` that checks whether `n` is a power of two. This function only computes and returns the result; don't read stdin or print inside it. Be sure to reject negative numbers and 0: neither is a power of two. In `main`, read an integer, call the function, and print `It's a power of two` or `It's not a power of two`. Use recursion, not loops.
-2. Write a function `print_collatz(n: i32)` that prints the Collatz sequence for the input. The rules: if `n` is 1, print 1 and stop; if `n` is even, the next number is `n / 2`; if `n` is odd, the next number is `3 * n + 1`. In `main`, read a positive integer and call the function, printing all the way down to 1 using recursion, not loops.
+2. Write a function `print_collatz(n: i32)` that prints the Collatz sequence for the input. The rules: if `n` is 1, print 1 and stop; if `n` is even, the next number is `n / 2`; if `n` is odd, the next number is `3 * n + 1`. In `main`, read an integer from `1` through `10,000` and call the function, printing all the way down to 1 using recursion, not loops. You may assume the input is in that range.
 
 Sample runs:
 
@@ -1712,7 +1718,7 @@ Grading criteria:
 - `print_collatz` should print the current `n` first, then decide whether to call itself again.
 - `print_collatz`'s stopping condition should be `n == 1`.
 - Neither problem may use `loop`, `while`, `for`, arrays, or `Vec`.
-- This episode practices recursion, not the mathematical fine points of the Collatz conjecture; you may assume the input is a positive integer.
+- This episode practices recursion, not the mathematical fine points of the Collatz conjecture; you may assume the input is from `1` through `10,000`, so no range validation is needed.
 
 Hint directions:
 1. `is_power_of_two(1)` should return `true`.
