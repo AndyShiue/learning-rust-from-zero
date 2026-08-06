@@ -21,7 +21,7 @@ fn main() {
 }
 ```
 
-Far more convenient than writing `{}` and matching variables afterward, especially with many variables. Note only variable names go inside — no expressions (`"{x + 1}"` won't work).
+This can be more convenient than writing `{}` and matching variables afterward, especially with many variables. Note only variable names go inside — no expressions (`"{x + 1}"` won't work).
 
 ### Positional Parameters
 
