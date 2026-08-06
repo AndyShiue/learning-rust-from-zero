@@ -219,7 +219,7 @@
     - [The `Error` `trait`](chapter11/10_error_trait.md)
     - [A Brief Introduction to `thiserror` / `anyhow`](chapter11/11_thiserror_anyhow.md)
     - [`catch_unwind`](chapter11/12_catch_unwind.md)
-- [Async (This Chapter Is Being Revised…)](chapter12/README.md)
+- [Async](chapter12/README.md)
     - [Your First `async` Program](chapter12/01_first_async_program.md)
     - [Why We Need `async`](chapter12/02_why_async.md)
     - [`async fn` Returns a `Future`](chapter12/03_async_fn_returns_future.md)
