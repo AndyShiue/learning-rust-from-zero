@@ -86,7 +86,7 @@ fn main() {
 }
 ```
 
-The `let x = 2` inside the braces creates a new `x`, shadowing the outer `x`. But this shadowing is only effective inside the braces — the moment you leave them, the new `x` vanishes and the original `x` (with value 1) is usable again.
+The `let x = 2;` inside the braces creates a new `x`, shadowing the outer `x`. But this shadowing is only effective inside the braces — the moment you leave them, the new `x` vanishes and the original `x` (with value 1) is usable again.
 
 This is completely different from `mut`. If you change the value in a block with `mut`, the value really has changed once you leave the block:
 
