@@ -72,6 +72,7 @@ jobs:
           rm -rf public
           mkdir -p public
           cp index.html public/index.html
+          cp favicon.svg public/favicon.svg
           cp 404.html public/404.html
           cp robots.txt public/robots.txt
           cp -r zh-TW/book public/zh-TW

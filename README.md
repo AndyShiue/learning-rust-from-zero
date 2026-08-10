@@ -4,9 +4,7 @@
 
 # Learning Rust from Zero
 
-A Rust tutorial for programming beginners. For everything else, just follow the link~
-
-[https://andyshiue.github.io/learning-rust-from-zero/](https://andyshiue.github.io/learning-rust-from-zero/)
+A Rust tutorial for programming beginners. Read the [English edition](https://andyshiue.github.io/learning-rust-from-zero/en/).
 
 ## Contributing
 
@@ -18,13 +16,13 @@ Unless otherwise noted, the text, images, and other non-code content of this tut
 
 The code examples in this tutorial are released under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) — you are free to copy, modify, and use them.
 
+The favicon uses third-party Google Noto Emoji artwork; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
 ---
 
 # 從零開始學 Rust
 
-為程式新手準備的 Rust 教學，剩下要說的直接點進連結看吧～
-
-[https://andyshiue.github.io/learning-rust-from-zero/](https://andyshiue.github.io/learning-rust-from-zero/)
+為程式新手準備的 Rust 教學，請閱讀[繁體中文版](https://andyshiue.github.io/learning-rust-from-zero/zh-TW/)。
 
 ## 貢獻
 
@@ -35,3 +33,5 @@ The code examples in this tutorial are released under [CC0 1.0](https://creative
 除非另有標示，本教學的文字、圖片與非程式碼內容以 [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/) 授權。
 
 本教學中的程式碼範例以 [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) 釋出，可自由複製、修改與使用。
+
+網站 favicon 使用第三方 Google Noto Emoji 圖像；詳見 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
