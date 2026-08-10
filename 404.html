@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Page Not Found / 找不到頁面</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      margin: 0; min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans TC", sans-serif;
+      background: #fafafa; color: #1a1a1a;
+      gap: 1.5rem; padding: 2rem; text-align: center;
+    }
+    .code { font-size: 4rem; font-weight: 700; line-height: 1; opacity: .25; }
+    h1 { font-size: 1.5rem; font-weight: 600; margin: 0; }
+    p { max-width: 32rem; margin: 0; line-height: 1.6; }
+    .links { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+    a.link {
+      display: block; padding: 1rem 2rem; min-width: 8rem; text-align: center;
+      text-decoration: none; border: 1px solid #ddd; border-radius: 12px;
+      background: #fff; color: #1a1a1a; font-size: 1.1rem; transition: background .15s;
+    }
+    a.link:hover { background: #f0f0f0; }
+    a.link small { display: block; opacity: .6; font-size: .8rem; margin-top: .25rem; }
+    @media (prefers-color-scheme: dark) {
+      body { background: #1a1a1a; color: #fafafa; }
+      a.link { background: #2a2a2a; color: #fafafa; border-color: #444; }
+      a.link:hover { background: #333; }
+    }
+  </style>
+</head>
+<body>
+  <div class="code">404</div>
+  <h1><span lang="en">Page not found</span><br>找不到這個頁面</h1>
+  <p>
+    <span lang="en">This page may have been moved or removed.</span><br>
+    這個頁面可能已經被移動或移除。
+  </p>
+  <div class="links">
+    <a class="link" href="/learning-rust-from-zero/">Home<small>回到首頁</small></a>
+    <a class="link" href="/learning-rust-from-zero/en/" hreflang="en" lang="en">English</a>
+    <a class="link" href="/learning-rust-from-zero/zh-TW/" hreflang="zh-TW">繁體中文</a>
+  </div>
+</body>
+</html>

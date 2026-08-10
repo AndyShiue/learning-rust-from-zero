@@ -72,6 +72,7 @@ jobs:
           rm -rf public
           mkdir -p public
           cp index.html public/index.html
+          cp 404.html public/404.html
           cp -r zh-TW/book public/zh-TW
           cp -r en/book public/en
 
