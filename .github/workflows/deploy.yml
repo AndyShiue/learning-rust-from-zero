@@ -73,11 +73,14 @@ jobs:
           mkdir -p public
           cp index.html public/index.html
           cp 404.html public/404.html
+          cp robots.txt public/robots.txt
           cp -r zh-TW/book public/zh-TW
           cp -r en/book public/en
 
-      - name: Generate sitemap
-        run: python3 scripts/generate_sitemap.py public
+      - name: Generate SEO metadata and sitemap
+        run: |
+          python3 scripts/add_seo_metadata.py public
+          python3 scripts/generate_sitemap.py public
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6

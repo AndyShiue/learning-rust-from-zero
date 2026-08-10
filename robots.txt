@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://andyshiue.github.io/learning-rust-from-zero/sitemap.xml
