@@ -75,6 +75,9 @@ jobs:
           cp -r zh-TW/book public/zh-TW
           cp -r en/book public/en
 
+      - name: Generate sitemap
+        run: python3 scripts/generate_sitemap.py public
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6
 
