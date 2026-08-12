@@ -11,6 +11,7 @@ from xml.sax.saxutils import escape
 
 SITE_URL = "https://andyshiue.github.io/learning-rust-from-zero"
 EXCLUDED_PAGES = {"404.html", "print.html"}
+REDIRECT_MARKER = "<!-- URL_ALIAS_REDIRECT -->"
 
 
 def page_url(relative_path: str) -> str:
@@ -32,7 +33,11 @@ def generate(public_dir: Path) -> str:
     pages = []
     for path in sorted(public_dir.rglob("*.html")):
         relative_path = path.relative_to(public_dir).as_posix()
-        if relative_path in EXCLUDED_PAGES or path.name in EXCLUDED_PAGES:
+        if (
+            relative_path in EXCLUDED_PAGES
+            or path.name in EXCLUDED_PAGES
+            or is_redirect_page(path)
+        ):
             continue
         pages.append(page_url(relative_path))
 
@@ -45,6 +50,15 @@ def generate(public_dir: Path) -> str:
         f"{urls}\n"
         "</urlset>\n"
     )
+
+
+def is_redirect_page(path: Path) -> bool:
+    """Skip old prefixed paths that now redirect to clean aliases."""
+    try:
+        with path.open("r", encoding="utf-8", errors="ignore") as stream:
+            return REDIRECT_MARKER in stream.read(256)
+    except OSError:
+        return False
 
 
 def main() -> None:

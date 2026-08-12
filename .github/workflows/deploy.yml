@@ -80,6 +80,7 @@ jobs:
 
       - name: Generate SEO metadata and sitemap
         run: |
+          python3 scripts/normalize_public_urls.py public
           python3 scripts/add_seo_metadata.py public
           python3 scripts/generate_sitemap.py public
 

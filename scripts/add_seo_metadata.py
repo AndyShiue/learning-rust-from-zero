@@ -22,6 +22,7 @@ LANGUAGES = {
     "zh-TW": {"hreflang": "zh-TW", "locale": "zh_TW"},
 }
 EXCLUDED_NAMES = {"404.html", "print.html"}
+REDIRECT_MARKER = "<!-- URL_ALIAS_REDIRECT -->"
 URL_SAFE = "/:@-._~!$&'()*+,;="
 
 
@@ -172,7 +173,7 @@ def remove_alternate_links(document: str) -> str:
 
 
 def add_metadata(public_dir: Path, path: Path) -> None:
-    if path.name in EXCLUDED_NAMES:
+    if path.name in EXCLUDED_NAMES or is_redirect_page(path):
         return
 
     document = path.read_text(encoding="utf-8")
@@ -268,6 +269,15 @@ def add_metadata(public_dir: Path, path: Path) -> None:
 
     document = insert_before_head_end(document, alternate_tags)
     path.write_text(document, encoding="utf-8")
+
+
+def is_redirect_page(path: Path) -> bool:
+    """Skip legacy URL compatibility pages when adding SEO metadata."""
+    try:
+        with path.open("r", encoding="utf-8", errors="ignore") as stream:
+            return REDIRECT_MARKER in stream.read(256)
+    except OSError:
+        return False
 
 
 def main() -> None:
