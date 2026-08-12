@@ -209,6 +209,17 @@ def normalize_language(language_dir: Path) -> int:
         if rewritten != document:
             path.write_text(rewritten, encoding="utf-8")
 
+    # Recent mdBook versions populate the visible sidebar from a hashed
+    # JavaScript bundle instead of relying only on toc.html. It contains the
+    # same relative hrefs, so it must be rewritten as part of the public URL
+    # migration too.
+    for path in sorted(language_dir.glob("toc-*.js")):
+        relative = path.relative_to(language_dir).as_posix()
+        document = path.read_text(encoding="utf-8")
+        rewritten = rewrite_links(document, relative, mapping)
+        if rewritten != document:
+            path.write_text(rewritten, encoding="utf-8")
+
     for source, target in renamed.items():
         source_path = language_dir / source
         source_path.write_text(

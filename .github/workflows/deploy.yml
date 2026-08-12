@@ -8,6 +8,13 @@ permissions:
   pages: write
   id-token: write
 
+env:
+  # Keep CI reproducible; update these pins deliberately when new releases
+  # have been checked against both editions.
+  RUST_VERSION: "1.97.1"
+  RUSTUP_TOOLCHAIN: "1.97.1"
+  MDBOOK_VERSION: "0.5.4"
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -20,8 +27,8 @@ jobs:
 
       - name: Install Rust, mdBook, and PDF dependencies
         run: |
-          rustup update stable
-          cargo install mdbook
+          rustup toolchain install "$RUST_VERSION" --profile minimal --no-self-update
+          cargo install mdbook --version "$MDBOOK_VERSION" --locked
           sudo apt-get update
           sudo apt-get install -y \
             pandoc \
