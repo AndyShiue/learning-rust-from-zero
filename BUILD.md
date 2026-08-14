@@ -2,28 +2,36 @@
 
 This repository contains English (`en/`) and Traditional Chinese (`zh-TW/`)
 mdBook editions. Each edition also has a Pandoc-based pipeline for producing an
-A4 PDF. The deployment workflow in `.github/workflows/deploy.yml` runs the same
-tests and builds described here, plus the two packaging steps under
-[Reader downloads](#reader-downloads).
+A4 PDF. The deployment workflow in `.github/workflows/deploy.yml` runs the
+tests, builds, packaging, and site-publication steps described here.
 
 ## Requirements
 
-Install the stable Rust toolchain and mdBook:
+CI pins Rust and mdBook so a new upstream release cannot unexpectedly change
+the generated books. Install the same versions and select the pinned Rust
+toolchain for the current shell:
 
 ```bash
-rustup update stable
-cargo install mdbook
+rustup toolchain install 1.97.1 --profile minimal --no-self-update
+export RUSTUP_TOOLCHAIN=1.97.1
+cargo install mdbook --version 0.5.4 --locked
 ```
 
-The PDF builds additionally require Python 3, Pandoc, XeLaTeX, JetBrains Mono,
-Noto Sans, Noto CJK, and an emoji or symbol font.
+Keep these values aligned with `RUST_VERSION`, `RUSTUP_TOOLCHAIN`, and
+`MDBOOK_VERSION` in `.github/workflows/deploy.yml`. Update the pins only after
+the new versions have passed the tests and builds for both editions.
 
-On Ubuntu/Debian, these packages match the GitHub Actions environment:
+The complete pipeline also requires Bash, Python 3, `curl`, `zip`, Pandoc,
+XeLaTeX, JetBrains Mono, Noto Sans, Noto CJK, and an emoji or symbol font.
+
+On Ubuntu/Debian, install the non-Rust dependencies with:
 
 ```bash
 sudo apt-get update
 sudo apt-get install -y \
   python3 \
+  curl \
+  zip \
   pandoc \
   texlive-xetex \
   texlive-latex-extra \
@@ -38,7 +46,7 @@ sudo apt-get install -y \
 On macOS:
 
 ```bash
-brew install pandoc
+brew install python pandoc
 brew install --cask \
   mactex-no-gui \
   font-jetbrains-mono \
@@ -149,5 +157,43 @@ A4 PDF to a stable name and zipping that edition's `src/`.
 (cd en/src && zip -r ../book/rust-book-src.zip .)
 ```
 
-Run these locally only when you want to check those two downloads; nothing else
-in the build depends on them.
+Run these locally when reproducing the complete published artifact or checking
+the downloads. The HTML and A4 PDF builds themselves do not depend on them.
+
+## Assemble the published site
+
+The `en/book/` and `zh-TW/book/` directories are intermediate mdBook outputs.
+GitHub Pages receives a separate `public/` tree containing both editions,
+reader downloads, and the repository's shared landing-page assets. After both
+HTML books, PDFs, and reader downloads have been built, assemble that tree from
+the repository root:
+
+```bash
+rm -rf public
+mkdir -p public
+cp index.html public/index.html
+cp favicon.svg public/favicon.svg
+cp 404.html public/404.html
+cp robots.txt public/robots.txt
+cp -r zh-TW/book public/zh-TW
+cp -r en/book public/en
+```
+
+Then run the publication scripts in this order:
+
+```bash
+python3 scripts/normalize_public_urls.py public
+python3 scripts/add_seo_metadata.py public
+python3 scripts/generate_sitemap.py public
+```
+
+The URL normalizer creates prefix-free lesson aliases, rewrites the generated
+HTML and mdBook sidebar links, and leaves redirects at the old numbered paths.
+The metadata script then adds canonical, language-alternate, Open Graph, and
+Twitter metadata to the canonical pages. Finally, the sitemap generator lists
+the canonical pages while excluding redirects, `404.html`, and mdBook's
+`print.html` pages. Run all three only after both language directories have
+been copied into `public/`; the normalizer requires both editions.
+
+The resulting `public/` directory is the artifact uploaded to GitHub Pages.
+It is generated output and can be removed and rebuilt at any time.
