@@ -4,7 +4,7 @@
 
 理解 generic associated type（GAT），學會用帶生命週期參數的 associated type 表達「回傳型別隨每次借用而改變」。
 
-> 本集是**第 5 章 associated type**與本附錄 HRTB 的補充。
+> 本集是**第 5 章 associated type** 與本附錄 HRTB 的補充。
 
 ## 概念說明
 
