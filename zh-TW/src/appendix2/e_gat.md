@@ -18,9 +18,9 @@ trait Iterator {
 }
 ```
 
-每個實作者選定一個 `Item`。例如某個 iterator 的 `Item` 是 `i32`，之後每次呼叫 `next` 都回傳同一個型別 `Option<i32>`。
+每個實作者選定一個 `Item`。例如某個迭代器的 `Item` 是 `i32`，之後每次呼叫 `next` 都回傳同一個型別 `Option<i32>`。
 
-但如果 `next` 想回傳一個**借用自 iterator 本身**的值呢？每次 `&mut self` 的借用生命週期都可能不同，`Item` 也得跟著那次借用改變。普通 associated type 沒地方放這個生命週期參數。
+但如果 `next` 想回傳一個**借用自迭代器本身**的值呢？每次 `&mut self` 的借用生命週期都可能不同，`Item` 也得跟著那次借用改變。普通 associated type 沒地方放這個生命週期參數。
 
 ### associated type 也能有泛型參數
 
@@ -59,7 +59,7 @@ where
 
 這正是第 5 章的 lifetime bound。它不是說 `Self` 永遠要是 `'static`，而是說每次選出一個 `'a` 時，那次使用的 `Self` 必須至少仍活到 `'a` 結束。
 
-### 一個會借出自身資料的 iterator
+### 一個會借出自身資料的迭代器
 
 下面的 `Lines` 擁有一批 `String`，每次 `next` 回傳其中一個 `&str`：
 
@@ -131,11 +131,11 @@ impl Iterator for Lines {
 
 `type Item = &str` 沒有生命週期來源。`Iterator::Item` 是實作時一次選定的固定型別，不能表示「這個 `&str` 的生命週期來自每次呼叫的 `&mut self`」。
 
-當然，標準 `Iterator` 可以回傳 iterator **外部**資料的參考，例如 `slice.iter()` 的 `Item` 是建立 iterator 時就已決定好的 `&'data T`。GAT 要解決的是另一件事：輸出直接借用每次呼叫時的 `self`。
+當然，標準 `Iterator` 可以回傳迭代器**外部**資料的參考，例如 `slice.iter()` 的 `Item` 是建立迭代器時就已決定好的 `&'data T`。GAT 要解決的是另一件事：輸出直接借用每次呼叫時的 `self`。
 
 ### 一次借出的值要先用完
 
-因為 `next` 的輸出借用了 `&mut self`，只要輸出仍在使用，就不能再次可變借用 iterator：
+因為 `next` 的輸出借用了 `&mut self`，只要輸出仍在使用，就不能再次可變借用迭代器：
 
 ```rust,compile_fail
 # trait LendingIterator {
