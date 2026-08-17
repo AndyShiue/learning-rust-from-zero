@@ -163,6 +163,49 @@ F: Fn(&[T]) -> Option<&T>
 
 你仍然需要認識包含 `for<'a>` 的完整寫法，因為更複雜的 API 會直接出現它。
 
+### HRTB 的判斷重點
+
+並非只有同一個閉包會以不同生命週期呼叫兩次以上時，才需要 HRTB。即使只呼叫一次，也可能需要。判斷的重點不是參考是否來自區域變數，而是生命週期由哪一方選擇。先看在同一個作用域裡直接建立並呼叫閉包的情況：
+
+```rust,editable
+fn main() {
+    let values = [10, 20, 30];
+    let length = |items: &[i32]| items.len();
+
+    println!("長度：{}", length(&values));
+}
+```
+
+這裡沒有接收 `F` 的泛型 API。`length` 只在當下接收 `values` 的借用，編譯器可以直接推斷這次呼叫所需的生命週期。
+
+泛型 API 接收一個函數或閉包，再把 API 內部才建立的借用交給它時，情況就不同了：
+
+```rust,editable
+struct Report {
+    entries: usize,
+}
+
+fn inspect_report<F>(inspect: F)
+where
+    F: for<'a> Fn(&'a Report),
+{
+    let report = Report { entries: 3 };
+    inspect(&report);
+}
+
+fn main() {
+    inspect_report(|report| {
+        println!("共 {} 筆", report.entries);
+    });
+}
+```
+
+`report` 的生命週期進入 `inspect_report` 的函數體後才會出現，呼叫者不可能預先替它選一個外層 lifetime 參數。因此 `F` 必須能接受由 `inspect_report` 選出的任何生命週期。這裡也可以利用 lifetime elision 寫成 `F: Fn(&Report)`，只是 HRTB 被省略了，並不是這項要求消失了。
+
+閉包**捕獲**外部區域變數的參考則是另一件事。捕獲會限制閉包本身能活多久，和 `F` 是否必須接受多種生命週期是不同問題。
+
+閱讀這類 API 時，可以先問：**傳給 `F` 的參考，其生命週期是由呼叫者預先決定，還是由 API 在每次呼叫 `F` 時決定？**如果是後者，`F` 通常就需要 higher-ranked 能力。
+
 ## 範例程式碼
 
 ```rust,editable
@@ -229,4 +272,5 @@ fn main() {
 - `for<'a>` 表示後面的 trait bound 對每一個 `'a` 都成立。
 - 外層的 `fn foo<'a>` 通常由呼叫者選 `'a`；HRTB 裡的 `for<'a>` 讓使用 `F` 的一方每次選 `'a`。
 - 同一個函數或閉包要對不同生命週期的參考各呼叫一次，並分別保留輸出的生命週期時，HRTB 能直接表達這項要求。
+- 泛型 API 若要把函數體內才建立的借用傳給 `F`，`F` 也需要 higher-ranked 能力；直接呼叫閉包或捕獲區域變數則不一定需要。
 - 實務上常用 lifetime elision 省略這類 HRTB，但閱讀進階簽名時仍會直接看到 `for<'a>`。
