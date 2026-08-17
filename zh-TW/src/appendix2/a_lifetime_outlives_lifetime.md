@@ -248,29 +248,22 @@ impl Builder<'_, '_> {
     }
 }
 
-fn write_two_parts(formatter: &mut FormatterLike<'_>) {
-    {
-        let mut first = Builder { formatter };
-        first.field("第一段");
-    }
+fn write_two_parts<'buffer>(formatter: &mut FormatterLike<'buffer>) {
+    let mut first = Builder { formatter };
+    first.field("第一段");
 
     formatter.output.push(' ');
 
-    {
-        let mut second = Builder { formatter };
-        second.field("第二段");
-    }
+    let mut second = Builder { formatter };
+    second.field("第二段");
 }
 
 fn main() {
     let mut output = String::new();
-
-    {
-        let mut formatter = FormatterLike {
-            output: &mut output,
-        };
-        write_two_parts(&mut formatter);
-    }
+    let mut formatter = FormatterLike {
+        output: &mut output,
+    };
+    write_two_parts(&mut formatter);
 
     println!("{output}");
 }
@@ -278,7 +271,7 @@ fn main() {
 
 這裡的 `'buffer` 是內部 `String` 被借用的時間，`'borrow` 則是某一個 builder 暫時借用 `FormatterLike` 的時間。`'buffer: 'borrow` 只要求內部輸出活得過這次短借用，不會反過來把短借用拉長。
 
-所以第一個 `Builder` 離開作用域後，`formatter` 就能繼續寫入，也能再建立第二個 `Builder`。`DebugStruct<'a, 'b: 'a>` 使用兩段生命週期，帶來的正是這種彈性：**底層輸出可以長期存在，每一個格式化 builder 只在需要時短暫借用 `Formatter`。**
+兩個版本的變數與作用域完全一樣，唯一差別就是 builder 的生命週期設計。在正確版本中，`first` 最後一次被使用後，編譯器便能結束它對 `formatter` 的短期借用；接著可以直接寫入 `formatter`，也能建立第二個 `Builder`。`DebugStruct<'a, 'b: 'a>` 使用兩段生命週期，帶來的正是這種彈性：**底層輸出可以長期存在，每一個格式化 builder 只在需要時短暫借用 `Formatter`。**
 
 ### 反過來不能延長
 
