@@ -8,7 +8,7 @@
 
 ## 概念說明
 
-第 12 章已經用過 `async fn` 與 `async` block。如果想把一段非同步工作當成 callback 傳遞，過去常見的寫法是讓普通閉包回傳 `async` block：
+第 12 章已經用過 `async fn` 與 `async` block。如果想把一段非同步工作傳給另一個函數使用，過去常見的寫法是讓普通閉包回傳 `async` block：
 
 ```rust,ignore
 |name| async move {
@@ -157,7 +157,7 @@ fn main() {
 | `FnMut` | `AsyncFnMut` | 能呼叫多次，但呼叫時要可變借用閉包 |
 | `Fn` | `AsyncFn` | 能透過共享借用重複呼叫 |
 
-它們可用來替非同步 callback 寫 bound：
+它們可用來替接收非同步處理函數的 API 寫 bound：
 
 ```rust,editable
 use std::future::Future;
@@ -291,5 +291,4 @@ fn main() {
 - `async |參數| { ... }` 建立 `async` 閉包；呼叫它會產生 `Future`。
 - 相較於普通閉包回傳 `async move` block，`async` 閉包能自然表達 Future 借用閉包捕獲環境的情況。
 - `AsyncFnOnce`、`AsyncFnMut`、`AsyncFn` 對應普通閉包的 `FnOnce`、`FnMut`、`Fn`。
-- `AsyncFn(&str)` 可作為非同步 callback 的 stable trait bound。
 - `async move` 控制建立閉包時如何捕獲外部值，不代表每次呼叫都會消耗那些值。
