@@ -215,8 +215,6 @@ fn main() {
 }
 ```
 
-最後的 bound 把本集和 HRTB 串在一起：`for<'a> T::Output<'a>: Debug` 表示不論 `view` 借用多久，對應的輸出型別都必須實作 `Debug`。
-
 ## 重點整理
 
 - GAT 是帶泛型參數的 associated type。
