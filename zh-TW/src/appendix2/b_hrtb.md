@@ -222,8 +222,6 @@ fn main() {
 }
 ```
 
-傳入的閉包在 `select_from_both` 中被呼叫兩次。第一次回傳的參考綁在 `first_catalog`，第二次則綁在 `second_catalog`；`for<'a>` 讓同一個閉包能正確處理這兩段獨立的生命週期。
-
 ## 重點整理
 
 - `Fn`、`FnMut` 與 `FnOnce` 的參數和回傳值也會套用 lifetime elision。
