@@ -2,156 +2,233 @@
 
 ## 本集目標
 
-理解 higher-ranked trait bound（HRTB）中的 `for<'a>`，學會分辨「只接受某一段生命週期」與「接受任何生命週期」。
+理解 higher-ranked trait bound（HRTB）中的 `for<'a>`，學會分辨「只處理某一段生命週期」與「能處理任何生命週期」，並看懂 `Fn` 三兄弟如何省略輸入與回傳值的生命週期。
 
 > 本集是**第 5 章生命週期**與**第 6 章閉包**的補充。
 
 ## 概念說明
 
-假設我們想寫一個函數，接收另一個函數或閉包，然後把區域變數的參考交給它：
+假設我們有兩份商品資料，想用同一套規則各自選出一項主打商品：
 
 ```rust,noplayground
-fn call_with_local<F>(f: F)
+fn select_from_both<'first, 'second, T, F>(
+    first: &'first [T],
+    second: &'second [T],
+    choose: F,
+) -> (Option<&'first T>, Option<&'second T>)
 where
-    F: Fn(&str),
+    F: Fn(&[T]) -> Option<&T>,
 {
-    let text = String::from("區域字串");
-    f(&text);
+    let from_first = choose(first);
+    let from_second = choose(second);
+    (from_first, from_second)
 }
 #
 # fn main() {}
 ```
 
-這段程式可以編譯。問題是：bound 裡的 `&str` 到底是哪一段生命週期？
+`first` 和 `second` 是兩個不同的參數，生命週期分別是 `'first` 與 `'second`。函數內用同一個 `choose` 呼叫兩次：
 
-完整概念其實是：不管 `call_with_local` 當下建立的參考活多久，`f` 都必須能接受。把省略的意思明寫出來，就是 HRTB：
+- 第一次接收 `&'first [T]`，回傳 `Option<&'first T>`。
+- 第二次接收 `&'second [T]`，回傳 `Option<&'second T>`。
+
+回傳型別保留了兩段生命週期：第一個結果跟著 `first`，第二個結果跟著 `second`。因此不能只是把兩個輸入都縮短成同一段共同的生命週期。
+
+bound 裡的生命週期雖然被省略，完整概念其實是：`choose` 不論收到哪一段生命週期的 slice，都會回傳借用自該 slice 的元素。把它明寫出來，就是 HRTB：
 
 ```rust,ignore
-F: for<'a> Fn(&'a str)
+F: for<'a> Fn(&'a [T]) -> Option<&'a T>
 ```
+
+第一次呼叫時，`'a` 可以是 `'first`；第二次呼叫時，`'a` 可以改成 `'second`。
+
+### `Fn` 三兄弟也有 lifetime elision
+
+第 5 章看過函數可以省略常見的生命週期：
+
+```rust,ignore
+fn first<T>(values: &[T]) -> Option<&T>
+```
+
+因為只有一個參考輸入，編譯器知道 `Option` 裡的 `&T` 必須借用自這個 `&[T]`。完整寫法是：
+
+```rust,ignore
+fn first<'a, T>(values: &'a [T]) -> Option<&'a T>
+```
+
+相同的 lifetime elision 也適用於 `Fn`、`FnMut` 與 `FnOnce` 的參數和回傳值。因此下面三個 bound 都省略了生命週期：
+
+```rust,ignore
+F: Fn(&[T]) -> Option<&T>
+F: FnMut(&[T]) -> Option<&T>
+F: FnOnce(&[T]) -> Option<&T>
+```
+
+把生命週期明寫出來，分別相當於：
+
+```rust,ignore
+F: for<'a> Fn(&'a [T]) -> Option<&'a T>
+F: for<'a> FnMut(&'a [T]) -> Option<&'a T>
+F: for<'a> FnOnce(&'a [T]) -> Option<&'a T>
+```
+
+三個 trait 的差別仍是閉包能用什麼方式呼叫，以及呼叫時會不會修改或消耗捕獲值；它們使用的 lifetime elision 規則則相同。
 
 ### `for<'a>` 的意思
 
 `for<'a>` 表示「**對每一個可能的 `'a` 都成立**」。所以：
 
 ```rust,ignore
-for<'a> F: Fn(&'a str)
+for<'a> F: Fn(&'a [T]) -> Option<&'a T>
 ```
 
 或等價的：
 
 ```rust,ignore
-F: for<'a> Fn(&'a str)
+F: for<'a> Fn(&'a [T]) -> Option<&'a T>
 ```
 
-都表示 `F` 能接受任意生命週期的 `&str`。
+都表示 `F` 能接受任意生命週期的 `&[T]`，而且回傳的 `&T` 會和該次輸入使用同一段生命週期。
 
 HRTB 是 **higher-ranked trait bound** 的縮寫。名稱聽起來很硬，但眼前最重要的讀法只有一句：「這個 trait bound 對所有 `'a` 都要成立。」
 
 ### 誰有權選 `'a`？
 
-比較下面兩個簽名：
+回到 `select_from_both` 的三段生命週期：
 
 ```rust,ignore
-fn one_lifetime<'a, F>(f: F, value: &'a str)
+fn select_from_both<'first, 'second, T, F>(
+    first: &'first [T],
+    second: &'second [T],
+    choose: F,
+) -> (Option<&'first T>, Option<&'second T>)
 where
-    F: Fn(&'a str),
-{ /* ... */ }
-
-fn every_lifetime<F>(f: F)
-where
-    F: for<'a> Fn(&'a str),
-{ /* ... */ }
+    F: for<'a> Fn(&'a [T]) -> Option<&'a T>,
+{
+    /* ... */
+}
 ```
 
-在 `one_lifetime` 裡，`'a` 是函數本身的泛型參數。呼叫者傳入 `value` 時，便決定了這次呼叫的 `'a`；`F` 只需要處理這一種 `'a`。
+`'first` 與 `'second` 是函數本身的泛型參數，由呼叫者傳入兩份資料時決定。
 
-在 `every_lifetime` 裡，`for<'a>` 位於 `F` 的 bound 內。`every_lifetime` 的函數體可以一次又一次建立不同長度的借用，再交給 `f`。因此是**使用 `f` 的這一方**每次選 `'a`，`F` 必須全部接受。
+`for<'a>` 則位於 `F` 的 bound 裡。`select_from_both` 在第一次呼叫 `choose` 時選擇 `'a = 'first`，第二次再選擇 `'a = 'second`。因此是**使用 `choose` 的這一方**替每次呼叫選 `'a`，`F` 必須全部接受。
 
 ### 為什麼普通 lifetime 參數不夠？
 
-嘗試把 `'a` 放到外層函數：
+若只把 `choose` 綁在 `'first`，第一次呼叫沒有問題，第二次就會失敗：
 
 ```rust,compile_fail
-fn call_with_local<'a, F>(f: F)
+fn select_from_both<'first, 'second, T, F>(
+    first: &'first [T],
+    second: &'second [T],
+    choose: F,
+) -> (Option<&'first T>, Option<&'second T>)
 where
-    F: Fn(&'a str),
+    F: Fn(&'first [T]) -> Option<&'first T>,
 {
-    let text = String::from("區域字串");
-    f(&text);
+    let from_first = choose(first);
+    let from_second = choose(second);
+    (from_first, from_second)
 }
 #
 # fn main() {}
 ```
 
-這裡的 `'a` 是呼叫者選的，可能比整個 `call_with_local` 還長。但 `text` 只是函數內的區域變數，不可能借用成任意長的 `&'a str`。
+這個 bound 只保證 `choose` 能接收 `&'first [T]`，回傳 `Option<&'first T>`。第二次卻需要它接收 `&'second [T]`，回傳 `Option<&'second T>`。除非 `'first` 與 `'second` 完全相同，否則這項保證不夠。
 
-換成 `for<'a>` 後，`call_with_local` 只需要為這次短短的借用挑一個適合的 `'a`：
+改成 HRTB 後，同一個 `choose` 就能在兩次呼叫中使用不同的生命週期：
 
-```rust,editable
-fn call_with_local<F>(f: F)
+```rust,noplayground
+fn select_from_both<'first, 'second, T, F>(
+    first: &'first [T],
+    second: &'second [T],
+    choose: F,
+) -> (Option<&'first T>, Option<&'second T>)
 where
-    F: for<'a> Fn(&'a str),
+    F: for<'a> Fn(&'a [T]) -> Option<&'a T>,
 {
-    let text = String::from("區域字串");
-    f(&text);
+    let from_first = choose(first);
+    let from_second = choose(second);
+    (from_first, from_second)
 }
-
-fn print_text(text: &str) {
-    println!("收到：{text}");
-}
-
-fn main() {
-    call_with_local(print_text);
-    call_with_local(|text| println!("長度：{}", text.len()));
-}
+#
+# fn main() {}
 ```
 
-普通函數 `print_text` 和這個閉包都不會要求參考必須來自某個特定作用域，因此可以接受任何 `'a`。
-
-### 常見的省略
-
-實務上通常不必手寫這個 HRTB：
+實務上通常可以使用 lifetime elision，把 bound 寫成：
 
 ```rust,ignore
-F: Fn(&str)
+F: Fn(&[T]) -> Option<&T>
 ```
 
-當 `Fn` 參數中的參考省略生命週期時，編譯器會把它理解成類似 `for<'a> F: Fn(&'a str)`。因此 HRTB 常常早就在你用過的程式裡，只是沒有露出 `for<'a>`。
-
-你仍然需要認識明寫形式，因為更複雜的 bound、函數指標與函式庫 API 會直接出現它。
+你仍然需要認識明寫的 `for<'a>`，因為更複雜的 API 會直接出現它。
 
 ## 範例程式碼
 
 ```rust,editable
-fn visit_twice<F>(visitor: F)
-where
-    F: for<'a> Fn(&'a str),
-{
-    let outer = String::from("第一段資料");
-    visitor(&outer);
+#[derive(Debug)]
+struct Product {
+    name: String,
+    price: u32,
+}
 
-    {
-        let inner = String::from("第二段、生命週期更短的資料");
-        visitor(&inner);
-    }
+fn select_from_both<'first, 'second, F>(
+    first: &'first [Product],
+    second: &'second [Product],
+    choose: F,
+) -> (Option<&'first Product>, Option<&'second Product>)
+where
+    F: for<'a> Fn(&'a [Product]) -> Option<&'a Product>,
+{
+    let from_first = choose(first);
+    let from_second = choose(second);
+    (from_first, from_second)
 }
 
 fn main() {
-    let prefix = String::from("拜訪");
+    let first_catalog = vec![
+        Product {
+            name: String::from("鍵盤"),
+            price: 2_500,
+        },
+        Product {
+            name: String::from("滑鼠"),
+            price: 1_200,
+        },
+    ];
+    let second_catalog = vec![
+        Product {
+            name: String::from("螢幕"),
+            price: 8_000,
+        },
+        Product {
+            name: String::from("喇叭"),
+            price: 3_000,
+        },
+    ];
 
-    visit_twice(|text| {
-        println!("{prefix}：{text}");
-    });
+    let (first_featured, second_featured) = select_from_both(
+        &first_catalog,
+        &second_catalog,
+        |products: &[Product]| {
+            products.iter().max_by_key(|product| product.price)
+        },
+    );
+
+    if let (Some(first), Some(second)) = (first_featured, second_featured) {
+        println!("第一份主打：{}，價格：{}", first.name, first.price);
+        println!("第二份主打：{}，價格：{}", second.name, second.price);
+    }
 }
 ```
 
-同一個 `visitor` 先收到借用 `outer` 的參考，再收到借用 `inner` 的參考。兩次參考的生命週期不同，但 `for<'a>` 保證它兩種都能處理。
+傳入的閉包在 `select_from_both` 中被呼叫兩次。第一次回傳的參考綁在 `first_catalog`，第二次則綁在 `second_catalog`；`for<'a>` 讓同一個閉包能正確處理這兩段獨立的生命週期。
 
 ## 重點整理
 
+- `Fn`、`FnMut` 與 `FnOnce` 的參數和回傳值也會套用 lifetime elision。
+- 只有一個參考輸入時，`Fn(&[T]) -> Option<&T>` 相當於 `for<'a> Fn(&'a [T]) -> Option<&'a T>`。
 - `for<'a>` 表示後面的 trait bound 對每一個 `'a` 都成立。
-- `F: for<'a> Fn(&'a str)` 表示 `F` 能接受任意生命週期的 `&str`。
 - 外層的 `fn foo<'a>` 通常由呼叫者選 `'a`；HRTB 裡的 `for<'a>` 讓使用 `F` 的一方每次選 `'a`。
-- 把 HRTB 的 `'a` 錯放到外層，常會要求區域借用活得不可能那麼久。
-- `F: Fn(&str)` 通常已經省略了這類 HRTB，但讀進階簽名時仍會看到明寫的 `for<'a>`。
+- 同一個函數或閉包要對不同生命週期的參考各呼叫一次，並分別保留輸出的生命週期時，HRTB 能直接表達這項要求。
+- 實務上常用 lifetime elision 省略這類 HRTB，但閱讀進階簽名時仍會看到明寫的 `for<'a>`。
