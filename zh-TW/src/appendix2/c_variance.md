@@ -8,7 +8,7 @@
 
 ## 概念說明
 
-上一集以前，我們已經知道：若 `'long: 'short`，一個 `&'long T` 可以縮短成 `&'short T`。這表示生命週期之間存在一種 **subtype（子型別）**關係：保證較長的參考，可以用在只要求較短保證的地方。
+上一集以前，我們已經知道：若 `'long: 'short`，一個 `&'long T` 可以縮短成 `&'short T`。這表示生命週期之間存在一種 **subtype**（子型別）關係：保證較長的參考，可以用在只要求較短保證的地方。
 
 但把型別放進其他型別後，這個關係不一定照原樣保留。研究「包裝前後的 subtype 關係如何變化」，就是 variance。
 
@@ -33,13 +33,13 @@ fn main() {
 
 `&'static str` 的生命週期很長，但 `use_short` 只要求和 `marker` 一樣短。Rust 可以把長參考當成短參考使用。
 
-我們說 `&'a T` 對 `'a` 是 **covariant（協變）**的：如果 `'long` 是 `'short` 的 subtype，`&'long T` 也會是 `&'short T` 的 subtype，方向沒有改變。
+我們說 `&'a T` 對 `'a` 是 **covariant**（協變）的：如果 `'long` 是 `'short` 的 subtype，`&'long T` 也會是 `&'short T` 的 subtype，方向沒有改變。
 
 `Box<T>`、`Vec<T>`、`Option<T>` 等擁有值的常見型別，對 `T` 通常也是 covariant。即使它們提供可變操作，修改內容時也需要獨佔存取，因此不會產生前述共享位置被換入不相容型別的問題。
 
 ### invariance：內層型別不能跟著轉換
 
-可變參考比較特別。`&'a mut T` 對生命週期 `'a` 仍然可以縮短，但它對裡面的 `T` 是 **invariant（不變）**的。
+可變參考比較特別。`&'a mut T` 對生命週期 `'a` 仍然可以縮短，但它對裡面的 `T` 是 **invariant**（不變）的。
 
 原因是 `&mut T` 不只讓你讀 `T`，還讓你放進一個新的 `T`。
 
@@ -106,7 +106,7 @@ fn main() {
 
 ### contravariance：方向反轉
 
-函數參數會出現第三種情況：**contravariance（逆變）**。
+函數參數會出現第三種情況：**contravariance**（逆變）。
 
 假設有一個函數能接受任何 `&str`：
 
