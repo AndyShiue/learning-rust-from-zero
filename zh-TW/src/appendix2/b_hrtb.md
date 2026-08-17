@@ -34,7 +34,7 @@ where
 
 回傳型別保留了兩段生命週期：第一個結果跟著 `first`，第二個結果跟著 `second`。因此不能只是把兩個輸入都縮短成同一段共同的生命週期。
 
-bound 裡的生命週期雖然被省略，完整概念其實是：`choose` 不論收到哪一段生命週期的 slice，都會回傳借用自該 slice 的元素。把它明寫出來，就是 HRTB：
+bound 裡的生命週期雖然被省略，完整概念其實是：`choose` 不論收到哪一段生命週期的 slice，都會回傳借用自該 slice 的元素。把完整形式寫出來，就是 HRTB：
 
 ```rust,ignore
 F: for<'a> Fn(&'a [T]) -> Option<&'a T>
@@ -64,7 +64,7 @@ F: FnMut(&[T]) -> Option<&T>
 F: FnOnce(&[T]) -> Option<&T>
 ```
 
-把生命週期明寫出來，分別相當於：
+完整形式分別是：
 
 ```rust,ignore
 F: for<'a> Fn(&'a [T]) -> Option<&'a T>
@@ -161,7 +161,7 @@ where
 F: Fn(&[T]) -> Option<&T>
 ```
 
-你仍然需要認識明寫的 `for<'a>`，因為更複雜的 API 會直接出現它。
+你仍然需要認識包含 `for<'a>` 的完整寫法，因為更複雜的 API 會直接出現它。
 
 ## 範例程式碼
 
@@ -229,4 +229,4 @@ fn main() {
 - `for<'a>` 表示後面的 trait bound 對每一個 `'a` 都成立。
 - 外層的 `fn foo<'a>` 通常由呼叫者選 `'a`；HRTB 裡的 `for<'a>` 讓使用 `F` 的一方每次選 `'a`。
 - 同一個函數或閉包要對不同生命週期的參考各呼叫一次，並分別保留輸出的生命週期時，HRTB 能直接表達這項要求。
-- 實務上常用 lifetime elision 省略這類 HRTB，但閱讀進階簽名時仍會看到明寫的 `for<'a>`。
+- 實務上常用 lifetime elision 省略這類 HRTB，但閱讀進階簽名時仍會直接看到 `for<'a>`。
