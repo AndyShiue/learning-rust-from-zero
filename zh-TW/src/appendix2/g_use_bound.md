@@ -12,13 +12,13 @@
 
 ```rust,noplayground
 fn numbers() -> impl Iterator<Item = i32> {
-    1..=3
+    [1, 2, 3].into_iter()
 }
 #
 # fn main() {}
 ```
 
-呼叫者只知道回傳型別實作 `Iterator<Item = i32>`，真正的型別由函數體決定。這個沒有公開名字的真正型別，常叫 **hidden type（隱藏型別）**或 **opaque type（不透明型別）**。
+呼叫者只知道回傳型別實作 `Iterator<Item = i32>`，真正的型別由函數體決定。這個沒有公開名字的真正型別，常叫 **hidden type**（隱藏型別）或 **opaque type**（不透明型別）。
 
 如果函數帶有泛型參數，隱藏型別能不能使用那些參數？這就是「捕獲」要回答的問題。
 
@@ -40,7 +40,7 @@ fn main() {
 
 真正回傳的是 `SplitWhitespace<'a>`，裡面保存對 `text` 的參考。因此隱藏型別必須能使用，也就是**捕獲** `'a`。
 
-在 Rust 2024 中，回傳位置的 `impl Trait` 預設會捕獲作用域內所有可用的 lifetime、型別與 const 泛型參數。這讓上面的常見寫法不必再額外加特殊 lifetime bound。
+在 Rust 2024 edition 中，回傳位置的 `impl Trait` 預設會捕獲作用域內所有可用的 lifetime、型別與 const 泛型參數。
 
 ### 捕獲得比實際需要更多
 
@@ -130,13 +130,13 @@ fn main() {
 }
 ```
 
-隱藏的 iterator 型別使用 `T`，而回傳 iterator 的行為也由 `N` 決定，所以簽名把兩者列在 `use<T, N>`。
+隱藏的迭代器型別使用 `T`，而回傳迭代器的行為也由 `N` 決定，所以簽名把兩者列在 `use<T, N>`。
 
-目前一個 `impl Trait` 最多只能有一組 `use<...>`。作用域內的型別與 const 泛型參數都必須列入；若生命週期已出現在其他 bound 裡，也必須列入。清單中的生命週期要寫在型別與 const 泛型參數之前。若清單不完整或順序不對，編譯器會直接指出問題。
+目前一個 `impl Trait` 最多只能有一組 `use<...>`，而且作用域內的型別與 const 泛型參數都必須列入。此外，如果回傳型別的其他部分已經用到某段生命週期，也要把它列進 `use<...>`。例如 `impl Iterator<Item = &'a str> + use<'a>` 中，`Item = &'a str` 已經用到 `'a`，所以不能改寫成 `use<>`。清單中的生命週期要寫在型別與 const 泛型參數之前。若清單不完整或順序不對，編譯器會直接指出問題。
 
 ### 什麼時候值得寫？
 
-一般函數若確實回傳借用參數的 iterator、閉包或 Future，預設捕獲通常正合需要，不必每次都寫 `use<...>`。
+一般函數若確實回傳借用參數的迭代器、閉包或 `Future`，預設捕獲通常正合需要，不必每次都寫 `use<...>`。
 
 當函數**接受一個帶生命週期的參數，但回傳值實際上與它無關**，預設捕獲可能讓借用看起來持續太久。這時 `use<>` 能把 API 的承諾說得更精準，也讓呼叫端更早使用或釋放原本的值。
 
@@ -152,7 +152,7 @@ fn borrowed_words<'a>(
 fn fixed_numbers<'a>(
     _label: &'a str,
 ) -> impl Iterator<Item = i32> + use<> {
-    1..=3
+    [1, 2, 3].into_iter()
 }
 
 fn main() {
@@ -160,7 +160,7 @@ fn main() {
     let words: Vec<_> = borrowed_words(&text).collect();
     println!("借用文字：{words:?}");
 
-    let label = String::from("不會被 iterator 使用");
+    let label = String::from("不會被迭代器使用");
     let numbers = fixed_numbers(&label);
 
     // use<> 保證 numbers 沒捕獲 label 的生命週期。
@@ -169,14 +169,11 @@ fn main() {
 }
 ```
 
-兩個函數的參數都帶 `'a`，但 API 承諾不同：`borrowed_words` 明確捕獲 `'a`，`fixed_numbers` 明確不捕獲任何泛型參數。
-
 ## 重點整理
 
 - return-position `impl Trait` 背後有一個由函數體決定的隱藏型別。
 - 捕獲某個泛型參數，表示隱藏型別被允許使用它。
-- Rust 2024 預設捕獲作用域內所有 lifetime、型別與 const 泛型參數。
+- Rust 2024 edition 預設捕獲作用域內所有 lifetime、型別與 const 泛型參數。
 - `impl Trait + use<'a, T, N>` 可以精確列出允許捕獲的參數；`use<>` 表示不捕獲任何參數。
 - 若隱藏型別真的使用未列入的參數，函數本身會編譯失敗。
 - 精確排除不必要的生命週期捕獲，可以避免呼叫端的借用被保守地延長。
-- `use<...>` bound 與匯入路徑的 `use` 是兩種不同語法。

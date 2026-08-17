@@ -283,9 +283,6 @@ fn main() {
     println!("共處理 {} 筆", items.len());
 }
 ```
-
-`action` 的每個 `Future` 可以借用當次傳入的 `item`，也能借用閉包捕獲的 `heading`。每次 `.await` 完成後才進到下一項，因此這些借用不會互相重疊。
-
 ## 重點整理
 
 - `async |參數| { ... }` 建立 `async` 閉包；呼叫它會產生 `Future`。
