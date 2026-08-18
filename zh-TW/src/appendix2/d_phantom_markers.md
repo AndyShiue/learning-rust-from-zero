@@ -73,9 +73,9 @@ fn main() {
 不同寫法表達的關係也不同：
 
 ```rust,ignore
-PhantomData<T>         // 像是邏輯上擁有 T
-PhantomData<&'a T>     // 像是邏輯上借用了 &'a T
-PhantomData<fn(T)>     // T 位於函數輸入位置
+PhantomData<T>     // 像是邏輯上擁有 T
+PhantomData<&'a T> // 像是邏輯上借用了 &'a T
+PhantomData<fn(T)> // T 位於函數輸入位置
 ```
 
 這些差異在底層函式庫中很重要。一般應用程式最常見的是第一個 `Id<T>` 例子：用型別標記防止相同底層資料被混用。

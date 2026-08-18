@@ -35,7 +35,7 @@ fn main() {
 
 我們說 `&'a T` 對 `'a` 是 **covariant**（協變）的：如果 `'long` 是 `'short` 的 subtype，`&'long T` 也會是 `&'short T` 的 subtype，方向沒有改變。
 
-`Box<T>`、`Vec<T>`、`Option<T>` 等擁有值的常見型別，對 `T` 通常也是 covariant。即使它們提供可變操作，修改內容時也需要獨佔存取，因此不會產生前述共享位置被換入不相容型別的問題。
+`Box<T>`、`Vec<T>`、`Option<T>` 等擁有值的常見型別，對 `T` 通常也是 covariant。例如，若 `'long: 'short`，`Vec<&'long str>` 就能用在需要 `Vec<&'short str>` 的地方。這種用法會把整個 `Vec` 的所有權一起交出去，原本的位置不能再用較長的生命週期型別存取同一個 `Vec`。
 
 ### invariance：內層型別不能跟著轉換
 
@@ -108,23 +108,27 @@ fn main() {
 
 函數參數會出現第三種情況：**contravariance**（逆變）。
 
-假設有一個函數能接受任何 `&str`：
+為了只觀察 variance，下面由外層函數先固定 `'short` 與 `'long`：
 
-```rust,editable
-fn accepts_any(text: &str) {
-    println!("{text}");
+```rust,noplayground
+fn use_as_long_only<'short, 'long: 'short>(
+    can_accept_short: fn(&'short str),
+) -> fn(&'long str) {
+    // fn(&'short str) 在這裡轉成 fn(&'long str)。
+    can_accept_short
 }
-
-fn call_with_static(f: fn(&'static str)) {
-    f("固定字串");
-}
-
-fn main() {
-    call_with_static(accepts_any);
-}
+#
+# fn main() {}
 ```
 
-`call_with_static` 承諾只會傳入 `'static` 字串。`accepts_any` 的能力更強，連較短的參考都能收，當然也能完成這份工作。
+若 `'long: 'short`，`&'long str` 可以當成 `&'short str` 使用。但包進函數參數後，可以轉換的方向會反過來：
+
+```text
+&'long str      → &'short str
+fn(&'short str) → fn(&'long str)
+```
+
+`use_as_long_only` 傳回的函數只會收到 `&'long str`。原本的 `can_accept_short` 只要參考能活到 `'short` 就能處理；活得更久的 `&'long str` 當然也符合要求，所以這項轉換是安全的。
 
 函數**輸入**型別的關係因此和直覺方向相反：要求較少、能接受更廣輸入的函數，可以放到要求較窄輸入的地方。函數參數對其型別是 contravariant。
 
@@ -136,6 +140,8 @@ fn main() {
 | --- | --- | --- |
 | `&'a T` | 對 `'a`、`T` covariant | 只能共享讀取，可以縮短保證 |
 | `&'a mut T` | 對 `'a` covariant，對 `T` invariant | 能更換 `T`，不能改寫內層承諾 |
+| `*const T` | 對 `T` covariant | 只能透過指標讀取 `T`，方向保持不變 |
+| `*mut T` | 對 `T` invariant | 能透過指標更換 `T`，不能改寫內層承諾 |
 | `Box<T>`、`Vec<T>`、`Option<T>` | 通常對 `T` covariant | 擁有值，不會從共享入口換入任意 `T` |
 | `Cell<T>`、`RefCell<T>` | 對 `T` invariant | 共享狀態下仍可能更換內容 |
 | `fn(T) -> U` | 對 `T` contravariant，對 `U` covariant | 能接受更廣的輸入，也能回傳保證更強的值 |
@@ -161,12 +167,15 @@ fn choose_shorter<'short>(
     }
 }
 
-fn accepts_any(text: &str) {
+fn print_text(text: &str) {
     println!("函數收到：{text}");
 }
 
-fn only_calls_with_static(f: fn(&'static str)) {
-    f("來自字串字面值");
+fn use_as_long_only<'short, 'long: 'short>(
+    can_accept_short: fn(&'short str),
+) -> fn(&'long str) {
+    // fn(&'short str) 在這裡轉成 fn(&'long str)。
+    can_accept_short
 }
 
 fn main() {
@@ -176,9 +185,9 @@ fn main() {
     let selected = choose_shorter("長期資料", &local, true);
     println!("選到：{selected}");
 
-    // 函數輸入是 contravariant：能接受任何 &str 的函數，
-    // 當然能放到只會收到 &'static str 的位置。
-    only_calls_with_static(accepts_any);
+    // 函數輸入是 contravariant：參數型別的轉換方向會反過來。
+    let print_long: fn(&'static str) = use_as_long_only(print_text);
+    print_long("來自字串字面值");
 }
 ```
 
