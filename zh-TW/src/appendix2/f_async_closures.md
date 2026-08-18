@@ -198,7 +198,7 @@ trait AsyncFn<Args>: AsyncFnMut<Args> {
 
 普通 `FnMut` 可以把回傳型別寫成固定的 `Self::Output`：`call_mut` 會在這次 `&mut self` 參考的有效期間內同步執行完整個閉包，回傳時工作已經完成，因此它的基本設計不必讓結果繼續借用閉包。
 
-`AsyncFnMut` 若要支援 `Future` 借用捕獲環境，就不能只使用一個固定的 `Future` 型別。呼叫 `async` 閉包只會建立 `Future`，閉包本體要等到之後 `poll` 這個 `Future` 時才會執行，因此 `Future` 可能在呼叫結束後繼續借用閉包。`CallRefFuture<'a>` 中的 `'a` 就是這次呼叫取得的閉包參考的生命週期；每次呼叫的生命週期可能不同，所以必須用 GAT 表示整組 `CallRefFuture<'a>`。
+`async` 閉包本身可以看成一個由捕獲值組成的匿名 `struct`。`AsyncFnMut` 與 `AsyncFn` 回傳的 `Future` 可能保存指向這個匿名 `struct` 內部資料的參考，因此 `Future` 型別必須帶上它借用閉包的生命週期。`CallRefFuture<'a>` 便用 GAT 將這個生命週期寫進 associated type。
 
 `AsyncFn` 沒有另外宣告 associated type，而是沿用 `AsyncFnMut` 的 `CallRefFuture<'a>`。`async_call` 與 `async_call_mut` 都不會消耗閉包，回傳的 `Future` 都可能繼續借用捕獲環境，兩者只需要用同一組帶生命週期的 `Future` 型別來表示。
 
