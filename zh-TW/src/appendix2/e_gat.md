@@ -57,7 +57,7 @@ where
     Self: 'a;
 ```
 
-這正是第 5 章的 lifetime bound。它不是說 `Self` 永遠要是 `'static`，而是說每次選出一個 `'a` 時，那次使用的 `Self` 必須至少仍活到 `'a` 結束。
+這正是第 5 章的 lifetime bound。它不是說 `Self` 永遠要是 `'static`，而是說每次選出一個 `'a` 時，那次使用的 `Self` 內含的 lifetime 都必須至少活到 `'a` 結束。
 
 ### 一個會借出自身資料的迭代器
 
