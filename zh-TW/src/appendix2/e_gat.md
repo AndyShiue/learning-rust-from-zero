@@ -170,7 +170,7 @@ impl Iterator for Lines {
 
 ### GAT 不只可以放生命週期
 
-名稱裡的 generic 是認真的：associated type 也能帶型別或 const 參數，例如 `type Buffer<T>` 或 `type Array<const N: usize>`。不過生命週期參數最能展現普通 associated type 做不到的事，也是函式庫 API 中最常需要讀懂的形式。
+名稱裡的 generic 是認真的：associated type 也能帶型別或 `const` 參數，例如 `type Buffer<T>` 或 `type Array<const N: usize>`。不過生命週期參數最能展現普通 associated type 做不到的事，也是函式庫 API 中最常需要讀懂的形式。
 
 ## 範例程式碼
 
