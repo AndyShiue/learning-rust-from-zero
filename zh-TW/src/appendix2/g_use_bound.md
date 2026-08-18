@@ -18,7 +18,7 @@ fn numbers() -> impl Iterator<Item = i32> {
 # fn main() {}
 ```
 
-呼叫者只知道回傳型別實作 `Iterator<Item = i32>`，真正的型別由函數體決定。這個沒有公開名字的真正型別，常叫 **hidden type**（隱藏型別）或 **opaque type**（不透明型別）。
+呼叫者看到的 `impl Iterator<Item = i32>` 是一個 **opaque type**（不透明型別）：介面刻意不公開它的具體身分。函數體替它選定的具體型別則稱為 **hidden type**（隱藏型別）；本例的 hidden type 是 `std::array::IntoIter<i32, 3>`。Hidden type 本身不一定沒有名稱，只是被 opaque return type 隱藏起來。
 
 如果函數帶有泛型參數，隱藏型別能不能使用那些參數？這就是「捕捉」要回答的問題。
 
@@ -169,7 +169,7 @@ fn main() {
 
 ## 重點整理
 
-- return-position `impl Trait` 背後有一個由函數體決定的隱藏型別。
+- return-position `impl Trait` 在介面上是 opaque type，背後則有一個由函數體決定的隱藏具體型別。
 - 捕捉某個泛型參數，表示隱藏型別被允許使用它。
 - Rust 2024 edition 預設捕捉作用域內所有 lifetime、型別與 `const` 泛型參數。
 - `impl Trait + use<'a, T, N>` 可以精確列出允許捕捉的參數；`use<>` 表示不捕捉任何參數。

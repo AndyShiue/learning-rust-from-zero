@@ -50,7 +50,7 @@ F: for<'a> Fn(&'a [T]) -> Option<&'a T>
 fn first<T>(values: &[T]) -> Option<&T>
 ```
 
-因為只有一個參考輸入，編譯器知道 `Option` 裡的 `&T` 必須借用自這個 `&[T]`。完整寫法是：
+因為只有一個 input lifetime，編譯器知道 `Option` 裡的 `&T` 必須借用自這個 `&[T]`。完整寫法是：
 
 ```rust,ignore
 fn first<'a, T>(values: &'a [T]) -> Option<&'a T>
@@ -272,7 +272,7 @@ fn main() {
 ## 重點整理
 
 - `Fn`、`FnMut` 與 `FnOnce` 的參數和回傳值也會套用 lifetime elision。
-- 只有一個參考輸入時，`Fn(&[T]) -> Option<&T>` 相當於 `for<'a> Fn(&'a [T]) -> Option<&'a T>`。
+- 只有一個 input lifetime 時，`Fn(&[T]) -> Option<&T>` 相當於 `for<'a> Fn(&'a [T]) -> Option<&'a T>`。
 - `for<'a>` 表示後面的 `trait` bound 對每一個 `'a` 都成立。
 - 外層的 `fn foo<'a>` 通常由呼叫者選 `'a`；HRTB 裡的 `for<'a>` 讓使用 `F` 的一方每次選 `'a`。
 - 同一個函數或閉包要對不同生命週期的參考各呼叫一次，並分別保留輸出的生命週期時，HRTB 能直接表達這項要求。
