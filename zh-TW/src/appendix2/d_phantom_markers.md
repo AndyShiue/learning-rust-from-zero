@@ -4,7 +4,7 @@
 
 理解 marker type 如何在不儲存實際資料的情況下，把型別設計者的承諾告訴編譯器；分辨 `PhantomData` 與 `PhantomPinned` 的不同用途。
 
-> 本集是**第 5 章泛型**、本附錄的 variance，以及**第 12 章** `Pin` 的補充。
+> 本集是**第 5 章泛型**、本附錄的 variance，以及**非同步一章** `Pin` 的補充。
 
 ## 概念說明
 
@@ -176,7 +176,7 @@ fn main() {
 
 ## `PhantomPinned`：阻止自動 `Unpin`
 
-第 12 章學過，幾乎所有普通型別都會自動實作 `Unpin`。只要所有欄位都是 `Unpin`，外層 `struct` 通常也是 `Unpin`。
+非同步一章學過，幾乎所有普通型別都會自動實作 `Unpin`。只要所有欄位都是 `Unpin`，外層 `struct` 通常也是 `Unpin`。
 
 但設計一個位址敏感的型別時，我們可能需要明確告訴編譯器：「即使其他欄位都能搬，這個型別一旦被 pin 住就不准搬。」把 `PhantomPinned` 放進欄位即可阻止自動實作 `Unpin`：
 
@@ -206,7 +206,7 @@ fn main() {
 
 ### 建立時仍然可以 move
 
-`PhantomPinned` 不是讓值從出生開始就完全不能 move。和第 12 章的規則相同：**pin 住以前仍可 move，pin 住以後才要維持位址**。
+`PhantomPinned` 不是讓值從出生開始就完全不能 move。和非同步一章的規則相同：**pin 住以前仍可 move，pin 住以後才要維持位址**。
 
 ```rust,editable
 use std::marker::PhantomPinned;

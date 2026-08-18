@@ -4,11 +4,11 @@
 
 學會 `async |...|` 語法，理解 `async` 閉包為什麼能借用捕獲的環境，以及 `AsyncFn`、`AsyncFnMut`、`AsyncFnOnce` 的用途。
 
-> 本集是**第 6 章閉包**與**第 12 章非同步**的補充。
+> 本集是**第 6 章閉包**與**非同步一章**的補充。
 
 ## 概念說明
 
-第 12 章已經用過 `async fn` 與 `async` block。如果想把一段非同步工作傳給另一個函數使用，過去常見的寫法是讓普通閉包回傳 `async` block：
+非同步一章已經用過 `async fn` 與 `async` block。如果想把一段非同步工作傳給另一個函數使用，過去常見的寫法是讓普通閉包回傳 `async` block：
 
 ```rust,ignore
 |name| async move {
@@ -26,7 +26,7 @@ async |name| {
 
 它和普通閉包一樣可以捕獲環境，但呼叫後不會立刻執行閉包內容，而是產生一個 `Future`；等這個 `Future` 被 `.await`，內容才會前進。
 
-下面的可執行範例會呼叫 `block_on`。它不是標準庫 API，而是第 12 章第 6 集那個最陽春的 executor；本集只借它把立即可完成的 `Future` 跑完，避免為了示範語言語法而綁定特定 runtime。
+下面的可執行範例會呼叫 `block_on`。它不是標準庫 API，而是非同步一章第 6 集那個最陽春的 executor；本集只借它把立即可完成的 `Future` 跑完，避免為了示範語言語法而綁定特定 runtime。
 
 ### 為什麼普通閉包常搭配 `async move`？
 
