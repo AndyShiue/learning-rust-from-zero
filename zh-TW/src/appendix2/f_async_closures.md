@@ -157,6 +157,51 @@ fn main() {
 | `FnMut` | `AsyncFnMut` | 能呼叫多次，但呼叫時要可變借用閉包 |
 | `Fn` | `AsyncFn` | 能透過共享借用重複呼叫 |
 
+#### 編譯器大致實作了什麼？
+
+第 6 章第 3 集曾把普通閉包想成「儲存捕獲值的匿名 `struct`，再替它實作 `FnOnce`、`FnMut` 或 `Fn`」。`async` 閉包的前半段相同；差別在於呼叫方法不會直接算出結果，而是回傳一個 `Future` 狀態機。
+
+省略一些實作細節後，三個 `trait` 的關係大致如下。這是用來說明結構的簡化版本，不是標準庫中可自行實作的定義：
+
+```rust,noplayground
+use std::future::Future;
+
+trait AsyncFnOnce<Args> {
+    type Output;
+    type CallOnceFuture: Future<Output = Self::Output>;
+
+    fn async_call_once(self, args: Args) -> Self::CallOnceFuture;
+}
+
+trait AsyncFnMut<Args>: AsyncFnOnce<Args> {
+    type CallRefFuture<'a>: Future<Output = Self::Output>
+    where
+        Self: 'a;
+
+    fn async_call_mut(&mut self, args: Args) -> Self::CallRefFuture<'_>;
+}
+
+trait AsyncFn<Args>: AsyncFnMut<Args> {
+    fn async_call(&self, args: Args) -> Self::CallRefFuture<'_>;
+}
+```
+
+三種呼叫方式的 `self` 與回傳型別如下：
+
+| `trait` | `self` | 呼叫所回傳的型別 |
+| --- | --- | --- |
+| `AsyncFnOnce` | `self` | `CallOnceFuture` |
+| `AsyncFnMut` | `&mut self` | `CallRefFuture<'_>` |
+| `AsyncFn` | `&self` | 同一個 `CallRefFuture<'_>` |
+
+`Output` 是等待 `Future` 後得到的最終結果，不是 `Future` 本身。`CallOnceFuture` 來自消耗閉包的呼叫，因此可以直接擁有被搬出的捕獲值，不需要生命週期參數。
+
+普通 `FnMut` 可以把回傳型別寫成固定的 `Self::Output`：`call_mut` 會在這次借用 `&mut self` 期間同步執行完整個閉包，回傳時工作已經完成，因此它的基本設計不必讓結果繼續借用閉包。
+
+`AsyncFnMut` 若要支援 `Future` 借用捕獲環境，就不能只使用一個固定的 `Future` 型別。呼叫 `async` 閉包只會建立 `Future`，閉包本體要等到之後 `poll` 這個 `Future` 時才會執行，因此 `Future` 可能在呼叫結束後繼續借用閉包。`CallRefFuture<'a>` 中的 `'a` 就是這次呼叫對閉包的借用生命週期；每次呼叫的生命週期可能不同，所以必須用 GAT 表示整組 `CallRefFuture<'a>`。
+
+`AsyncFn` 沒有另外宣告 associated type，而是沿用 `AsyncFnMut` 的 `CallRefFuture<'a>`。`async_call` 與 `async_call_mut` 都不會消耗閉包，回傳的 `Future` 都可能繼續借用捕獲環境，兩者只需要用同一組帶生命週期的 `Future` 型別來表示。
+
 它們可用來替接收非同步處理函數的 API 寫 bound：
 
 ```rust,editable

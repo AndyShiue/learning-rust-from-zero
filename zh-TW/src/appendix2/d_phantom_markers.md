@@ -80,6 +80,100 @@ PhantomData<fn(T)> // T 位於函數輸入位置
 
 這些差異在底層函式庫中很重要。一般應用程式最常見的是第一個 `Id<T>` 例子：用型別標記防止相同底層資料被混用。
 
+### 實務案例：讓 executor 留在建立它的執行緒
+
+非同步一章第 14 集的 executor 在 `Executor::new()` 中用 `thread::current()` 記住當下的執行緒。之後，`Task::wake` 會透過這個 `Thread` handle 呼叫 `.unpark()`；executor 沒有工作時則用 `thread::park()` 暫停目前正在執行它的執行緒。
+
+這裡藏著一個型別系統沒有自動看出的限制：`Executor` 必須一直留在建立它的執行緒。以下是簡化過的版本：
+
+```rust,no_run
+use std::thread::{self, Thread};
+
+struct Task {
+    executor_thread: Thread,
+}
+
+impl Task {
+    fn wake(self) {
+        self.executor_thread.unpark();
+    }
+}
+
+struct Executor {
+    executor_thread: Thread,
+}
+
+impl Executor {
+    fn new() -> Self {
+        Self {
+            executor_thread: thread::current(),
+        }
+    }
+
+    fn run_once(&self) {
+        let task = Task {
+            executor_thread: self.executor_thread.clone(),
+        };
+
+        thread::spawn(move || task.wake())
+            .join()
+            .expect("執行緒發生錯誤");
+        thread::park();
+    }
+}
+
+fn main() {
+    let executor = Executor::new(); // 記住主執行緒
+
+    // Executor 的欄位都是 Send，所以這段能通過編譯，卻會卡住。
+    thread::spawn(move || executor.run_once())
+        .join()
+        .expect("執行緒發生錯誤");
+}
+```
+
+`Thread` handle 本身可以跨執行緒傳送，但搬動 handle 不會改變它所指向的執行緒。上例把 `executor` 搬到新執行緒之後：
+
+1. `task.wake()` 對建立 executor 的**主執行緒**呼叫 `.unpark()`。
+2. `run_once()` 卻在**新執行緒**呼叫 `thread::park()`。
+
+所以 `unpark()` 並不是沒有作用，而是喚醒了錯的執行緒；真正執行 executor 的新執行緒會一直睡著。
+
+這個 executor 只能留在建立它的執行緒，因此可加入一個零大小的 marker，阻止它自動實作 `Send`：
+
+```rust,compile_fail
+use std::marker::PhantomData;
+use std::rc::Rc;
+use std::thread::{self, Thread};
+
+struct Executor {
+    executor_thread: Thread,
+    _not_send: PhantomData<Rc<()>>,
+}
+
+impl Executor {
+    fn new() -> Self {
+        Self {
+            executor_thread: thread::current(),
+            _not_send: PhantomData,
+        }
+    }
+
+    fn run(&self) {
+        thread::park();
+    }
+}
+
+fn main() {
+    let executor = Executor::new();
+
+    // 編譯錯誤：Executor 不再能跨執行緒傳送。
+    thread::spawn(move || executor.run());
+}
+```
+
+`Rc<()>` 不是 `Send`，而 `PhantomData<Rc<()>>` 會讓 `auto trait` 的分析把 `Executor` 當成邏輯上含有一個 `Rc<()>`。因此 `Executor` 也不是 `Send`，編譯器便能在它被搬到別的執行緒時阻止我們。這個欄位不會真的配置或儲存 `Rc`；正確的使用方式是在同一條執行緒中建立並執行 executor，而 waker 仍可從其他執行緒呼叫該 executor `Thread` 的 `unpark()`。
+
 ## `PhantomPinned`：阻止自動 `Unpin`
 
 第 12 章學過，幾乎所有普通型別都會自動實作 `Unpin`。只要所有欄位都是 `Unpin`，外層 `struct` 通常也是 `Unpin`。
@@ -190,6 +284,7 @@ fn main() {
 - marker type 不必存放執行時期資料，也能影響型別檢查。
 - `PhantomData<T>` 表示外層型別在邏輯上使用、擁有或借用某種 `T`。
 - `PhantomData<T>` 會影響 variance 與 `auto trait`。
+- 只能留在建立它的執行緒的型別，可用 `PhantomData<Rc<()>>` 阻止自動實作 `Send`，避免被搬到其他執行緒。
 - `PhantomPinned` 會阻止外層型別自動實作 `Unpin`。
 - `PhantomPinned` 本身不會 pin 住值；仍然要透過 `pin!`、`Box::pin` 等方式建立 `Pin`。
 - `PhantomPinned` 不禁止 pin 以前的 move；真正的位址保證從 pin 住之後開始。
