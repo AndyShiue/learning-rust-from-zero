@@ -32,7 +32,7 @@ fn main() {
 
 ### 帶參數
 
-用 `$name:kind` 捕獲參數：
+用 `$name:kind` 捕捉參數：
 
 ```rust,editable
 macro_rules! say {
@@ -97,7 +97,7 @@ fn main() {
 }
 ```
 
-展開的時候也用 `$( ... )*`——`$( v.push($element); )*` 會對每個捕獲的元素重複展開一次，變成：
+展開的時候也用 `$( ... )*`——`$( v.push($element); )*` 會對每個捕捉的元素重複展開一次，變成：
 
 ```rust,ignore
 v.push(1);

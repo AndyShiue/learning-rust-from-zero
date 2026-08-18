@@ -82,7 +82,7 @@ PhantomData<fn(T)> // T 位於函數輸入位置
 
 ### 實務案例：讓 executor 留在建立它的執行緒
 
-非同步一章第 14 集的 executor 在 `Executor::new()` 中用 `thread::current()` 記住當下的執行緒。之後，`Task::wake` 會透過這個 `Thread` handle 呼叫 `.unpark()`；executor 沒有工作時則用 `thread::park()` 暫停目前正在執行它的執行緒。
+非同步一章第 11 集後的 executor 在 `Executor::new()` 中用 `thread::current()` 記住當下的執行緒。之後，`Task::wake` 會透過這個 `Thread` handle 呼叫 `.unpark()`；executor 沒有工作時則用 `thread::park()` 暫停目前正在執行它的執行緒。
 
 這裡藏著一個型別系統沒有自動看出的限制：`Executor` 必須一直留在建立它的執行緒。以下是簡化過的版本：
 
