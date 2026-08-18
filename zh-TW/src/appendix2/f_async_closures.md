@@ -44,9 +44,9 @@ fn main() {
 }
 ```
 
-這裡沒有 `move`，所以 `async` block 會嘗試借用參數 `name`。但普通閉包一回傳 `Future`，這次呼叫的參數 `name` 就該離開作用域；若 Future 仍借用它，之後執行時參考就可能失效，因此 Rust 不允許這段程式。
+這裡沒有 `move`，所以 `async` block 會嘗試借用參數 `name`。但普通閉包一回傳 `Future`，這次呼叫的參數 `name` 就該離開作用域；若 `Future` 仍借用它，之後執行時參考就可能失效，因此 Rust 不允許這段程式。
 
-加上 `move` 後，`name` 會被搬進 Future：
+加上 `move` 後，`name` 會被搬進 `Future`：
 
 ```rust,editable
 fn main() {
@@ -58,9 +58,9 @@ fn main() {
 }
 ```
 
-現在普通閉包回傳時，`name` 不會被留在已經結束的呼叫裡，而是由回傳的 Future 擁有，會跟著 Future 活到執行完畢或被丟棄。這就是 `|參數| async move { ... }` 比 `|參數| async { ... }` 常見的原因。
+現在普通閉包回傳時，`name` 不會被留在已經結束的呼叫裡，而是由回傳的 `Future` 擁有，會跟著 `Future` 活到執行完畢或被丟棄。這就是 `|參數| async move { ... }` 比 `|參數| async { ... }` 常見的原因。
 
-不過，`async move` 並非所有情況都必須使用。如果 `async` block 沒有借用這次閉包呼叫裡的參數或區域變數，就不一定需要 `move`。重點是：**Future 不能借用普通閉包呼叫結束時就會失效的資料。**
+不過，`async move` 並非所有情況都必須使用。如果 `async` block 沒有借用這次閉包呼叫裡的參數或區域變數，就不一定需要 `move`。重點是：**`Future` 不能借用普通閉包呼叫結束時就會失效的資料。**
 
 ### 第一個 `async` 閉包
 
@@ -96,7 +96,7 @@ fn main() {
 
 ### 那為什麼不一直使用 `|x| async move { ... }`？
 
-普通閉包和它回傳的 `async move` block 是兩個不同東西。`move` 會要求產生的 `Future` 擁有捕獲值；若值來自閉包自己的環境，每次呼叫時就可能想再次把同一個值 move 出去：
+普通閉包和它回傳的 `async move` block 是兩個不同東西。下面的 `async move` block 必須擁有 `prefix`，因此外層的普通閉包被呼叫時，必須把自己捕獲的 `prefix` 搬進新產生的 `Future`：
 
 ```rust,compile_fail
 fn main() {
@@ -111,7 +111,7 @@ fn main() {
 }
 ```
 
-第一次呼叫已經要把 `prefix` 搬進回傳的 `Future`，普通閉包不能在第二次呼叫時再搬一次。
+`String` 沒有實作 `Copy`。外層閉包第一次呼叫時會把 `prefix` 搬進回傳的 `Future`，等於把捕獲值移出自己的環境，因此這個閉包只能實作 `FnOnce`。第一次呼叫會消耗 `make_future`，第二次便不能再呼叫。
 
 `async` 閉包能讓回傳的 `Future` **借用閉包捕獲的環境**：
 
@@ -286,6 +286,6 @@ fn main() {
 ## 重點整理
 
 - `async |參數| { ... }` 建立 `async` 閉包；呼叫它會產生 `Future`。
-- 相較於普通閉包回傳 `async move` block，`async` 閉包能自然表達 Future 借用閉包捕獲環境的情況。
+- 相較於普通閉包回傳 `async move` block，`async` 閉包能自然表達 `Future` 借用閉包捕獲環境的情況。
 - `AsyncFnOnce`、`AsyncFnMut`、`AsyncFn` 對應普通閉包的 `FnOnce`、`FnMut`、`Fn`。
 - `async move` 控制建立閉包時如何捕獲外部值，不代表每次呼叫都會消耗那些值。
