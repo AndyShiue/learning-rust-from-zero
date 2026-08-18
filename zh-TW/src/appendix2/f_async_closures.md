@@ -2,7 +2,7 @@
 
 ## 本集目標
 
-學會 `async |...|` 語法，理解 `async` 閉包為什麼能借用捕獲的環境，以及 `AsyncFn`、`AsyncFnMut`、`AsyncFnOnce` 的用途。
+學會 `async |...|` 語法，理解 `async` 閉包為什麼能借用捕捉的環境，以及 `AsyncFn`、`AsyncFnMut`、`AsyncFnOnce` 的用途。
 
 > 本集是**第 6 章閉包**與**非同步一章**的補充。
 
@@ -24,7 +24,7 @@ async |name| {
 }
 ```
 
-它和普通閉包一樣可以捕獲環境，但呼叫後不會立刻執行閉包內容，而是產生一個 `Future`；等這個 `Future` 被 `.await`，內容才會前進。
+它和普通閉包一樣可以捕捉環境，但呼叫後不會立刻執行閉包內容，而是產生一個 `Future`；等這個 `Future` 被 `.await`，內容才會前進。
 
 下面的可執行範例會呼叫 `block_on`。它不是標準庫 API，而是非同步一章第 6 集那個最陽春的 executor；本集只借它把立即可完成的 `Future` 跑完，避免為了示範語言語法而綁定特定 runtime。
 
@@ -96,7 +96,7 @@ fn main() {
 
 ### 那為什麼不一直使用 `|x| async move { ... }`？
 
-普通閉包和它回傳的 `async move` block 是兩個不同東西。下面的 `async move` block 必須擁有 `prefix`，因此外層的普通閉包被呼叫時，必須把自己捕獲的 `prefix` 搬進新產生的 `Future`：
+普通閉包和它回傳的 `async move` block 是兩個不同東西。下面的 `async move` block 必須擁有 `prefix`，因此外層的普通閉包被呼叫時，必須把自己捕捉的 `prefix` 搬進新產生的 `Future`：
 
 ```rust,compile_fail
 fn main() {
@@ -111,9 +111,9 @@ fn main() {
 }
 ```
 
-`String` 沒有實作 `Copy`。外層閉包第一次呼叫時會把 `prefix` 搬進回傳的 `Future`，等於把捕獲值移出自己的環境，因此這個閉包只能實作 `FnOnce`。第一次呼叫會消耗 `make_future`，第二次便不能再呼叫。
+`String` 沒有實作 `Copy`。外層閉包第一次呼叫時會把 `prefix` 搬進回傳的 `Future`，等於把捕捉值移出自己的環境，因此這個閉包只能實作 `FnOnce`。第一次呼叫會消耗 `make_future`，第二次便不能再呼叫。
 
-`async` 閉包能讓回傳的 `Future` **借用閉包捕獲的環境**：
+`async` 閉包能讓回傳的 `Future` **借用閉包捕捉的環境**：
 
 ```rust,editable
 use std::future::Future;
@@ -145,21 +145,21 @@ fn main() {
 }
 ```
 
-兩次呼叫產生的 `Future` 都只借用 `show` 捕獲的 `prefix`，不必把同一個 `String` 搬走兩次。
+兩次呼叫產生的 `Future` 都只借用 `show` 捕捉的 `prefix`，不必把同一個 `String` 搬走兩次。
 
 ### `AsyncFn` 三兄弟
 
-第 6 章學過普通閉包依捕獲方式實作 `FnOnce`、`FnMut`、`Fn`。`async` 閉包有一組對應的 `trait`：
+第 6 章學過普通閉包依捕捉方式實作 `FnOnce`、`FnMut`、`Fn`。`async` 閉包有一組對應的 `trait`：
 
 | 普通閉包 | `async` 閉包 | 呼叫方式 |
 | --- | --- | --- |
-| `FnOnce` | `AsyncFnOnce` | 至少能呼叫一次，可能消耗捕獲值 |
+| `FnOnce` | `AsyncFnOnce` | 至少能呼叫一次，可能消耗捕捉值 |
 | `FnMut` | `AsyncFnMut` | 能透過可變參考重複呼叫 |
 | `Fn` | `AsyncFn` | 能透過共享參考重複呼叫 |
 
 ### 編譯器大致實作了什麼？
 
-第 6 章第 3 集曾把普通閉包想成「儲存捕獲值的匿名 `struct`，再替它實作 `FnOnce`、`FnMut` 或 `Fn`」。`async` 閉包的前半段相同；差別在於呼叫方法不會直接算出結果，而是回傳一個 `Future` 狀態機。
+第 6 章第 3 集曾把普通閉包想成「儲存捕捉值的匿名 `struct`，再替它實作 `FnOnce`、`FnMut` 或 `Fn`」。`async` 閉包的前半段相同；差別在於呼叫方法不會直接算出結果，而是回傳一個 `Future` 狀態機。
 
 省略一些實作細節後，三個 `trait` 的關係大致如下。這是用來說明結構的簡化版本，不是標準庫中可自行實作的定義：
 
@@ -194,13 +194,13 @@ trait AsyncFn<Args>: AsyncFnMut<Args> {
 | `AsyncFnMut` | `&mut self` | `CallRefFuture<'_>` |
 | `AsyncFn` | `&self` | 同一個 `CallRefFuture<'_>` |
 
-`Output` 是等待 `Future` 後得到的最終結果，不是 `Future` 本身。`CallOnceFuture` 來自消耗閉包的呼叫，因此可以直接擁有被搬出的捕獲值，不需要生命週期參數。
+`Output` 是等待 `Future` 後得到的最終結果，不是 `Future` 本身。`CallOnceFuture` 來自消耗閉包的呼叫，因此可以直接擁有被搬出的捕捉值，不需要生命週期參數。
 
 普通 `FnMut` 可以把回傳型別寫成固定的 `Self::Output`：`call_mut` 會在這次 `&mut self` 參考的有效期間內同步執行完整個閉包，回傳時工作已經完成，因此它的基本設計不必讓結果繼續借用閉包。
 
-`async` 閉包本身可以看成一個由捕獲值組成的匿名 `struct`。`AsyncFnMut` 與 `AsyncFn` 回傳的 `Future` 可能保存指向這個匿名 `struct` 內部資料的參考，因此 `Future` 型別必須帶上它借用閉包的生命週期。`CallRefFuture<'a>` 便用 GAT 將這個生命週期寫進 associated type。
+`async` 閉包本身可以看成一個由捕捉值組成的匿名 `struct`。`AsyncFnMut` 與 `AsyncFn` 回傳的 `Future` 可能保存指向這個匿名 `struct` 內部資料的參考，因此 `Future` 型別必須帶上它借用閉包的生命週期。`CallRefFuture<'a>` 便用 GAT 將這個生命週期寫進 associated type。
 
-`AsyncFn` 沒有另外宣告 associated type，而是沿用 `AsyncFnMut` 的 `CallRefFuture<'a>`。`async_call` 與 `async_call_mut` 都不會消耗閉包，回傳的 `Future` 都可能繼續借用捕獲環境，兩者只需要用同一組帶生命週期的 `Future` 型別來表示。
+`AsyncFn` 沒有另外宣告 associated type，而是沿用 `AsyncFnMut` 的 `CallRefFuture<'a>`。`async_call` 與 `async_call_mut` 都不會消耗閉包，回傳的 `Future` 都可能繼續借用捕捉環境，兩者只需要用同一組帶生命週期的 `Future` 型別來表示。
 
 它們可用來替接收非同步處理函數的 API 寫 bound：
 
@@ -271,7 +271,7 @@ fn main() {
 }
 ```
 
-這裡的 `move` 控制閉包如何從**外層環境**捕獲 `label`：閉包取得 `label` 的所有權。它不代表每次呼叫都要把 `label` 從閉包裡搬走；閉包內容只共享讀取它，所以 `job` 仍可符合 `AsyncFn`。
+這裡的 `move` 控制閉包如何從**外層環境**捕捉 `label`：閉包取得 `label` 的所有權。它不代表每次呼叫都要把 `label` 從閉包裡搬走；閉包內容只共享讀取它，所以 `job` 仍可符合 `AsyncFn`。
 
 要分清楚兩層：
 
@@ -324,6 +324,6 @@ fn main() {
 ## 重點整理
 
 - `async |參數| { ... }` 建立 `async` 閉包；呼叫它會產生 `Future`。
-- 相較於普通閉包回傳 `async move` block，`async` 閉包能自然表達 `Future` 借用閉包捕獲環境的情況。
+- 相較於普通閉包回傳 `async move` block，`async` 閉包能自然表達 `Future` 借用閉包捕捉環境的情況。
 - `AsyncFnOnce`、`AsyncFnMut`、`AsyncFn` 對應普通閉包的 `FnOnce`、`FnMut`、`Fn`。
-- `async move` 控制建立閉包時如何捕獲外部值，不代表每次呼叫都會消耗那些值。
+- `async move` 控制建立閉包時如何捕捉外部值，不代表每次呼叫都會消耗那些值。
