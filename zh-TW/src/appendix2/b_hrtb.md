@@ -2,7 +2,7 @@
 
 ## 本集目標
 
-理解 higher-ranked trait bound（HRTB）中的 `for<'a>`，學會分辨「只處理某一段生命週期」與「能處理任何生命週期」，並看懂 `Fn` 三兄弟如何省略輸入與回傳值的生命週期。
+理解 higher-ranked `trait` bound（HRTB）中的 `for<'a>`，學會分辨「只處理某一段生命週期」與「能處理任何生命週期」，並看懂 `Fn` 三兄弟如何省略輸入與回傳值的生命週期。
 
 > 本集是**第 5 章生命週期**與**第 6 章閉包**的補充。
 
@@ -72,7 +72,7 @@ F: for<'a> FnMut(&'a [T]) -> Option<&'a T>
 F: for<'a> FnOnce(&'a [T]) -> Option<&'a T>
 ```
 
-三個 trait 的差別仍是閉包能用什麼方式呼叫，以及呼叫時會不會修改或消耗捕獲值；它們使用的 lifetime elision 規則則相同。
+三個 `trait` 的差別仍是閉包能用什麼方式呼叫，以及呼叫時會不會修改或消耗捕獲值；它們使用的 lifetime elision 規則則相同。
 
 ### `for<'a>` 的意思
 
@@ -90,7 +90,7 @@ F: for<'a> Fn(&'a [T]) -> Option<&'a T>
 
 都表示 `F` 能接受任意生命週期的 `&[T]`，而且回傳的 `&T` 會和該次輸入使用同一段生命週期。
 
-HRTB 是 **higher-ranked trait bound** 的縮寫。名稱聽起來很硬，但眼前最重要的讀法只有一句：「這個 trait bound 對所有 `'a` 都要成立。」
+HRTB 是 **higher-ranked `trait` bound** 的縮寫。名稱聽起來很硬，但眼前最重要的讀法只有一句：「這個 `trait` bound 對所有 `'a` 都要成立。」
 
 ### 誰有權選 `'a`？
 
@@ -273,7 +273,7 @@ fn main() {
 
 - `Fn`、`FnMut` 與 `FnOnce` 的參數和回傳值也會套用 lifetime elision。
 - 只有一個參考輸入時，`Fn(&[T]) -> Option<&T>` 相當於 `for<'a> Fn(&'a [T]) -> Option<&'a T>`。
-- `for<'a>` 表示後面的 trait bound 對每一個 `'a` 都成立。
+- `for<'a>` 表示後面的 `trait` bound 對每一個 `'a` 都成立。
 - 外層的 `fn foo<'a>` 通常由呼叫者選 `'a`；HRTB 裡的 `for<'a>` 讓使用 `F` 的一方每次選 `'a`。
 - 同一個函數或閉包要對不同生命週期的參考各呼叫一次，並分別保留輸出的生命週期時，HRTB 能直接表達這項要求。
 - 泛型 API 若要把函數體內才建立的借用傳給 `F`，`F` 也需要 higher-ranked 能力；直接呼叫閉包或捕獲區域變數則不一定需要。

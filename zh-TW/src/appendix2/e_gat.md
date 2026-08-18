@@ -222,4 +222,4 @@ fn main() {
 - `where Self: 'a` 保證輸出借用 `Self` 時，`Self` 在 `'a` 期間仍然有效。
 - lending iterator 能讓每次輸出借用該次 `&mut self`，普通 `Iterator::Item` 無法表達這種關係。
 - 一個 lending 輸出仍在使用時，對 `self` 的借用也仍存在。
-- GAT 常和 HRTB 一起出現在進階 trait bound 裡。
+- GAT 常和 HRTB 一起出現在進階 `trait` bound 裡。
