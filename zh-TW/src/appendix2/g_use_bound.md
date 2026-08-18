@@ -40,7 +40,7 @@ fn main() {
 
 真正回傳的是 `SplitWhitespace<'a>`，裡面保存對 `text` 的參考。因此隱藏型別必須能使用，也就是**捕獲** `'a`。
 
-在 Rust 2024 edition 中，回傳位置的 `impl Trait` 預設會捕獲作用域內所有可用的 lifetime、型別與 const 泛型參數。
+在 Rust 2024 edition 中，回傳位置的 `impl Trait` 預設會捕獲作用域內所有可用的 lifetime、型別與 `const` 泛型參數。
 
 ### 捕獲得比實際需要更多
 
@@ -112,9 +112,9 @@ fn main() {
 
 `use<'a>` 表示隱藏型別可以使用 `'a`。這次 `get_length` 確實借用 `text`，所以它存在期間不能先釋放 `text`。
 
-### 型別與 const 泛型也能捕獲
+### 型別與 `const` 泛型也能捕獲
 
-`use<...>` 不只放生命週期，也能放型別參數、const 參數，以及 method 中的 `Self`：
+`use<...>` 不只放生命週期，也能放型別參數、`const` 參數，以及 method 中的 `Self`：
 
 ```rust,editable
 fn repeat<T, const N: usize>(value: T) -> impl Iterator<Item = T> + use<T, N>
@@ -132,7 +132,7 @@ fn main() {
 
 隱藏的迭代器型別使用 `T`，而回傳迭代器的行為也由 `N` 決定，所以簽名把兩者列在 `use<T, N>`。
 
-目前一個 `impl Trait` 最多只能有一組 `use<...>`，而且作用域內的型別與 const 泛型參數都必須列入。此外，如果回傳型別的其他部分已經用到某段生命週期，也要把它列進 `use<...>`。例如 `impl Iterator<Item = &'a str> + use<'a>` 中，`Item = &'a str` 已經用到 `'a`，所以不能改寫成 `use<>`。清單中的生命週期要寫在型別與 const 泛型參數之前。若清單不完整或順序不對，編譯器會直接指出問題。
+目前一個 `impl Trait` 最多只能有一組 `use<...>`，而且作用域內的型別與 `const` 泛型參數都必須列入。此外，如果回傳型別的其他部分已經用到某段生命週期，也要把它列進 `use<...>`。例如 `impl Iterator<Item = &'a str> + use<'a>` 中，`Item = &'a str` 已經用到 `'a`，所以不能改寫成 `use<>`。清單中的生命週期要寫在型別與 `const` 泛型參數之前。若清單不完整或順序不對，編譯器會直接指出問題。
 
 ### 什麼時候值得寫？
 
@@ -173,7 +173,7 @@ fn main() {
 
 - return-position `impl Trait` 背後有一個由函數體決定的隱藏型別。
 - 捕獲某個泛型參數，表示隱藏型別被允許使用它。
-- Rust 2024 edition 預設捕獲作用域內所有 lifetime、型別與 const 泛型參數。
+- Rust 2024 edition 預設捕獲作用域內所有 lifetime、型別與 `const` 泛型參數。
 - `impl Trait + use<'a, T, N>` 可以精確列出允許捕獲的參數；`use<>` 表示不捕獲任何參數。
 - 若隱藏型別真的使用未列入的參數，函數本身會編譯失敗。
 - 精確排除不必要的生命週期捕獲，可以避免呼叫端的借用被保守地延長。
