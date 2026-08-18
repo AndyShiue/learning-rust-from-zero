@@ -174,7 +174,7 @@ fn main() {
 
 `Rc<()>` 不是 `Send`，而 `PhantomData<Rc<()>>` 會讓 `auto trait` 的分析把 `Executor` 當成邏輯上含有一個 `Rc<()>`。因此 `Executor` 也不是 `Send`，編譯器便能在它被搬到別的執行緒時阻止我們。這個欄位不會真的配置或儲存 `Rc`；正確的使用方式是在同一條執行緒中建立並執行 executor，而 waker 仍可從其他執行緒呼叫該 executor `Thread` 的 `unpark()`。
 
-## `PhantomPinned`：阻止自動 `Unpin`
+### `PhantomPinned`：阻止自動 `Unpin`
 
 非同步一章學過，幾乎所有普通型別都會自動實作 `Unpin`。只要所有欄位都是 `Unpin`，外層 `struct` 通常也是 `Unpin`。
 
