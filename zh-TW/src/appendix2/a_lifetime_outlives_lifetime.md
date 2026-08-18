@@ -98,7 +98,7 @@ fn main() {
 }
 ```
 
-`'config: 'request` 保證設定資料在整段 request 借用期間都仍有效。因此 `None` 分支可以把原本的 `&'config str` **縮短**成 `&'request str`，讓兩個分支回傳同一個型別。
+`'config: 'request` 保證設定資料在整段 `'request` 期間都仍有效。因此 `None` 分支可以把原本的 `&'config str` **縮短**成 `&'request str`，讓兩個分支回傳同一個型別。
 
 這就是 lifetime outlives lifetime 最直接的實務用途：
 
@@ -122,9 +122,9 @@ fn main() {
 
 - `Formatter` 和它使用的輸出目標活得比較久。
 - `DebugStruct` 只會暫時借用 `Formatter`，協助組合這一次的輸出。
-- 因此 `Formatter` 內部資料的生命週期，必須活得過 `DebugStruct` 的借用。
+- 因此 `Formatter` 內部資料的生命週期，必須涵蓋 `DebugStruct` 所持參考的生命週期。
 
-一般程式裡，編譯器常常能自動推斷這種關係，所以你不會到處看到 `'long: 'short`。它比較常出現在函式庫的型別簽名中。現階段只要記得：**暫時借用一份長期資料時，長期資料不能比這次借用更早失效。**
+一般程式裡，編譯器常常能自動推斷這種關係，所以你不會到處看到 `'long: 'short`。它比較常出現在函式庫的型別簽名中。現階段只要記得：**暫時借用一份長期資料時，長期資料不能比取得的參考更早失效。**
 
 ### 真實案例：`DebugStruct<'a, 'b>`
 
@@ -153,7 +153,7 @@ where
 - `'a` 是 `DebugStruct` 暫時借用 `Formatter` 的期間。
 - `'b` 是 `Formatter` 內部輸出目標的生命週期。
 
-`DebugStruct` 在 `'a` 期間會透過 `Formatter<'b>` 寫入輸出目標，所以該輸出目標不能在 builder 還存在時先失效。`'b: 'a` 就是這項要求：`Formatter` 內部借用的資料，必須活得過外層 builder 對它的借用。
+`DebugStruct` 在 `'a` 期間會透過 `Formatter<'b>` 寫入輸出目標，所以該輸出目標不能在 builder 還存在時先失效。`'b: 'a` 就是這項要求：`Formatter` 內部借用的資料，必須活得過外層 builder 持有的參考。
 
 使用者通常不必親自寫出這兩個生命週期：
 
@@ -185,7 +185,7 @@ fn main() {
 }
 ```
 
-這段程式真正使用了 `DebugStruct`，但 `Formatter::debug_struct` 已經把正確的生命週期關係寫在 API 裡，呼叫者只要滿足它即可。你通常是在閱讀標準庫文件、替這類 builder 建立泛型包裝，或設計自己的分層借用型別時，才會直接看到或寫出 `'b: 'a`。
+這段程式真正使用了 `DebugStruct`，但 `Formatter::debug_struct` 已經把正確的生命週期關係寫在 API 裡，呼叫者只要滿足它即可。你通常是在閱讀標準庫文件、替這類 builder 建立泛型包裝，或設計自己內含多層參考的型別時，才會直接看到或寫出 `'b: 'a`。
 
 ### 分開兩段生命週期有什麼好處？
 
@@ -199,7 +199,7 @@ struct FormatterLike<'buffer> {
 }
 ```
 
-如果 builder 只使用一個 `'a`，外層對 `FormatterLike` 的借用和裡面的 `String` 會被迫使用同一段生命週期：
+如果 builder 只使用一個 `'a`，外層對 `FormatterLike` 的參考和裡面對 `String` 的參考會被迫使用同一段生命週期：
 
 ```rust,compile_fail
 struct FormatterLike<'buffer> {
@@ -229,7 +229,7 @@ fn write_two_parts<'buffer>(formatter: &mut FormatterLike<'buffer>) {
 # fn main() {}
 ```
 
-`FormatterLike<'buffer>` 裡的 `String` 可能會被借用很久，但 `BadBuilder` 其實只需要暫時借用 `formatter`。把兩者都寫成 `'a` 後，編譯器卻得把外層可變借用和內層資料綁成同樣長，導致第一個 builder 用完後仍無法再次使用 `formatter`。
+`FormatterLike<'buffer>` 裡的 `String` 可能會被借用很久，但 `BadBuilder` 其實只需要暫時借用 `formatter`。把兩者都寫成 `'a` 後，編譯器卻得把外層可變參考和內層資料綁成同樣長，導致第一個 builder 用完後仍無法再次使用 `formatter`。
 
 分成兩段生命週期就能準確描述需求：
 
@@ -269,9 +269,9 @@ fn main() {
 }
 ```
 
-這裡的 `'buffer` 是內部 `String` 被借用的時間，`'borrow` 則是某一個 builder 暫時借用 `FormatterLike` 的時間。`'buffer: 'borrow` 只要求內部輸出活得過這次短借用，不會反過來把短借用拉長。
+這裡的 `'buffer` 是內部 `String` 被借用的時間，`'borrow` 則是某一個 builder 暫時借用 `FormatterLike` 的時間。`'buffer: 'borrow` 只要求內部輸出活得過這個短期參考，不會反過來延長短期參考的生命週期。
 
-兩個版本的變數與作用域完全一樣，唯一差別就是 builder 的生命週期設計。在正確版本中，`first` 最後一次被使用後，編譯器便能結束它對 `formatter` 的短期借用；接著可以直接寫入 `formatter`，也能建立第二個 `Builder`。`DebugStruct<'a, 'b: 'a>` 使用兩段生命週期，帶來的正是這種彈性：**底層輸出可以長期存在，每一個格式化 builder 只在需要時短暫借用 `Formatter`。**
+兩個版本的變數與作用域完全一樣，唯一差別就是 builder 的生命週期設計。在正確版本中，`first` 最後一次被使用後，編譯器便能結束它所持有的 `formatter` 參考；接著可以直接寫入 `formatter`，也能建立第二個 `Builder`。`DebugStruct<'a, 'b: 'a>` 使用兩段生命週期，帶來的正是這種彈性：**底層輸出可以長期存在，每一個格式化 builder 只在需要時短暫借用 `Formatter`。**
 
 ### 反過來不能延長
 
@@ -294,7 +294,7 @@ where
 
 - 兩個生命週期參數預設互不相關；泛型程式不能自行假設誰比較長。
 - `'long: 'short` 提供「`'long` 至少和 `'short` 一樣長」的保證。
-- 有了這項保證，`&'long T` 可以縮短成 `&'short T`，用作短期操作的回傳值或內部借用。
+- 有了這項保證，`&'long T` 可以縮短成 `&'short T`，用作短期操作的回傳值或內部參考。
 - 長期設定值作為短期 request 的 fallback，是這種 bound 的直接應用。
 - 一般呼叫端多半靠推斷；設計或閱讀保留多段生命週期角色的泛型 API 時，才常直接遇到 `'a: 'b`。
 - outlives bound 只能證明既有關係，不能延長任何資料的壽命。

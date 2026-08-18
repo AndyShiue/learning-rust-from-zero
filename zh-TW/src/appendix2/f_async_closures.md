@@ -154,8 +154,8 @@ fn main() {
 | 普通閉包 | `async` 閉包 | 呼叫方式 |
 | --- | --- | --- |
 | `FnOnce` | `AsyncFnOnce` | 至少能呼叫一次，可能消耗捕獲值 |
-| `FnMut` | `AsyncFnMut` | 能呼叫多次，但呼叫時要可變借用閉包 |
-| `Fn` | `AsyncFn` | 能透過共享借用重複呼叫 |
+| `FnMut` | `AsyncFnMut` | 能透過可變參考重複呼叫 |
+| `Fn` | `AsyncFn` | 能透過共享參考重複呼叫 |
 
 #### 編譯器大致實作了什麼？
 
@@ -196,9 +196,9 @@ trait AsyncFn<Args>: AsyncFnMut<Args> {
 
 `Output` 是等待 `Future` 後得到的最終結果，不是 `Future` 本身。`CallOnceFuture` 來自消耗閉包的呼叫，因此可以直接擁有被搬出的捕獲值，不需要生命週期參數。
 
-普通 `FnMut` 可以把回傳型別寫成固定的 `Self::Output`：`call_mut` 會在這次借用 `&mut self` 期間同步執行完整個閉包，回傳時工作已經完成，因此它的基本設計不必讓結果繼續借用閉包。
+普通 `FnMut` 可以把回傳型別寫成固定的 `Self::Output`：`call_mut` 會在這次 `&mut self` 參考的有效期間內同步執行完整個閉包，回傳時工作已經完成，因此它的基本設計不必讓結果繼續借用閉包。
 
-`AsyncFnMut` 若要支援 `Future` 借用捕獲環境，就不能只使用一個固定的 `Future` 型別。呼叫 `async` 閉包只會建立 `Future`，閉包本體要等到之後 `poll` 這個 `Future` 時才會執行，因此 `Future` 可能在呼叫結束後繼續借用閉包。`CallRefFuture<'a>` 中的 `'a` 就是這次呼叫對閉包的借用生命週期；每次呼叫的生命週期可能不同，所以必須用 GAT 表示整組 `CallRefFuture<'a>`。
+`AsyncFnMut` 若要支援 `Future` 借用捕獲環境，就不能只使用一個固定的 `Future` 型別。呼叫 `async` 閉包只會建立 `Future`，閉包本體要等到之後 `poll` 這個 `Future` 時才會執行，因此 `Future` 可能在呼叫結束後繼續借用閉包。`CallRefFuture<'a>` 中的 `'a` 就是這次呼叫取得的閉包參考的生命週期；每次呼叫的生命週期可能不同，所以必須用 GAT 表示整組 `CallRefFuture<'a>`。
 
 `AsyncFn` 沒有另外宣告 associated type，而是沿用 `AsyncFnMut` 的 `CallRefFuture<'a>`。`async_call` 與 `async_call_mut` 都不會消耗閉包，回傳的 `Future` 都可能繼續借用捕獲環境，兩者只需要用同一組帶生命週期的 `Future` 型別來表示。
 
@@ -237,7 +237,7 @@ fn main() {
 }
 ```
 
-`AsyncFn(&str)` 的讀法是：「可以透過共享借用呼叫，參數是 `&str`，呼叫結果是可以等待的非同步工作。」
+`AsyncFn(&str)` 的讀法是：「可以透過共享參考呼叫，參數是 `&str`，呼叫結果是可以等待的非同步工作。」
 
 和 `Fn(&str)` 一樣，這裡省略的參數生命週期具有 HRTB 的效果：`run_twice` 每次呼叫 `job` 時，都可以傳入當下那次借用的 `&str`。
 
@@ -277,14 +277,6 @@ fn main() {
 
 - `async move || { ... }`：建立閉包時，把外部值 move 進閉包。
 - 呼叫 `job()`：產生一個可能借用該閉包的 `Future`。
-
-### 什麼時候該用？
-
-如果這段非同步工作有固定名稱，而且會從不同地方呼叫，通常寫成 `async fn` 最清楚。
-
-如果想把一段非同步工作當成值，傳給另一個函數使用，就適合用 `async` 閉包。例如下一段的 `for_each_async` 會接收一個 `action`，再對每個項目執行它。
-
-簡單判斷就是：**直接呼叫一項工作，用 `async fn`；把工作傳給別人呼叫，用 `async` 閉包。**
 
 ## 範例程式碼
 
