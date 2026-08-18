@@ -57,7 +57,7 @@ fn main() {
         value: 7,
         _kind: PhantomData,
     };
-    // show_user(article_id); // Id<Article> 不是 Id<User>
+    // show_user(_article_id); // Id<Article> 不是 Id<User>
 }
 ```
 
@@ -68,7 +68,7 @@ fn main() {
 `PhantomData<T>` 會告訴編譯器：分析這個外層型別時，請把它當成與 `T` 有關。這會影響：
 
 - **variance**：例如 `PhantomData<&'a T>` 會攜帶 `'a` 與 `T` 的關係。
-- **auto trait**：`T` 是否為 `Send`、`Sync` 等，可能影響外層型別。
+- **`auto trait`**：`T` 是否為 `Send`、`Sync` 等，可能影響外層型別。
 
 不同寫法表達的關係也不同：
 
@@ -94,7 +94,7 @@ struct AddressSensitive {
     _pin: PhantomPinned,
 }
 
-fn assert_unpin<T: Unpin>(_: &T) {}
+fn assert_unpin<T: Unpin>(_: T) {}
 
 fn main() {
     let value = AddressSensitive {
@@ -102,7 +102,7 @@ fn main() {
         _pin: PhantomPinned,
     };
 
-    assert_unpin(&value);
+    assert_unpin(value);
 }
 ```
 
@@ -189,7 +189,7 @@ fn main() {
 
 - marker type 不必存放執行時期資料，也能影響型別檢查。
 - `PhantomData<T>` 表示外層型別在邏輯上使用、擁有或借用某種 `T`。
-- `PhantomData<T>` 會影響 variance 與 auto trait。
+- `PhantomData<T>` 會影響 variance 與 `auto trait`。
 - `PhantomPinned` 會阻止外層型別自動實作 `Unpin`。
 - `PhantomPinned` 本身不會 pin 住值；仍然要透過 `pin!`、`Box::pin` 等方式建立 `Pin`。
 - `PhantomPinned` 不禁止 pin 以前的 move；真正的位址保證從 pin 住之後開始。
