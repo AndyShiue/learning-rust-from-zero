@@ -73,6 +73,30 @@ impl Describable for Vec<i32> {
 # fn main() {}
 ```
 
+### 用自己的 `trait` 為外部型別增加 method
+
+上面的情況 2 很實用。雖然 `Vec<i32>` 是標準庫的型別，但 `Describable` 是我們在目前 `crate` 定義的 `trait`，所以 orphan rule 允許我們寫 `impl Describable for Vec<i32>`。實作之後，`Vec<i32>` 的值就能用 method 語法呼叫 `.describe()`。
+
+### 為什麼不能直接寫 `impl Vec<i32>`？
+
+既然目標只是增加 method，你可能會想跳過 `trait`，直接這樣寫：
+
+```rust,compile_fail
+impl Vec<i32> {
+    fn describe(&self) -> String {
+        format!("一個有 {} 個元素的 Vec", self.len())
+    }
+}
+#
+# fn main() {}
+```
+
+Rust 也不允許這樣做。**`impl Type { ... }` 裡的 `Type` 必須是在目前 `crate` 定義的型別。** `Vec` 是標準庫定義的，就算用 `use` 把它帶入作用域，也不會變成你的型別。
+
+這裡限制的是同一個 `crate`，不是同一個檔案或 `mod`。只要型別是在目前 `crate` 定義的，`impl Type { ... }` 可以放在同一個 `crate` 的其他 `mod` 裡。
+
+因此，當你不想包裝外部型別、又想替它增加 method 時，可以像上面一樣先定義自己的 `trait`，再為外部型別實作它。
+
 ### newtype pattern（繞過限制的方法）
 
 如果你真的需要為外部型別實作外部 `trait`，可以用 **newtype pattern**——建立一個 tuple `struct` 把外部型別包起來：
@@ -156,10 +180,12 @@ impl From<String> for Vec<i32> { ... }
 
 ## 重點整理
 
-- **orphan rule**：要 `impl` `trait`，`trait` 或型別至少有一個必須是你的 `crate` 定義的。
+- **orphan rule**：寫 `impl Trait for Type` 時，`trait` 或型別至少有一個必須是你的 `crate` 定義的。
 - 「你的型別 + 外部 `trait`」✅ 合法。
 - 「外部型別 + 你的 `trait`」✅ 合法。
 - 「外部型別 + 外部 `trait`」❌ 不合法。
-- 這個規則是為了防止不同 `crate` 之間的 `impl` 衝突。
+- 自己定義 `trait` 並為外部型別實作，可以替外部型別增加 method。
+- `impl Type { ... }` 裡的 `Type` 必須由目前 `crate` 定義，但 `impl` 和型別不必位於同一個檔案或 `mod`。
+- orphan rule 是為了防止不同 `crate` 之間的 `impl` 衝突。
 - **newtype pattern**：用 `struct MyWrapper(OriginalType)` 把外部型別包起來，就變成你的型別了。
 - 多參數 `trait` 的 orphan rule 遠比上面講的更複雜，詳見官方文件。

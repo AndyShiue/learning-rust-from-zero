@@ -73,6 +73,30 @@ impl Describable for Vec<i32> {
 # fn main() {}
 ```
 
+### Adding Methods to an External Type with Your Own `trait`
+
+Case 2 above is especially useful. Although `Vec<i32>` is a standard-library type, `Describable` is a `trait` we defined in the current `crate`, so the orphan rule allows us to write `impl Describable for Vec<i32>`. After that implementation, a `Vec<i32>` value can call `.describe()` with method syntax.
+
+### Why Can't You Write `impl Vec<i32>` Directly?
+
+If the goal is merely to add a method, you might wonder why we cannot skip the `trait` and write this instead:
+
+```rust,compile_fail
+impl Vec<i32> {
+    fn describe(&self) -> String {
+        format!("A Vec with {} elements", self.len())
+    }
+}
+#
+# fn main() {}
+```
+
+Rust does not allow this either. **The `Type` in `impl Type { ... }` must be defined in the current `crate`.** `Vec` is defined by the standard library; bringing it into scope with `use` does not make it your type.
+
+The boundary here is the `crate`, not a particular file or `mod`. As long as a type is defined in the current `crate`, its `impl Type { ... }` block may live in another `mod` within that same `crate`.
+
+Therefore, when you do not want to wrap an external type but do want to add a method to it, you can define your own `trait` and implement that `trait` for the external type, as above.
+
 ### The Newtype Pattern (the Workaround)
 
 If you truly need to implement an external `trait` for an external type, use the **newtype pattern** — a tuple `struct` wrapping the external type:
@@ -156,10 +180,12 @@ The complete rules involve concepts like "covered type parameters," beyond this 
 
 ## Recap
 
-- **The orphan rule**: to `impl` a `trait`, at least one of the `trait` or the type must be defined in your `crate`.
+- **The orphan rule**: in `impl Trait for Type`, at least one of the `trait` or the type must be defined in your `crate`.
 - "Your type + an external `trait`" ✅ legal.
 - "An external type + your `trait`" ✅ legal.
 - "An external type + an external `trait`" ❌ illegal.
-- The rule exists to prevent `impl` conflicts between `crate`s.
+- Defining your own `trait` and implementing it for an external type adds methods to that type.
+- The `Type` in `impl Type { ... }` must be defined in the current `crate`, though the `impl` and the type may live in different files or `mod`s.
+- The orphan rule exists to prevent `impl` conflicts between `crate`s.
 - **The newtype pattern**: wrap the external type in `struct MyWrapper(OriginalType)`, and it becomes your type.
 - The orphan rule for multi-parameter `trait`s is far subtler — see the official documentation.
