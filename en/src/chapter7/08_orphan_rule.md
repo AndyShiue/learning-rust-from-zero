@@ -93,6 +93,10 @@ impl Vec<i32> {
 
 Rust does not allow this either. **The `Type` in `impl Type { ... }` must be defined in the current `crate`.** `Vec` is defined by the standard library; bringing it into scope with `use` does not make it your type.
 
+The reason is the one behind the orphan rule — two `crate`s colliding — except that with a `trait` the collision stays distinguishable. A `trait` method is only callable when its `trait` is in scope, so even if `crate` `A` and `crate` `B` each define their own `trait` and implement `describe` for `Vec<i32>`, the decision is still yours: whichever `trait` you `use`, that is the `.describe()` you get.
+
+A method written directly inside `impl Vec<i32> { ... }` has no such layer. It belongs to no `trait`, and calling it requires no `use` at all: as long as that `crate` is among your dependencies, `v.describe()` simply exists. If two `crate`s each added one, you would have no way to say which one you meant. That is why a method attached directly to a type can only be added by the `crate` that defines that type.
+
 The boundary here is the `crate`, not a particular file or `mod`. As long as a type is defined in the current `crate`, its `impl Type { ... }` block may live in another `mod` within that same `crate`.
 
 Therefore, when you do not want to wrap an external type but do want to add a method to it, you can define your own `trait` and implement that `trait` for the external type, as above.

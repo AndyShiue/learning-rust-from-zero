@@ -93,6 +93,10 @@ impl Vec<i32> {
 
 Rust 也不允許這樣做。**`impl Type { ... }` 裡的 `Type` 必須是在目前 `crate` 定義的型別。** `Vec` 是標準庫定義的，就算用 `use` 把它帶入作用域，也不會變成你的型別。
 
+理由和 orphan rule 一樣是怕兩個 `crate` 撞在一起，差別在於 `trait` 的版本撞了還分得出來。`trait` method 要能呼叫，那個 `trait` 得先在作用域裡；所以 `crate` `A` 和 `crate` `B` 就算各自定義 `trait`、都替 `Vec<i32>` 實作 `describe`，決定權還在你手上——你 `use` 進哪一個 `trait`，`.describe()` 就是哪一個。
+
+`impl Vec<i32> { ... }` 裡的 method 沒有這一層。它不屬於任何 `trait`，呼叫前也不必 `use` 任何東西：只要你依賴那個 `crate`，`v.describe()` 就存在了。兩個 `crate` 各加一個，你連「我要哪一個」都說不出口。所以這種直接掛在型別上的 method，只有定義那個型別的 `crate` 能加。
+
 這裡限制的是同一個 `crate`，不是同一個檔案或 `mod`。只要型別是在目前 `crate` 定義的，`impl Type { ... }` 可以放在同一個 `crate` 的其他 `mod` 裡。
 
 因此，當你不想包裝外部型別、又想替它增加 method 時，可以像上面一樣先定義自己的 `trait`，再為外部型別實作它。
