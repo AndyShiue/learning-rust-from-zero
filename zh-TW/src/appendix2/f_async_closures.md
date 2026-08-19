@@ -113,7 +113,7 @@ fn main() {
 
 `String` 沒有實作 `Copy`。外層閉包第一次呼叫時會把 `prefix` 搬進回傳的 `Future`，等於把捕捉值移出自己的環境，因此這個閉包只能實作 `FnOnce`。第一次呼叫會消耗 `make_future`，第二次便不能再呼叫。
 
-`async` 閉包能讓回傳的 `Future` **借用閉包捕捉的環境**：
+`async` 閉包能讓回傳的 `Future` **借用閉包內保存的資料**。為了確實看出這項能力，而不只是複製一份共享參考，下面讓閉包內保存一個指向計數器的可變參考：
 
 ```rust,editable
 use std::future::Future;
@@ -131,21 +131,39 @@ fn block_on<F: Future>(future: F) -> F::Output {
 }
 
 fn main() {
-    let prefix = String::from("訊息");
+    let mut count = 0;
 
-    let show = async || {
+    let mut increment = async || {
         std::future::ready(()).await;
-        println!("{prefix}");
+        count += 1;
+        println!("第 {count} 次");
     };
 
     block_on(async {
-        show().await;
-        show().await;
+        increment().await;
+        increment().await;
     });
 }
 ```
 
-兩次呼叫產生的 `Future` 都只借用 `show` 捕捉的 `prefix`，不必把同一個 `String` 搬走兩次。
+`increment` 內部會保存一個指向 `count` 的可變參考。每次呼叫 `increment()` 產生的 `Future`，都會透過這份參考取得一個生命週期較短的可變參考，並持有到該 `Future` 完成或被丟棄。第一個 `.await` 完成後，這份短期可變參考已經失效，因此可以再次呼叫 `increment()`。這個閉包實作的是 `AsyncFnMut`，所以變數本身也要宣告成 `mut`。
+
+普通閉包若直接回傳仍持有這類可變參考的 `async` block，則無法通過編譯：
+
+```rust,compile_fail
+fn main() {
+    let mut count = 0;
+
+    let mut increment = || async {
+        std::future::ready(()).await;
+        count += 1;
+    };
+
+    let _future = increment();
+}
+```
+
+這個 `Future` 必須在閉包呼叫結束後，繼續持有一個從閉包內部取得的可變參考；這個參考的生命週期來自本次 `&mut self`。但普通 `FnMut` 的固定 `Self::Output` 無法帶上每次呼叫才產生的生命週期。
 
 ### `AsyncFn` 三兄弟
 
@@ -196,7 +214,7 @@ trait AsyncFn<Args>: AsyncFnMut<Args> {
 
 `Output` 是等待 `Future` 後得到的最終結果，不是 `Future` 本身。`CallOnceFuture` 來自消耗閉包的呼叫，因此可以直接擁有被搬出的捕捉值，不需要生命週期參數。
 
-普通 `FnMut` 可以把回傳型別寫成固定的 `Self::Output`：`call_mut` 會在這次 `&mut self` 參考的有效期間內同步執行完整個閉包，回傳時工作已經完成，因此它的基本設計不必讓結果繼續借用閉包。
+普通 `FnMut` 的 `call_mut` 回傳固定的 `Self::Output`；這個 associated type 無法隨每次 `&mut self` 呼叫的生命週期改變。因此普通閉包不能回傳一個仍持有「從本次 `&mut self` 取得之可變參考」的值。關鍵是回傳型別能不能帶上 `&mut self` 的參考生命週期，而不是工作是否同步完成。
 
 `async` 閉包本身可以看成一個由捕捉值組成的匿名 `struct`。`AsyncFnMut` 與 `AsyncFn` 回傳的 `Future` 可能保存指向這個匿名 `struct` 內部資料的參考，因此 `Future` 型別必須帶上它借用閉包的生命週期。`CallRefFuture<'a>` 便用 GAT 將這個生命週期寫進 associated type。
 
