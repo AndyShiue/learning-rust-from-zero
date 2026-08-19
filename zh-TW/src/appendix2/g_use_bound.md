@@ -2,7 +2,7 @@
 
 ## 本集目標
 
-理解 return-position `impl Trait` 的隱藏型別會捕捉哪些泛型參數，學會用 `use<...>` 明確限制捕捉集合。
+理解 return-position `impl Trait` 的隱藏型別會捕捉哪些泛型參數，學會用 `use<...>` 明確限制捕捉集合，並認識 `trait` method 中的 RPITIT。
 
 > 本集是**第 5 章 `impl Trait` 與生命週期**的補充。
 
@@ -18,7 +18,7 @@ fn numbers() -> impl Iterator<Item = i32> {
 # fn main() {}
 ```
 
-呼叫者看到的 `impl Iterator<Item = i32>` 是一個 **opaque type**（不透明型別）：介面刻意不公開它的具體身分。函數體替它選定的具體型別則稱為 **hidden type**（隱藏型別）；本例的 hidden type 是 `std::array::IntoIter<i32, 3>`。Hidden type 本身不一定沒有名稱，只是被 opaque return type 隱藏起來。
+呼叫者看到的 `impl Iterator<Item = i32>` 是一個 **opaque type**（不透明型別）：介面刻意不公開它的具體身分。函數體替它選定的具體型別則稱為 **hidden type**（隱藏型別）；本例的 hidden type 是 `std::array::IntoIter<i32, 3>`。hidden type 本身不一定沒有名稱，只是被 opaque return type 隱藏起來。
 
 如果函數帶有泛型參數，隱藏型別能不能使用那些參數？這就是「捕捉」要回答的問題。
 
@@ -60,7 +60,7 @@ fn main() {
 }
 ```
 
-閉包其實完全沒用到 `name`，但在 Rust 2024 的預設規則下，`impl Fn()` 被允許捕捉 `'a`。因此只看函數簽名的呼叫端會保守地認為 `greet` 可能仍借用 `name`，不讓我們先 `drop(name)`。
+閉包其實完全沒用到 `name`，但在 Rust 2024 edition 的預設規則下，`impl Fn()` 被允許捕捉 `'a`。因此只看函數簽名的呼叫端會保守地認為 `greet` 可能仍借用 `name`，不讓我們先 `drop(name)`。
 
 ### `use<...>` 指定捕捉集合
 
@@ -114,7 +114,7 @@ fn main() {
 
 ### 型別與 `const` 泛型也能捕捉
 
-`use<...>` 不只放生命週期，也能放型別參數、`const` 參數，以及 method 中的 `Self`：
+`use<...>` 不只放生命週期，也能放型別參數與 `const` 參數：
 
 ```rust,editable
 fn repeat<T, const N: usize>(value: T) -> impl Iterator<Item = T> + use<T, N>
@@ -131,6 +131,54 @@ fn main() {
 ```
 
 目前一個 `impl Trait` 最多只能有一組 `use<...>`，而且作用域內的型別與 `const` 泛型參數都必須列入。此外，如果回傳型別的其他部分已經用到某段生命週期，也要把它列進 `use<...>`。例如 `impl Iterator<Item = &'a str> + use<'a>` 中，`Item = &'a str` 已經用到 `'a`，所以不能改寫成 `use<>`。清單中的生命週期要寫在型別與 `const` 泛型參數之前。若清單不完整或順序不對，編譯器會直接指出問題。
+
+### `trait` method 也能回傳 `impl Trait`：RPITIT
+
+從 Rust 1.75 開始，`trait` 定義與 `trait` 實作的 method 也能在回傳位置使用 `impl Trait`。這種寫法稱為 return-position `impl Trait` in `trait`，縮寫為 **RPITIT**：
+
+```rust,editable
+trait Words {
+    fn words<'a>(
+        &'a self,
+    ) -> impl Iterator<Item = &'a str> + use<'a, Self>;
+}
+
+struct Sentence(String);
+
+impl Words for Sentence {
+    fn words<'a>(
+        &'a self,
+    ) -> impl Iterator<Item = &'a str> + use<'a> {
+        self.0.split_whitespace()
+    }
+}
+
+fn main() {
+    let sentence = Sentence(String::from("return position impl trait"));
+    let words: Vec<_> = sentence.words().collect();
+
+    println!("{words:?}");
+}
+```
+
+`Words::words` 回傳的 `impl Iterator` 是 opaque type；編譯器會把 `trait` 定義中的 RPITIT 視為一個匿名 associated type。每個 `trait` 實作都能替它選擇自己的 hidden concrete type；上例的 `Sentence` 選擇了 `SplitWhitespace<'a>`，而呼叫端只依賴 `Iterator<Item = &'a str>` 這項承諾。
+
+`trait` 定義裡的 `use<'a, Self>` 捕捉 method 借用 `self` 的 `'a`，以及 `trait` 隱含的型別參數 `Self`。只要在 `trait` 的 associated function 的 RPITIT 上寫 `use<...>`，目前就必須列入該 `trait` 的所有泛型參數，包括 `Self`。到了 `impl Words for Sentence`，`Self` 已經確定是具體的 `Sentence`，因此實作端只需寫 `use<'a>`。
+
+即使回傳值完全不使用 `self`，`trait` 定義中的 `use<...>` 也不能漏掉 `Self`：
+
+```rust,compile_fail
+trait FixedNumbers {
+    // 編譯錯誤：trait 的 `Self` 沒有列入 `use<...>`。
+    fn numbers(&self) -> impl Iterator<Item = i32> + use<>;
+}
+#
+# fn main() {}
+```
+
+RPITIT 的呼叫端只能使用 `trait` 簽名已經承諾的 bound。即使某個實作實際回傳的迭代器也實作了 `DoubleEndedIterator`，泛型呼叫端仍不能直接呼叫 `.rev()`；若需要這項能力，`trait` 應一開始就使用 `DoubleEndedIterator` bound，或改用具名的 associated type。
+
+回傳 opaque type 的 method 不能透過 `dyn Trait` 動態分派，因此含有這類 method 的 `trait` 通常不是 dyn-compatible。若替 method 加上 `where Self: Sized`，`trait` 的其他 method 仍可透過 `trait` object 使用，但這個 RPITIT method 本身不能。`trait` 裡的 `async fn` 也建立在相同機制上，可以概念性地理解成回傳 `impl Future<Output = T>`。
 
 ### 什麼時候值得寫？
 
@@ -174,4 +222,5 @@ fn main() {
 - Rust 2024 edition 預設捕捉作用域內所有 lifetime、型別與 `const` 泛型參數。
 - `impl Trait + use<'a, T, N>` 可以精確列出允許捕捉的參數；`use<>` 表示不捕捉任何參數。
 - 若隱藏型別真的使用未列入的參數，函數本身會編譯失敗。
+- `trait` method 中的 return-position `impl Trait` 稱為 RPITIT，若使用 `use<...>`，必須列入 `Self` 與該 `trait` 的所有泛型參數。
 - 精確排除不必要的生命週期捕捉，可以避免呼叫端參考的生命週期被保守地延長。
