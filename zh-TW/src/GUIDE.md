@@ -190,6 +190,7 @@
 | 第 10 章 | `dyn Trait`、`const fn`、運算子重載、attribute、巨集、`unsafe`、`static`、FFI |
 | 第 11 章 | 集合（`HashMap` 等）、排序、`std::env`/`path`、檔案 I/O、錯誤處理（`thiserror`/`anyhow`） |
 | 第 12 章 | `async`/`.await`、手寫 executor 與 reactor、`Pin`、Tokio 工具（`spawn`、`select!`、channel） |
+| 附錄二 | 第二部的補充，例如 `'a: 'b`、HRTB、variance、`PhantomData`、GAT、`async` 閉包、`use` bound |
 
 ### 精確語法門檻
 

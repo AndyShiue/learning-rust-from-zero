@@ -216,7 +216,7 @@ impl BadBuilder<'_> {
     }
 }
 
-fn write_two_parts<'buffer>(formatter: &'buffer mut FormatterLike<'buffer>) {
+fn write_two_parts<'buffer>(formatter: &mut FormatterLike<'buffer>) {
     let mut first = BadBuilder { formatter };
     first.field("第一段");
 

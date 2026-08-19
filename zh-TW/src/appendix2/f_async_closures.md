@@ -167,7 +167,7 @@ fn main() {
 
 ### `AsyncFn` 三兄弟
 
-第 6 章學過普通閉包依捕捉方式實作 `FnOnce`、`FnMut`、`Fn`。`async` 閉包有一組對應的 `trait`：
+第 6 章學過，普通閉包會依閉包內容如何使用捕捉值，實作 `FnOnce`、`FnMut` 或 `Fn`。`async` 閉包有一組對應的 `trait`：
 
 | 普通閉包 | `async` 閉包 | 呼叫方式 |
 | --- | --- | --- |
