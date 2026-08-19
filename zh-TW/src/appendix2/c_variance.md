@@ -102,7 +102,7 @@ fn main() {
 
 因此，即使 `&'static str` 可以當成較短的 `&str`，`&mut &'static str` 也不能跟著任意轉成 `&mut &'short str`。包進 `&mut` 後，內層 `T` 的 subtype 關係被鎖住了。
 
-`Cell<T>`、`RefCell<T>`、`Mutex<T>` 這類提供 interior mutability 的型別，對 `T` 通常也 invariant。雖然表面拿到的可能只是 `&Cell<T>`，它們仍能更換裡面的值。
+`Cell<T>`、`RefCell<T>`、`Mutex<T>` 這類提供 interior mutability 的型別，對 `T` 一律 invariant。雖然表面拿到的可能只是 `&Cell<T>`，它們仍能更換裡面的值。
 
 ### contravariance：方向反轉
 

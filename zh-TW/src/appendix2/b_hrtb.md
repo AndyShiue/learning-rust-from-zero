@@ -176,9 +176,9 @@ fn main() {
 }
 ```
 
-這裡沒有接收 `F` 的泛型 API。`length` 只在當下接收 `values` 的參考，編譯器可以直接推斷這次呼叫所需的生命週期。
+這裡沒有接收 `F` 的泛型 API，也就沒有需要你寫出 `for<'a>` 的 bound。事實上，因為參數標了 `&[i32]`，編譯器替 `length` 推斷出來的簽名本來就是 higher-ranked 的 `for<'a> Fn(&'a [i32]) -> usize`；只是這個 `for<'a>` 全程由編譯器代勞，你不會看到它。
 
-泛型 API 接收一個函數或閉包，再把 API 內部才建立的參考交給它時，情況就不同了：
+真正的差別出現在你必須自己寫出 bound 的時候。泛型 API 接收一個函數或閉包，再把 API 內部才建立的參考交給它：
 
 ```rust,editable
 struct Report {
@@ -200,7 +200,25 @@ fn main() {
 }
 ```
 
-`report` 的生命週期進入 `inspect_report` 的函數體後才會出現，呼叫者不可能預先替它選一個外層 lifetime 參數。因此 `F` 必須能接受由 `inspect_report` 選出的任何生命週期。這裡也可以利用 lifetime elision 寫成 `F: Fn(&Report)`，只是 HRTB 被省略了，並不是這項要求消失了。
+bound 裡的 `&Report` 需要一段生命週期，而它可能有兩個來源：`inspect_report` 自己的泛型參數，或是 `for<'a>`。前者由呼叫者在呼叫 `inspect_report` 時選定，而 `report` 是進入函數體之後才建立的，活不過任何呼叫者選得出來的 `'a`：
+
+```rust,compile_fail
+# struct Report {
+#     entries: usize,
+# }
+#
+fn inspect_report<'a, F>(inspect: F)
+where
+    F: Fn(&'a Report),
+{
+    let report = Report { entries: 3 };
+    inspect(&report);
+}
+#
+# fn main() {}
+```
+
+所以只剩 `for<'a>`：讓 `inspect_report` 在每次呼叫 `inspect` 時自己選 `'a`。這裡也可以利用 lifetime elision 寫成 `F: Fn(&Report)`，只是 HRTB 被省略了，並不是這項要求消失了。
 
 閉包**捕捉**外部區域變數的參考則是另一件事。捕捉會限制閉包本身能活多久，和 `F` 是否必須接受多種生命週期是不同問題。
 
@@ -276,5 +294,5 @@ fn main() {
 - `for<'a>` 表示後面的 `trait` bound 對每一個 `'a` 都成立。
 - 外層的 `fn foo<'a>` 通常由呼叫者選 `'a`；HRTB 裡的 `for<'a>` 讓使用 `F` 的一方每次選 `'a`。
 - 同一個函數或閉包要對不同生命週期的參考各呼叫一次，並分別保留輸出的生命週期時，HRTB 能直接表達這項要求。
-- 泛型 API 若要把函數體內才建立的參考傳給 `F`，`F` 也需要 higher-ranked 能力；直接呼叫閉包或捕捉區域變數則不一定需要。
+- 泛型 API 若要把函數體內才建立的參考傳給 `F`，`F` 也需要 higher-ranked 能力；直接建立並呼叫閉包時，編譯器會自行推斷，不必你寫出 `for<'a>`。
 - 實務上常用 lifetime elision 省略這類 HRTB，但閱讀進階簽名時仍會直接看到 `for<'a>`。

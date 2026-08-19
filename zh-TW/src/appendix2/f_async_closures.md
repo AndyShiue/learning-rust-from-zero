@@ -171,7 +171,7 @@ fn main() {
 
 | 普通閉包 | `async` 閉包 | 呼叫方式 |
 | --- | --- | --- |
-| `FnOnce` | `AsyncFnOnce` | 至少能呼叫一次，可能消耗捕捉值 |
+| `FnOnce` | `AsyncFnOnce` | 只保證能呼叫一次，這次呼叫可能消耗捕捉值 |
 | `FnMut` | `AsyncFnMut` | 能透過可變參考重複呼叫 |
 | `Fn` | `AsyncFn` | 能透過共享參考重複呼叫 |
 
@@ -285,11 +285,14 @@ fn main() {
         println!("{label}");
     };
 
-    block_on(job());
+    block_on(async {
+        job().await;
+        job().await;
+    });
 }
 ```
 
-這裡的 `move` 控制閉包如何從**外層環境**捕捉 `label`：閉包取得 `label` 的所有權。它不代表每次呼叫都要把 `label` 從閉包裡搬走；閉包內容只共享讀取它，所以 `job` 仍可符合 `AsyncFn`。
+這裡的 `move` 控制閉包如何從**外層環境**捕捉 `label`：閉包取得 `label` 的所有權。它不代表每次呼叫都要把 `label` 從閉包裡搬走；閉包內容只共享讀取它，所以 `job` 仍可符合 `AsyncFn`，上面才能連續呼叫兩次。
 
 要分清楚兩層：
 

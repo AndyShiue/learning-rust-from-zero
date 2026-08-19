@@ -134,7 +134,7 @@ fn main() {
 
 ### `trait` method 也能回傳 `impl Trait`：RPITIT
 
-從 Rust 1.75 開始，`trait` 定義與 `trait` 實作的 method 也能在回傳位置使用 `impl Trait`。這種寫法稱為 return-position `impl Trait` in `trait`，縮寫為 **RPITIT**：
+`trait` 定義與 `trait` 實作的 method 也能在回傳位置使用 `impl Trait`。這種寫法稱為 return-position `impl Trait` in `trait`，縮寫為 **RPITIT**：
 
 ```rust,editable
 trait Words {
