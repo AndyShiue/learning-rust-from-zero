@@ -3,9 +3,24 @@
 \XeTeXgenerateactualtext=1
 \usepackage{xeCJK}
 \usepackage{fontspec}
+\usepackage{graphicx}
 \usepackage{fancyhdr}
 \usepackage{tocloft}
 \usepackage{titlesec}
+
+% Keep the cover badge small, in the lower-right corner, with the license URL
+% directly underneath. The image is kept as a repository asset.
+\newcommand{\CCLicenseBadge}{%
+  \IfFileExists{../assets/cc-by-nc-nd-4.0-88x31.png}{%
+    \begin{flushright}
+      \href{https://creativecommons.org/licenses/by-nc-nd/4.0/}{%
+        \includegraphics[width=80pt]{../assets/cc-by-nc-nd-4.0-88x31.png}}\\[-0.1em]
+      {\fontsize{5.5pt}{7pt}\selectfont
+        \href{https://creativecommons.org/licenses/by-nc-nd/4.0/}{%
+          \texttt{https://creativecommons.org/licenses/by-nc-nd/4.0/}}}
+    \end{flushright}
+  }{}%
+}
 
 \makeatletter
 \renewcommand{\cleardoublepage}{%

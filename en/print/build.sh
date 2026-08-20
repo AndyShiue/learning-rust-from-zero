@@ -9,8 +9,14 @@ TEX="build/print/rust-book-a4.tex"
 PDF="book/rust-book-a4.pdf"
 CODE_REPORT="build/print/code-lines.txt"
 CODE_LINE_LIMIT="${CODE_LINE_LIMIT:-95}"
+CC_BADGE_PATH="../assets/cc-by-nc-nd-4.0-88x31.png"
 
 mkdir -p build/print book
+
+if [ ! -s "$CC_BADGE_PATH" ]; then
+  echo "Creative Commons badge is missing: $CC_BADGE_PATH" >&2
+  exit 1
+fi
 
 python3 scripts/mdbook_to_pandoc.py \
   --summary src/SUMMARY.md \

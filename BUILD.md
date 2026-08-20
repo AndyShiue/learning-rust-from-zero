@@ -129,6 +129,13 @@ The print pipeline uses that edition's `src/SUMMARY.md` as its source of truth:
 - nested lesson files become sections and do not force page breaks;
 - `Part I` and `Part II` (or `第一部` and `第二部`) become centered part pages.
 
+The title page of both editions also includes a small Creative Commons
+BY-NC-ND 4.0 button in the lower-right corner, with the official license URL
+underneath. The standard button is kept at
+`assets/cc-by-nc-nd-4.0-88x31.png`, downloaded from the Creative Commons
+press-kit URL `https://mirrors.creativecommons.org/presskit/buttons/88x31/png/by-nc-nd.png`.
+The PDF link points to `https://creativecommons.org/licenses/by-nc-nd/4.0/`.
+
 The default visible code-line limit is 96 characters for Traditional Chinese
 and 95 characters for English. Override it for an individual build when needed:
 

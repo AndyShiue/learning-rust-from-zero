@@ -184,6 +184,7 @@ def title_page(build_date: str) -> str:
 {{\large 生成日期：{escaped_date}}}
 \end{{center}}
 \vspace*{{\fill}}
+\CCLicenseBadge
 \end{{titlepage}}
 """.strip()
 
