@@ -178,7 +178,7 @@ trait FixedNumbers {
 
 RPITIT 的呼叫端只能使用 `trait` 簽名已經承諾的 bound。即使某個實作實際回傳的迭代器也實作了 `DoubleEndedIterator`，泛型呼叫端仍不能直接呼叫 `.rev()`；若需要這項能力，`trait` 應一開始就使用 `DoubleEndedIterator` bound，或改用具名的 associated type。
 
-回傳 opaque type 的 method 不能透過 `dyn Trait` 動態分派，因此含有這類 method 的 `trait` 通常不是 dyn-compatible。若替 method 加上 `where Self: Sized`，`trait` 的其他 method 仍可透過 `trait` object 使用，但這個 RPITIT method 本身不能。`trait` 裡的 `async fn` 也建立在相同機制上，可以概念性地理解成回傳 `impl Future<Output = T>`。
+回傳 opaque type 的 method 不能透過 `dyn Trait` 動態分派，因此含有這類 method 的 `trait` 通常不是 `dyn` compatible。若替 method 加上 `where Self: Sized`，`trait` 的其他 method 仍可透過 `dyn Trait` 使用，但這個 RPITIT method 本身不能。`trait` 裡的 `async fn` 也建立在相同機制上，可以概念性地理解成回傳 `impl Future<Output = T>`。
 
 ### 什麼時候值得寫？
 
