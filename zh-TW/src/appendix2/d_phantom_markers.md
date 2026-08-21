@@ -10,10 +10,10 @@
 
 標準庫有些型別本身不攜帶有用的執行時期資料，存在的目的只是影響型別檢查。這類型別常叫 **marker type**。
 
-本集的兩位主角名字很像，但工作完全不同：
+本集的兩位主角名字很像，也都會影響外層型別是否自動實作某些 `auto trait`，但表達的意思不同：
 
-- `PhantomData<T>`：表示「這個型別在邏輯上使用了 `T`」。
-- `PhantomPinned`：表示「這個型別不能自動成為 `Unpin`」。
+- `PhantomData<T>`：表示「這個型別在邏輯上使用了 `T`」，因此 `T` 的性質可能影響外層型別。
+- `PhantomPinned`：是專門用來阻止外層型別自動實作 `Unpin` 的 marker。
 
 ### 問題：泛型參數沒有出現在欄位裡
 
@@ -79,6 +79,69 @@ PhantomData<fn(T)> // T 位於函數輸入位置
 ```
 
 這些差異在底層函式庫中很重要。一般應用程式最常見的是第一個 `Id<T>` 例子：用型別標記防止相同底層資料被混用。
+
+### `PhantomPinned`：阻止自動實作 `Unpin`
+
+非同步一章學過，`Unpin` 和 `Send`、`Sync` 一樣是 `auto trait`。只要所有欄位都是 `Unpin`，外層 `struct` 通常也會自動實作 `Unpin`。
+
+但設計一個位址敏感的型別時，我們可能需要明確告訴編譯器：「即使其他欄位都能搬，這個型別一旦被 pin 住就不准搬。」在穩定版 Rust 中，若自訂型別的所有欄位都實作了 `Unpin`，我們不能只靠一項直接宣告讓它不要實作 `Unpin`，而是需要放入一個沒有實作 `Unpin` 的欄位。`async fn` 與 `async` block 產生的 `Future` 雖然通常沒有實作 `Unpin`，具體型別卻是匿名的，無法把型別名稱直接寫進欄位；`PhantomPinned` 正是標準庫為此提供的具名零大小 marker。
+
+把 `PhantomPinned` 放進欄位，就能阻止外層型別自動實作 `Unpin`：
+
+```rust,compile_fail
+use std::marker::PhantomPinned;
+
+struct AddressSensitive {
+    name: String,
+    _pin: PhantomPinned,
+}
+
+fn assert_unpin<T: Unpin>(_: T) {}
+
+fn main() {
+    let value = AddressSensitive {
+        name: String::from("不能假設我可以搬"),
+        _pin: PhantomPinned,
+    };
+
+    assert_unpin(value);
+}
+```
+
+錯誤的重點是 `PhantomPinned` 沒有實作 `Unpin`，因此包含它的 `AddressSensitive` 也不會自動實作 `Unpin`。
+
+但加入 `PhantomPinned` **不等於已經把值 pin 住**。它只改變型別是否自動實作 `Unpin`；要真正建立 `Pin<&mut T>` 或 `Pin<Box<T>>`，仍然要使用 `pin!`、`Box::pin` 等方式。
+
+### 建立時仍然可以 move
+
+`PhantomPinned` 不是讓值從出生開始就完全不能 move。和非同步一章的規則相同：**pin 住以前仍可 move，pin 住以後才要維持位址**。
+
+```rust,editable
+use std::marker::PhantomPinned;
+use std::pin::Pin;
+
+struct AddressSensitive {
+    name: String,
+    _pin: PhantomPinned,
+}
+
+fn show(value: Pin<&AddressSensitive>) {
+    println!("{} 在 {:p}", value.name, &*value);
+}
+
+fn main() {
+    let value = AddressSensitive {
+        name: String::from("固定位置"),
+        _pin: PhantomPinned,
+    };
+
+    // value 在這之前仍是普通值，可以 move 進 Box::pin。
+    let pinned = Box::pin(value);
+    show(pinned.as_ref());
+}
+```
+
+`Box::pin` 把值搬進 heap 的最終位置並建立 `Pin<Box<T>>`。之後可以搬動 `Pin<Box<T>>` 這根指標，但不能透過安全 API 把裡面的 `AddressSensitive` 搬出原位址。
 
 ### 實務案例：讓 executor 留在建立它的執行緒
 
@@ -174,67 +237,6 @@ fn main() {
 
 `Rc<()>` 同時不是 `Send` 與 `Sync`，而 `PhantomData<Rc<()>>` 會讓 `auto trait` 的分析把 `Executor` 當成邏輯上含有一個 `Rc<()>`。因此 `Executor` 也同時不是 `Send` 與 `Sync`：非 `Send` 防止它被搬到其他執行緒，非 `Sync` 則防止其他執行緒透過 `&Executor` 呼叫 `.run()`。上面的 `move` 範例直接展示的是 executor 現在非 `Send`；若嘗試跨執行緒分享 `&Executor`，也會因為非 `Sync` 被拒絕。這個欄位不會真的配置或儲存 `Rc`；正確的使用方式是在同一條執行緒中建立並執行 executor，而 waker 仍可從其他執行緒呼叫該 executor `Thread` 的 `.unpark()`。
 
-### `PhantomPinned`：阻止自動 `Unpin`
-
-非同步一章學過，幾乎所有普通型別都會自動實作 `Unpin`。只要所有欄位都是 `Unpin`，外層 `struct` 通常也是 `Unpin`。
-
-但設計一個位址敏感的型別時，我們可能需要明確告訴編譯器：「即使其他欄位都能搬，這個型別一旦被 pin 住就不准搬。」把 `PhantomPinned` 放進欄位即可阻止自動實作 `Unpin`：
-
-```rust,compile_fail
-use std::marker::PhantomPinned;
-
-struct AddressSensitive {
-    name: String,
-    _pin: PhantomPinned,
-}
-
-fn assert_unpin<T: Unpin>(_: T) {}
-
-fn main() {
-    let value = AddressSensitive {
-        name: String::from("不能假設我可以搬"),
-        _pin: PhantomPinned,
-    };
-
-    assert_unpin(value);
-}
-```
-
-錯誤的重點是 `PhantomPinned` 沒有實作 `Unpin`，因此包含它的 `AddressSensitive` 也不會自動實作 `Unpin`。
-
-但加入 `PhantomPinned` **不等於已經把值 pin 住**。它只改變型別是否自動實作 `Unpin`；要真正建立 `Pin<&mut T>` 或 `Pin<Box<T>>`，仍然要使用 `pin!`、`Box::pin` 等方式。
-
-### 建立時仍然可以 move
-
-`PhantomPinned` 不是讓值從出生開始就完全不能 move。和非同步一章的規則相同：**pin 住以前仍可 move，pin 住以後才要維持位址**。
-
-```rust,editable
-use std::marker::PhantomPinned;
-use std::pin::Pin;
-
-struct AddressSensitive {
-    name: String,
-    _pin: PhantomPinned,
-}
-
-fn show(value: Pin<&AddressSensitive>) {
-    println!("{} 在 {:p}", value.name, &*value);
-}
-
-fn main() {
-    let value = AddressSensitive {
-        name: String::from("固定位置"),
-        _pin: PhantomPinned,
-    };
-
-    // value 在這之前仍是普通值，可以 move 進 Box::pin。
-    let pinned = Box::pin(value);
-    show(pinned.as_ref());
-}
-```
-
-`Box::pin` 把值搬進 heap 的最終位置並建立 `Pin<Box<T>>`。之後可以搬動 `Pin<Box<T>>` 這根指標，但不能透過安全 API 把裡面的 `AddressSensitive` 搬出原位址。
-
 ## 範例程式碼
 
 ```rust,editable
@@ -284,7 +286,7 @@ fn main() {
 - marker type 不必存放執行時期資料，也能影響型別檢查。
 - `PhantomData<T>` 表示外層型別在邏輯上使用、擁有或借用某種 `T`。
 - `PhantomData<T>` 會影響 variance 與 `auto trait`。
-- 只能留在建立它的執行緒的型別，可用 `PhantomData<Rc<()>>` 阻止自動實作 `Send` 與 `Sync`，避免被搬到其他執行緒或透過共享參考跨執行緒使用。
 - `PhantomPinned` 會阻止外層型別自動實作 `Unpin`。
 - `PhantomPinned` 本身不會 pin 住值；仍然要透過 `pin!`、`Box::pin` 等方式建立 `Pin`。
 - `PhantomPinned` 不禁止 pin 以前的 move；真正的位址保證從 pin 住之後開始。
+- 只能留在建立它的執行緒的型別，可用 `PhantomData<Rc<()>>` 阻止自動實作 `Send` 與 `Sync`，避免被搬到其他執行緒或透過共享參考跨執行緒使用。
