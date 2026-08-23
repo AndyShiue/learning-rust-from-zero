@@ -2,7 +2,7 @@
 
 ## 本集目標
 
-學會 `async |...|` 語法，理解 `async` 閉包為什麼能借用捕捉的環境，以及 `AsyncFn`、`AsyncFnMut`、`AsyncFnOnce` 的用途。
+學會 `async |...|` 語法，理解 `async` 閉包為什麼能借用捕捉的環境，以及 `AsyncFnOnce`、`AsyncFnMut`、`AsyncFn` 的用途。
 
 > 本集是**第 6 章閉包**與**非同步一章**的補充。
 

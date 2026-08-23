@@ -145,9 +145,9 @@ fn main() {
 
 ### A Practical Case: Keeping an Executor on the Thread That Created It
 
-The executor built from Episode 11 of the async chapter onward records the current thread with `thread::current()` inside `Executor::new()`. Later, `Task::wake` calls `.unpark()` through that `Thread` handle, while an executor with no work parks the thread currently running it via `thread::park()`.
+The executor built from Episode 11 of the async chapter onward records the current `Thread` with `thread::current()` inside `Executor::new()`. Later, `Task::wake` calls `.unpark()` through that `Thread` handle, while an executor with no work parks the `Thread` currently running it via `thread::park()`.
 
-Hidden here is a constraint the type system doesn't spot on its own: the `Executor` has to stay on the thread that created it. Here's a simplified version:
+Hidden here is a constraint the type system doesn't spot on its own: the `Executor` has to stay on the `Thread` that created it. Here's a simplified version:
 
 ```rust,no_run
 use std::thread::{self, Thread};
@@ -195,14 +195,14 @@ fn main() {
 }
 ```
 
-A `Thread` handle can be sent across threads, but moving the handle doesn't change which thread it points at. After the example above moves `executor` to a new thread:
+A `Thread` handle can be sent across threads, but moving the handle doesn't change which thread it points at. After the example above moves `executor` to a new `Thread`:
 
 1. `task.wake()` calls `.unpark()` on the **main thread**, the one that created the executor.
-2. `run_once()`, meanwhile, calls `thread::park()` on the **new thread**.
+2. `run_once()`, meanwhile, calls `thread::park()` on the **new `Thread`**.
 
-So `.unpark()` isn't ineffective — it delivers the wake token to the wrong thread. The new thread actually running the executor never receives a token and may block indefinitely.
+So `.unpark()` isn't ineffective — it delivers the wake token to the wrong `Thread`. The new `Thread` actually running the executor never receives a token and may block indefinitely.
 
-This executor can only stay on the thread that created it, and other threads shouldn't be able to call `.run()` on it through a shared reference either. So we can add a zero-sized marker that blocks the automatic `Send` and `Sync` implementations:
+This executor can only stay on the `Thread` that created it, and other `Thread`s shouldn't be able to call `.run()` on it through a shared reference either. So we can add a zero-sized marker that blocks the automatic `Send` and `Sync` implementations:
 
 ```rust,compile_fail
 use std::marker::PhantomData;
@@ -235,7 +235,7 @@ fn main() {
 }
 ```
 
-`Rc<()>` is neither `Send` nor `Sync`, and `PhantomData<Rc<()>>` makes the `auto trait` analysis treat `Executor` as logically containing an `Rc<()>`. So `Executor` is likewise neither `Send` nor `Sync`: not being `Send` keeps it from being moved to another thread, and not being `Sync` keeps other threads from calling `.run()` through an `&Executor`. What the `move` example above demonstrates directly is that the executor is now non-`Send`; an attempt to share an `&Executor` across threads would be rejected for being non-`Sync`. This field never actually allocates or stores an `Rc`; the correct usage is to create and run the executor on the same thread, while wakers can still call `.unpark()` on that executor's `Thread` from other threads.
+`Rc<()>` is neither `Send` nor `Sync`, and `PhantomData<Rc<()>>` makes the `auto trait` analysis treat `Executor` as logically containing an `Rc<()>`. So `Executor` is likewise neither `Send` nor `Sync`: not being `Send` keeps it from being moved to another `Thread`, and not being `Sync` keeps other `Thread`s from calling `.run()` through an `&Executor`. What the `move` example above demonstrates directly is that the executor is now non-`Send`; an attempt to share an `&Executor` across `Thread`s would be rejected for being non-`Sync`. This field never actually allocates or stores an `Rc`; the correct usage is to create and run the executor on the same `Thread`, while wakers can still call `.unpark()` on that executor's `Thread` from other `Thread`s.
 
 ## Example Code
 
@@ -289,4 +289,4 @@ fn main() {
 - `PhantomPinned` blocks the enclosing type's automatic `Unpin` implementation.
 - `PhantomPinned` doesn't pin a value by itself; you still create the `Pin` through `pin!`, `Box::pin`, and the like.
 - `PhantomPinned` doesn't forbid moves before pinning; the real address guarantee begins once the value is pinned.
-- A type that must stay on the thread that created it can use `PhantomData<Rc<()>>` to block the automatic `Send` and `Sync` implementations, keeping it from being moved to another thread or used across threads through a shared reference.
+- A type that must stay on the `Thread` that created it can use `PhantomData<Rc<()>>` to block the automatic `Send` and `Sync` implementations, keeping it from being moved to another `Thread` or used across `Thread`s through a shared reference.

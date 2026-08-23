@@ -8,7 +8,7 @@ Understand generic associated types (GATs), and learn to express "the return typ
 
 ## Concept
 
-When Chapter 5 introduced associated types, we saw a design much like `Iterator`'s:
+Chapter 5 introduced associated types, and `Iterator` is built the same way:
 
 ```rust,ignore
 trait Iterator {
@@ -41,8 +41,8 @@ trait LendingIterator {
 GAT is short for **generic associated type**. `Item` here no longer stands for a single type but for a whole family of types:
 
 ```rust,ignore
-Self::Item<'a short borrow>
-Self::Item<'a long borrow>
+Self::Item<'a_short_borrow>
+Self::Item<'a_long_borrow>
 ```
 
 On each call to `next`, the `'a` in `&'a mut self` decides which `Item<'a>` this particular call uses.

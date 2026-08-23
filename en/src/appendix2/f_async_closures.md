@@ -2,7 +2,7 @@
 
 ## Goal of This Episode
 
-Learn the `async |...|` syntax, understand why an `async` closure can borrow the environment it captures, and see what `AsyncFn`, `AsyncFnMut`, and `AsyncFnOnce` are for.
+Learn the `async |...|` syntax, understand why an `async` closure can borrow the environment it captures, and see what `AsyncFnOnce`, `AsyncFnMut`, and `AsyncFn` are for.
 
 > This episode supplements **Chapter 6's closures** and the **async chapter**.
 
