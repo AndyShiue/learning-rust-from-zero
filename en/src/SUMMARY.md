@@ -261,4 +261,4 @@
     - [`PhantomData` / `PhantomPinned`](appendix2/d_phantom_markers.md)
     - [GAT](appendix2/e_gat.md)
     - [`async` Closures](appendix2/f_async_closures.md)
-    - [`use` bounds](appendix2/g_use_bound.md)
+    - [`use` Bounds](appendix2/g_use_bound.md)

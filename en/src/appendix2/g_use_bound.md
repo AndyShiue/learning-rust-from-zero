@@ -1,4 +1,4 @@
-# `use` bounds
+# `use` Bounds
 
 ## Goal of This Episode
 
