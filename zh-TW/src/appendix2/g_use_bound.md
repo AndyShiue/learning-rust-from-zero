@@ -2,7 +2,7 @@
 
 ## 本集目標
 
-理解 return-position `impl Trait` 的隱藏型別會捕捉哪些泛型參數，學會用 `use<...>` 明確限制捕捉集合，並認識 `trait` method 中的 RPITIT。
+理解 return-position `impl Trait` 的隱藏型別會捕捉哪些泛型參數，學會用 `use<...>` 明確限制捕捉集合，並認識 RPITIT。
 
 > 本集是**第 5 章 `impl Trait` 與生命週期**的補充。
 
@@ -179,12 +179,6 @@ trait FixedNumbers {
 RPITIT 的呼叫端只能使用 `trait` 簽名已經承諾的 bound。即使某個實作實際回傳的迭代器也實作了 `DoubleEndedIterator`，泛型呼叫端仍不能直接呼叫 `.rev()`；若需要這項能力，`trait` 應一開始就使用 `DoubleEndedIterator` bound，或改用具名的 associated type。
 
 回傳 opaque type 的 method 不能透過 `dyn Trait` 動態分派，因此含有這類 method 的 `trait` 通常不是 `dyn` compatible。若替 method 加上 `where Self: Sized`，`trait` 的其他 method 仍可透過 `dyn Trait` 使用，但這個 RPITIT method 本身不能。`trait` 裡的 `async fn` 也建立在相同機制上，可以概念性地理解成回傳 `impl Future<Output = T>`。
-
-### 什麼時候值得寫？
-
-一般函數若確實回傳借用參數的迭代器、閉包或 `Future`，預設捕捉通常正合需要，不必每次都寫 `use<...>`。
-
-當函數**接受一個帶生命週期的參數，但回傳值實際上與它無關**，預設捕捉可能讓呼叫端認為回傳值仍持有參考，因而延後釋放原本的值。這時 `use<>` 能把 API 的承諾說得更精準，也讓呼叫端更早使用或釋放原本的值。
 
 ## 範例程式碼
 

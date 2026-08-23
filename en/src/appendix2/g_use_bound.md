@@ -2,7 +2,7 @@
 
 ## Goal of This Episode
 
-Understand which generic parameters the hidden type behind a return-position `impl Trait` captures, learn to restrict the capture set explicitly with `use<...>`, and get to know RPITIT in `trait` methods.
+Understand which generic parameters the hidden type behind a return-position `impl Trait` captures, learn to restrict the capture set explicitly with `use<...>`, and get to know RPITIT.
 
 > This episode supplements **Chapter 5's `impl Trait` and lifetimes**.
 
@@ -179,12 +179,6 @@ trait FixedNumbers {
 An RPITIT's callers can only use the bounds the `trait` signature has promised. Even if the iterator some implementation actually returns also implements `DoubleEndedIterator`, a generic caller still can't call `.rev()` on it directly; if that capability is needed, the `trait` should use a `DoubleEndedIterator` bound from the start, or switch to a named associated type.
 
 A method returning an opaque type can't be dynamically dispatched through `dyn Trait`, so a `trait` containing such a method usually isn't `dyn` compatible. Adding `where Self: Sized` to the method keeps the `trait`'s other methods usable through `dyn Trait`, though this RPITIT method itself still won't be. `async fn` in `trait`s is built on the same mechanism and can be understood conceptually as returning `impl Future<Output = T>`.
-
-### When Is It Worth Writing?
-
-For an ordinary function that really does return an iterator, closure, or `Future` borrowing its parameters, the default capture is usually exactly right — there's no need to write `use<...>` every time.
-
-When a function **takes a parameter carrying a lifetime but the return value is actually unrelated to it**, the default capture may leave callers thinking the return value still holds a reference, delaying release of the original value. Here `use<>` states the API's promise more precisely and lets callers use or release the original value sooner.
 
 ## Example Code
 
