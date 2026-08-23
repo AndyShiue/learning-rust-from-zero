@@ -235,7 +235,7 @@ fn main() {
 }
 ```
 
-`Rc<()>` 同時不是 `Send` 與 `Sync`，而 `PhantomData<Rc<()>>` 會讓 `auto trait` 的分析把 `Executor` 當成邏輯上含有一個 `Rc<()>`。因此 `Executor` 也同時不是 `Send` 與 `Sync`：非 `Send` 防止它被搬到其他執行緒，非 `Sync` 則防止其他執行緒透過 `&Executor` 呼叫 `.run()`。上面的 `move` 範例直接展示的是 executor 現在非 `Send`；若嘗試跨執行緒分享 `&Executor`，也會因為非 `Sync` 被拒絕。這個欄位不會真的配置或儲存 `Rc`；正確的使用方式是在同一條執行緒中建立並執行 executor，而 waker 仍可從其他執行緒呼叫該 executor `Thread` 的 `.unpark()`。
+`Rc<()>` 同時不是 `Send` 與 `Sync`，而 `PhantomData<Rc<()>>` 會讓 `auto trait` 的分析把 `Executor` 當成邏輯上含有一個 `Rc<()>`。因此 `Executor` 也同時不是 `Send` 與 `Sync`：非 `Send` 防止它被搬到其他執行緒，非 `Sync` 則防止其他執行緒透過 `&Executor` 呼叫 `.run()`。上面的 `move` 範例直接展示的是 executor 現在非 `Send`；若嘗試跨執行緒分享 `&Executor`，也會因為非 `Sync` 被拒絕。這個欄位不會真的配置或儲存 `Rc`；正確的使用方式是在同一條執行緒中建立並執行 executor，而 `Waker` 仍可從其他執行緒呼叫該 executor `Thread` 的 `.unpark()`。
 
 ## 範例程式碼
 

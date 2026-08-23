@@ -235,7 +235,7 @@ fn main() {
 }
 ```
 
-`Rc<()>` is neither `Send` nor `Sync`, and `PhantomData<Rc<()>>` makes the `auto trait` analysis treat `Executor` as logically containing an `Rc<()>`. So `Executor` is likewise neither `Send` nor `Sync`: not being `Send` keeps it from being moved to another `Thread`, and not being `Sync` keeps other `Thread`s from calling `.run()` through an `&Executor`. What the `move` example above demonstrates directly is that the executor is now non-`Send`; an attempt to share an `&Executor` across `Thread`s would be rejected for being non-`Sync`. This field never actually allocates or stores an `Rc`; the correct usage is to create and run the executor on the same `Thread`, while wakers can still call `.unpark()` on that executor's `Thread` from other `Thread`s.
+`Rc<()>` is neither `Send` nor `Sync`, and `PhantomData<Rc<()>>` makes the `auto trait` analysis treat `Executor` as logically containing an `Rc<()>`. So `Executor` is likewise neither `Send` nor `Sync`: not being `Send` keeps it from being moved to another `Thread`, and not being `Sync` keeps other `Thread`s from calling `.run()` through an `&Executor`. What the `move` example above demonstrates directly is that the executor is now non-`Send`; an attempt to share an `&Executor` across `Thread`s would be rejected for being non-`Sync`. This field never actually allocates or stores an `Rc`; the correct usage is to create and run the executor on the same `Thread`, while `Waker`s can still call `.unpark()` on that executor's `Thread` from other `Thread`s.
 
 ## Example Code
 
