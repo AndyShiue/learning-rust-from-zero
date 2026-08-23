@@ -194,7 +194,7 @@ fn main() {
 ## 重點整理
 
 - variance 描述把型別放進另一個型別後，原本的 subtype 關係如何變化。
-- covariant 保留方向；共享參考、函數回傳值與許多擁有型別屬於這類。
+- covariant 保留方向；共享參考、函數回傳值與許多擁有所有權的型別屬於這類。
 - invariant 不允許沿著 subtype 關係轉換；可寫入內層值的 `&mut T`、`Cell<T>` 等常見於這類。
 - contravariant 反轉方向；函數參數是主要例子。
 - variance 是編譯時期規則，不會延長生命週期或產生執行時期轉換。

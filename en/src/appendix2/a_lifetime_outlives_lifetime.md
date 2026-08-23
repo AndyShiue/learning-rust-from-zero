@@ -22,7 +22,7 @@ It says every reference inside `T` must outlive `'a`. Both sides of the bound ca
 
 This reads "`'a` **outlives** `'b`," meaning `'a` lasts at least as long as `'b`.
 
-The real purpose of this notation isn't to work out which of two local variables goes out of scope first — it's to **hand generic code a guarantee it can use**. If `'a` and `'b` are two unrelated lifetime parameters, a function or type can't assume on its own which is longer; only once `'a: 'b` is added can the code safely take data tied to `'a` and place it somewhere that only needs to last for `'b`.
+The real purpose of this notation isn't to work out which of two local variables goes out of scope first — it's to **hand generic code a guarantee it can use**. If `'a` and `'b` are two unrelated lifetime parameters, a function or type can't assume on its own which is longer; once `'a: 'b` is in effect, the code can safely take data tied to `'a` and place it somewhere that only needs to last for `'b`.
 
 ### A Practical Problem: A Long-lived Setting as a Short-lived Fallback
 
