@@ -6,7 +6,7 @@ Assemble the tools from earlier episodes into a complete graceful shutdown flow.
 
 ## Main Text
 
-### What Is graceful shutdown
+### What Is Graceful Shutdown
 
 When a server needs to stop, the crudest approach is to just kill it — but then work in progress is cut off mid-flight, possibly leaving corrupted data and unanswered requests. **graceful shutdown** is the politer way: on receiving a stop request, don't hard-cut — instead, "**tell everyone to wrap up → wait for work in hand to finish (or hit a deadline) → exit cleanly**."
 

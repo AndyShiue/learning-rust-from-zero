@@ -57,7 +57,7 @@ impl Future for Delay {
 
 `poll`'s logic is that direct: time's up, return `Ready(())`; otherwise `Pending`. `Output` is `()` because this timer has no value to give when done — it's purely the event "the time has arrived."
 
-### Running It on Our executor
+### Running It on Our Executor
 
 Carry over last episode's dumbest `block_on`, and our own `Delay` runs:
 

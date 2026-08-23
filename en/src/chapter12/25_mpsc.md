@@ -39,7 +39,7 @@ async fn main() {
 
 `rx.recv().await` returns an `Option`: a message is `Some(value)`; once every sender has been `drop`ped and the channel's leftover messages have all been received, it returns `None`, and the `while let` ends naturally.
 
-### Bounded Channels and backpressure
+### Bounded Channels and Backpressure
 
 Notice we gave the channel a capacity of `32` — this is a **bounded** channel. That capacity ceiling is precisely last episode's backpressure: when the messages piling up in the channel **fill** all 32 slots (meaning the consumer can't keep up), the producer's `tx.send(value).await` **waits**, resuming only after the consumer clears some space.
 

@@ -22,7 +22,7 @@ Our solution is to give each `Future` a set of "carry-on data," wrapping it into
 
 From now on the executor manages `Task`s, not `Future`s directly. And `spawn` simply means "wrap a `Future` into a `Task` and hand it to the executor."
 
-### The ready queue and "Waking"
+### The Ready Queue and "Waking"
 
 The executor will keep a **ready queue**: the `Task`s that "should be `poll`ed now." The executor's job is to take `Task`s off the queue and `poll` their `Future`s; when the queue is empty, it sleeps.
 

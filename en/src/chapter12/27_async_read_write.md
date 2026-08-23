@@ -12,7 +12,7 @@ In the advanced standard library chapter, we used the synchronous `Read` / `Writ
 
 One important property up front: the true core methods underlying the `AsyncRead` / `AsyncWrite` `trait`s are `poll_read` / `poll_write`. They only promise to "**try to make progress once**"; `poll_read` fills what it read into the buffer, and `poll_write` reports how many bytes this attempt actually wrote. Neither **guarantees** filling your whole buffer in one go, nor writing all the data at once. Say you want 100 bytes: some `poll_read` might fill in only 30 — the rest must be read later.
 
-### The Convenience helpers in `AsyncReadExt` / `AsyncWriteExt`
+### The Convenience Helpers in `AsyncReadExt` / `AsyncWriteExt`
 
 Handling "didn't read enough, didn't finish writing" yourself every time is tedious. So Tokio's extension `trait`s `AsyncReadExt` / `AsyncWriteExt` provide many helpers that wrap the loop for you. Internally they too repeatedly drive the underlying `poll_read` / `poll_write`. Two of them:
 

@@ -44,7 +44,7 @@ Don't panic — later in this chapter we'll spend several episodes on the detail
 
 Your own custom types generally **can't** be used in the `self` position like that. `poll` can be written `self: Pin<&mut Self>` precisely because `Pin` is special enough. For the moment, think of `Pin<&mut Self>` as "a restricted `&mut Self`" — it lets you modify the `Future`'s contents but forbids moving the whole thing away. Why that restriction exists comes later.
 
-### The Most Bare-bones executor
+### The Most Bare-bones Executor
 
 `poll` is the `Future`'s engine, but someone has to crank it — the role that "keeps `poll`ing until completion" is called the **executor**. Rust's standard library ships **no** executor, so let's write the dumbest possible one ourselves:
 

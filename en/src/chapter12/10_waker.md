@@ -40,7 +40,7 @@ impl Wake for ThreadWaker {
 
 Note that `wake`'s `self` is `Arc<Self>` (another of those special types allowed in the `self` position, as mentioned in Episode 6). `Waker::from(Arc::new(...))` turns it into a `Waker`.
 
-### An executor That Sleeps
+### An Executor That Sleeps
 
 With `ThreadWaker`, the executor can switch to "`park` and sleep on `Pending`":
 

@@ -6,7 +6,7 @@ Learn to define constants inside `trait`s and `impl`s.
 
 ## Concept
 
-### associated `const` in a `trait`
+### Associated `const` in a `trait`
 
 Besides methods and associated types, a `trait` can also define constants:
 
@@ -46,7 +46,7 @@ fn main() {
 }
 ```
 
-### associated `const`s Can Have Defaults
+### Associated `const`s Can Have Defaults
 
 Just like a `trait`'s default methods, an associated `const` can have a default value:
 
@@ -66,7 +66,7 @@ impl Config for MyApp {
 fn main() {}
 ```
 
-### associated `const` in an `impl`
+### Associated `const` in an `impl`
 
 An associated `const` doesn't have to live in a `trait` — you can also define type-bound constants directly in an `impl` block:
 

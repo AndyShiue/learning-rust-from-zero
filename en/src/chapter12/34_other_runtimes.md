@@ -21,7 +21,7 @@ Tokio is currently the most mainstream runtime, but not the only choice. Since t
 
 These runtimes can differ in every dimension: how many `Thread`s, how scheduling works, how I/O is done, how timers are implemented, the details and restrictions of `spawn`. Which to pick depends on your situation — for ordinary network services Tokio is the least hassle; for embedded you'd use Embassy.
 
-### runtime-agnostic vs runtime-specific
+### Runtime-agnostic vs Runtime-specific
 
 With this many runtimes around, it's worth keeping one question in mind as you write code: is this piece of code **tied** to a specific runtime or not?
 

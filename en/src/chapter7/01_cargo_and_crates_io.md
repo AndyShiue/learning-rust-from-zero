@@ -10,7 +10,7 @@ We've been using `cargo new` and `cargo run` since Chapter 1. Actually, `cargo r
 
 This episode covers more of Cargo's features, especially bringing in external `crate`s.
 
-### debug build vs release build
+### Debug Build vs Release Build
 
 `cargo build` and `cargo run` default to **debug mode** — fast to compile but slow to run (no optimizations). When it's time to ship your program, add `--release`:
 
@@ -75,7 +75,7 @@ There are several ways to specify a `crate`'s version in `[dependencies]`:
 
 Most of the time the default `^` is fine; Cargo picks a suitable version for you. For more detail, see [the official documentation](https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html).
 
-### Cargo features
+### Cargo Features
 
 Some `crate`s offer optional functionality, enabled via `features`:
 

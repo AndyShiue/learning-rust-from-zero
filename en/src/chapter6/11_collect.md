@@ -42,7 +42,7 @@ fn main() {
 }
 ```
 
-Note it must walk the entire iterator to know which element is last.
+Depending on the iterator, `.last()` may need to walk through every remaining element. Some iterators can override the default behavior with a more efficient implementation.
 
 ## Example Code
 

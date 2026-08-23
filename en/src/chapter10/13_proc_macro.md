@@ -6,7 +6,7 @@ Meet the three kinds of proc macros and understand how they work. This episode i
 
 ## Concept
 
-### What Is a proc macro
+### What Is a Proc Macro
 
 Last episode's `macro_rules!` expands code via pattern matching. But some things it can't do — like reading a `struct`'s field names to generate code automatically. How does `#[derive(Debug)]` know what fields your `struct` has? The answer is **proc macros** (procedural macros).
 
@@ -16,7 +16,7 @@ A proc macro receives your code as input (a stream of tokens) and produces new c
 
 A proc macro's input and output are both `TokenStream`s — sequences of Rust code tokens. When `struct Foo { x: i32 }` comes in, the proc macro sees a stream of tokens: `struct`, `Foo`, `{`, `x`, `:`, `i32`, `}`.
 
-### The Three Kinds of proc macros
+### The Three Kinds of Proc Macros
 
 **1. `derive` macros**
 

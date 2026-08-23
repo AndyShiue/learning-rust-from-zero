@@ -54,7 +54,7 @@ fn main() {
 }
 ```
 
-### Defaults for `const` generics
+### Defaults for `const` Generics
 
 `const` generic parameters can also have defaults on the same kinds of type and `trait` declarations. They cannot have defaults on functions or methods either.
 

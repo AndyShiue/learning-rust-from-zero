@@ -6,7 +6,7 @@ Hook the waking machinery from recent episodes up to **real I/O** — build a re
 
 ## Main Text
 
-### Not One Line of the executor Changes
+### Not One Line of the Executor Changes
 
 Here's something reassuring about this episode: **the executor carries over from Episode 12 unchanged**. `Task`, `Executor::spawn<T>`, `JoinHandle<T>`, `Shared<T>`, `Executor::block_on` — not a line needs touching.
 

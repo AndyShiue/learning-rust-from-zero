@@ -10,7 +10,7 @@ Welcome to the world of async! In this chapter we'll put in a lot of work slowly
 
 Let's start from the word itself. **Synchronous** means "everyone moves in lockstep": until one thing finishes, the next thing waits. **Asynchronous** means "no need to wait in lockstep": while one thing is waiting on a result, the program can push something else forward first. In a server, that means waiting for a browser to connect, or for a response to be sent, doesn't force every other connection to sit frozen.
 
-### Rust's `async` Needs a runtime
+### Rust's `async` Needs a Runtime
 
 Unlike many other languages, Rust's standard library has **no** built-in engine for executing async work (we'll call it a runtime from now on). The standard library only defines async's "specification"; how the async work actually gets run is left to third-party `crate`s. That sounds odd, but this design lets Rust's `async` serve everything from big servers to small embedded devices.
 

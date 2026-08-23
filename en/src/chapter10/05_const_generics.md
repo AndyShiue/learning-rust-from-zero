@@ -10,7 +10,7 @@ Learn to use constant values as generic parameters and handle arrays of any leng
 
 `[i32; 3]` and `[i32; 5]` are different types — the length is part of the type. If you want a function that prints an array of any length, surely you don't have to write one per length?
 
-### `const` generics
+### `const` Generics
 
 Generic parameters aren't limited to types — they can also be **constant values**:
 

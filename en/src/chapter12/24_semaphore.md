@@ -50,7 +50,7 @@ Notice that after taking the permit above, we **never manually returned it** —
 
 Because the permit implements `Drop`. When `_permit` leaves scope, its `Drop` implementation automatically gives the slot back to the `Semaphore`. So as long as the permit leaves scope at the "right moment to finish," the return happens automatically — impossible to forget. That's also why we bound it to a variable with `let _permit = ...` — to keep it **alive until the work ends** before being `drop`ped. Writing `let _ = ...` would `drop` it immediately, returning the permit at once — no cap enforced at all.
 
-### backpressure
+### Backpressure
 
 `Semaphore` leads into a more general idea: **backpressure**.
 

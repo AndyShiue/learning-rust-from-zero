@@ -6,7 +6,7 @@ Meet `mio` — the tool that makes "one `Thread` watching a big pile of I/O sour
 
 ## Main Text
 
-### The reactor's Role in the runtime
+### The Reactor's Role in the Runtime
 
 Let's step back and look at the full picture of the runtime we're building. A runtime really has two roles, each with its own duty:
 
