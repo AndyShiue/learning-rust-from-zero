@@ -67,8 +67,8 @@ Usage: `my_macro!(any tokens);`
 ### How the Three Differ
 
 - **`derive`**: **attaches** new code; doesn't replace the original `struct` / `enum`.
-- **attribute**: **replaces** the marked item.
-- **function-like**: the contents in the brackets get **expanded** into new code.
+- **Attribute**: **replaces** the marked item.
+- **Function-like**: the contents in the brackets get **expanded** into new code.
 
 ### A Separate `crate`
 

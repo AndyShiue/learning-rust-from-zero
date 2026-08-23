@@ -65,4 +65,4 @@ Next episode's **bounded channel** works on the same principle — limited capac
 - `tokio::sync::Semaphore` expresses capacity as a fixed number of **permits**, capping "how many at once": simultaneous downloads, open files, `Task`s inside some section, etc.
 - `acquire().await` takes a permit, waiting if none is free; permits implement `Drop` and return their slot automatically on leaving scope.
 - Use `let _permit = ...` so the permit lives until the work finishes; don't write `let _ = ...` (instant `drop`).
-- **backpressure**: make upstream wait when downstream can't keep up, avoiding unbounded pileups; understand `Semaphore` (and next episode's bounded channel) as "finite capacity, wait when full."
+- **Backpressure**: make upstream wait when downstream can't keep up, avoiding unbounded pileups; understand `Semaphore` (and next episode's bounded channel) as "finite capacity, wait when full."

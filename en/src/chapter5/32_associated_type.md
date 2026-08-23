@@ -22,7 +22,7 @@ trait Container<T> {
 
 But that means one type could implement both `Container<i32>` and `Container<String>` at the same time — while a container usually has just one element type.
 
-### Associated Types: a One-to-one Relationship
+### Associated Types: A One-to-one Relationship
 
 Associated types solve this:
 

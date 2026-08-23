@@ -72,7 +72,7 @@ fn main() {
 
 Most of the time Rust infers this automatically, no annotation needed. But knowing how to write the type will be useful later.
 
-### Quick Creation: the Repeat Syntax
+### Quick Creation: The Repeat Syntax
 
 If you want an array of "5 zeros":
 

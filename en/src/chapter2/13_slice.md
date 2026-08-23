@@ -112,9 +112,9 @@ Having learned slices, let's take stock: so far we've met two categories of type
 
 **Compound types:** types that combine other types. We've now learned three:
 
-- **tuple**: `(i32, f64, bool)` — can hold different types.
-- **array**: `[i32; 5]` — one type, fixed length.
-- **slice**: `&[i32]` — one type, any length.
+- **Tuple**: `(i32, f64, bool)` — can hold different types.
+- **Array**: `[i32; 5]` — one type, fixed length.
+- **Slice**: `&[i32]` — one type, any length.
 
 The types inside a compound type don't have to be primitive — compound types can nest inside other compound types:
 

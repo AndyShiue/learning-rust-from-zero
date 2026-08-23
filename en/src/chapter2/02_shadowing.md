@@ -29,7 +29,7 @@ fn main() {
 }
 ```
 
-### Shadowing vs `mut`: the Biggest Difference
+### Shadowing vs `mut`: The Biggest Difference
 
 "Wait — how is this different from `mut`? Aren't both just changing the value?"
 

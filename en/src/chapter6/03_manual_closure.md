@@ -33,7 +33,7 @@ Last episode introduced `FnOnce` (consumes captured values, one call only) and `
 
 Next we'll simulate all three by hand with `struct`s. Note: **the three examples below use different field types**. These are the field types used in these examples, not fixed requirements of the three closure kinds.
 
-### An `FnOnce` Example: the `struct` Stores Owned Values, the Method Takes `self`
+### An `FnOnce` Example: The `struct` Stores Owned Values, the Method Takes `self`
 
 Suppose we have this closure:
 
@@ -72,7 +72,7 @@ impl GreetOnce {
 
 Since the method takes `self`, the whole `struct` is consumed on the call — hence one call only. That's `FnOnce`.
 
-### An `FnMut` Example: the `struct` Stores Mutable References, the Method Takes `&mut self`
+### An `FnMut` Example: The `struct` Stores Mutable References, the Method Takes `&mut self`
 
 Suppose the closure modifies a captured variable:
 
@@ -121,7 +121,7 @@ struct SomeClosure<'a> {
 
 The method takes `&mut self` rather than `self` because `self` would consume it in one call — making it `FnOnce`. `FnMut` needs repeated calls, so it can only take a mutable reference to the `struct`.
 
-### An `Fn` Example: the `struct` Stores Shared References, the Method Takes `&self`
+### An `Fn` Example: The `struct` Stores Shared References, the Method Takes `&self`
 
 If the closure only reads captured variables, never modifying:
 

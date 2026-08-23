@@ -54,7 +54,7 @@ fn main() {
 }
 ```
 
-### A Handy Trick: the `dbg!` Macro
+### A Handy Trick: The `dbg!` Macro
 
 Rust also has a very convenient debugging tool, `dbg!`:
 

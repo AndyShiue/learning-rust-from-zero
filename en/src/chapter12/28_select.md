@@ -102,7 +102,7 @@ The timer fires at one second, beating the five-second job, so `select!` takes t
 
 `select!` shines in these situations:
 
-- **timeout** (the example above).
+- **Timeout** (the example above).
 - **Receiving on multiple channels at once**: whichever channel has a message first gets handled.
 - **Waiting for a shutdown signal**: doing normal work while also listening for "time to wrap up," responding to whichever comes first.
 

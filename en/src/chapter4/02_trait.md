@@ -50,7 +50,7 @@ impl Greet for Cat {
 
 Earlier we wrote `impl Cat { ... }` to add methods to `Cat` directly. Now, `impl Greet for Cat { ... }` says "`Cat` meets the `Greet` spec," and inside we provide the methods `Greet` demands.
 
-### `derive`: the Shortcut That Auto-generates Implementations
+### `derive`: The Shortcut That Auto-generates Implementations
 
 Some `trait`s have very formulaic implementations that the Rust compiler can generate for you. That's when you use `#[derive(...)]`:
 

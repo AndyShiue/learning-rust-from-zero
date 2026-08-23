@@ -10,8 +10,8 @@ Meet `mio` — the tool that makes "one `Thread` watching a big pile of I/O sour
 
 Let's step back and look at the full picture of the runtime we're building. A runtime really has two roles, each with its own duty:
 
-- **executor**: takes `Task`s off the ready queue and `poll`s them — "running `Task`s." It knows nothing about the outside world — not whether a network packet has arrived, nor whether a file read is done.
-- **reactor**: watches all the I/O sources, and `wake`s the corresponding `Task` when one becomes ready — "waiting for events." It does **not** `poll` `Future`s and is not a `Task`; it only watches external event sources.
+- **Executor**: takes `Task`s off the ready queue and `poll`s them — "running `Task`s." It knows nothing about the outside world — not whether a network packet has arrived, nor whether a file read is done.
+- **Reactor**: watches all the I/O sources, and `wake`s the corresponding `Task` when one becomes ready — "waiting for events." It does **not** `poll` `Future`s and is not a `Task`; it only watches external event sources.
 
 In recent episodes our "waiting" relied on one `Thread` per `Delay` — far too wasteful. The reactor's mission is to watch **many** I/O sources with **one** `Thread`. The way to do that is this episode's star: `mio`.
 

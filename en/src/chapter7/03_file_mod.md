@@ -92,8 +92,8 @@ Both ways work identically — pick whichever you like. Newer projects lean towa
 
 A Rust project can contain one or more `crate`s. A `crate` comes in two types:
 
-- **binary `crate`**: has `src/main.rs`, compiling to an executable.
-- **library `crate`**: has `src/lib.rs`, a library for others to use.
+- **Binary `crate`**: has `src/main.rs`, compiling to an executable.
+- **Library `crate`**: has `src/lib.rs`, a library for others to use.
 
 One project can contain **both** `main.rs` and `lib.rs`. `main.rs` is the binary `crate`'s root; `lib.rs` is the library `crate`'s root.
 

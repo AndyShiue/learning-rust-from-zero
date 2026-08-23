@@ -8,8 +8,8 @@ Survey Rust's common attributes and understand the difference between outer and 
 
 ### outer vs inner
 
-- **outer attribute** `#[...]`: goes above an item and decorates that item.
-- **inner attribute** `#![...]`: goes inside an item (usually at the top of a file) and decorates the enclosing item as a whole.
+- **Outer attribute** `#[...]`: goes above an item and decorates that item.
+- **Inner attribute** `#![...]`: goes inside an item (usually at the top of a file) and decorates the enclosing item as a whole.
 
 ```rust,noplayground
 #![allow(dead_code)] // inner: applies to the whole mod

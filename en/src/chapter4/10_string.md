@@ -18,7 +18,7 @@ Since Chapter 1, we've been using the `&str` type:
 
 The string `"Hello"` is written directly in the code; its data gets compiled into the program itself. `&str` is a reference — you're only looking at the text; you **don't own** it and **can't modify** it.
 
-### `String`: a String You Own
+### `String`: A String You Own
 
 `String` is a string type you can own and modify. Its data lives mainly on the heap.
 
