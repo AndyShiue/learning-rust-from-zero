@@ -1,4 +1,4 @@
 User-agent: *
 Disallow:
 
-Sitemap: https://andyshiue.github.io/learning-rust-from-zero/sitemap.xml
+Sitemap: https://learning-rust-from-ze.ro/sitemap.xml
