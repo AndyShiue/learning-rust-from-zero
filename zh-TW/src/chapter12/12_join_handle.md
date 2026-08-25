@@ -84,7 +84,7 @@ struct Task {
     queue: Queue,
     executor_thread: Thread,
     queued: AtomicBool,
-    done: AtomicBool, // Task 已經完成了嗎？（守住契約二）
+    done: AtomicBool,
 }
 
 impl Wake for Task {
