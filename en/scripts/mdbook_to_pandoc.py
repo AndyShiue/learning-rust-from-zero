@@ -272,7 +272,7 @@ def main() -> None:
         if not source.exists():
             raise FileNotFoundError(source)
 
-        is_foreword = value == "foreword.md"
+        is_unnumbered_matter = value in {"foreword.md", "afterword.md"}
         is_chapter = indent == 0
         if is_chapter:
             # 附錄章不顯示「第N章」,只顯示章名(樣式定義在 print/header.tex)
@@ -283,8 +283,8 @@ def main() -> None:
             elif not is_appendix and appendix_active:
                 chunks.append("\\clearpage\n\\StandardChapterStyle")
                 appendix_active = False
-        heading_shift = 0 if is_chapter or is_foreword else 1
-        first_heading_attrs = "{.unnumbered}" if is_foreword else None
+        heading_shift = 0 if is_chapter or is_unnumbered_matter else 1
+        first_heading_attrs = "{.unnumbered}" if is_unnumbered_matter else None
         chunks.append(
             rewrite_markdown(
                 source.read_text(encoding="utf-8"),
