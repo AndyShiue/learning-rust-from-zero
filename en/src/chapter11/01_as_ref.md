@@ -4,7 +4,7 @@
 
 Learn to use `AsRef` and `AsMut` so a function can accept multiple types.
 
-## Concept
+## Main Text
 
 ### Motivation
 
