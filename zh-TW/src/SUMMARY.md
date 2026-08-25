@@ -262,3 +262,5 @@
     - [GAT](appendix2/e_gat.md)
     - [`async` 閉包](appendix2/f_async_closures.md)
     - [`use` bound](appendix2/g_use_bound.md)
+
+[後記](afterword.md)

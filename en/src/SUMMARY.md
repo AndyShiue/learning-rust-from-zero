@@ -262,3 +262,5 @@
     - [GAT](appendix2/e_gat.md)
     - [`async` Closures](appendix2/f_async_closures.md)
     - [`use` Bounds](appendix2/g_use_bound.md)
+
+[Afterword](afterword.md)
