@@ -109,6 +109,11 @@
   \fancyhead[LO]{\nouppercase{\rightmark}}%
   \renewcommand{\headrulewidth}{0.4pt}%
 }
+\fancypagestyle{afterword}{%
+  \fancyhf{}%
+  \fancyhead[LE,RO]{\thepage}%
+  \renewcommand{\headrulewidth}{0.4pt}%
+}
 
 % Section marks in page headers; chapter marks are defined by the chapter styles.
 \renewcommand{\sectionmark}[1]{\markright{\thesection\quad #1}}

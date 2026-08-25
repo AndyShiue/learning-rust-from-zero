@@ -285,6 +285,8 @@ def main() -> None:
                 appendix_active = False
         heading_shift = 0 if is_chapter or is_unnumbered_matter else 1
         first_heading_attrs = "{.unnumbered}" if is_unnumbered_matter else None
+        if value == "afterword.md":
+            chunks.append(r"\pagestyle{afterword}" + "\n" + r"\markboth{}{}")
         chunks.append(
             rewrite_markdown(
                 source.read_text(encoding="utf-8"),
