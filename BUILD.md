@@ -12,8 +12,8 @@ the generated books. Install the same versions and select the pinned Rust
 toolchain for the current shell:
 
 ```bash
-rustup toolchain install 1.97.1 --profile minimal --no-self-update
-export RUSTUP_TOOLCHAIN=1.97.1
+rustup toolchain install 1.98.0 --profile minimal --no-self-update
+export RUSTUP_TOOLCHAIN=1.98.0
 cargo install mdbook --version 0.5.4 --locked
 ```
 
@@ -62,6 +62,21 @@ refresh the shell paths with:
 ```bash
 eval "$(/usr/libexec/path_helper)"
 ```
+
+## Bilingual source mirror
+
+Before testing or building the books, verify that the English and Traditional
+Chinese source trees still have matching paths and structure:
+
+```bash
+python3 scripts/check_bilingual_mirror.py
+```
+
+The check compares the source paths, ordered `SUMMARY.md` links, heading-level
+sequences, code-fence attributes, local Markdown links, and standard lesson
+sections. It also rejects broken local Markdown links. It does not judge
+translation accuracy or whether localized code comments and messages have the
+same meaning; those still require human review.
 
 ## Test dependencies
 

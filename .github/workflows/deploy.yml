@@ -25,6 +25,9 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v6
 
+      - name: Check bilingual source mirror
+        run: python3 scripts/check_bilingual_mirror.py
+
       - name: Install Rust, mdBook, and PDF dependencies
         run: |
           rustup toolchain install "$RUST_VERSION" --profile minimal --no-self-update

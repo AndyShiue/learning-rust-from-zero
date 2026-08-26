@@ -1,6 +1,7 @@
 Cargo.lock
 book/
 build/
+public/
 target/
 __pycache__/
 .claude/
