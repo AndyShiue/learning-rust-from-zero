@@ -3,11 +3,18 @@
     font-size: inherit;
 }
 
+#share-link-button .fa-svg {
+    padding-inline: 0;
+}
+
 #share-link-button .share-link-tooltip {
     top: calc(var(--menu-bar-height) - 4px);
     left: 50%;
     transform: translateX(-50%);
     margin: 0;
+    border: 1px solid var(--theme-popup-border);
+    color: var(--fg);
+    background-color: var(--theme-popup-bg);
     font-size: 0.8em;
     line-height: 1.4;
     white-space: nowrap;
