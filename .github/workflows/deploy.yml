@@ -46,6 +46,7 @@ jobs:
 
       - name: Prepare shared book resources
         run: |
+          python3 -B scripts/prepare_mdbook_assets.py
           cargo build --manifest-path test-deps/Cargo.toml
           mkdir -p build/fonts
           curl -L --fail --retry 3 --retry-delay 2 \
@@ -63,7 +64,7 @@ jobs:
         run: |
           mdbook test -L ../test-deps/target/debug/deps
           mdbook build
-          bash ./print/build.sh
+          bash ../scripts/build_print.sh zh-TW
           cp book/rust-book-a4.pdf book/book.pdf
           (cd src && zip -r ../book/rust-book-src.zip .)
 
@@ -73,7 +74,7 @@ jobs:
           mdbook test -L ../test-deps/target/debug/deps
           mdbook build
           python3 scripts/check_pdf_code_lines.py
-          bash ./print/build.sh
+          bash ../scripts/build_print.sh en
           cp book/rust-book-a4.pdf book/book.pdf
           (cd src && zip -r ../book/rust-book-src.zip .)
 

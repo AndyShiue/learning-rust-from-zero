@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Patch generated print TeX so emoji-like characters use the emoji font.
+"""Patch either edition's generated TeX so emoji-like characters use the emoji font.
 
 Code blocks (Highlighting) get fixed-width \\CodeEmoji; everything else in the
 document body (prose, headings, inline \\texttt) gets \\Emoji.

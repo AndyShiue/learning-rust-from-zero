@@ -5,3 +5,5 @@ public/
 target/
 __pycache__/
 .claude/
+/en/theme/
+/zh-TW/theme/

@@ -12,7 +12,8 @@ preferred-dark-theme = "ayu"
 git-repository-url = "https://github.com/AndyShiue/learning-rust-from-zero"
 edit-url-template = "https://github.com/AndyShiue/learning-rust-from-zero/edit/main/en/{path}"
 site-url = "https://andyshiue.github.io/learning-rust-from-zero/en/"
-additional-css = ["theme/code-fix.css"]
+additional-css = ["theme/code-fix.css", "theme/share.css"]
+additional-js = ["theme/share.js"]
 
 [output.html.playground]
 editable = true

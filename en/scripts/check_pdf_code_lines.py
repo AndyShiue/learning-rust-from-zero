@@ -7,6 +7,9 @@ import argparse
 import sys
 from pathlib import Path
 
+REPOSITORY_SCRIPTS = Path(__file__).resolve().parents[2] / "scripts"
+sys.path.insert(0, str(REPOSITORY_SCRIPTS))
+
 from mdbook_to_pandoc import parse_summary, rewrite_markdown
 
 

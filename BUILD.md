@@ -78,6 +78,20 @@ sections. It also rejects broken local Markdown links. It does not judge
 translation accuracy or whether localized code comments and messages have the
 same meaning; those still require human review.
 
+## Shared mdBook theme assets
+
+Both editions use the same favicon, code-block fixes, and sharing interface.
+Their single source of truth is the root `favicon.svg` plus `assets/mdbook/`.
+Populate the generated, Git-ignored edition `theme/` directories after a fresh
+checkout or whenever one of those shared files changes:
+
+```bash
+python3 -B scripts/prepare_mdbook_assets.py
+```
+
+Run this before `mdbook build` or `mdbook serve`. The deployment workflow runs
+it automatically.
+
 ## Test dependencies
 
 Both editions share the external crates declared in the root `test-deps/`
@@ -99,6 +113,7 @@ Then test both editions against the same compiled dependencies:
 Build both mdBook sites from the repository root:
 
 ```bash
+python3 -B scripts/prepare_mdbook_assets.py
 (cd zh-TW && mdbook build)
 (cd en && mdbook build)
 ```
@@ -114,9 +129,10 @@ root `build/fonts/` directory:
 - `NotoSansCJKtc-Bold.otf`
 - `NotoSansMonoCJKtc-Regular.otf`
 
-Both editions' `print/header.tex` files load these shared files when present.
-This prevents Ubuntu from resolving the Pan-CJK Noto collection to Japanese
-faces such as `NotoSansCJKjp-*`.
+The shared `print/header.tex` loads these files when present; each edition keeps
+a tiny wrapper that supplies its localized chapter label. This prevents Ubuntu
+from resolving the Pan-CJK Noto collection to Japanese faces such as
+`NotoSansCJKjp-*`.
 
 Installed Noto CJK fonts are usually sufficient for local builds. To reproduce
 the GitHub Actions font selection exactly, download the same three files into
@@ -127,8 +143,8 @@ the GitHub Actions font selection exactly, download the same three files into
 Run either print pipeline from the repository root:
 
 ```bash
-bash zh-TW/print/build.sh
-bash en/print/build.sh
+bash scripts/build_print.sh zh-TW
+bash scripts/build_print.sh en
 ```
 
 Each edition writes these files beneath its own directory:
@@ -151,11 +167,11 @@ underneath. The standard button is kept at
 press-kit URL `https://mirrors.creativecommons.org/presskit/buttons/88x31/png/by-nc-nd.png`.
 The PDF link points to `https://creativecommons.org/licenses/by-nc-nd/4.0/`.
 
-The default visible code-line limit is 96 characters for Traditional Chinese
-and 95 characters for English. Override it for an individual build when needed:
+The default visible code-line limit is 95 characters for both editions.
+Override it for an individual build when needed:
 
 ```bash
-CODE_LINE_LIMIT=100 bash en/print/build.sh
+CODE_LINE_LIMIT=100 bash scripts/build_print.sh en
 ```
 
 Before deploying, the workflow also applies the fixed 95-character English PDF

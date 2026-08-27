@@ -1,14 +1,31 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-cd "$ROOT"
+SCRIPT_DIRECTORY="${BASH_SOURCE[0]%/*}"
+if [ "$SCRIPT_DIRECTORY" = "${BASH_SOURCE[0]}" ]; then
+  SCRIPT_DIRECTORY="."
+fi
+REPOSITORY_ROOT="$(cd "$SCRIPT_DIRECTORY/.." && pwd)"
+EDITION="${1:-}"
+DEFAULT_CODE_LINE_LIMIT=95
+
+case "$EDITION" in
+  en|zh-TW)
+    ;;
+  *)
+    echo "Usage: bash scripts/build_print.sh {en|zh-TW}" >&2
+    exit 2
+    ;;
+esac
+
+BOOK_ROOT="$REPOSITORY_ROOT/$EDITION"
+cd "$BOOK_ROOT"
 
 MANUSCRIPT="build/print/manuscript.md"
 TEX="build/print/rust-book-a4.tex"
 PDF="book/rust-book-a4.pdf"
 CODE_REPORT="build/print/code-lines.txt"
-CODE_LINE_LIMIT="${CODE_LINE_LIMIT:-96}"
+CODE_LINE_LIMIT="${CODE_LINE_LIMIT:-$DEFAULT_CODE_LINE_LIMIT}"
 CC_BADGE_PATH="../assets/cc-by-nc-nd-4.0-88x31.png"
 
 mkdir -p build/print book
@@ -18,7 +35,8 @@ if [ ! -s "$CC_BADGE_PATH" ]; then
   exit 1
 fi
 
-python3 scripts/mdbook_to_pandoc.py \
+python3 ../scripts/mdbook_to_pandoc.py \
+  --language "$EDITION" \
   --summary src/SUMMARY.md \
   --src-dir src \
   --output "$MANUSCRIPT" \
@@ -47,7 +65,7 @@ pandoc "$MANUSCRIPT" \
   --resource-path=.:src \
   --output "$TEX"
 
-python3 scripts/postprocess_print_tex.py "$TEX"
+python3 ../scripts/postprocess_print_tex.py "$TEX"
 
 xelatex -interaction=nonstopmode -halt-on-error -output-directory build/print "$TEX"
 xelatex -interaction=nonstopmode -halt-on-error -output-directory build/print "$TEX"

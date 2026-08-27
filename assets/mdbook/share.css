@@ -1,0 +1,15 @@
+/* Shared by the English and Traditional Chinese mdBook editions. */
+#share-link-button {
+    font-size: inherit;
+}
+
+#share-link-button .share-link-tooltip {
+    top: calc(var(--menu-bar-height) - 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    font-size: 0.8em;
+    line-height: 1.4;
+    white-space: nowrap;
+    cursor: default;
+}
