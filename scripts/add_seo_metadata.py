@@ -121,8 +121,9 @@ def page_url(public_dir: Path, path: Path) -> str:
 
 def canonical_url(public_dir: Path, path: Path) -> str:
     relative = path.relative_to(public_dir).as_posix()
-    if relative == "en/foreword.html":
-        return f"{SITE_URL}/en/"
+    if relative in {"en/foreword.html", "zh-TW/foreword.html"}:
+        language = relative.split("/", 1)[0]
+        return f"{SITE_URL}/{language}/"
     return page_url(public_dir, path)
 
 
