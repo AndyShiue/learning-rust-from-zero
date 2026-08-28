@@ -119,6 +119,13 @@ def page_url(public_dir: Path, path: Path) -> str:
     return f"{SITE_URL}/{quote(relative, safe=URL_SAFE)}"
 
 
+def canonical_url(public_dir: Path, path: Path) -> str:
+    relative = path.relative_to(public_dir).as_posix()
+    if relative == "en/foreword.html":
+        return f"{SITE_URL}/en/"
+    return page_url(public_dir, path)
+
+
 def page_info(public_dir: Path, path: Path) -> tuple[str | None, str]:
     relative = path.relative_to(public_dir).as_posix()
     if relative == "index.html":
@@ -179,6 +186,7 @@ def add_metadata(public_dir: Path, path: Path) -> None:
     document = path.read_text(encoding="utf-8")
     language, language_relative = page_info(public_dir, path)
     url = page_url(public_dir, path)
+    canonical = canonical_url(public_dir, path)
     title = extract_title(document)
     description = extract_description(document, title, language)
     locale = LANGUAGES.get(language, {}).get("locale", "en_US")
@@ -193,7 +201,7 @@ def add_metadata(public_dir: Path, path: Path) -> None:
     document = upsert_link(
         document,
         "canonical",
-        f'<link rel="canonical" href="{escape(url, quote=True)}">',
+        f'<link rel="canonical" href="{escape(canonical, quote=True)}">',
     )
 
     metadata = [
