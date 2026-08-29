@@ -81,7 +81,7 @@ Totally fine. The Rust compiler scans the whole file first, so whether you put a
 
 ### Function Naming Convention
 
-Rust function names use **snake_case**: all lowercase, with words separated by underscores `_`.
+Rust function names, like variables created with `let`, use **snake_case**: all lowercase, with words separated by underscores `_`.
 
 ```rust,noplayground
 fn say_hello() { // ✅ snake_case
