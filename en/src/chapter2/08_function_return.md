@@ -23,8 +23,10 @@ fn main() {
 
 The key points:
 
-1. `-> i32` after the parameters tells Rust "this function returns an `i32`."
+1. `-> i32` after the parameters tells Rust "this function returns an `i32`." The `i32` here is the function's **return type**.
 2. The function's last line, `a + b`, has **no semicolon** → that's the return value.
+
+The declaration `fn add(a: i32, b: i32) -> i32` is called the function's **signature**. It describes the function's name, parameters and their types, and return type. The part inside the braces `{ ... }` is the **function body**, which is not part of the function signature.
 
 ### No Semicolon = Return Value
 
@@ -129,6 +131,7 @@ fn main() {
 ## Recap
 
 - Declare a function's return type with `-> type`.
+- A function signature describes the function's name, parameters and their types, and return type; the part inside the braces `{ ... }` is the function body.
 - The last line **without a semicolon** is the return value (the idiomatic Rust style).
 - With a semicolon, it becomes an ordinary statement, and `()` gets returned instead.
 - A function without a declared return type actually returns `()`.
