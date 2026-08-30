@@ -34,7 +34,7 @@ sudo apt-get install -y --no-install-recommends \
   zip \
   pandoc \
   texlive-xetex \
-  texlive-lang-cjk \
+  texlive-lang-chinese \
   lmodern \
   fonts-jetbrains-mono \
   fonts-noto-core \
@@ -42,13 +42,9 @@ sudo apt-get install -y --no-install-recommends \
   fonts-symbola
 ```
 
-`texlive-lang-cjk` contains the `xeCJK` package used by the shared print
-header. `lmodern` is explicit because Pandoc's LaTeX template loads
-`lmodern.sty`, while `texlive-xetex` only recommends that package and
-`--no-install-recommends` would otherwise omit it. CI omits `fonts-noto-cjk`
-because it downloads and verifies the three pinned Traditional Chinese font
-files described below; keep the system package for the local fallback unless
-you download those files too.
+CI omits `fonts-noto-cjk` because it downloads and verifies the pinned
+Traditional Chinese font files described below. Keep the system package for
+local builds unless you download those files too.
 
 On macOS:
 

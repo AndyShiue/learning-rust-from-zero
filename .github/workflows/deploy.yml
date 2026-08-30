@@ -61,7 +61,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends \
             pandoc \
             texlive-xetex \
-            texlive-lang-cjk \
+            texlive-lang-chinese \
             lmodern \
             fonts-jetbrains-mono \
             fonts-noto-core \
