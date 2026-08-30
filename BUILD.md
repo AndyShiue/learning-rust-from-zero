@@ -262,6 +262,9 @@ renamed public pages. Changes to the URL normalization, SEO metadata, sitemap,
 or IndexNow scripts submit all canonical sitemap URLs. Noncanonical foreword
 aliases are excluded. A newly deployed key may briefly return HTTP 403 while
 the verification file propagates, so the script retries that response.
+If the key is missing or invalid, the workflow skips the IndexNow notification
+and deploys Pages with a warning. A later IndexNow submission failure is also
+reported as a warning without changing the successful Pages deployment result.
 
 To inspect the selected URLs locally without sending a notification, first
 assemble `public/` and generate its sitemap, then run:

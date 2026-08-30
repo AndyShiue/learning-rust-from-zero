@@ -8,6 +8,10 @@ permissions:
   pages: write
   id-token: write
 
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
 env:
   # Keep CI reproducible; update these pins deliberately when new releases
   # have been checked against both editions.
@@ -98,14 +102,17 @@ jobs:
           python3 scripts/generate_sitemap.py public
 
       - name: Add IndexNow verification file
+        id: indexnow_key
         env:
           INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
         run: |
           if [[ ! "$INDEXNOW_KEY" =~ ^[A-Za-z0-9-]{8,128}$ ]]; then
-            echo "INDEXNOW_KEY is missing or invalid" >&2
-            exit 1
+            echo "::warning title=IndexNow disabled::INDEXNOW_KEY is missing or invalid; Pages deployment will continue without an IndexNow notification."
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
           printf '%s' "$INDEXNOW_KEY" > "public/${INDEXNOW_KEY}.txt"
+          echo "configured=true" >> "$GITHUB_OUTPUT"
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6
@@ -113,16 +120,27 @@ jobs:
       - name: Upload site artifact
         uses: actions/upload-pages-artifact@v5
         with:
+          name: github-pages-${{ github.run_attempt }}
           path: ./public
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
 
       - name: Submit changed URLs to IndexNow
+        id: indexnow_submit
+        if: steps.indexnow_key.outputs.configured == 'true'
+        continue-on-error: true
         env:
           INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
         run: >-
           python3 scripts/submit_indexnow.py public
           --before "${{ github.event.before }}"
           --after "${{ github.sha }}"
+
+      - name: Report IndexNow notification failure
+        if: steps.indexnow_submit.outcome == 'failure'
+        run: >-
+          echo "::warning title=IndexNow notification failed::GitHub Pages was deployed successfully; retry the IndexNow notification later if needed."
