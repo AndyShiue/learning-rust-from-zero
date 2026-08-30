@@ -171,7 +171,7 @@ Chapter 6 taught that an ordinary closure implements `FnOnce`, `FnMut`, or `Fn` 
 
 | Ordinary closure | `async` closure | How it's called |
 | --- | --- | --- |
-| `FnOnce` | `AsyncFnOnce` | Guaranteed callable only once; that call may consume the captured values |
+| `FnOnce` | `AsyncFnOnce` | Callable once; may consume captured values |
 | `FnMut` | `AsyncFnMut` | Callable repeatedly through a mutable reference |
 | `Fn` | `AsyncFn` | Callable repeatedly through a shared reference |
 

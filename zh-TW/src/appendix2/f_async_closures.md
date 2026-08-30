@@ -171,7 +171,7 @@ fn main() {
 
 | 普通閉包 | `async` 閉包 | 呼叫方式 |
 | --- | --- | --- |
-| `FnOnce` | `AsyncFnOnce` | 只保證能呼叫一次，這次呼叫可能消耗捕捉值 |
+| `FnOnce` | `AsyncFnOnce` | 可呼叫一次，可能消耗捕捉值 |
 | `FnMut` | `AsyncFnMut` | 能透過可變參考重複呼叫 |
 | `Fn` | `AsyncFn` | 能透過共享參考重複呼叫 |
 
