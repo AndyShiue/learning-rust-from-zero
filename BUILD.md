@@ -235,3 +235,38 @@ been copied into `public/`; the normalizer requires both editions.
 
 The resulting `public/` directory is the artifact uploaded to GitHub Pages.
 It is generated output and can be removed and rebuilt at any time.
+
+## IndexNow notifications
+
+The deployment workflow notifies IndexNow after GitHub Pages has published the
+new artifact. Configure an Actions repository secret named `INDEXNOW_KEY`
+before running the workflow. Its value must contain 8-128 letters, numbers, or
+hyphens. With the GitHub CLI, run the following command and enter the key at the
+prompt so it is not stored in the repository:
+
+```bash
+gh secret set INDEXNOW_KEY
+```
+
+During deployment, the workflow writes the verification file to the root of
+the project site inside `public/`, deploys it with the rest of the site, and
+then runs:
+
+```bash
+python3 scripts/submit_indexnow.py public --before <base-commit> --after <head-commit>
+```
+
+The checkout uses full Git history so the script can compare the two commits.
+Ordinary deployments notify IndexNow only about added, changed, deleted, or
+renamed public pages. Changes to the URL normalization, SEO metadata, sitemap,
+or IndexNow scripts submit all canonical sitemap URLs. Noncanonical foreword
+aliases are excluded. A newly deployed key may briefly return HTTP 403 while
+the verification file propagates, so the script retries that response.
+
+To inspect the selected URLs locally without sending a notification, first
+assemble `public/` and generate its sitemap, then run:
+
+```bash
+python3 scripts/submit_indexnow.py public --before <base-commit> --after <head-commit> --dry-run
+python3 scripts/submit_indexnow.py public --all --dry-run
+```

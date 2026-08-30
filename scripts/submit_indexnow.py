@@ -195,7 +195,7 @@ def verify_key_file(key: str, attempts: int = 6) -> str:
     raise RuntimeError("The deployed IndexNow key file could not be verified")
 
 
-def submit(urls: list[str], key: str) -> int:
+def submit(urls: list[str], key: str, attempts: int = 6) -> int:
     if len(urls) > 10_000:
         raise ValueError("IndexNow accepts at most 10,000 URLs per request")
 
@@ -208,23 +208,28 @@ def submit(urls: list[str], key: str) -> int:
             "urlList": urls,
         }
     ).encode("utf-8")
-    request = Request(
-        ENDPOINT,
-        data=payload,
-        headers={"Content-Type": "application/json; charset=utf-8"},
-        method="POST",
-    )
-    try:
-        with urlopen(request, timeout=30) as response:
-            status = response.status
-    except HTTPError as error:
-        status = error.code
-    except (URLError, TimeoutError) as error:
-        raise RuntimeError("IndexNow request failed") from error
+    for attempt in range(attempts):
+        request = Request(
+            ENDPOINT,
+            data=payload,
+            headers={"Content-Type": "application/json; charset=utf-8"},
+            method="POST",
+        )
+        try:
+            with urlopen(request, timeout=30) as response:
+                status = response.status
+        except HTTPError as error:
+            status = error.code
+        except (URLError, TimeoutError) as error:
+            raise RuntimeError("IndexNow request failed") from error
 
-    if status not in {200, 202}:
-        raise RuntimeError(f"IndexNow returned HTTP {status}")
-    return status
+        if status in {200, 202}:
+            return status
+        if status != 403 or attempt + 1 == attempts:
+            raise RuntimeError(f"IndexNow returned HTTP {status}")
+        time.sleep(10)
+
+    raise RuntimeError("IndexNow submission attempts were exhausted")
 
 
 def main() -> None:
