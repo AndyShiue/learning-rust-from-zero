@@ -95,10 +95,12 @@ it automatically.
 ## Test dependencies
 
 Both editions share the external crates declared in the root `test-deps/`
-crate. Build them once before running the mdBook tests:
+crate. The committed `test-deps/Cargo.lock` keeps CI dependency resolution
+reproducible. Build the locked dependencies once before running the mdBook
+tests:
 
 ```bash
-cargo build --manifest-path test-deps/Cargo.toml
+cargo build --locked --manifest-path test-deps/Cargo.toml
 ```
 
 Then test both editions against the same compiled dependencies:
@@ -128,6 +130,10 @@ root `build/fonts/` directory:
 - `NotoSansCJKtc-Regular.otf`
 - `NotoSansCJKtc-Bold.otf`
 - `NotoSansMonoCJKtc-Regular.otf`
+
+The workflow pins these files to Noto CJK revision
+`f8d157532fbfaeda587e826d4cd5b21a49186f7c` and verifies their SHA-256 checksums
+before building either PDF.
 
 The shared `print/header.tex` loads these files when present; each edition keeps
 a tiny wrapper that supplies its localized chapter label. This prevents Ubuntu

@@ -1,4 +1,5 @@
 Cargo.lock
+!/test-deps/Cargo.lock
 book/
 build/
 public/

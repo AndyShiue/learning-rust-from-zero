@@ -18,10 +18,14 @@ env:
   RUST_VERSION: "1.98.0"
   RUSTUP_TOOLCHAIN: "1.98.0"
   MDBOOK_VERSION: "0.5.4"
+  NOTO_CJK_REVISION: "f8d157532fbfaeda587e826d4cd5b21a49186f7c"
+  NOTO_SANS_CJK_TC_REGULAR_SHA256: "dce08bd4fd91aa8aa76ed8fea4b694c2dfb8550f67871e326843212ddbeb88b4"
+  NOTO_SANS_CJK_TC_BOLD_SHA256: "3ee160e5015106e3ec1a394301df54fa9bbbf8a251519984aec5c0abc50840c0"
+  NOTO_SANS_MONO_CJK_TC_REGULAR_SHA256: "82a040aed900bba51b5990bc158a86b264c8ad5071a2d8911e8696350e0794b3"
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -53,17 +57,20 @@ jobs:
       - name: Prepare shared book resources
         run: |
           python3 -B scripts/prepare_mdbook_assets.py
-          cargo build --manifest-path test-deps/Cargo.toml
+          cargo build --locked --manifest-path test-deps/Cargo.toml
           mkdir -p build/fonts
           curl -L --fail --retry 3 --retry-delay 2 \
             --output build/fonts/NotoSansCJKtc-Regular.otf \
-            https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/OTF/TraditionalChinese/NotoSansCJKtc-Regular.otf
+            https://raw.githubusercontent.com/notofonts/noto-cjk/${NOTO_CJK_REVISION}/Sans/OTF/TraditionalChinese/NotoSansCJKtc-Regular.otf
           curl -L --fail --retry 3 --retry-delay 2 \
             --output build/fonts/NotoSansCJKtc-Bold.otf \
-            https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/OTF/TraditionalChinese/NotoSansCJKtc-Bold.otf
+            https://raw.githubusercontent.com/notofonts/noto-cjk/${NOTO_CJK_REVISION}/Sans/OTF/TraditionalChinese/NotoSansCJKtc-Bold.otf
           curl -L --fail --retry 3 --retry-delay 2 \
             --output build/fonts/NotoSansMonoCJKtc-Regular.otf \
-            https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/Mono/NotoSansMonoCJKtc-Regular.otf
+            https://raw.githubusercontent.com/notofonts/noto-cjk/${NOTO_CJK_REVISION}/Sans/Mono/NotoSansMonoCJKtc-Regular.otf
+          echo "$NOTO_SANS_CJK_TC_REGULAR_SHA256  build/fonts/NotoSansCJKtc-Regular.otf" | sha256sum --check --strict -
+          echo "$NOTO_SANS_CJK_TC_BOLD_SHA256  build/fonts/NotoSansCJKtc-Bold.otf" | sha256sum --check --strict -
+          echo "$NOTO_SANS_MONO_CJK_TC_REGULAR_SHA256  build/fonts/NotoSansMonoCJKtc-Regular.otf" | sha256sum --check --strict -
 
       - name: Build Traditional Chinese edition
         working-directory: zh-TW
@@ -95,7 +102,7 @@ jobs:
           cp -r zh-TW/book public/zh-TW
           cp -r en/book public/en
 
-      - name: Generate SEO metadata and sitemap
+      - name: Normalize URLs and generate SEO metadata and sitemap
         run: |
           python3 scripts/normalize_public_urls.py public
           python3 scripts/add_seo_metadata.py public
