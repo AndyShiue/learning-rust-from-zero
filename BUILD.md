@@ -28,20 +28,23 @@ On Ubuntu/Debian, install the non-Rust dependencies with:
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y \
+sudo apt-get install -y --no-install-recommends \
   python3 \
   curl \
   zip \
   pandoc \
   texlive-xetex \
-  texlive-latex-extra \
-  texlive-lang-chinese \
-  texlive-fonts-recommended \
+  texlive-lang-cjk \
   fonts-jetbrains-mono \
   fonts-noto-core \
   fonts-noto-cjk \
   fonts-symbola
 ```
+
+`texlive-lang-cjk` contains the `xeCJK` package used by the shared print
+header. CI omits `fonts-noto-cjk` because it downloads and verifies the three
+pinned Traditional Chinese font files described below; keep the system package
+for the local fallback unless you download those files too.
 
 On macOS:
 

@@ -38,20 +38,32 @@ jobs:
       - name: Check bilingual source mirror
         run: python3 scripts/check_bilingual_mirror.py
 
-      - name: Install Rust, mdBook, and PDF dependencies
+      - name: Install Rust toolchain
+        run: rustup toolchain install "$RUST_VERSION" --profile minimal --no-self-update
+
+      - name: Restore mdBook binary cache
+        id: mdbook-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cargo/bin/mdbook
+          key: mdbook-${{ runner.os }}-${{ runner.arch }}-${{ env.MDBOOK_VERSION }}
+
+      - name: Install mdBook
+        if: steps.mdbook-cache.outputs.cache-hit != 'true'
+        run: cargo install mdbook --version "$MDBOOK_VERSION" --locked
+
+      - name: Verify mdBook version
+        run: test "$(mdbook --version)" = "mdbook v${MDBOOK_VERSION}"
+
+      - name: Install PDF dependencies
         run: |
-          rustup toolchain install "$RUST_VERSION" --profile minimal --no-self-update
-          cargo install mdbook --version "$MDBOOK_VERSION" --locked
           sudo apt-get update
-          sudo apt-get install -y \
+          sudo apt-get install -y --no-install-recommends \
             pandoc \
             texlive-xetex \
-            texlive-latex-extra \
-            texlive-lang-chinese \
-            texlive-fonts-recommended \
+            texlive-lang-cjk \
             fonts-jetbrains-mono \
             fonts-noto-core \
-            fonts-noto-cjk \
             fonts-symbola
 
       - name: Prepare shared book resources
