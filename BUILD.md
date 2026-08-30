@@ -34,6 +34,7 @@ sudo apt-get install -y --no-install-recommends \
   zip \
   pandoc \
   texlive-xetex \
+  texlive-fonts-recommended \
   texlive-lang-chinese \
   lmodern \
   fonts-jetbrains-mono \
