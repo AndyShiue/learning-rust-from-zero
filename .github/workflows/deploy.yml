@@ -24,6 +24,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Check bilingual source mirror
         run: python3 scripts/check_bilingual_mirror.py
@@ -95,6 +97,16 @@ jobs:
           python3 scripts/add_seo_metadata.py public
           python3 scripts/generate_sitemap.py public
 
+      - name: Add IndexNow verification file
+        env:
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+        run: |
+          if [[ ! "$INDEXNOW_KEY" =~ ^[A-Za-z0-9-]{8,128}$ ]]; then
+            echo "INDEXNOW_KEY is missing or invalid" >&2
+            exit 1
+          fi
+          printf '%s' "$INDEXNOW_KEY" > "public/${INDEXNOW_KEY}.txt"
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6
 
@@ -106,3 +118,11 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+      - name: Submit changed URLs to IndexNow
+        env:
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+        run: >-
+          python3 scripts/submit_indexnow.py public
+          --before "${{ github.event.before }}"
+          --after "${{ github.sha }}"
