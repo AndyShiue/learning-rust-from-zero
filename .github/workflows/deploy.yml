@@ -62,6 +62,7 @@ jobs:
             pandoc \
             texlive-xetex \
             texlive-lang-cjk \
+            lmodern \
             fonts-jetbrains-mono \
             fonts-noto-core \
             fonts-symbola
