@@ -2,18 +2,16 @@
 
 ## Google Noto Emoji — Orange Book
 
-The following files contain the unmodified Google Noto Emoji “Orange Book” SVG artwork:
+The following file contains the unmodified Google Noto Emoji “Orange Book” SVG artwork:
 
 - `favicon.svg`
-- `en/theme/favicon.svg`
-- `zh-TW/theme/favicon.svg`
 
 - Upstream project: <https://github.com/googlefonts/noto-emoji>
 - Source SVG: <https://www.iconarchive.com/download/i107862/google/noto-emoji-objects/62862-orange-book.svg>
 - License: Apache License 2.0
 - Copyright: Google, Inc. (2013)
 
-The favicon files above are third-party artwork and are not relicensed under this repository’s CC BY-NC-ND 4.0 content license. This repository’s own content license remains unchanged. The SVG files are distributed under the Apache License 2.0 reproduced below. Because the files are unmodified, no modification notice is required.
+The favicon above is third-party artwork and is not relicensed under this repository’s CC BY-NC-ND 4.0 content license. This repository’s own content license remains unchanged. The SVG file is distributed under the Apache License 2.0 reproduced below. Because the file is unmodified, no modification notice is required.
 
 ## Apache License 2.0
 
