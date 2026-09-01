@@ -20,7 +20,7 @@
 4. 就算你使用 AI 幫助閱讀，那也不代表需要的時候你不能回來閱讀教學本文。
 5. 其實你並不一定要去 GitHub 對我的專案進行 `git clone`；上面的 `.zip` 檔已經包含了本教學的全部內容（你可以手動解壓縮看看）。之所以會建議使用壓縮檔而非直接閱讀網頁是因為壓縮檔中的內容是純文字，對於 AI 會更友善。
 6. 我後來才發現，現代「完全的初學者」可能並沒有那麼多，因此會想跳過第 1 章。上面有說這或許可行，但如果你發現自己好像沒搞懂最基礎的概念，第 1 章的本文都非常短，閱讀一下真的不需要花多少時間。
-7. 請特別注意非同步一章的前半。那部分的精髓就在於練習讀懂程式碼，就算你用 AI 閱讀也一樣。在此特別推薦一書：[Asynchronous Programming in Rust](https://www.packtpub.com/en-us/product/asynchronous-programming-in-rust-9781805126621)。本教學的非同步一章是參考該書後自己重寫出來的。
+7. 請特別注意非同步一章的前半。那部分的精髓就在於練習讀懂程式碼，就算你用 AI 閱讀也一樣。在此特別推薦一書：[*Asynchronous Programming in Rust*](https://www.packtpub.com/en-us/product/asynchronous-programming-in-rust-9781805126621)。本教學的非同步一章是參考該書後自己重寫出來的。
 
 另外本教學也有 PDF 版供讀者下載：
 
