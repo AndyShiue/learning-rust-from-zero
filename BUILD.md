@@ -17,8 +17,8 @@ export RUSTUP_TOOLCHAIN=1.98.0
 cargo install mdbook --version 0.5.4 --locked
 ```
 
-Keep these values aligned with `RUST_VERSION`, `RUSTUP_TOOLCHAIN`, and
-`MDBOOK_VERSION` in `.github/workflows/deploy.yml`. Update the pins only after
+Keep these values aligned with `RUSTUP_TOOLCHAIN` and `MDBOOK_VERSION` in
+`.github/workflows/deploy.yml`. Update the pins only after
 the new versions have passed the tests and builds for both editions.
 
 The complete pipeline also requires Bash, Python 3.11 or newer, `curl`, `zip`, Pandoc,
