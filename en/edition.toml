@@ -1,0 +1,33 @@
+[print]
+toc_title = "Contents"
+generated_label = "Generated on "
+date_template = "{month_name} {day}, {year}"
+month_names = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+]
+
+[seo]
+hreflang = "en"
+locale = "en_US"
+fallback_description = "Learn Rust from zero: {title}."
+redirect_title = "Page moved"
+redirect_message = "This page has moved to {link}."
+redirect_link_text = "its new URL"
+
+[lesson]
+goal = "Goal of This Episode"
+main = "Main Text"
+concept = "Concept"
+example = "Example Code"
+recap = "Recap"

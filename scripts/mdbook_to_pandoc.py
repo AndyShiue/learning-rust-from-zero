@@ -6,10 +6,11 @@ from __future__ import annotations
 import argparse
 import os
 import re
-from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+
+from edition_config import EDITION_CODES, EditionConfig, load_edition_config
 
 
 SUMMARY_HEADING_RE = re.compile(r"^#\s+(.+?)\s*$")
@@ -24,35 +25,12 @@ RUST_CODE_CLASSES = {
 }
 
 
-@dataclass(frozen=True)
-class EditionConfig:
-    title: str
-    toc_title: str
-    generated_label: str
-    uses_chinese_date: bool = False
-
-
 DEFAULT_CODE_LINE_LIMIT = 95
-
-
-EDITIONS = {
-    "en": EditionConfig(
-        title="Learning Rust from Zero",
-        toc_title="Contents",
-        generated_label="Generated on ",
-    ),
-    "zh-TW": EditionConfig(
-        title="從零開始學 Rust",
-        toc_title="目錄",
-        generated_label="生成日期：",
-        uses_chinese_date=True,
-    ),
-}
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--language", choices=EDITIONS, required=True)
+    parser.add_argument("--language", choices=EDITION_CODES, required=True)
     parser.add_argument("--summary", type=Path, default=Path("src/SUMMARY.md"))
     parser.add_argument("--src-dir", type=Path, default=Path("src"))
     parser.add_argument("--output", type=Path, default=Path("build/print/manuscript.md"))
@@ -193,17 +171,26 @@ def build_date_text(edition: EditionConfig) -> str:
         today = datetime.now(ZoneInfo(timezone)).date()
     except ZoneInfoNotFoundError:
         today = datetime.now().date()
-    if edition.uses_chinese_date:
-        return f"{today.year} 年 {today.month} 月 {today.day} 日"
-    months = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December",
-    ]
-    return f"{months[today.month - 1]} {today.day}, {today.year}"
+    month_name = (
+        edition.print.month_names[today.month - 1]
+        if edition.print.month_names
+        else str(today.month)
+    )
+    return edition.print.date_template.format(
+        year=today.year,
+        month_number=today.month,
+        month_name=month_name,
+        day=today.day,
+    )
 
 
 def title_page(build_date: str, edition: EditionConfig) -> str:
     escaped_date = build_date.replace("&", r"\&").replace("%", r"\%")
+    escaped_authors = (
+        ", ".join(edition.authors)
+        .replace("&", r"\&")
+        .replace("%", r"\%")
+    )
     return rf"""
 \begin{{titlepage}}
 \thispagestyle{{empty}}
@@ -212,10 +199,10 @@ def title_page(build_date: str, edition: EditionConfig) -> str:
 {{\fontsize{{30pt}}{{38pt}}\selectfont\bfseries {edition.title}}}
 
 \vspace{{2em}}
-{{\Large Andy Shiue}}
+{{\Large {escaped_authors}}}
 
 \vspace{{1.5em}}
-{{\large {edition.generated_label}{escaped_date}}}
+{{\large {edition.print.generated_label}{escaped_date}}}
 \end{{center}}
 \vspace*{{\fill}}
 \CCLicenseBadge
@@ -235,8 +222,8 @@ def blank_page() -> str:
 def table_of_contents(edition: EditionConfig) -> str:
     return rf"""
 \cleardoublepage
-\markboth{{{edition.toc_title}}}{{{edition.toc_title}}}
-\renewcommand*\contentsname{{{edition.toc_title}}}
+\markboth{{{edition.print.toc_title}}}{{{edition.print.toc_title}}}
+\renewcommand*\contentsname{{{edition.print.toc_title}}}
 \setcounter{{tocdepth}}{{1}}
 \tableofcontents
 \cleardoublepage
@@ -264,7 +251,7 @@ def parse_summary(summary: Path) -> list[tuple[str, str | None, int | None]]:
 
 def main() -> None:
     args = parse_args()
-    edition = EDITIONS[args.language]
+    edition = load_edition_config(args.language)
     summary = args.summary
     src_dir = args.src_dir
     output = args.output

@@ -9,14 +9,10 @@ REPOSITORY_ROOT="$(cd "$SCRIPT_DIRECTORY/.." && pwd)"
 EDITION="${1:-}"
 DEFAULT_CODE_LINE_LIMIT=95
 
-case "$EDITION" in
-  en|zh-TW)
-    ;;
-  *)
-    echo "Usage: bash scripts/build_print.sh {en|zh-TW}" >&2
-    exit 2
-    ;;
-esac
+if [ -z "$EDITION" ] || [ ! -f "$REPOSITORY_ROOT/$EDITION/edition.toml" ]; then
+  echo "Usage: bash scripts/build_print.sh <edition>" >&2
+  exit 2
+fi
 
 BOOK_ROOT="$REPOSITORY_ROOT/$EDITION"
 cd "$BOOK_ROOT"

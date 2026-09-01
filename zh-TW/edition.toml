@@ -1,0 +1,19 @@
+[print]
+toc_title = "目錄"
+generated_label = "生成日期："
+date_template = "{year} 年 {month_number} 月 {day} 日"
+
+[seo]
+hreflang = "zh-TW"
+locale = "zh_TW"
+fallback_description = "從零開始學 Rust：{title}。"
+redirect_title = "頁面已移動"
+redirect_message = "此頁面已移至 {link}。"
+redirect_link_text = "新的網址"
+
+[lesson]
+goal = "本集目標"
+main = "正文"
+concept = "概念說明"
+example = "範例程式碼"
+recap = "重點整理"

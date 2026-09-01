@@ -15,6 +15,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
+from edition_config import load_edition_config
+
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 ZH_ROOT = REPOSITORY_ROOT / "zh-TW" / "src"
@@ -34,20 +36,8 @@ LESSON_PATH = re.compile(
     r"^(?:chapter\d+/\d{2}_[^/]+|appendix\d+/[a-z]_[^/]+)\.md$"
 )
 
-ZH_LESSON_ROLES = {
-    "本集目標": "goal",
-    "正文": "main",
-    "概念說明": "concept",
-    "範例程式碼": "example",
-    "重點整理": "recap",
-}
-EN_LESSON_ROLES = {
-    "Goal of This Episode": "goal",
-    "Main Text": "main",
-    "Concept": "concept",
-    "Example Code": "example",
-    "Recap": "recap",
-}
+ZH_LESSON_ROLES = load_edition_config("zh-TW").lesson.heading_roles()
+EN_LESSON_ROLES = load_edition_config("en").lesson.heading_roles()
 VALID_LESSON_ROLE_SEQUENCES = {
     ("goal", "main", "recap"),
     ("goal", "concept", "example", "recap"),

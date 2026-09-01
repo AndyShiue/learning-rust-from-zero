@@ -24,9 +24,11 @@ from html import escape
 from pathlib import Path, PurePosixPath
 from urllib.parse import quote
 
+from edition_config import EDITION_CODES, load_edition_config
+
 
 SITE_URL = "https://andyshiue.github.io/learning-rust-from-zero"
-LANGUAGES = ("en", "zh-TW")
+EDITIONS = {code: load_edition_config(code) for code in EDITION_CODES}
 EXCLUDED_NAMES = {"404.html", "print.html"}
 REDIRECT_MARKER = "<!-- URL_ALIAS_REDIRECT -->"
 URL_SAFE = "/:@-._~!$&'()*+,;="
@@ -116,11 +118,20 @@ def relative_target(source: str, target: str) -> str:
 
 
 def redirect_document(language: str, source: str, target: str) -> str:
+    edition = EDITIONS[language]
     target_href = relative_target(source, target)
     target_json = json.dumps(target_href, ensure_ascii=False)
     target_url = canonical_url(language, target)
     escaped_target = escape(target_href, quote=True)
     escaped_url = escape(target_url, quote=True)
+    redirect_link = (
+        f'<a href="{escaped_target}">'
+        f"{escape(edition.seo.redirect_link_text)}</a>"
+    )
+    redirect_message = escape(edition.seo.redirect_message).replace(
+        "{link}",
+        redirect_link,
+    )
     return f"""{REDIRECT_MARKER}
 <!doctype html>
 <html lang="{escape(language)}">
@@ -129,10 +140,10 @@ def redirect_document(language: str, source: str, target: str) -> str:
   <meta name="robots" content="noindex">
   <meta http-equiv="refresh" content="0; url={escaped_target}">
   <link rel="canonical" href="{escaped_url}">
-  <title>Page moved</title>
+  <title>{escape(edition.seo.redirect_title)}</title>
 </head>
 <body>
-  <p>This page has moved to <a href="{escaped_target}">its new URL</a>.</p>
+  <p>{redirect_message}</p>
   <script>window.location.replace({target_json});</script>
 </body>
 </html>
@@ -237,7 +248,7 @@ def normalize_language(language_dir: Path) -> int:
 def main() -> None:
     public_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("public")
     total = 0
-    for language in LANGUAGES:
+    for language in EDITION_CODES:
         language_dir = public_dir / language
         if not language_dir.is_dir():
             raise FileNotFoundError(

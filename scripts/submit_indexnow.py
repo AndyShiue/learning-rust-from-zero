@@ -16,22 +16,23 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import quote
 from urllib.request import Request, urlopen
 
+from edition_config import EDITION_CODES
 from normalize_public_urls import public_alias
 
 
 SITE_URL = "https://andyshiue.github.io/learning-rust-from-zero"
 HOST = "andyshiue.github.io"
 ENDPOINT = "https://api.indexnow.org/indexnow"
-LANGUAGES = {"en", "zh-TW"}
+LANGUAGES = set(EDITION_CODES)
 KEY_PATTERN = re.compile(r"[A-Za-z0-9-]{8,128}")
 ZERO_SHA = "0" * 40
 URL_SAFE = "/:@-._~!$&'()*+,;="
 NON_CANONICAL_URLS = {
-    f"{SITE_URL}/en/foreword.html",
-    f"{SITE_URL}/zh-TW/foreword.html",
+    f"{SITE_URL}/{language}/foreword.html" for language in EDITION_CODES
 }
 FULL_SITE_PATHS = {
     "scripts/add_seo_metadata.py",
+    "scripts/edition_config.py",
     "scripts/generate_sitemap.py",
     "scripts/normalize_public_urls.py",
     "scripts/submit_indexnow.py",
@@ -134,7 +135,10 @@ def language_wide_change(path: str) -> str | None:
     source = PurePosixPath(path)
     if not source.parts or source.parts[0] not in LANGUAGES:
         return None
-    if len(source.parts) == 2 and source.parts[1] == "book.toml":
+    if len(source.parts) == 2 and source.parts[1] in {
+        "book.toml",
+        "edition.toml",
+    }:
         return source.parts[0]
     if len(source.parts) >= 3 and source.parts[1] == "theme":
         return source.parts[0]

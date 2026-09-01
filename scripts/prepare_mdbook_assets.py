@@ -6,9 +6,10 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
+from edition_config import EDITION_CODES
+
 
 REPOSITORY_ROOT = Path(__file__).resolve().parent.parent
-EDITIONS = ("en", "zh-TW")
 SHARED_ASSETS = {
     REPOSITORY_ROOT / "favicon.svg": "favicon.svg",
     REPOSITORY_ROOT / "assets" / "mdbook" / "code-fix.css": "code-fix.css",
@@ -33,7 +34,7 @@ def main() -> None:
         raise FileNotFoundError("Missing shared mdBook assets: " + ", ".join(missing))
 
     updated = 0
-    for edition in EDITIONS:
+    for edition in EDITION_CODES:
         theme_dir = REPOSITORY_ROOT / edition / "theme"
         for source, filename in SHARED_ASSETS.items():
             if copy_if_changed(source, theme_dir / filename):
@@ -41,7 +42,7 @@ def main() -> None:
 
     print(
         f"Prepared {len(SHARED_ASSETS)} shared mdBook assets for "
-        f"{len(EDITIONS)} editions ({updated} files updated)."
+        f"{len(EDITION_CODES)} editions ({updated} files updated)."
     )
 
 

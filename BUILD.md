@@ -21,7 +21,7 @@ Keep these values aligned with `RUST_VERSION`, `RUSTUP_TOOLCHAIN`, and
 `MDBOOK_VERSION` in `.github/workflows/deploy.yml`. Update the pins only after
 the new versions have passed the tests and builds for both editions.
 
-The complete pipeline also requires Bash, Python 3, `curl`, `zip`, Pandoc,
+The complete pipeline also requires Bash, Python 3.11 or newer, `curl`, `zip`, Pandoc,
 XeLaTeX, JetBrains Mono, Noto Sans, Noto CJK, and an emoji or symbol font.
 
 On Ubuntu/Debian, install the non-Rust dependencies with:
@@ -66,6 +66,18 @@ refresh the shell paths with:
 ```bash
 eval "$(/usr/libexec/path_helper)"
 ```
+
+## Per-edition settings
+
+Each language directory owns an `edition.toml` file for localized build policy
+that does not belong in the shared scripts. It defines the PDF contents label,
+cover date template and optional month names, SEO locale and fallback text,
+redirect-page wording, and standard lesson-section headings. The book title,
+authors, and language code remain in that edition's `book.toml`.
+
+The shared Python build scripts load and validate both files through
+`scripts/edition_config.py`. Keep algorithms in `scripts/`; change localized
+wording or date presentation in `en/edition.toml` or `zh-TW/edition.toml`.
 
 ## Bilingual source mirror
 
@@ -170,6 +182,10 @@ The print pipeline uses that edition's `src/SUMMARY.md` as its source of truth:
 - nested lesson files become sections and do not force page breaks;
 - `Part I` and `Part II` (or `第一部` and `第二部`) become centered part pages.
 
+The localized table-of-contents label and cover date format come from the
+edition's `edition.toml`. English month names are listed explicitly there so PDF
+output does not depend on the runner's operating-system locale.
+
 The title page of both editions also includes a small Creative Commons
 BY-NC-ND 4.0 button in the lower-right corner, with the official license URL
 underneath. The standard button is kept at
@@ -236,7 +252,9 @@ python3 scripts/generate_sitemap.py public
 ```
 
 The URL normalizer creates prefix-free lesson aliases, rewrites the generated
-HTML and mdBook sidebar links, and leaves redirects at the old numbered paths.
+HTML and mdBook sidebar links, and leaves localized redirects at the old
+numbered paths. Redirect wording and SEO fallback text come from each language's
+`edition.toml`.
 The metadata script then adds canonical, language-alternate, Open Graph, and
 Twitter metadata to the canonical pages. Finally, the sitemap generator lists
 the canonical pages while excluding redirects, `404.html`, and mdBook's
@@ -270,7 +288,8 @@ The checkout uses full Git history so the script can compare the two commits.
 Ordinary deployments notify IndexNow only about added, changed, deleted, or
 renamed public pages. Changes to the URL normalization, SEO metadata, sitemap,
 or IndexNow scripts submit all canonical sitemap URLs. Noncanonical foreword
-aliases are excluded. A newly deployed key may briefly return HTTP 403 while
+aliases are excluded. Changing one language's `edition.toml` submits that
+edition's canonical URLs. A newly deployed key may briefly return HTTP 403 while
 the verification file propagates, so the script retries that response.
 If the key is missing or invalid, the workflow skips the IndexNow notification
 and deploys Pages with a warning. A later IndexNow submission failure is also

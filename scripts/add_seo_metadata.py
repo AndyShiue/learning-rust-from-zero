@@ -10,6 +10,8 @@ from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import quote
 
+from edition_config import EDITION_CODES, load_edition_config
+
 
 SITE_URL = "https://andyshiue.github.io/learning-rust-from-zero"
 SITE_NAME = "Learning Rust from Zero / 從零開始學 Rust"
@@ -17,9 +19,9 @@ ROOT_DESCRIPTION = (
     "A Rust tutorial for absolute beginners, from basic syntax and ownership "
     "to async programming."
 )
-LANGUAGES = {
-    "en": {"hreflang": "en", "locale": "en_US"},
-    "zh-TW": {"hreflang": "zh-TW", "locale": "zh_TW"},
+EDITIONS = {code: load_edition_config(code) for code in EDITION_CODES}
+NON_CANONICAL_FOREWORDS = {
+    f"{code}/foreword.html" for code in EDITION_CODES
 }
 EXCLUDED_NAMES = {"404.html", "print.html"}
 REDIRECT_MARKER = "<!-- URL_ALIAS_REDIRECT -->"
@@ -103,10 +105,9 @@ def extract_description(document: str, title: str, language: str | None) -> str:
             break
 
     if not description:
-        if language == "zh-TW":
-            description = f"從零開始學 Rust：{title}。"
-        else:
-            description = f"Learn Rust from zero: {title}."
+        description = EDITIONS[language].seo.fallback_description.format(
+            title=title
+        )
     return shorten(description)
 
 
@@ -121,7 +122,7 @@ def page_url(public_dir: Path, path: Path) -> str:
 
 def canonical_url(public_dir: Path, path: Path) -> str:
     relative = path.relative_to(public_dir).as_posix()
-    if relative in {"en/foreword.html", "zh-TW/foreword.html"}:
+    if relative in NON_CANONICAL_FOREWORDS:
         language = relative.split("/", 1)[0]
         return f"{SITE_URL}/{language}/"
     return page_url(public_dir, path)
@@ -133,7 +134,7 @@ def page_info(public_dir: Path, path: Path) -> tuple[str | None, str]:
         return None, "index.html"
 
     parts = relative.split("/", 1)
-    if parts[0] in LANGUAGES:
+    if parts[0] in EDITIONS:
         language = parts[0]
         language_relative = parts[1] if len(parts) == 2 else "index.html"
         return language, language_relative
@@ -190,7 +191,7 @@ def add_metadata(public_dir: Path, path: Path) -> None:
     canonical = canonical_url(public_dir, path)
     title = extract_title(document)
     description = extract_description(document, title, language)
-    locale = LANGUAGES.get(language, {}).get("locale", "en_US")
+    locale = EDITIONS[language].seo.locale if language is not None else "en_US"
     page_type = "article" if language is not None else "website"
 
     document = upsert_meta(
@@ -255,20 +256,20 @@ def add_metadata(public_dir: Path, path: Path) -> None:
     alternate_tags: list[str] = []
     if language is None:
         candidates = {
-            "en": public_dir / "en" / "index.html",
-            "zh-TW": public_dir / "zh-TW" / "index.html",
+            code: public_dir / code / "index.html" for code in EDITION_CODES
         }
         x_default = url
     else:
         candidates = {
-            code: public_dir / code / language_relative for code in LANGUAGES
+            code: public_dir / code / language_relative
+            for code in EDITION_CODES
         }
         x_default = page_url(public_dir, candidates["en"])
 
     for code, candidate in candidates.items():
         if candidate.exists():
             alternate_tags.append(
-                f'<link rel="alternate" hreflang="{LANGUAGES[code]["hreflang"]}" '
+                f'<link rel="alternate" hreflang="{EDITIONS[code].seo.hreflang}" '
                 f'href="{escape(page_url(public_dir, candidate), quote=True)}">'
             )
     alternate_tags.append(
