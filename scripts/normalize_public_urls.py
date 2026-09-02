@@ -144,7 +144,11 @@ def redirect_document(language: str, source: str, target: str) -> str:
 </head>
 <body>
   <p>{redirect_message}</p>
-  <script>window.location.replace({target_json});</script>
+  <script>
+    window.location.replace(
+      {target_json} + window.location.search + window.location.hash
+    );
+  </script>
 </body>
 </html>
 """
