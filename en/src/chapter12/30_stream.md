@@ -8,14 +8,14 @@ Meet `Stream` — the `async` version of `Iterator` — and learn how to walk th
 
 ### `Stream` Is the `async` Version of `Iterator`
 
-Chapter 6's `Iterator` is "a sequence of values, taken one at a time." But its `.next()` is **synchronous** — call it and you immediately get the next value (or `None`).
+Chapter 6's `Iterator` is "a sequence of values, taken one at a time." Its `.next()` is a **synchronous** call that returns the next value (or `None`) when it completes. If fetching the value requires expensive computation or blocking I/O, the call must wait for that work to finish.
 
-`Stream` is its `async` counterpart: still a sequence of values taken one at a time, but the next value **may require waiting** (say, for the network to deliver the next piece of data, for a timer, or for user input). So `Stream`'s `.next()` returns a `Future`, and you have to `.next().await` to get the next value.
+`Stream` is its `async` counterpart: still a sequence of values taken one at a time, but you can **wait asynchronously for the next value**, such as the next piece of data arriving over the network. Its `.next()` returns a `Future`, and `.next().await` obtains the next value; while the data isn't ready, it can yield control so the runtime can work on other `Task`s.
 
 The side-by-side makes it easy to remember:
 
-- `iterator.next()` → returns `Option<Item>` (synchronous, immediate).
-- `stream.next().await` → returns `Option<Item>` (requires `.await`, may wait a bit).
+- `iterator.next()` → a synchronous call that returns `Option<Item>` when it completes.
+- `stream.next().await` → waits asynchronously through `.await`, producing `Option<Item>` when it completes.
 
 Both use "`None` means the end."
 
@@ -79,7 +79,7 @@ In practice, `Stream` is a great fit for "data that keeps arriving over time" �
 
 ## Recap
 
-- `Stream` is the `async` version of `Iterator`: a sequence of values taken one at a time, where the next value may require waiting — hence `.next().await`.
+- `Stream` is the `async` version of `Iterator`: a sequence of values taken one at a time, using `.next().await` to wait asynchronously for the next value.
 - Side by side: `iterator.next()` returns an `Option` synchronously; `stream.next().await` needs `.await` to return an `Option`; both end with `None`.
 - Walk it with **`while let Some(x) = stream.next().await`** (`for` doesn't work on a `Stream`).
 - `Stream` isn't in the standard library; it's defined in `futures`, and `tokio_stream::StreamExt` provides `next`, `map`, `filter`, etc. (used almost exactly like `Iterator`).

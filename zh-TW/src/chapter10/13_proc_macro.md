@@ -8,9 +8,11 @@
 
 ### 什麼是 proc macro
 
-上一集的 `macro_rules!` 用模式匹配展開程式碼。但有些事情它做不到——例如讀取 `struct` 的欄位名稱來自動產生程式碼。`#[derive(Debug)]` 是怎麼知道你的 `struct` 有哪些欄位的？答案就是 **proc macro**（procedural macro）。
+上一集的 `macro_rules!` 用模式匹配展開程式碼。**proc macro**（procedural macro）則讓你用一般 Rust 程式撰寫展開邏輯：可以做條件判斷、跑迴圈、呼叫函數，自行決定要產生什麼程式碼。
 
 proc macro 拿到你的程式碼作為輸入（一串 token），然後產生新的程式碼（也是一串 token）。
+
+例如，可以逐一解析 `struct` 的欄位宣告，依照不同的型別寫法產生不同的處理程式碼：看到 `String` 時採用一種處理方式，看到 `Option<T>` 時採用另一種。
 
 ### `TokenStream`
 
@@ -138,6 +140,7 @@ fn main() {
 
 - proc macro 分三種：`derive`、attribute、function-like。
 - 本質是接收 `TokenStream`、回傳 `TokenStream` 的編譯時期函數。
+- 可以用一般 Rust 程式撰寫產生程式碼的邏輯，例如依欄位的型別寫法選擇不同處理。
 - `derive` 附加程式碼、attribute 取代項目、function-like 展開內容。
 - 必須在獨立 `crate` 裡定義（`proc-macro = true`）。
 - 常用 `syn`（解析）和 `quote`（生成）兩個 `crate`。

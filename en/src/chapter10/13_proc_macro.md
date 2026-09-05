@@ -8,9 +8,11 @@ Meet the three kinds of proc macros and understand how they work. This episode i
 
 ### What Is a Proc Macro
 
-Last episode's `macro_rules!` expands code via pattern matching. But some things it can't do — like reading a `struct`'s field names to generate code automatically. How does `#[derive(Debug)]` know what fields your `struct` has? The answer is **proc macros** (procedural macros).
+Last episode's `macro_rules!` expands code via pattern matching. **Proc macros** (procedural macros) let you write the expansion logic in ordinary Rust: you can use conditionals, run loops, and call functions to decide what code to generate.
 
 A proc macro receives your code as input (a stream of tokens) and produces new code (also a stream of tokens).
+
+For example, it can parse each field declaration in a `struct` and generate different handling code based on the type syntax: one approach for `String`, another for `Option<T>`.
 
 ### `TokenStream`
 
@@ -138,6 +140,7 @@ fn main() {
 
 - Proc macros come in three kinds: `derive`, attribute, and function-like.
 - At heart they are compile-time functions that take a `TokenStream` and return a `TokenStream`.
+- You can write code-generation logic in ordinary Rust, such as choosing different handling based on a field's type syntax.
 - `derive` attaches code, attribute replaces the item, function-like expands its contents.
 - They must be defined in a separate `crate` (`proc-macro = true`).
 - `syn` (parsing) and `quote` (generation) are the usual companions.

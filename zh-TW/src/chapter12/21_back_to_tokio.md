@@ -103,8 +103,6 @@ async fn main() {
 }
 ```
 
-（明確呼叫 `drop(rc)` 把它在 `.await` 前丟掉，也是同樣的效果。）
-
 ### `#[tokio::main]` 的 flavor
 
 最後，雖然 `#[tokio::main]` 預設用多執行緒 runtime，但你可以改：
@@ -137,5 +135,5 @@ async fn main() {
 
 - `tokio::spawn` 把 `Future` 交給 runtime，回傳 `JoinHandle`（`.await` 後得到 `Result`，因為 `Task` 可能 panic）。
 - 和手寫版不同，Tokio 的 `block_on` 不需要 `Send` 或 `'static`，而且是**指定的 `Future`** 一完成就回傳，不會等待**所有** `Task`。
-- `.await` 期間持有像 `Rc` 這樣非 `Send` 的值，會讓 `Future` 不是 `Send`，不能 `spawn`；解法是改用 `Arc`、或用作用域 / `drop` 讓它在 `.await` 前消失。
+- `.await` 期間持有像 `Rc` 這樣非 `Send` 的值，會讓 `Future` 不是 `Send`，不能 `spawn`；解法是改用 `Arc`，或用 `{}` 縮小值的作用域，讓它在 `.await` 前被釋放。
 - `#[tokio::main]` 預設多執行緒，但可用 `flavor = "current_thread"` 或 `worker_threads = N` 調整；無論哪種，`tokio::spawn` 的 `Future` 與輸出仍然必須是 `Send + 'static`。

@@ -103,8 +103,6 @@ async fn main() {
 }
 ```
 
-(Explicitly calling `drop(rc)` before the `.await` achieves the same.)
-
 ### `#[tokio::main]` flavors
 
 Finally: `#[tokio::main]` defaults to the multithreaded runtime, but you can change it:
@@ -137,5 +135,5 @@ The single-threaded runtime's upside is that it pays no cross-`Thread` cost; the
 
 - `tokio::spawn` hands a `Future` to the runtime and returns a `JoinHandle` (`.await` yields a `Result`, since the `Task` may panic).
 - Unlike our hand-written `block_on`, Tokio's requires neither `Send` nor `'static` and returns as soon as **the specified `Future`** completes instead of waiting for **all** `Task`s.
-- Holding a non-`Send` value such as `Rc` across an `.await` makes the `Future` non-`Send` and unspawnable; fix with `Arc`, or scope / `drop` it away before the `.await`.
+- Holding a non-`Send` value such as `Rc` across an `.await` makes the `Future` non-`Send` and unspawnable; fix with `Arc`, or use `{}` to shrink the value's scope so it is dropped before the `.await`.
 - `#[tokio::main]` defaults to multithreaded, adjustable via `flavor = "current_thread"` or `worker_threads = N`; either way, `tokio::spawn` still requires its `Future` and output to be `Send + 'static`.

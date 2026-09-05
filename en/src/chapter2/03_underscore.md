@@ -54,7 +54,7 @@ This means "I don't care about this value at all." It has no name, so you can't 
 ### The Difference between `_x` and `_`
 
 - `_x`: has a name; the value is kept and can be used later.
-- `_`: no name; the value is discarded immediately.
+- `_`: does not give the value a name; you cannot use `_` to access it later.
 
 In most situations either one works.
 

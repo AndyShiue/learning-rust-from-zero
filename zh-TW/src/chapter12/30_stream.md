@@ -8,14 +8,14 @@
 
 ### `Stream` 是 `async` 版的 `Iterator`
 
-第 6 章的 `Iterator` 是「一連串值，要一個一個取」。但它的 `.next()` 是**同步**的——呼叫就馬上給你下一個值（或 `None`）。
+第 6 章的 `Iterator` 是「一連串值，要一個一個取」。它的 `.next()` 是**同步**呼叫，完成後回傳下一個值（或 `None`）。如果取值需要耗時計算或阻塞 I/O，這次呼叫也得等它完成。
 
-`Stream` 是它的 `async` 版本：一樣是一連串值要一個一個取，但下一個值**可能要等**（例如等網路送來下一筆資料、等計時器、等使用者輸入）。所以 `Stream` 的 `.next()` 回傳的是一個 `Future`，你要 `.next().await` 才拿得到下一個值。
+`Stream` 是它的 `async` 版本：一樣是一連串值要一個一個取，但可以**非同步地等待下一個值**，例如等網路送來下一筆資料。它的 `.next()` 回傳一個 `Future`，透過 `.next().await` 取得下一個值；資料尚未準備好時，可以讓出執行權，讓 runtime 處理其他 `Task`。
 
 對照記就很好懂：
 
-- `iterator.next()` → 回傳 `Option<Item>`（同步、馬上給）。
-- `stream.next().await` → 回傳 `Option<Item>`（要 `.await`、可能等一下）。
+- `iterator.next()` → 同步呼叫，完成後回傳 `Option<Item>`。
+- `stream.next().await` → 透過 `.await` 非同步等待，完成後得到 `Option<Item>`。
 
 兩者都用「`None` 代表結束」。
 
@@ -79,7 +79,7 @@ async fn main() {
 
 ## 重點整理
 
-- `Stream` 是 `async` 版的 `Iterator`：一連串值一個一個取，但下一個值可能要等，所以是 `.next().await`。
+- `Stream` 是 `async` 版的 `Iterator`：一連串值一個一個取，可以用 `.next().await` 非同步等待下一個值。
 - 對照：`iterator.next()` 同步回 `Option`；`stream.next().await` 要 `.await` 才回 `Option`；都用 `None` 表示結束。
 - 走訪用 **`while let Some(x) = stream.next().await`**（`Stream` 不能用 `for`）。
 - `Stream` 不在標準庫，定義在 `futures`；用 `tokio_stream::StreamExt` 取得 `next`、`map`、`filter` 等方法（用法和 `Iterator` 幾乎一樣）。
