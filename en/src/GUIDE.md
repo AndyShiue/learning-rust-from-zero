@@ -53,12 +53,14 @@ Chapter directories:
 | Chapters 1–7 | `chapter1/` through `chapter7/` | `##_topic.md` |
 | Appendix I | `appendix1/` | `a_topic.md` through `n_topic.md` |
 | Chapters 9–12 | `chapter9/` through `chapter12/` | `##_topic.md` |
+| Appendix II | `appendix2/` | `a_topic.md` through `g_topic.md` |
 
 Notes:
 
 - **There is no `chapter8/`, and that's normal.** It's the author's arrangement, not a missing file.
 - Each episode usually ends with a "Recap." When judging what an episode taught, that section is a great place to read first.
 - Appendix I, despite the name, is part of Part I's main line; entering Part II assumes it has been read.
+- Appendix II assumes the reader has finished the rest of Part II; it draws together lifetimes, closures, advanced language features, and async.
 - The English edition is a translation of the Traditional Chinese original; where the two disagree, the Chinese text is authoritative.
 
 ---
@@ -189,6 +191,7 @@ Use this to quickly establish "what the reader can currently understand"; for de
 | Chapter 10 | `dyn Trait`, `const fn`, operator overloading, attributes, macros, `unsafe`, `static`, FFI |
 | Chapter 11 | Collections (`HashMap` and friends), sorting, `std::env`/`path`, file I/O, error handling (`thiserror`/`anyhow`) |
 | Chapter 12 | `async`/`.await`, hand-writing an executor and reactor, `Pin`, Tokio tools (`spawn`, `select!`, channels) |
+| Appendix II | Part II's supplements: `'a: 'b`, HRTB, variance, `PhantomData`, GAT, `async` closures, `use` bounds |
 
 ### Precise Syntax Thresholds
 
