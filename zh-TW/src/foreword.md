@@ -34,5 +34,5 @@
 
 本教學除大綱外，初稿由 AI 完成，並經人類修改：
 
-- 模型：Claude 4.5 ~ 5 / GPT-5.5 ~ 5.6
+- 模型：Claude 4.5 ~ 5 / GPT-5.5 ~ 6
 - 馬具：OpenClaw / Claude Code / ChatGPT (Codex)
