@@ -8,7 +8,7 @@ Assemble the tools from earlier episodes into a complete graceful shutdown flow.
 
 ### What Is Graceful Shutdown
 
-When a server needs to stop, the crudest approach is to just kill it — but then work in progress is cut off mid-flight, possibly leaving corrupted data and unanswered requests. **graceful shutdown** is the politer way: on receiving a stop request, don't hard-cut — instead, "**tell everyone to wrap up → wait for work in hand to finish (or hit a deadline) → exit cleanly**."
+When a server needs to stop, the crudest approach is to just kill it — but then work in progress is cut off mid-flight, possibly leaving corrupted data and unanswered requests. **graceful shutdown** is the politer way: on receiving a stop request, don't hard-cut — instead, "**tell everyone to wrap up → wait for work in hand to finish; on timeout, request cancellation of the remaining work**."
 
 Break it into three ingredients:
 
@@ -70,6 +70,14 @@ async fn worker(id: u32, mut shutdown: watch::Receiver<bool>) {
     }
 }
 
+async fn drain_workers(workers: &mut JoinSet<()>) {
+    while let Some(result) = workers.join_next().await {
+        if let Err(error) = result {
+            eprintln!("worker ended abnormally: {}", error);
+        }
+    }
+}
+
 #[tokio::main]
 async fn main() {
     // the watch flag used to broadcast shutdown
@@ -89,31 +97,25 @@ async fn main() {
     shutdown_tx.send(true).expect("no worker is listening");
 
     // 3. wait for all workers to drain, with a 5-second deadline
-    match timeout(Duration::from_secs(5), async {
-        while workers.join_next().await.is_some() {}
-    })
-    .await
-    {
-        Ok(()) => println!("all workers exited cleanly"),
+    match timeout(Duration::from_secs(5), drain_workers(&mut workers)).await {
+        Ok(()) => println!("all workers have ended"),
         Err(_) => {
-            println!("timed out! force-cancelling the remaining workers");
+            println!("drain timed out; requesting cancellation of the remaining workers");
             workers.abort_all();
         }
     }
 }
 ```
 
-You can read `timeout(Duration::from_secs(5), future)` as: "wait at most five seconds for this `future`."
+`timeout(Duration::from_secs(5), future)` sets a five-second deadline for waiting on this `future`.
 
-It is itself a `Future`. If the inner `future` finishes within five seconds, `.await` yields `Ok(the inner output)`; if five seconds pass without it finishing, `.await` yields `Err(_)`. In this example, the inner `future` is:
+It is itself a `Future`. When the wait completes, `.await` yields `Ok(the inner output)`; if the wait times out, it yields `Err(_)`. In this example, the inner `future` is:
 
 ```rust,ignore
-async {
-    while workers.join_next().await.is_some() {}
-}
+drain_workers(&mut workers)
 ```
 
-That is, "keep waiting for workers to finish until the `JoinSet` is empty." So the whole `timeout` reads: **give all workers at most five seconds to wrap themselves up; if they all exit in time, print success — past five seconds, take the `Err(_)` branch and force-cancel whoever's left**.
+That is, "check each worker's completion result until the `JoinSet` is empty." `drain_workers` prints any `JoinError` it receives and keeps waiting for the other workers, so `Ok(())` only means the wait completed, not that every worker ended normally. On timeout, we call `abort_all()` to request cancellation of the remaining `Task`s.
 
 ### The Cancellation Safety Design Point
 
@@ -121,11 +123,11 @@ Here's a key design choice echoing Episodes 27 and 28: **place the `select!` del
 
 If instead you put the real processing inside a branch that can lose to shutdown, operations that aren't safely cancellable — like `read_exact` — could be cut off midway, and the data lost with them. This is the cancellation safety we emphasized earlier, applied concretely to shutdown.
 
-### Always Set a Deadline
+### Set a Deadline for Wrapping Up
 
-Graceful doesn't mean waiting **indefinitely**. If some worker is stuck for good, you can't let the whole program keep it company forever. So the drain must have a **deadline**: above, we wrap the entire drain in `tokio::time::timeout`, and on timeout call `abort_all()` (or just `drop` the `JoinSet` — it cancels the remaining `Task`s for you) to force things closed.
+These five seconds are the waiting period for workers to finish the work in hand on their own. On timeout, we request cancellation of the remaining `Task`s; once cancellation is requested, in-flight work can be interrupted even though `process_job` is outside the `select!`.
 
-The principle in one sentence: **ask politely first; act if that fails**.
+This is not a guaranteed time limit for the whole program to exit. Tokio needs `Task`s to yield control so it can handle scheduling and cancellation; a loop or blocking call that never yields cannot be interrupted immediately by `timeout` or `abort_all()`. A `spawn_blocking` `Task` that has already started cannot be stopped by `abort_all()` either. Returning from `abort_all()` only means cancellation has been requested.
 
 ### A Better-fitting Tool: `CancellationToken`
 
@@ -178,6 +180,14 @@ async fn worker(id: u32, token: CancellationToken) {
     }
 }
 
+async fn drain_workers(workers: &mut JoinSet<()>) {
+    while let Some(result) = workers.join_next().await {
+        if let Err(error) = result {
+            eprintln!("worker ended abnormally: {}", error);
+        }
+    }
+}
+
 #[tokio::main]
 async fn main() {
     let token = CancellationToken::new();
@@ -190,14 +200,10 @@ async fn main() {
     tokio::signal::ctrl_c().await.expect("failed to listen for Ctrl-C");
     token.cancel(); // one command, everyone cancelled
 
-    match timeout(Duration::from_secs(5), async {
-        while workers.join_next().await.is_some() {}
-    })
-    .await
-    {
-        Ok(()) => println!("all exited"),
+    match timeout(Duration::from_secs(5), drain_workers(&mut workers)).await {
+        Ok(()) => println!("all workers have ended"),
         Err(_) => {
-            println!("timed out! force-cancelling the remaining workers");
+            println!("drain timed out; requesting cancellation of the remaining workers");
             workers.abort_all();
         }
     }
@@ -208,8 +214,8 @@ async fn main() {
 
 ## Recap
 
-- graceful shutdown: no hard cut — "signal the wrap-up → wait for completion (or a deadline) → exit cleanly."
-- Three ingredients: signal source (`tokio::signal::ctrl_c()`), broadcasting shutdown (a `watch` flag), waiting for the drain (`JoinSet`'s `join_next()` until empty).
+- Graceful shutdown: signal the wrap-up and wait for work in hand to finish; on timeout, request cancellation of the remaining work.
+- Three ingredients: signal source (`tokio::signal::ctrl_c()`), broadcasting shutdown (a `watch` flag), waiting for the drain (check each result from `join_next()` until the `JoinSet` is empty).
 - `select!` is a good fit for waiting on "the next job" and "shutdown" at once; if the real work can't be safely cancelled, use `select!` only to obtain the job, then leave the `select!` to process it, so shutdown can't `drop` in-flight work midway (cancellation safety).
-- The drain must have a deadline: wrap it in `tokio::time::timeout`, and on timeout `abort_all()` or `drop` the `JoinSet` — ask politely first; act if that fails.
+- Use `timeout` to set the deadline for workers to wrap up on their own; on timeout, request cancellation with `abort_all()`.
 - The better-fitting tool is `tokio_util`'s `CancellationToken`: `token.cancel()` gives the order and every `token.cancelled()` wakes up — semantically a better match than borrowing `watch`.

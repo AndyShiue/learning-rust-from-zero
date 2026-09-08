@@ -8,7 +8,7 @@
 
 ### 什麼是 graceful shutdown
 
-伺服器要關閉時，最粗暴的做法是直接砍掉——但這樣進行到一半的工作就斷在那裡，可能留下壞掉的資料、沒回應完的請求。**graceful shutdown** 是更有禮貌的關法：收到停止要求時不硬切，而是「**通知大家收工 → 等手邊的工作做完（或到期限）→ 乾淨退出**」。
+伺服器要關閉時，最粗暴的做法是直接砍掉——但這樣進行到一半的工作就斷在那裡，可能留下壞掉的資料、沒回應完的請求。**graceful shutdown** 是更有禮貌的關法：收到停止要求時不硬切，而是「**通知大家收工 → 等手邊的工作做完；逾時則要求取消剩餘工作**」。
 
 把它拆成三個要素：
 
@@ -70,6 +70,14 @@ async fn worker(id: u32, mut shutdown: watch::Receiver<bool>) {
     }
 }
 
+async fn drain_workers(workers: &mut JoinSet<()>) {
+    while let Some(result) = workers.join_next().await {
+        if let Err(error) = result {
+            eprintln!("worker 非正常結束：{}", error);
+        }
+    }
+}
+
 #[tokio::main]
 async fn main() {
     // 廣播 shutdown 用的 watch flag
@@ -89,31 +97,25 @@ async fn main() {
     shutdown_tx.send(true).expect("沒有 worker 在聽");
 
     // 3. 等所有 worker drain，但給 5 秒期限
-    match timeout(Duration::from_secs(5), async {
-        while workers.join_next().await.is_some() {}
-    })
-    .await
-    {
-        Ok(()) => println!("所有 worker 都乾淨退出了"),
+    match timeout(Duration::from_secs(5), drain_workers(&mut workers)).await {
+        Ok(()) => println!("所有 worker 均已結束"),
         Err(_) => {
-            println!("逾時！強制取消剩下的 worker");
+            println!("等待收尾逾時，要求取消剩下的 worker");
             workers.abort_all();
         }
     }
 }
 ```
 
-這裡的 `timeout(Duration::from_secs(5), future)` 可以讀成：「最多等這個 `future` 五秒」。
+這裡的 `timeout(Duration::from_secs(5), future)` 是替等待這個 `future` 設定五秒期限。
 
-它自己也是一個 `Future`。如果裡面的 `future` 在五秒內完成，`.await` 會得到 `Ok(裡面的輸出)`；如果五秒到了還沒完成，`.await` 會得到 `Err(_)`。在這個例子裡，裡面的 `future` 是：
+它自己也是一個 `Future`。等待完成時，`.await` 會得到 `Ok(裡面的輸出)`；等待逾時則得到 `Err(_)`。在這個例子裡，裡面的 `future` 是：
 
 ```rust,ignore
-async {
-    while workers.join_next().await.is_some() {}
-}
+drain_workers(&mut workers)
 ```
 
-也就是「一直等 worker 結束，直到 `JoinSet` 空掉」。所以整段 `timeout` 的意思是：**最多等五秒讓所有 worker 自己收尾；五秒內都退完就印成功，超過五秒就進入 `Err(_)`，把剩下的 worker 強制取消**。
+也就是「逐一檢查 worker 的結束結果，直到 `JoinSet` 空掉」。`drain_workers` 會印出收到的 `JoinError`，再繼續等其他 worker，因此 `Ok(())` 只代表等待已完成，不代表每個 worker 都正常結束。逾時後則呼叫 `abort_all()`，要求取消剩餘 `Task`。
 
 ### cancellation safety 的設計重點
 
@@ -121,11 +123,11 @@ async {
 
 如果反過來，把真正的處理流程直接放進會輸給 shutdown 的 branch，像 `read_exact` 這類不可安全取消的操作就可能被砍在半路，資料也跟著掉了。這就是前面強調過的 cancellation safety 在 shutdown 上的具體應用。
 
-### 一定要給期限
+### 設定等待收尾的期限
 
-graceful 不代表**無限期**等。萬一某個 worker 卡死了，你不能讓整個程式陪它一直耗下去。所以 drain 一定要**給期限**：上面用 `tokio::time::timeout` 把整個 drain 包起來，逾時就 `abort_all()`（或直接 `drop` 掉 `JoinSet`，它會自動取消剩下的 `Task`）強制收掉。
+這五秒是讓 worker 自行完成手邊工作的等待期限。逾時後，我們要求取消剩餘 `Task`；進入取消階段後，即使 `process_job` 放在 `select!` 外面，處理中的工作仍可能被中斷。
 
-一句話總結這個原則：**先禮貌地等，等不到就動手**。
+這不是整個程式保證退出的時間上限。Tokio 需要 `Task` 配合讓出執行權，才能處理排程與取消；一直不讓出的迴圈或阻塞呼叫，不能靠 `timeout` 或 `abort_all()` 立即中斷。已開始執行的 `spawn_blocking` 工作也不能靠 `abort_all()` 停止。`abort_all()` 返回只代表提出取消要求。
 
 ### 更匹配的工具：`CancellationToken`
 
@@ -178,6 +180,14 @@ async fn worker(id: u32, token: CancellationToken) {
     }
 }
 
+async fn drain_workers(workers: &mut JoinSet<()>) {
+    while let Some(result) = workers.join_next().await {
+        if let Err(error) = result {
+            eprintln!("worker 非正常結束：{}", error);
+        }
+    }
+}
+
 #[tokio::main]
 async fn main() {
     let token = CancellationToken::new();
@@ -190,14 +200,10 @@ async fn main() {
     tokio::signal::ctrl_c().await.expect("監聽 Ctrl-C 失敗");
     token.cancel(); // 一聲令下，全部取消
 
-    match timeout(Duration::from_secs(5), async {
-        while workers.join_next().await.is_some() {}
-    })
-    .await
-    {
-        Ok(()) => println!("全部退出"),
+    match timeout(Duration::from_secs(5), drain_workers(&mut workers)).await {
+        Ok(()) => println!("所有 worker 均已結束"),
         Err(_) => {
-            println!("逾時！強制取消剩下的 worker");
+            println!("等待收尾逾時，要求取消剩下的 worker");
             workers.abort_all();
         }
     }
@@ -208,8 +214,8 @@ async fn main() {
 
 ## 重點整理
 
-- graceful shutdown：不硬切，而是「通知收工 → 等做完（或到期限）→ 乾淨退出」。
-- 三要素：訊號來源（`tokio::signal::ctrl_c()`）、廣播 shutdown（`watch` flag）、等待 drain（`JoinSet` 的 `join_next()` 到全空）。
+- graceful shutdown：通知收工，等待手邊工作完成；逾時則要求取消剩餘工作。
+- 三要素：訊號來源（`tokio::signal::ctrl_c()`）、廣播 shutdown（`watch` flag）、等待 drain（用 `join_next()` 逐一檢查結果，直到 `JoinSet` 空掉）。
 - `select!` 適合用來同時等「下一份工作」與「shutdown」；若真正的工作不能安全取消，就先用 `select!` 拿到工作，再離開 `select!` 處理，避免 shutdown 把處理中的工作 `drop` 在半路（cancellation safety）。
-- drain 一定要給期限：用 `tokio::time::timeout` 包住，逾時就 `abort_all()` 或 `drop` `JoinSet`——先禮貌地等，等不到就動手。
+- 用 `timeout` 設定自行收尾的期限，逾時後用 `abort_all()` 要求取消。
 - 更匹配的工具是 `tokio_util` 的 `CancellationToken`：`token.cancel()` 一聲令下，所有 `token.cancelled()` 都醒來，語意比借 `watch` 更貼切。
