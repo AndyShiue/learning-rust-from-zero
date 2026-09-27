@@ -1,6 +1,7 @@
 # `FnOnce` / `FnMut` / `Fn`
 
 ## Goal of This Episode
+
 Understand that `FnOnce`, `FnMut`, and `Fn` are `trait`s rather than types, grasp their inheritance relationships, and learn to choose the right closure `trait`.
 
 ## Concept

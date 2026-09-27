@@ -1,6 +1,7 @@
 # `FnOnce` / `FnMut` / `Fn`
 
 ## 本集目標
+
 理解 `FnOnce`、`FnMut`、`Fn` 是 `trait` 而非型別，掌握它們的繼承關係，並學會選擇正確的閉包 `trait`。
 
 ## 概念說明

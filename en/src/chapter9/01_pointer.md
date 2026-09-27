@@ -10,7 +10,7 @@ In earlier chapters, using `&T`, `Box<T>`, and `Rc<T>`, we cared about "who owns
 
 The DST introduction in Appendix I touched on DSTs and fat pointers. If that felt hazy at the time, that's normal — we hadn't formally introduced pointers yet. This episode fills in that foundation.
 
-> This chapter uses a simplified model of memory and addresses. What compilers and hardware do during actual execution is much more complex, but we will not go into those details here.
+> This episode uses a simplified model of memory and addresses. What compilers and hardware do during actual execution is much more complex, but we will not go into those details here.
 
 ### Memory Addresses
 

@@ -1,6 +1,7 @@
 # `mpsc`
 
 ## Goal of This Episode
+
 Learn to make `Thread`s communicate by passing messages through channels, and how this compares to shared memory.
 
 ## Concept
