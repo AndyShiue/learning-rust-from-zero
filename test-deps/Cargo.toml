@@ -1,7 +1,7 @@
 # This small crate exists only so `mdbook test` can link the external crates
 # used by the book's examples. List dependencies here and run `cargo build`;
-# the compiled .rlib files will be placed in target/debug/deps for
-# `mdbook test -L` to use.
+# then collect the compiled .rlib files into target/mdbook-deps for
+# `mdbook test -L` to use (see BUILD.md).
 #
 # Add any other packages needed by the examples to [dependencies] below.
 [package]

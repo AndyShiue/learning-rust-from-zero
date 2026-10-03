@@ -12,8 +12,8 @@ the generated books. Install the same versions and select the pinned Rust
 toolchain for the current shell:
 
 ```bash
-rustup toolchain install 1.98.0 --profile minimal --no-self-update
-export RUSTUP_TOOLCHAIN=1.98.0
+rustup toolchain install 1.100.0 --profile minimal --no-self-update
+export RUSTUP_TOOLCHAIN=1.100.0
 cargo install mdbook --version 0.5.4 --locked
 ```
 
@@ -113,17 +113,24 @@ it automatically.
 Both editions share the external crates declared in the root `test-deps/`
 crate. The committed `test-deps/Cargo.lock` keeps CI dependency resolution
 reproducible. Build the locked dependencies once before running the mdBook
-tests:
+tests. Cargo keeps each compiled library in its own directory under
+`test-deps/target/debug/build/`, so collect them into one directory that
+`mdbook test -L` can search:
 
 ```bash
 cargo build --locked --manifest-path test-deps/Cargo.toml
+rm -rf test-deps/target/mdbook-deps
+mkdir -p test-deps/target/mdbook-deps
+find test-deps/target/debug/build -type f \
+  \( -name '*.rlib' -o -name '*.rmeta' -o -name '*.so' \) \
+  -exec cp -t test-deps/target/mdbook-deps {} +
 ```
 
 Then test both editions against the same compiled dependencies:
 
 ```bash
-(cd zh-TW && mdbook test -L ../test-deps/target/debug/deps)
-(cd en && mdbook test -L ../test-deps/target/debug/deps)
+(cd zh-TW && mdbook test -L ../test-deps/target/mdbook-deps)
+(cd en && mdbook test -L ../test-deps/target/mdbook-deps)
 ```
 
 ## HTML books

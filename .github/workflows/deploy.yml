@@ -15,7 +15,7 @@ concurrency:
 env:
   # Keep CI reproducible; update these pins deliberately when new releases
   # have been checked against both editions.
-  RUSTUP_TOOLCHAIN: "1.98.0"
+  RUSTUP_TOOLCHAIN: "1.100.0"
   MDBOOK_VERSION: "0.5.4"
   NOTO_CJK_REVISION: "f8d157532fbfaeda587e826d4cd5b21a49186f7c"
   NOTO_SANS_CJK_TC_REGULAR_SHA256: "dce08bd4fd91aa8aa76ed8fea4b694c2dfb8550f67871e326843212ddbeb88b4"
@@ -71,6 +71,15 @@ jobs:
         run: |
           python3 -B scripts/prepare_mdbook_assets.py
           cargo build --locked --manifest-path test-deps/Cargo.toml
+          # Cargo 1.100 keeps each library under target/debug/build/<pkg>/<hash>/out/
+          # rather than target/debug/deps/, so collect them into one directory
+          # for `mdbook test -L`.
+          rm -rf test-deps/target/mdbook-deps
+          mkdir -p test-deps/target/mdbook-deps
+          find test-deps/target/debug/build -type f \
+            \( -name '*.rlib' -o -name '*.rmeta' -o -name '*.so' \) \
+            -exec cp -t test-deps/target/mdbook-deps {} +
+          ls test-deps/target/mdbook-deps/*.rlib > /dev/null
           mkdir -p build/fonts
           curl -L --fail --retry 3 --retry-delay 2 \
             --output build/fonts/NotoSansCJKtc-Regular.otf \
@@ -88,7 +97,7 @@ jobs:
       - name: Build Traditional Chinese edition
         working-directory: zh-TW
         run: |
-          mdbook test -L ../test-deps/target/debug/deps
+          mdbook test -L ../test-deps/target/mdbook-deps
           mdbook build
           bash ../scripts/build_print.sh zh-TW
           cp book/rust-book-a4.pdf book/book.pdf
@@ -97,7 +106,7 @@ jobs:
       - name: Build English edition
         working-directory: en
         run: |
-          mdbook test -L ../test-deps/target/debug/deps
+          mdbook test -L ../test-deps/target/mdbook-deps
           mdbook build
           python3 scripts/check_pdf_code_lines.py
           bash ../scripts/build_print.sh en
