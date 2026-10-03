@@ -34,5 +34,5 @@ Finally, let me mention the interactive features I referred to above, since othe
 
 Apart from the outline, the first draft of this tutorial was written by AI and revised by humans:
 
-- Models: Claude 4.5 ~ 5 / GPT-5.5 ~ 6
+- Models: Claude 4.5 ~ 5.5 / GPT-5.5 ~ 6
 - Harnesses: OpenClaw / Claude Code / ChatGPT (Codex)
