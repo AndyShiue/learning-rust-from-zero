@@ -40,7 +40,7 @@ rustc --version
 如果你看到類似這樣的東西：
 
 ```ignore
-rustc 1.XX.X (xxxxxxx 20XX-XX-XX)
+rustc 1.XXX.X (xxxxxxx 20XX-XX-XX)
 ```
 
 恭喜你！Rust 已經裝好了！
